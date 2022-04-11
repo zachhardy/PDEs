@@ -15,7 +15,7 @@ enum class CellType
 };
 
 
-/// Get the Cell cell_type as a string.
+/// Get the Cell type as a string.
 std::string cell_type_name(const CellType cell_type);
 
 

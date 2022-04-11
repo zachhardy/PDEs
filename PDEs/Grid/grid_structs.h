@@ -5,6 +5,7 @@
 #include <vector>
 #include <memory>
 
+
 /// Coordinate system types.
 enum class CoordinateSystem
 {
@@ -13,13 +14,19 @@ enum class CoordinateSystem
   SPHERICAL   = 3   ///< \f$ (r, \varphi, \theta) \f$ coordinates
 };
 
+/// Get the coordinate system type as a string.
+std::string coordinate_system_name(const CoordinateSystem coordinate_system);
+
+// Typedefs for Point
 class Point;
 typedef Point Vertex;
 typedef Point Centroid;
 typedef Point Normal;
 
+// Forward declarations
+class Face;
+class Cell;
 class Mesh;
-
 
 /// Create a 1D mesh from a list of vertices.
 std::shared_ptr<Mesh>

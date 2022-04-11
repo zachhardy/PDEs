@@ -7,7 +7,7 @@
 #include <memory>
 
 /// Types of spatial discretizations.
-enum class SpatialDiscretizationType
+enum class SpatialDiscretizationMethod
 {
   FINITE_VOLUME                   = 1,  ///< Finite volume (FV)
   PIECEWISE_LINEAR_CONTINUOUS     = 2,  ///< Linear continuous (PWLC)
@@ -15,6 +15,11 @@ enum class SpatialDiscretizationType
   LAGRANGE_CONTINUOUS             = 4,  ///< Continuous finite elements (CFEM)
   LAGRANGE_DISCONTINUOUS          = 5   ///< Discontinuous finite elements (DFEM)
 };
+
+
+/// Get the spatial discretization type as a string
+std::string spatial_discretization_method_name(
+    const SpatialDiscretizationMethod discretization_method);
 
 
 //################################################## Class def
@@ -30,9 +35,9 @@ class SpatialDiscretization
 {
 public:
   const std::shared_ptr<Mesh> mesh; ///< A pointer to the Mesh.
-  const SpatialDiscretizationType type; ///< The SpatialDiscretization type.
+  const SpatialDiscretizationMethod type; ///< The SpatialDiscretization type.
 
-public:   /*---------- Constructors, Destructors, and Assignment ----------*/
+public:
   /**
    * \brief Default constructor.
    * \param in_mesh The spatial mesh being discretized.
@@ -40,12 +45,11 @@ public:   /*---------- Constructors, Destructors, and Assignment ----------*/
    */
   explicit
   SpatialDiscretization(const std::shared_ptr<Mesh> reference_mesh,
-                        const SpatialDiscretizationType discretization_type)
+                        const SpatialDiscretizationMethod discretization_type)
     : mesh(reference_mesh), type(discretization_type)
   {}
 
-public:   /*---------- Routines ----------*/
-
+public:
   /**
    * \brief Get the number of nodes in the discretization.
    *
