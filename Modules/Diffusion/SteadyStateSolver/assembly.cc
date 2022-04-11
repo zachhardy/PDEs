@@ -6,7 +6,7 @@ void diffusion::SteadyStateSolver::assemble_matrix()
 {
   switch (discretization->type)
   {
-    case SpatialDiscretizationType::FINITE_VOLUME:
+    case SpatialDiscretizationMethod::FINITE_VOLUME:
     {
       fv_assemble_matrix();
       break;
@@ -22,7 +22,7 @@ void diffusion::SteadyStateSolver::assemble_rhs_vector()
 {
   switch (discretization->type)
   {
-    case SpatialDiscretizationType::FINITE_VOLUME:
+    case SpatialDiscretizationMethod::FINITE_VOLUME:
     {
       fv_assemble_rhs_vector();
       break;

@@ -1,7 +1,6 @@
 #include "grid_structs.h"
 
 #include "material.h"
-#include "material_property.h"
 #include "CrossSections/cross_sections.h"
 
 #include "FiniteVolume/finite_volume.h"

@@ -3,7 +3,6 @@
 
 void diffusion::SteadyStateSolver::check_inputs()
 {
-  typedef SpatialDiscretizationType SDType;
   // Check the mesh
   if (mesh == nullptr)
   {
@@ -28,7 +27,7 @@ void diffusion::SteadyStateSolver::check_inputs()
         << "No discretization available to the solver.";
     throw std::runtime_error(err.str());
   }
-  if (discretization->type != SDType::FINITE_VOLUME)
+  if (discretization->type != SpatialDiscretizationMethod::FINITE_VOLUME)
   {
     std::stringstream err;
     err << solver_string << "::" << __FUNCTION__ << ": "

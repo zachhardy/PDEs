@@ -22,7 +22,7 @@ public:   /*---------- Constructors, Destructors, and Assignment ----------*/
   /// Default constructor.
   explicit FiniteVolume(std::shared_ptr<Mesh> reference_mesh)
     : SpatialDiscretization(reference_mesh,
-                            SpatialDiscretizationType::FINITE_VOLUME)
+                            SpatialDiscretizationMethod::FINITE_VOLUME)
   {}
 
 public: /*---------- Routines ----------*/
