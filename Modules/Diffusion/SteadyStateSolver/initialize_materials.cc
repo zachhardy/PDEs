@@ -36,7 +36,7 @@ void diffusion::SteadyStateSolver::initialize_materials()
     for (const auto& property : material->properties)
     {
       // Handle cross sections
-      if (property->type == PropertyType::CROSS_SECTIONS)
+      if (property->type == MaterialPropertyType::CROSS_SECTIONS)
       {
         auto xs = std::static_pointer_cast<CrossSections>(property);
         material_xs.push_back(xs);
@@ -46,7 +46,7 @@ void diffusion::SteadyStateSolver::initialize_materials()
       }
 
       // Handle isotropic multigroup sources
-      else if (property->type == PropertyType::ISOTROPIC_MG_SOURCE)
+      else if (property->type == MaterialPropertyType::ISOTROPIC_MG_SOURCE)
       {
         auto src = std::static_pointer_cast<IsotropicMGSource>(property);
         material_src.push_back(src);

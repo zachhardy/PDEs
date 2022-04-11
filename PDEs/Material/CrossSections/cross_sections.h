@@ -87,14 +87,14 @@ public:
 
 public:
   /// Default constructor.
-  CrossSections() : MaterialProperty(PropertyType::CROSS_SECTIONS) {}
+  CrossSections() : MaterialProperty(MaterialPropertyType::CROSS_SECTIONS) {}
 
   /**
    * \brief Construct a named property.
    * \param property_name A name for identification purposes.
    */
   explicit CrossSections(const std::string property_name)
-    : MaterialProperty(property_name, PropertyType::CROSS_SECTIONS)
+    : MaterialProperty(property_name, MaterialPropertyType::CROSS_SECTIONS)
   {}
 
   /// Clear all properties.
