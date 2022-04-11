@@ -1,0 +1,13 @@
+bin
+build
+lib
+
+doc/html
+doc/latex
+
+Makefile
+cmake-build-debug
+
+.DS_Store
+.idea
+.git
