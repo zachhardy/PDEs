@@ -7,6 +7,8 @@
 
 #include "Diffusion/SteadyStateSolver/steadystate_solver.h"
 
+#include "Math/LinearSolvers/gauss_elimination.h"
+
 #include <iostream>
 #include <vector>
 
@@ -51,13 +53,14 @@ int main(int argc, char** argv)
     // Boundaries
     solver.boundary_info.emplace_back(BoundaryType::REFLECTIVE,
                                       std::vector<std::vector<double>>());
-    solver.boundary_info.emplace_back(BoundaryType::ZERO_FLUX,
+    solver.boundary_info.emplace_back(BoundaryType::REFLECTIVE,
                                       std::vector<std::vector<double>>());
 
     // Run the problem
     solver.initialize();
     solver.execute();
 
+    std::cout << "Final Solution:\n" << solver.phi.to_string();
   }
   catch (std::exception &exc) {
     std::cerr << std::endl

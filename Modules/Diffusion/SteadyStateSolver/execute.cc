@@ -1,5 +1,7 @@
 #include "steadystate_solver.h"
 
+#include "LinearSolvers/gauss_elimination.h"
+
 #include <iomanip>
 
 void diffusion::SteadyStateSolver::execute()
@@ -9,6 +11,7 @@ void diffusion::SteadyStateSolver::execute()
   assemble_matrix();
   assemble_rhs_vector();
 
-  std::cout << "Matrix:\n" << system_matrix.to_string();
-  std::cout << "Vector:\n" << system_rhs.to_string();
+  GaussElimination linear_solver(system_matrix, system_rhs, false, true);
+  linear_solver.setup();
+  phi = linear_solver.solve();
 }
