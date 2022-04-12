@@ -7,6 +7,9 @@
 //######################################################################
 class GaussElimination : public LinearSolver
 {
+protected:
+  std::vector<size_t> P;
+
 public:
   bool with_pivoting = false;
   bool with_normalization = false;

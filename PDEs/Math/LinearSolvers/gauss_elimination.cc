@@ -5,9 +5,11 @@
 void GaussElimination::row_echelon()
 {
   size_t n = A.n_rows();
-  size_t pivot = 0;
+  for (size_t i = 0; i < n; ++i)
+    P.emplace_back(i);
 
   // While the number of pivots is less than the dimension of the system...
+  size_t pivot = 0;
   while (pivot < n)
   {
     /* Find the row with the largest pivot column entry magnitude. */
@@ -31,7 +33,11 @@ void GaussElimination::row_echelon()
       /* Swap the current row and the row containing the largest magnitude
        * entry corresponding to the pivot column. This is done to improve the
        * numerical stability of the algorithm. */
-      if (with_pivoting) A.swap_row(pivot, argmax);
+      if (with_pivoting)
+      {
+        std::swap(P[pivot], P[argmax]);
+        A.swap_row(pivot, argmax);
+      }
 
       /* Normalize the current pivot equation. */
       if (with_normalization)
@@ -53,7 +59,6 @@ void GaussElimination::row_echelon()
           A[i][j] -= A[pivot][j] * factor;
         b[i] -= b[pivot] * factor;
       }
-
       ++pivot;
     }
   }
@@ -66,6 +71,10 @@ Vector GaussElimination::backward_substitution_solve()
   size_t n = A.n_rows();
   Vector x(n, 0.0);
 
+  /* The row-echelon system is upper triangular. The bottom equation is
+   * not coupled to any other unknowns, so it is solved first. All subsequent
+   * equations depend on those prior, and therefore, can be directly computed
+   * with previous results. */
   for (int i = n - 1; i >= 0; --i)
   {
     double value = b[i];
@@ -73,5 +82,11 @@ Vector GaussElimination::backward_substitution_solve()
       value -= A[i][j] * x[j];
     x[i] = value / A[i][i];
   }
+
+  /* Map a pivoted solution back to the original ordering. */
+  if (with_pivoting)
+    for (size_t i = 0; i < n; ++i)
+      x[P[i]] = x[i];
+
   return x;
 }
