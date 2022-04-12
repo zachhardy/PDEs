@@ -178,6 +178,7 @@ public:
   bool empty() const { return m_data.empty(); }
 
   /** @} */
+public:
   /** \name Iterators */
   /** @{ */
 
@@ -368,6 +369,30 @@ public:
     return v;
   }
 
+  /**
+   * \brief Return the transpose of a matrix.
+   * \f[ \boldsymbol{B} = \boldsymbol{A}^T \\
+   *     b_{ij} = a_{ji}, \hspace{0.25cm} \forall i, j
+   * \f]
+   */
+  Matrix transpose() const
+  {
+    Matrix m(this->n_cols(), this->n_rows(), 0.0);
+    for (size_t i = 0; i < m.n_rows(); ++i)
+      for (size_t j = 0; j < m.n_cols(); ++j)
+        m[i][j] = m_data[j][i];
+    return m;
+  }
+  /// See \ref transpose() const
+  Matrix& transpose()
+  {
+    Matrix m(this->n_cols(), this->n_rows(), 0.0);
+    for (size_t i = 0; i < m.n_rows(); ++i)
+      for (size_t j = 0; j < m.n_cols(); ++j)
+        m[i][j] = m_data[j][i];
+    return this->operator=(m);
+  }
+
   /** @} */
 public:
   /** \name Miscellaneous Routines */
@@ -427,6 +452,33 @@ public:
       m_data[i][i] = value;
   }
 
+  /// Swap two rows.
+  void swap_row(size_t row0, size_t row1)
+  {
+    if (row0 > this->n_rows() or row1 > this->n_rows())
+    {
+      std::stringstream err;
+      err << "Matrix::" << __FUNCTION__ << ": "
+          << "Invalid row index encountered.";
+      throw std::length_error(err.str());
+    }
+    std::swap(m_data[row0], m_data[row1]);
+  }
+
+  /// Swap two columns.
+  void swap_column(size_t col0, size_t col1)
+  {
+    if (col0 > this->n_cols() or col1 > this->n_cols())
+    {
+      std::stringstream err;
+      err << "Matrix::" << __FUNCTION__ << ": "
+          << "Invalid column index encountered.";
+      throw std::length_error(err.str());
+    }
+    for (size_t i = 0; i < this->n_rows(); ++i)
+      std::swap(m_data[i][col0], m_data[i][col1]);
+  }
+
   /// Return the number of non-zeros.
   size_t nnz() const
   {
@@ -453,7 +505,7 @@ public:
     {
       ss << ((i == 0)? "[" : " [");
       for (size_t j = 0; j < m_data[i].size() - 1; ++j)
-        ss << std::setw(8) << m_data[i][j] << " ";
+        ss << m_data[i][j] << " ";
       ss << m_data[i].back() << "]"
          << ((i == m_data.size()-1)? "]\n" : "\n");
     }
@@ -523,6 +575,5 @@ private:
     throw std::length_error(err.str());
   }
 };
-
 
 #endif //MATRIX_H
