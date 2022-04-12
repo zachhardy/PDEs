@@ -64,6 +64,7 @@ include_directories("${PROJECT_SOURCE_DIR}/PDEs")
 include_directories("${PROJECT_SOURCE_DIR}/PDEs/Grid")
 include_directories("${PROJECT_SOURCE_DIR}/PDEs/SpatialDiscretization")
 include_directories("${PROJECT_SOURCE_DIR}/PDEs/Material")
+include_directories("${PROJECT_SOURCE_DIR}/PDEs/Math")
 
 include_directories("${PROJECT_SOURCE_DIR}/Modules")
 
@@ -73,6 +74,7 @@ set(SOURCES)
 add_subdirectory("${PROJECT_SOURCE_DIR}/PDEs/Grid")
 add_subdirectory("${PROJECT_SOURCE_DIR}/PDEs/SpatialDiscretization")
 add_subdirectory("${PROJECT_SOURCE_DIR}/PDEs/Material")
+add_subdirectory("${PROJECT_SOURCE_DIR}/PDEs/Math")
 
 add_subdirectory("${PROJECT_SOURCE_DIR}/Modules")
 
