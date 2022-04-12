@@ -4,7 +4,7 @@
 std::string spatial_discretization_method_name(
     const SpatialDiscretizationMethod discretization_method)
 {
-  switch (spatial_discretization_method)
+  switch (discretization_method)
   {
     case SpatialDiscretizationMethod::FINITE_VOLUME:
       return "FINITE_VOLUME";
