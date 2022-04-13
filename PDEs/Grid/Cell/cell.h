@@ -50,12 +50,11 @@ public:   /*---------- Public Attributes ----------*/
   int material_id = 0; ///< A tag to identify the correct material properties.
 
   // Geometric information
-  Centroid  centroid;
-  double volume = 0.0;
+  Centroid  centroid; ///< The centroid of the cell.
+  double volume = 0.0; ///< The volume of the cell.
 
-  /// A mapping to the Vertex objects contained within the Mesh object.
-  std::vector<size_t> vertex_ids;
-  std::vector<Face> faces;
+  std::vector<size_t> vertex_ids; ///< The vertex IDs that belong to the cell.
+  std::vector<Face> faces; ///< The faces that bound the cell.
 
 public:   /*---------- Constructors, Destructors, and Assignments ----------*/
 

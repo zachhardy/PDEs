@@ -20,36 +20,26 @@ class Face
 {
 public:   /*---------- Public Members ----------*/
 
-  /// A mapping to the Vertex objects contained within the Mesh object.
+  /// The vertices which belong to this face.
   std::vector<size_t> vertex_ids;
 
-  // Neighbor information
-  /// Flag for whether a neighbor exists. If false, this is a boundary.
+  /// Flag for whether a neighbor cell exists. If false, this is a boundary.
   bool has_neighbor = false;
-  /// The `id` of the neighbor. For boundary cells, this is a boundary ID.
+  /// The cell ID of the neighbor. For boundary cells, this is a boundary ID.
   size_t neighbor_id = 0;
 
-  // Geometric information
-  Normal normal;   ///< The outward-pointing normal vector.
-  Centroid centroid;
-  double area = 0.0;
+
+  Normal normal; ///< The face's outward pointing normal vector.
+  Centroid centroid; ///< The centroid of the face.
+  double area = 0.0; ///< The area of the face.
 
 public:   /*---------- Constructors, Destructors, and Assignments ----------*/
 
-  /// Default constructor.
-  Face() = default;
-
-  /// Copy constructor.
-  Face(const Face& other);
-
-  /// Move constructor.
-  Face(Face&& other);
-
-  /// Default destructor.
-  ~Face() = default;
-
-  /// Assignment operator.
-  Face& operator=(const Face& other);
+  Face() = default; ///< Default constructor.
+  Face(const Face& other); ///< Copy constructor.
+  Face(Face&& other); ///< Move constructor.
+  Face& operator=(const Face& other); ///< Assignment operator.
+  ~Face() = default; ///< Default destructor.
 
 public:   /*---------- Routines ----------*/
 

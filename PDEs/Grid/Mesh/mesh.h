@@ -31,7 +31,7 @@ public:   /*---------- Public Attributes ----------*/
   /// The collection of Cell objects that define the Mesh.
   std::vector<std::shared_ptr<Cell>> cells;
 
-  /// List of the ids of the boundary cells.
+  /// The IDs of the cells that lie on the boundary.
   std::vector<size_t> boundary_cell_ids;
 
 public:   /*---------- Constructors, Destructors, and Assignments ----------*/
@@ -47,7 +47,7 @@ public:   /*---------- Constructors, Destructors, and Assignments ----------*/
 
 public:   /*---------- Routines ----------*/
 
-   /// Compute the geometric information for the cells and faces.
+  /// Compute the geometric information for the cells and faces.
   void compute_geometric_info();
 
   /// Establish the relationships between cells and their neighbors.
