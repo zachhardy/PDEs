@@ -4,6 +4,8 @@
 #include "../matrix.h"
 #include "../vector.h"
 
+namespace linear_solver
+{
 
 //######################################################################
 /**
@@ -19,7 +21,8 @@ protected:
 
 public:
   /// Default constructor with a matrix and right-hand side.
-  LinearSolver(Matrix& matrix, Vector& rhs) : A(matrix), b(rhs)
+  LinearSolver(Matrix& matrix, Vector& rhs)
+      : A(matrix), b(rhs)
   {
     if (A.n_rows() != A.n_cols() or A.n_rows() != b.size())
     {
@@ -36,5 +39,7 @@ public:
   virtual void setup() = 0; ///< Abstract setup method.
   virtual Vector solve() = 0; ///< Abstract solve method.
 };
+
+}
 
 #endif //LINEAR_SOLVER_H
