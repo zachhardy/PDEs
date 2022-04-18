@@ -29,21 +29,18 @@ public:   /*---------- Public Members ----------*/
   size_t neighbor_id = 0;
 
 
-  Normal normal; ///< The face's outward pointing normal vector.
+  Normal normal;     ///< The face's outward pointing normal vector.
   Centroid centroid; ///< The centroid of the face.
   double area = 0.0; ///< The area of the face.
 
-public:   /*---------- Constructors, Destructors, and Assignments ----------*/
+public:
+  Face() = default;                    ///< Default constructor.
+  Face(const Face& other);             ///< Copy constructor.
+  Face(Face&& other);                  ///< Move constructor.
+  Face& operator=(const Face& other);  ///< Assignment operator.
 
-  Face() = default; ///< Default constructor.
-  Face(const Face& other); ///< Copy constructor.
-  Face(Face&& other); ///< Move constructor.
-  Face& operator=(const Face& other); ///< Assignment operator.
-  ~Face() = default; ///< Default destructor.
-
-public:   /*---------- Routines ----------*/
-
-  /// Get the Face information as a string.
+public:
+  /// Get the contents of the Face to a string.
   std::string to_string() const;
 };
 

@@ -6,7 +6,7 @@
 
 #include <vector>
 
-/// Different Cell types avaialable.
+/// The available Cell types.
 enum class CellType
 {
   SLAB = 1,     ///< 1D Cartesian geometry.
@@ -14,11 +14,10 @@ enum class CellType
   SHELL = 3     ///< 1D spherical geometry.
 };
 
-
-/// Get the Cell type as a string.
 std::string cell_type_name(const CellType cell_type);
 
 
+//######################################################################
 /**
  * \brief A class representing a cell on a Mesh.
  *
@@ -43,20 +42,20 @@ std::string cell_type_name(const CellType cell_type);
  */
 class Cell
 {
-public:   /*---------- Public Attributes ----------*/
+public:
 
   const CellType type; ///< The type of the cell.
-  size_t id; ///< A unique identifier tag.
-  int material_id = 0; ///< A tag to identify the correct material properties.
+  size_t id;           ///< A unique identifier tag.
+  int material_id = 0; ///< A tag to map to material properties.
 
   // Geometric information
-  Centroid  centroid; ///< The centroid of the cell.
+  Centroid  centroid;   ///< The centroid of the cell.
   double volume = 0.0; ///< The volume of the cell.
 
   std::vector<size_t> vertex_ids; ///< The vertex IDs that belong to the cell.
-  std::vector<Face> faces; ///< The faces that bound the cell.
+  std::vector<Face> faces;        ///< The faces that bound the cell.
 
-public:   /*---------- Constructors, Destructors, and Assignments ----------*/
+public:
 
   /**
    * \brief Default constructor.
@@ -66,18 +65,12 @@ public:   /*---------- Constructors, Destructors, and Assignments ----------*/
     : type(cell_type)
   {}
 
-  /// Copy constructor.
-  Cell(const Cell& other);
+  Cell(const Cell& other);            ///< Copy constructor.
+  Cell(Cell&& other);                 ///< Move constructor.
+  Cell& operator=(const Cell& other); ///< Assignment operator.
 
-  /// Move constructor.
-  Cell(Cell&& other);
-
-  /// Assignment operator.
-  Cell& operator=(const Cell& other);
-
-public:   /*---------- Routines ----------*/
-
-  /// Get the Cell information as a string.
+public:
+  /// Print the contents of the Cell to a string.
   std::string to_string() const;
 };
 

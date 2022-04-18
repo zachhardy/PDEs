@@ -3,6 +3,8 @@
 #include <cmath>
 
 
+//######################################################################
+/// Get the Cell type as a string.
 std::string cell_type_name(const CellType cell_type)
 {
   switch (cell_type)
@@ -15,7 +17,7 @@ std::string cell_type_name(const CellType cell_type)
 }
 
 
-//############################################################
+//######################################################################
 Cell::Cell(const Cell& other)
   : type(other.type),
     id(other.id),
@@ -27,7 +29,7 @@ Cell::Cell(const Cell& other)
 {}
 
 
-//############################################################
+//######################################################################
 Cell::Cell(Cell&& other)
     : type(other.type),
     id(other.id),
@@ -39,7 +41,7 @@ Cell::Cell(Cell&& other)
 {}
 
 
-//############################################################
+//######################################################################
 Cell& Cell::operator=(const Cell& other)
 {
   id = other.id;
@@ -52,7 +54,7 @@ Cell& Cell::operator=(const Cell& other)
 }
 
 
-//############################################################
+//######################################################################
 std::string Cell::to_string() const
 {
   std::stringstream ss;
