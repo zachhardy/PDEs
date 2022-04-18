@@ -1,8 +1,26 @@
-#include "gauss_elimination.h"
-
+#include "gaussian_elimination.h"
 
 //######################################################################
-void GaussElimination::row_echelon()
+/**
+ * The setup routine factors the system into row-echelon form so that
+ * back-substitution can be used to solve the system.
+ * \see row_echelon
+ */
+void linear_solver::GaussianElimination::setup()
+{
+  if (not initailized)
+  {
+    std::stringstream err;
+    err << "GaussianElimination::" << __FUNCTION__ << ": "
+        << "No matrix available to compute the row-echelon form.";
+    throw std::runtime_error(err.str());
+  }
+  row_echelon();
+}
+
+//######################################################################
+
+void linear_solver::GaussianElimination::row_echelon()
 {
   size_t n = A.n_rows();
   for (size_t i = 0; i < n; ++i)
@@ -64,9 +82,9 @@ void GaussElimination::row_echelon()
   }
 }
 
-
 //######################################################################
-Vector GaussElimination::backward_substitution_solve()
+
+Vector linear_solver::GaussianElimination::back_substitution()
 {
   size_t n = A.n_rows();
   Vector x(n, 0.0);
