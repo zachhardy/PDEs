@@ -5,11 +5,6 @@
 #include <numeric>
 
 //######################################################################
-/**
- * \param vertices A list of vertex locations.
- * \param coordinate_system The coordinate system type. The default is
- *                          Cartesian coordinates.
- */
 std::shared_ptr<Mesh>
 create_1d_mesh(const std::vector<double>& vertices,
                const CoordinateSystem coordinate_system)
@@ -122,14 +117,6 @@ create_1d_mesh(const std::vector<double>& vertices,
 /**
  * Zones are defined by edges, a number of subdivisions (cells), and a
  * material ID. This allows for non-uniform cells throughout the mesh and
- *
- *
- * \param zone_edges The edges of mesh zones. There should be one more
- *                   zone edge than number of zones.
- * \param zone_subdivisions The number of cells per zone.
- * \param material_ids The material ID per zone.
- * \param coordinate_system The coordinate system type. The default is
- *                          Cartesian coordinates.
  */
 std::shared_ptr<Mesh>
 create_1d_mesh(const std::vector<double>& zone_edges,

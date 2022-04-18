@@ -1,7 +1,5 @@
 #include "grid_structs.h"
 
-
-//######################################################################
 std::string coordinate_system_name(const CoordinateSystem coordinate_system)
 {
   switch (coordinate_system)

@@ -17,24 +17,39 @@ enum class CoordinateSystem
 /// Get the coordinate system type as a string.
 std::string coordinate_system_name(const CoordinateSystem coordinate_system);
 
-// Typedefs for Point
+//######################################################################
+
 class Point;
 typedef Point Vertex;
 typedef Point Centroid;
 typedef Point Normal;
 
-// Forward declarations
 class Face;
 class Cell;
 class Mesh;
 
-/// Create a 1D mesh from a list of vertices.
+//######################################################################
+
+/**
+ * \brief Create a 1D mesh from a list of vertices.
+ * \param vertices A list of vertex locations.
+ * \param coordinate_system The coordinate system type. The default is
+ *                          Cartesian coordinates.
+ */
 std::shared_ptr<Mesh>
 create_1d_mesh(const std::vector<double>& vertices,
                const CoordinateSystem coordinate_system =
                    CoordinateSystem::CARTESIAN);
 
-/// Create a zoned 1D mesh.
+/**
+ * \brief Create a zoned 1D mesh.
+ * \param zone_edges The edges of mesh zones. There should be one more
+ *                   zone edge than number of zones.
+ * \param zone_subdivisions The number of cells per zone.
+ * \param material_ids The material ID per zone.
+ * \param coordinate_system The coordinate system type. The default is
+ *                          Cartesian coordinates.
+ */
 std::shared_ptr<Mesh>
 create_1d_mesh(const std::vector<double>& zone_edges,
                const std::vector<size_t>& zone_subdivisions,
