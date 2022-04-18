@@ -97,8 +97,8 @@ public:
     : MaterialProperty(property_name, MaterialPropertyType::CROSS_SECTIONS)
   {}
 
-  /// Clear all properties.
-  void reset();
+public:
+  void reset(); ///< Clear all properties.
 
   /**
    * \brief Read a file to set the cross section values.
@@ -107,7 +107,6 @@ public:
   void read_xs_file(const std::string& file_name);
 
 private:
-
   /// Compute \f$ \sigma_s \f$ from the zeroth scattering moment.
   void compute_scattering_from_transfers();
 

@@ -5,7 +5,46 @@
 #include <fstream>
 
 
-//############################################################
+void CrossSections::reset()
+{
+  n_groups = 0;
+  n_precursors = 0;
+  scattering_order = 0;
+
+  is_fissile = false;
+  has_precursors = false;
+  density = 1.0;
+
+  sigma_t.clear();
+  sigma_a.clear();
+  sigma_s.clear();
+  sigma_r.clear();
+  sigma_f.clear();
+
+  chi.clear();
+  chi_prompt.clear();
+  chi_delayed.clear();
+
+  nu.clear();
+  nu_prompt.clear();
+  nu_delayed.clear();
+
+  nu_sigma_f.clear();
+  nu_prompt_sigma_f.clear();
+  nu_delayed_sigma_f.clear();
+
+  precursor_lambda.clear();
+  precursor_yield.clear();
+
+  inv_velocity.clear();
+  diffusion_coeff.clear();
+
+  transfer_matrices.clear();
+}
+
+
+//######################################################################
+
 /**
  * \param keyword The identifier for the current property block.
  * \param destination The cross section vector to store the results in.
@@ -58,7 +97,8 @@ void CrossSections::read_cross_section(const std::string& keyword,
 }
 
 
-//############################################################
+//######################################################################
+
 /**
  * \param keyword The identifier for the current property block.
  * \param destination The vector of transfer matrices to store the result in.
@@ -114,7 +154,8 @@ void CrossSections::read_transfer_matrices(const std::string& keyword,
 }
 
 
-//############################################################
+//######################################################################
+
 /**
  * \param keyword The identifier for the current property block.
  * \param destination The precursor property vector to store the result in.
@@ -167,7 +208,8 @@ void CrossSections::read_precursor_property(const std::string& keyword,
 }
 
 
-//############################################################
+//######################################################################
+
 /**
  * \param keyword The identifier for the current property block.
  * \param destination The vector of emmission spectra to store the results in.

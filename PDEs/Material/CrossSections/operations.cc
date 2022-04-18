@@ -5,7 +5,7 @@
 #include <numeric>
 
 
-//############################################################
+//######################################################################
 /**
  * Compute the group-wise scattering cross sections from the zeroth transfer
  * matrices. This is defined as the sum of all transfers from a fixed group to
@@ -43,7 +43,7 @@ void CrossSections::compute_scattering_from_transfers()
 }
 
 
-//############################################################
+//######################################################################
 /**
  * If the absorption cross section was not specified, then compute it
  * via \f$ \sigma_a = \sigma_t - \sigma_s , \f$ where \f$ \sigma_s \f$ is
@@ -114,7 +114,7 @@ void CrossSections::reconcile_cross_sections()
 }
 
 
-//############################################################
+//######################################################################
 /**
  * This routine does a number of things.
  * 1. If non-fissile but delayed neutron precursor properties were specified,
@@ -375,7 +375,7 @@ void CrossSections::reconcile_fission_properties()
 }
 
 
-//############################################################
+//######################################################################
 /**
  * Compute the macroscopic cross sections via
  * \f[ \Sigma_x = \rho \sigma_x .\f]
