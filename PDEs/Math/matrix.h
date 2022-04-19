@@ -14,44 +14,51 @@ private:
   std::vector<std::vector<double>> m_data;
 
 public:
-  using iterator = std::vector<std::vector<double>>::iterator;
-  using const_iterator = std::vector<std::vector<double>>::const_iterator;
-  using reverse_iterator = std::vector<std::vector<double>>::reverse_iterator;
-  using const_reverse_iterator =
-      std::vector<std::vector<double>>::const_reverse_iterator;
+  typedef std::vector<double> vector;
+  typedef std::vector<vector> matrix;
 
 public:
-  Matrix() = default;  ///< Default constructor.
-
+  /// Default constructor.
+  Matrix() = default;
   /// Construct a matrix of dimension \p n set to default.
-  explicit Matrix(size_t n) : m_data(n, std::vector<double>(n)) {}
+  explicit Matrix(size_t n) : m_data(n, vector(n)) {}
   /// Construct a matrix of dimension \p n set to \p value.
   explicit Matrix(size_t n, const double value)
-    : m_data(n, std::vector<double>(n, value))
+    : m_data(n, vector(n, value))
   {}
   /// Construct a matrix with \p n_rows and \p n_cols set to default.
   explicit Matrix(size_t n_rows, size_t n_cols)
-    : m_data(n_rows, std::vector<double>(n_cols))
+    : m_data(n_rows, vector(n_cols))
   {}
   /// Construct a matrix with \p n_rows and \p n_cols set to \p value.
   explicit Matrix(size_t n_rows, size_t n_cols, const double value)
-    : m_data(n_rows, std::vector<double>(n_cols, value))
+    : m_data(n_rows, vector(n_cols, value))
   {}
+
   /// Copy constructor.
   Matrix(const Matrix& other) : m_data(other.m_data) {}
   /// Move constructor
   Matrix(Matrix&& other) :  m_data(std::move(other.m_data)) {}
-  /// Construct a matrix from an STL vector.
-  Matrix(const std::vector<std::vector<double>>& other)
+
+  /// Copy construction of a matrix from an STL vector.
+  Matrix(const matrix& other)
   {
     if (not this->valid_stl(other))
       this->invalid_stl_error(__FUNCTION__);
     m_data = other;
   }
+  /// Move construction of a matrix from an STL vector.
+  Matrix(matrix&& other)
+  {
+    if (not this->valid_stl(other))
+      this->invalid_stl_error(__FUNCTION__ );
+    m_data = std::move(other);
+  }
+
   /// Construct a matrix from an initialized list.
   Matrix(std::initializer_list<std::initializer_list<double>> list)
   {
-    std::vector<std::vector<double>> other;
+    matrix other;
     for (auto& row : list)
       other.push_back(row);
 
@@ -73,8 +80,9 @@ public:
     m_data = std::move(other.m_data);
     return *this;
   }
+
   /// Copy assignment from an STL vector
-  Matrix& operator=(const std::vector<std::vector<double>>& other)
+  Matrix& operator=(const matrix& other)
   {
     if (not this->valid_stl(other))
       this->invalid_stl_error(__FUNCTION__);
@@ -83,7 +91,7 @@ public:
     return *this;
   }
   /// Move assignment from an STL vector
-  Matrix& operator=(std::vector<std::vector<double>>&& other)
+  Matrix& operator=(matrix&& other)
   {
     if (not this->valid_stl(other))
       this->invalid_stl_error(__FUNCTION__);
@@ -91,21 +99,19 @@ public:
     return *this;
   }
 
-  ~Matrix() = default; ///< Default destructor.
-
 public:
   /** \name Access Operators */
   /** @{ */
 
   /// Read/write access for row \p row.
-  std::vector<double>& operator[](const size_t row) { return m_data[row]; }
+  vector& operator[](const size_t row) { return m_data[row]; }
   /// Read only access for row \p row.
-  std::vector<double> operator[](const size_t row) const { return m_data[row]; }
+  vector operator[](const size_t row) const { return m_data[row]; }
 
   /// Read/write access for row \p row with bounds checking.
-  std::vector<double>& at(const size_t row) { return m_data.at(row); }
+  vector& at(const size_t row) { return m_data.at(row); }
   /// Read only access for row \p row with bounds checking.
-  std::vector<double> at(const size_t row) const { return m_data.at(row); }
+  vector at(const size_t row) const { return m_data.at(row); }
 
   /// Read/write access for row \p row and column \p col with bounds checking.
   double& at(const size_t row, const size_t col)
@@ -119,7 +125,7 @@ public:
   }
 
   /// Access the underlying matrix data.
-  std::vector<double>* data() { return m_data.data(); }
+  vector* data() { return m_data.data(); }
 
   /** @} */
   /** \name Modifiers */
@@ -173,6 +179,11 @@ public:
 
   /// Get the number of rows that can be held in allocated memory.
   size_t capacity() const { return m_data.capacity(); }
+  /// Get the number of columns that can be held in row \p row.
+  size_t capacity(const size_t row) const
+  {
+    return m_data[row].capacity();
+  }
 
   /// Return whether the matrix is empty.
   bool empty() const { return m_data.empty(); }
@@ -182,25 +193,17 @@ public:
   /** \name Iterators */
   /** @{ */
 
-  /// Iterator to the first element.
-  iterator begin() { return m_data.begin(); }
-  /// Iterator to the last element.
-  iterator end() { return m_data.end(); }
+  matrix::iterator begin() { return m_data.begin(); }
+  matrix::iterator end() { return m_data.end(); }
 
-  /// Constant iterator to the first element.
-  const_iterator cbegin() const { return m_data.cbegin(); }
-  /// Constant iterator to the last element.
-  const_iterator  cend() const { return m_data.cend(); }
+  matrix::const_iterator cbegin() const { return m_data.cbegin(); }
+  matrix::const_iterator  cend() const { return m_data.cend(); }
 
-  /// Reverse iterator to the first element.
-  reverse_iterator rbegin() { return m_data.rbegin(); }
-  /// Reverse iterator to the last element.
-  reverse_iterator rend() { return m_data.rend(); }
+  matrix::reverse_iterator rbegin() { return m_data.rbegin(); }
+  matrix::reverse_iterator rend() { return m_data.rend(); }
 
-  /// Constant reverse iterator to the first element.
-  const_reverse_iterator crbegin() { return m_data.crbegin(); }
-  /// Constant reverse iterator to the last element.
-  const_reverse_iterator crend() { return m_data.crend(); }
+  matrix::const_reverse_iterator crbegin() { return m_data.crbegin(); }
+  matrix::const_reverse_iterator crend() { return m_data.crend(); }
 
   /** @} */
 public:
@@ -209,7 +212,10 @@ public:
 
   /**
    * \brief Element-wise negation
-   * \f[ \boldsymbol{B} = -\boldsymbol{A} \f]
+   * \f[
+   *    \boldsymbol{B} = -\boldsymbol{A}
+   *    b_{ij} = -a_{ij}, \hspace{0.25cm} \forall i, j
+   * \f]
    */
   Matrix operator-() const { return -Matrix(m_data); }
   /// See \ref operator-() const
@@ -223,7 +229,10 @@ public:
 
   /**
    * \brief Element-wise multiplication by a scalar value.
-   * \f[ \boldsymbol{B} = \boldsymbol{A} \alpha \f]
+   * \f[
+   *    \boldsymbol{B} = \boldsymbol{A} \alpha \\
+   *    b_{ij} = a_{ij} \alpha, \hspace{0.25cm} \forall i, j
+   * \f]
    */
   Matrix operator*(const double value) const
   {
@@ -244,7 +253,10 @@ public:
 
   /**
    * \brief Element-wise division by a scalar value.
-   * \f[ \boldsymbol{B} = \frac{\boldsymbol{A}}{\alpha} \f]
+   * \f[
+   *    \boldsymbol{B} = \frac{\boldsymbol{A}}{\alpha} \\
+   *    b_{ij} = \frac{a_{ij}}{\alpha}, \hspace{0.25cm} \forall i, j
+   * \f]
    */
   Matrix operator/(const double value) const
   {
@@ -275,7 +287,10 @@ public:
 
   /**
    * \brief Element-wise addition of two matrices.
-   * \f[ \boldsymbol{C} = \boldsymbol{A} + \boldsymbol{B} \f]
+   * \f[
+   *    \boldsymbol{C} = \boldsymbol{A} + \boldsymbol{B} \\
+   *    c_{ij} = a_{ij} + b_{ij}, \hspace{0.25cm} \forall i, j
+   * \f]
    */
   Matrix operator+(const Matrix& other) const
   {
@@ -304,7 +319,10 @@ public:
 
   /**
    * \brief Element-wise subtraction of two matrices.
-   * \f[ \boldsymbol{C} = \boldsymbol{A} - \boldsymbol{B} \f]
+   * \f[
+   *    \boldsymbol{C} = \boldsymbol{A} - \boldsymbol{B} \\
+   *    c_{ij} = a_{ij} - b_{ij}, \hspace{0.25cm} \forall i, j
+   * \f]
    */
   Matrix operator-(const Matrix& other) const
   {
@@ -356,7 +374,14 @@ public:
     }
     return m;
   }
-  /// See \ref operator*(const Matrix& other) const
+
+  /**
+   * \brief Compute a matrix-vector product.
+   * \f[
+   *    \vec{y} = \boldsymbol{A} \vec{x} \\
+   *    y_{i} = \sum_{j=1}^{n} a_{ij} x_{j}, \hspace{0.25cm} \forall i
+   * \f]
+   */
   Vector operator*(const Vector& vector) const
   {
     if (this->n_cols() != vector.size())
@@ -425,7 +450,7 @@ public:
         m_data[i][i] = diagonal[i];
     }
 
-      // Handle initialized matrices
+    // Handle initialized matrices
     else
     {
       size_t min_dim = std::min(this->n_rows(), this->n_cols());
@@ -436,7 +461,12 @@ public:
         m_data[i][i] = diagonal[i];
     }
   }
-  /// Set the diagonal of the matrix with a fixed scalar.
+  /// Set the diagonal of the matrix with an STL vector.
+  void set_diagonal(const vector& diagonal)
+  {
+    return this->set_diagonal(Vector(diagonal));
+  }
+  /// Set the diagonal of the matrix with a fixed scalar value.
   void set_diagonal(const double value)
   {
     if (this->empty())
@@ -515,13 +545,11 @@ public:
   /// Print the vector to `std::cout`.
   void print() const { std::cout << this->to_string(); }
 
-
   /** @} */
-
 private:
 
   /// Check STL matrix inputs.
-  static bool valid_stl(const std::vector<std::vector<double>>& other)
+  static bool valid_stl(const matrix& other)
   {
     bool valid = true;
     size_t ref_val = other.front().size();
@@ -575,5 +603,53 @@ private:
     throw std::length_error(err.str());
   }
 };
+
+/*-------------------- Inline Implementations --------------------*/
+
+/**
+ * \brief Element-wise multiplication by a scalar value.
+ * \f[
+ *      \boldsymbol{B} = \alpha \boldsymbol{A} \\
+ *      b_{ij} = \alpha a_{ij}, \hspace{0.25cm} \forall i, j
+ * \f]
+ */
+inline Matrix operator*(const double value, const Matrix& A)
+{
+  return A * value;
+}
+
+/** \brief Multiply a matrix by a scalar value.
+ * \f[
+ *      \boldsymbol{B} = \alpha \boldsymbol{A} \\
+ *      b_{ij} = \alpha a_{ij}, \hspace{0.25cm} \forall i, j
+ * \f]
+ */
+inline Matrix multiply(const Matrix& A, const double value)
+{
+  return A * value;
+}
+/**
+ * \brief Multiply a matrix by a vector.
+ * \f[
+ *      \vec{y} = \boldsymbol{A} \vec{x} \\
+ *      \vec{y}_{i} = \sum_{j=1}^{n} a_{ij} x_{j}, \hspace{0.25cm} \forall i
+ * \f]
+ */
+inline Vector multiply(const Matrix& A, const Vector& x)
+{
+  return A * x;
+}
+/**
+ * \brief Multiply a matrix by a matrix.
+ * \f[
+ *      \boldsymbol{C} = \boldsymbol{A} \boldsymbol{B} \\
+ *      c_{ij} = \sum_{k=1}^{n} a_{ik} b{kj}, \hspace{0.25cm} \forall i, j
+ * \f]
+ */
+inline Matrix multiply(const Matrix& A, const Matrix& B)
+{
+   return A * B;
+}
+
 
 #endif //MATRIX_H

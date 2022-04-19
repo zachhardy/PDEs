@@ -15,27 +15,31 @@
 /// A class representing a general vector.
 struct Vector
 {
-public:   /*---------- Typedefs ----------*/
-
-  using iterator = std::vector<double>::iterator;
-  using const_iterator = std::vector<double>::const_iterator;
+public:
+  typedef std::vector<double> vector;
 
 private:
-  std::vector<double> m_data; ///< The underlying vector data.
+  /// The underlying vector data.
+  vector m_data;
 
 public:
-  Vector() = default;  ///< Default constructor.
-
+  /// Default constructor.
+  Vector() = default;
   /// Construct \p size elements set to default values.
   explicit Vector(const size_t size) : m_data(size) {}
   /// Construct \p size elements set to \p value.
   explicit Vector(const size_t size, const double value) : m_data(size, value) {}
+
   /// Copy constructor.
   Vector(const Vector& other) : m_data(other.m_data) {}
   /// Move constructor.
   Vector(Vector&& other) : m_data(std::move(other.m_data)) {}
-  /// Construct using an STL vector.
-  Vector(const std::vector<double> other) : m_data(other) {}
+
+  /// Copy construction using an STL vector.
+  Vector(const vector& other) : m_data(other) {}
+  /// Move construction using an STL vector.
+  Vector(vector&& other) : m_data(std::move(other)) {}
+
   /// Construct using an initializer list.
   Vector(std::initializer_list<double> list) : m_data(list) {}
 
@@ -51,18 +55,20 @@ public:
     m_data = std::move(other.m_data);
     return *this;
   }
+
   /// Copy assignment using an STL vector.
-  Vector& operator=(const std::vector<double>& other)
+  Vector& operator=(const vector & other)
   {
     m_data = other;
     return *this;
   }
   /// Move assignment using an STL vector
-  Vector& operator=(std::vector<double>&& other)
+  Vector& operator=(vector&& other)
   {
     m_data = std::move(other);
     return *this;
   }
+
   /// Assigment using an initializer list.
   Vector& operator=(std::initializer_list<double> list)
   {
@@ -83,8 +89,8 @@ public:
 
   /// Read/write access for element \p index with bounds checking.
   double& at(const size_t index) { return m_data.at(index); }
-  /// Read only access for element \p i with bounds checking.
-  double at(const size_t i) const { return m_data.at(i); }
+  /// Read only access for element \p index with bounds checking.
+  double at(const size_t index) const { return m_data.at(index); }
 
   /// Read/write access for the first element.
   double& front() { return m_data.front(); }
@@ -108,6 +114,7 @@ public:
 
   /// Add a new element set to \p value to the back.
   void push_back(const double value) { m_data.push_back(value); }
+
   /// Add a new element set to \p value in place to the back.
   void emplace_back(const double value) { m_data.emplace_back(value); }
 
@@ -123,7 +130,7 @@ public:
   /// Swap the elements of this Vector with another Vector.
   void swap(Vector& other) { m_data.swap(other.m_data); }
   /// Swap the elements of this Vector with an STL vector.
-  void swap(std::vector<double> other) { m_data.swap(other); }
+  void swap(vector& other) { m_data.swap(other); }
 
   /** @} */
   /** \name Memory */
@@ -145,15 +152,17 @@ public:
   /** \name Iterators */
   /** @{ */
 
-  /// Iterator to the first element.
-  iterator begin() { return m_data.begin(); }
-  /// Iterator to the last element.
-  iterator end() { return m_data.end(); }
+  vector::iterator begin() { return m_data.begin(); }
+  vector::iterator end() { return m_data.end(); }
 
-  /// Constant iterator to the first element.
-  const_iterator cbegin() const { return m_data.cbegin(); }
-  /// Constant iterator to the last element.
-  const_iterator cend() const { return m_data.cend(); }
+  vector::const_iterator cbegin() const { return m_data.cbegin(); }
+  vector::const_iterator cend() const { return m_data.cend(); }
+
+  vector::reverse_iterator rbegin() { return m_data.rbegin(); }
+  vector::reverse_iterator rend() { return m_data.rend(); }
+
+  vector::const_reverse_iterator crbegin() const { return m_data.crbegin(); }
+  vector::const_reverse_iterator crend() const { return m_data.crend(); }
 
   /** @} */
 public:
@@ -167,7 +176,6 @@ public:
    *    y_i = -x_i, \hspace{0.25cm} \forall i
    * \f]
    */
-   /// Element-wise negation.
   Vector operator-() const { return -Vector(m_data); }
   /// See \ref operator-() const
   Vector& operator-()
@@ -259,6 +267,7 @@ public:
     return *this;
   }
 
+
   /**
    * \brief Element-wise subtraction of two vectors.
    * \f[
@@ -286,7 +295,6 @@ public:
       m_data[i] -= other[i];
     return *this;
   }
-
 
   /**
    * \brief Element-wise multiplication of two vectors.
@@ -374,7 +382,7 @@ public:
   double linf_norm() const
   {
     double norm = 0.0;
-    for (const auto& v : m_data) if (fabs(v) > norm) norm = fabs(v);
+    for (const auto& v : m_data) if (std::fabs(v) > norm) norm = std::fabs(v);
     return norm;
   }
   /**
@@ -384,7 +392,7 @@ public:
   double l1_norm() const
   {
     double norm = 0.0;
-    for (const auto& v : m_data) norm += fabs(v);
+    for (const auto& v : m_data) norm += std::fabs(v);
     return norm;
   }
   /**
@@ -399,7 +407,7 @@ public:
   double lp_norm(const double p) const
   {
     double norm = 0.0;
-    for (const auto& v : m_data) norm += std::pow(fabs(v), p);
+    for (const auto& v : m_data) norm += std::pow(std::fabs(v), p);
     return std::pow(norm, 1.0/p);
   }
 
@@ -419,9 +427,9 @@ public:
   }
 
   /// Element-wise absolute value in place.
-  Vector& abs()
+  Vector& fabs()
   {
-    for (auto& v : m_data) v = fabs(v);
+    for (auto& v : m_data) v = std::fabs(v);
     return *this;
   }
 
@@ -440,12 +448,10 @@ public:
     ss << std::setprecision(6) << m_data.back() << "]" << std::endl;
     return ss.str();
   }
-
   /// Print the vector to `std::cout`.
   void print() const { std::cout << this->to_string(); }
 
   /** @} */
-
 private:
 
   /// Determine whether zero elements exist.
@@ -531,7 +537,7 @@ inline Vector normalize(const Vector& x)
  * \brief Return the absolute value of a vector.
  * \f[ \vec{y} = |\vec{x}| \f]
  */
-inline Vector abs(const Vector& x) { return Vector(x).abs(); }
+inline Vector fabs(const Vector& x) { return Vector(x).fabs(); }
 
 
 #endif //VECTOR_H
