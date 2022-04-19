@@ -3,7 +3,7 @@
 
 #include "linear_solver.h"
 
-namespace linear_solver
+namespace math
 {
 
 //######################################################################

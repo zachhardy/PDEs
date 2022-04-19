@@ -4,7 +4,7 @@
 #include "../matrix.h"
 #include "../vector.h"
 
-namespace linear_solver
+namespace math
 {
 
 //######################################################################

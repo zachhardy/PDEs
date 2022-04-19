@@ -6,7 +6,7 @@
  * back-substitution can be used to solve the system.
  * \see row_echelon
  */
-void linear_solver::GaussianElimination::setup()
+void math::GaussianElimination::setup()
 {
   if (not initailized)
   {
@@ -20,7 +20,7 @@ void linear_solver::GaussianElimination::setup()
 
 //######################################################################
 
-void linear_solver::GaussianElimination::row_echelon()
+void math::GaussianElimination::row_echelon()
 {
   size_t n = A.n_rows();
   for (size_t i = 0; i < n; ++i)
@@ -84,7 +84,7 @@ void linear_solver::GaussianElimination::row_echelon()
 
 //######################################################################
 
-Vector linear_solver::GaussianElimination::back_substitution()
+Vector math::GaussianElimination::back_substitution()
 {
   size_t n = A.n_rows();
   Vector x(n, 0.0);
