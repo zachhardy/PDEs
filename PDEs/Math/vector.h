@@ -7,6 +7,7 @@
 #include <numeric>
 
 #include <iostream>
+#include <iomanip>
 #include <sstream>
 #include <stdexcept>
 
@@ -435,8 +436,8 @@ public:
     std::stringstream ss;
     ss << "[";
     for (size_t i = 0; i < m_data.size() - 1; ++i)
-      ss << m_data[i] << " ";
-    ss << m_data.back() << "]" << std::endl;
+      ss << std::setprecision(6) << m_data[i] << " ";
+    ss << std::setprecision(6) << m_data.back() << "]" << std::endl;
     return ss.str();
   }
 

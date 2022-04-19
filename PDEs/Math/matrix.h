@@ -505,8 +505,8 @@ public:
     {
       ss << ((i == 0)? "[" : " [");
       for (size_t j = 0; j < m_data[i].size() - 1; ++j)
-        ss << m_data[i][j] << " ";
-      ss << m_data[i].back() << "]"
+        ss << std::setw(10) << std::setprecision(6) << m_data[i][j] << " ";
+      ss << std::setw(10) << std::setprecision(6) << m_data[i].back() << "]"
          << ((i == m_data.size()-1)? "]\n" : "\n");
     }
     return ss.str();
