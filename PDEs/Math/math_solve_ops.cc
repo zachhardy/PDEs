@@ -88,6 +88,19 @@ Vector forward_substitution(const Matrix& A, const Vector& b)
 }
 
 /**
+ * \brief Solve a linear system using Gaussian elimination.
+ * \param A An \f$ n \times n \f$ matrix.
+ * \param b A vector of length \f$ n \f$.
+ * \return The solution \f$ \vec{x} \f$ of
+ *         \f$ \boldsymbol{A} \vec{x} = \vec{b} \f$.
+ */
+Vector gaussian_elimination(Matrix& A, Vector& b, const bool pivot)
+{
+  row_echelon_form(A, b, pivot);
+  return back_substitution(A, b);
+}
+
+/**
  * \brief Solve an LU factored linear system.
  * \param A An LU factored \f$ n \times n \f$ matrix.
  * \param b A vector of length \f$ n \f$.
