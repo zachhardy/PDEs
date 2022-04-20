@@ -94,11 +94,11 @@ public:
 
 
   //========== SYSTEM STORAGE ==========
-  Vector phi;        ///< The scalar flux unknowns.
-  Vector precursors; ///< The delayed neutron precursor unknwons.
+  math::Vector phi;        ///< The scalar flux unknowns.
+  math::Vector precursors; ///< The delayed neutron precursor unknwons.
 
-  Vector system_rhs;
-  Matrix system_matrix;
+  math::Vector system_rhs;
+  math::Matrix system_matrix;
 
 public:
 
