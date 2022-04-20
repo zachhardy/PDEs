@@ -7,6 +7,9 @@
 #include <vector>
 #include <iomanip>
 
+namespace math
+{
+
 class Matrix
 {
 private:
@@ -26,10 +29,12 @@ public:
   explicit Matrix(size_t n, const double value)
     : m_data(n, vector(n, value))
   {}
+
   /// Construct a matrix with \p n_rows and \p n_cols set to default.
   explicit Matrix(size_t n_rows, size_t n_cols)
     : m_data(n_rows, vector(n_cols))
   {}
+
   /// Construct a matrix with \p n_rows and \p n_cols set to \p value.
   explicit Matrix(size_t n_rows, size_t n_cols, const double value)
     : m_data(n_rows, vector(n_cols, value))
@@ -74,6 +79,7 @@ public:
     m_data = other.m_data;
     return *this;
   }
+
   /// Move assignment operator.
   Matrix& operator=(Matrix&& other)
   {
@@ -90,6 +96,7 @@ public:
     m_data = other;
     return *this;
   }
+
   /// Move assignment from an STL vector
   Matrix& operator=(matrix&& other)
   {
@@ -141,6 +148,7 @@ public:
     for (auto& row : m_data)
       row.resize(n);
   }
+
   /// Resize the matrix to dimension \p n, setting new elements to \p value.
   void resize(const size_t n, const double value)
   {
@@ -148,6 +156,7 @@ public:
     for (auto& row : m_data)
       row.resize(n, value);
   }
+
   /// Resize the matrix to \p n_rows and \p n_cols with default new values.
   void resize(const size_t n_rows, const size_t n_cols)
   {
@@ -155,6 +164,7 @@ public:
     for (auto& row : m_data)
       row.resize(n_cols);
   }
+
   /// Resize the matrix to \p n_rows and \p n_cols, setting new elements to \p value.
   void resize(const size_t n_rows, const size_t n_cols, const double value)
   {
@@ -242,6 +252,7 @@ public:
         entry *= value;
     return m;
   }
+
   /// See \ref operator*(const double value) const
   Matrix& operator*=(const double value)
   {
@@ -269,6 +280,7 @@ public:
         entry /= value;
     return m;
   }
+
   /// See \ref operator/(const double value) const
   Matrix& operator/=(const double value)
   {
@@ -304,6 +316,7 @@ public:
         m[i][j] = m_data[i][j] + other[i][j];
     return m;
   }
+
   /// See \ref operator+(const Matrix& other) const
   Matrix& operator+=(const Matrix& other)
   {
@@ -336,6 +349,7 @@ public:
         m[i][j] = m_data[i][j] - other[i][j];
     return m;
   }
+
   /// See \ref operator-(const Matrix& other) const
   Matrix& operator-=(const Matrix& other)
   {
@@ -408,15 +422,6 @@ public:
         m[i][j] = m_data[j][i];
     return m;
   }
-  /// See \ref transpose() const
-  Matrix& transpose()
-  {
-    Matrix m(this->n_cols(), this->n_rows(), 0.0);
-    for (size_t i = 0; i < m.n_rows(); ++i)
-      for (size_t j = 0; j < m.n_cols(); ++j)
-        m[i][j] = m_data[j][i];
-    return this->operator=(m);
-  }
 
   /** @} */
 public:
@@ -461,11 +466,13 @@ public:
         m_data[i][i] = diagonal[i];
     }
   }
+
   /// Set the diagonal of the matrix with an STL vector.
   void set_diagonal(const vector& diagonal)
   {
     return this->set_diagonal(Vector(diagonal));
   }
+
   /// Set the diagonal of the matrix with a fixed scalar value.
   void set_diagonal(const double value)
   {
@@ -618,16 +625,17 @@ inline Matrix operator*(const double value, const Matrix& A)
   return A * value;
 }
 
-/** \brief Multiply a matrix by a scalar value.
+/** \brief Multiply a matrix by a scalar c.
  * \f[
  *      \boldsymbol{B} = \alpha \boldsymbol{A} \\
  *      b_{ij} = \alpha a_{ij}, \hspace{0.25cm} \forall i, j
  * \f]
  */
-inline Matrix multiply(const Matrix& A, const double value)
+inline Matrix multiply(const Matrix& A, const double c)
 {
-  return A * value;
+  return A * c;
 }
+
 /**
  * \brief Multiply a matrix by a vector.
  * \f[
@@ -639,6 +647,7 @@ inline Vector multiply(const Matrix& A, const Vector& x)
 {
   return A * x;
 }
+
 /**
  * \brief Multiply a matrix by a matrix.
  * \f[
@@ -651,5 +660,6 @@ inline Matrix multiply(const Matrix& A, const Matrix& B)
    return A * B;
 }
 
+}
 
 #endif //MATRIX_H
