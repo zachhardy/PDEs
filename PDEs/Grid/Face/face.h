@@ -18,16 +18,11 @@
  */
 class Face
 {
-public:   /*---------- Public Members ----------*/
+public:
+  std::vector<size_t> vertex_ids; ///< The vertex IDs that belong to this face.
 
-  /// The vertices which belong to this face.
-  std::vector<size_t> vertex_ids;
-
-  /// Flag for whether a neighbor cell exists. If false, this is a boundary.
-  bool has_neighbor = false;
-  /// The cell ID of the neighbor. For boundary cells, this is a boundary ID.
-  size_t neighbor_id = 0;
-
+  bool has_neighbor = false; ///< Flag for having a neighbor cell.
+  size_t neighbor_id = 0;    ///< The neighbor cell ID or boundary ID.
 
   Normal normal;     ///< The face's outward pointing normal vector.
   Centroid centroid; ///< The centroid of the face.

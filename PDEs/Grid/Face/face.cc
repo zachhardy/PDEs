@@ -1,6 +1,5 @@
 #include "face.h"
 
-//############################################################
 Face::Face(const Face& other)
   : vertex_ids(other.vertex_ids),
     normal(other.normal),
@@ -11,7 +10,8 @@ Face::Face(const Face& other)
 {}
 
 
-//############################################################
+//######################################################################
+
 Face::Face(Face&& other)
   : vertex_ids(std::move(other.vertex_ids)),
     normal(other.normal),
@@ -21,8 +21,8 @@ Face::Face(Face&& other)
     neighbor_id(other.neighbor_id)
 {}
 
+//######################################################################
 
-//############################################################
 Face& Face::operator=(const Face& other)
 {
   vertex_ids = other.vertex_ids;
@@ -34,8 +34,8 @@ Face& Face::operator=(const Face& other)
   return *this;
 }
 
+//######################################################################
 
-//############################################################
 std::string Face::to_string() const
 {
   std::stringstream ss;

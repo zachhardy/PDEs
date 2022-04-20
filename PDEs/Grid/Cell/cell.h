@@ -14,6 +14,7 @@ enum class CellType
   SHELL = 3     ///< 1D spherical geometry.
 };
 
+/// Get the Cell type as a string.
 std::string cell_type_name(const CellType cell_type);
 
 
@@ -57,10 +58,7 @@ public:
 
 public:
 
-  /**
-   * \brief Default constructor.
-   * \param cell_type The Cell type.
-   */
+  /// Default constructor.
   explicit Cell(const CellType cell_type)
     : type(cell_type)
   {}

@@ -25,13 +25,13 @@ public:   /*---------- Public Attributes ----------*/
   const unsigned int dim; ///< The spatial dimension of the mesh.
   const CoordinateSystem  coord_sys; ///< The coordinate system type.
 
-  /// The collection of Point objects that define the Mesh.
+  /// A collection of Point objects that define the Mesh.
   std::vector<Vertex> vertices;
 
-  /// The collection of Cell objects that define the Mesh.
+  /// A collection of Cell objects that define the Mesh.
   std::vector<std::shared_ptr<Cell>> cells;
 
-  /// The IDs of the cells that lie on the boundary.
+  /// IDs of the cells that lie on the boundary.
   std::vector<size_t> boundary_cell_ids;
 
 public:   /*---------- Constructors, Destructors, and Assignments ----------*/
