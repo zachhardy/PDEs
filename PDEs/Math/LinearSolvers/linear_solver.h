@@ -15,16 +15,13 @@ namespace math
 class LinearSolver
 {
 protected:
-  bool initailized = false;
   Matrix& A;  ///< The matrix \f$ \boldsymbol{A} \f$.
-  Vector& b;  ///< The right-hand side vector \f$ \vec{b} \f$.
 
 public:
   /// Default constructor with a matrix and right-hand side.
-  LinearSolver(Matrix& matrix, Vector& rhs)
-      : A(matrix), b(rhs)
+  LinearSolver(Matrix& matrix) : A(matrix)
   {
-    if (A.n_rows() != A.n_cols() or A.n_rows() != b.size())
+    if (A.n_rows() != A.n_cols())
     {
       std::stringstream err;
       err << "LinearSystem::" << __FUNCTION__ << ": "
@@ -32,7 +29,6 @@ public:
           << "dimension as the right-hand side vector.";
       throw std::runtime_error(err.str());
     }
-    initailized = true;
   }
 
 public:
