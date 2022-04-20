@@ -117,14 +117,19 @@ void CrossSections::reconcile_cross_sections()
 //######################################################################
 /**
  * This routine does a number of things.
- * 1. If non-fissile but delayed neutron precursor properties were specified,
- *    these are cleared.
+ * 1. If the cross sections are not fissile but delayed neutron precursor
+ *    properties were specified, they are cleared.
  * 2. If fissile and delayed neutron precursor properties were specified, checks
  *    for prompt and delayed \f$ \nu \f$ and \f$ \chi \f$ are performed and
- *    fission/emmission spectra are normalized to unity. Additionally, precursor
- *    yields \f$ \gamma \f$ are normalized to unity. Lastly, the total
- *    \f$ \nu \f$ and \f$ \chi \f$ quantities are computed from their prompt
- *    and delayed counterparts.
+ *    fission/emmission spectra as well as precursor yields \f$ gamma \f$ are
+ *    normalized to unity. Lastly, the total \f$ \nu \f$ and \f$ \chi \f$
+ *    quantities are computed from their prompt and delayed counterparts.
+ *    The total neutrons per fission is computed via
+ *    \f$ \nu = \nu_p + \nu_d \f$ and the total spectra via
+ *    \f[ \chi = (1 - \beta) \chi_p + \beta \sum_j \gamma_j \chi_{d_j}
+   *           = \frac{\nu_p}{\nu} \chi_p +
+   *             \frac{\nu_d}{\nu} \sum_j \gamma_j \chi_{d,j}.
+   * \f]
  * 3. If fissile and no delayed neutron precursor properties were specified,
  *    checks for total \f$ \nu \f$ and \f$ \chi \f$ are performed and the
  *    fission spectrum is normalized to unity.
@@ -377,10 +382,9 @@ void CrossSections::reconcile_fission_properties()
 
 //######################################################################
 /**
- * Compute the macroscopic cross sections via
- * \f[ \Sigma_x = \rho \sigma_x .\f]
+ * Compute the macroscopic cross sections via \f$ \Sigma_x = \rho \sigma_x \f$.
  * If the \p diffusion_coeff was unspecified, it is computed via its standard
- * defintion.
+ * defintion, given by \f$ D = \frac{1}{3 \Sigma_t} \f$.
  */
 void CrossSections::compute_macroscopic_cross_sections()
 {

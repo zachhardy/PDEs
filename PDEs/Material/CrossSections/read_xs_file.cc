@@ -5,15 +5,14 @@
 #include <fstream>
 #include <numeric>
 
-
 void CrossSections::read_xs_file(const std::string& file_name)
 {
   std::cout << "Reading cross-section file \"" << file_name << "\"\n";
 
-  //========== Clear old cross sections
+  // Clear old cross sections
   reset();
 
-  //========== Open the file
+  // Open the file
   std::ifstream file;
   file.open(file_name);
   if (!file.is_open()) {
@@ -24,12 +23,12 @@ void CrossSections::read_xs_file(const std::string& file_name)
     throw std::runtime_error(err.str());
   }
 
-  //========== Book-Keeping
+  // Book-Keeping
   bool found_groups = false;
   bool found_velocity = false;
   bool found_inv_velocity = false;
 
-  //========== Read the file
+  // Read the file
   unsigned int line_number = 0;
   std::string line, word;
   while (std::getline(file, line))
@@ -37,12 +36,11 @@ void CrossSections::read_xs_file(const std::string& file_name)
     std::istringstream line_stream(line);
     line_stream >> word;
 
-    //========== Shorthand
     auto& f = file;
     auto& ls = line_stream;
     auto& ln = line_number;
 
-    //========== Get initial info, setup
+    // Get initial info, setup
     if (word == "NUM_GROUPS")
     {
       line_stream >> n_groups;

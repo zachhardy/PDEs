@@ -42,16 +42,8 @@ void CrossSections::reset()
   transfer_matrices.clear();
 }
 
-
 //######################################################################
 
-/**
- * \param keyword The identifier for the current property block.
- * \param destination The cross section vector to store the results in.
- * \param file The file being parsed.
- * \param line_stream Storage for a line in the file.
- * \param line_number The current line number in the file.
- */
 void CrossSections::read_cross_section(const std::string& keyword,
                                        std::vector<double>& destination,
                                        std::ifstream& file,
@@ -99,13 +91,7 @@ void CrossSections::read_cross_section(const std::string& keyword,
 
 //######################################################################
 
-/**
- * \param keyword The identifier for the current property block.
- * \param destination The vector of transfer matrices to store the result in.
- * \param file The file being parsed.
- * \param line_stream Storage for a line in the file.
- * \param line_number The current line number in the file.
- */
+
 void CrossSections::read_transfer_matrices(const std::string& keyword,
                                            std::vector<TransferMatrix>& destination,
                                            std::ifstream& file,
@@ -156,13 +142,6 @@ void CrossSections::read_transfer_matrices(const std::string& keyword,
 
 //######################################################################
 
-/**
- * \param keyword The identifier for the current property block.
- * \param destination The precursor property vector to store the result in.
- * \param file The file being parsed.
- * \param line_stream Storage for a line in the file.
- * \param line_number The current line number in the file.
- */
 void CrossSections::read_precursor_property(const std::string& keyword,
                                             std::vector<double>& destination,
                                             std::ifstream& file,
@@ -210,13 +189,6 @@ void CrossSections::read_precursor_property(const std::string& keyword,
 
 //######################################################################
 
-/**
- * \param keyword The identifier for the current property block.
- * \param destination The vector of emmission spectra to store the results in.
- * \param file The file being parsed.
- * \param line_stream Storage for a line in the file.
- * \param line_number The current line number in the file.
- */
 void CrossSections::read_delayed_spectra(const std::string& keyword,
                                          EmmissionSpectra& destination,
                                          std::ifstream& file,

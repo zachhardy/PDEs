@@ -42,12 +42,8 @@ public:
 public:
   /// Default constructor.
   Material() = default;
-
-  /**
-   * \brief Construct a named material.
-   * \param material_name A material_name for identification purposes.
-   */
-  explicit Material(std::string material_name) : name(material_name) {}
+  /// Default constructor with a name.
+  explicit Material(const std::string material_name) : name(material_name) {}
 };
 
 
@@ -56,7 +52,9 @@ public:
 class MaterialProperty
 {
 public:
+  /// An identifier for the material property type.
   const MaterialPropertyType type;
+  /// An optional name for identification.
   const std::string name = "Generic Property";
 
 public:
@@ -65,7 +63,7 @@ public:
       : type(property_type)
   {}
 
-  /// Construct a property with a name.
+  /// Default constructor with a name.
   explicit MaterialProperty(const std::string property_name,
                             const MaterialPropertyType property_type)
       : name(property_name), type(property_type)
@@ -86,24 +84,24 @@ public:
 class ScalarProperty : public MaterialProperty
 {
 public:
-  double value = 1.0;
+  double value = 1.0; ///< The material property value.
 
 public:
   /// Default constructor.
   ScalarProperty() : MaterialProperty(MaterialPropertyType::SCALAR) {}
 
-  /// Construct a scalar property with the specified value.
-  explicit ScalarProperty(const double scalar_value)
-      : MaterialProperty(MaterialPropertyType::SCALAR), value(scalar_value)
-  {}
-
-  /// Construct a named scalar property set to zero.
+  /// Default constructor with a name.
   explicit ScalarProperty(const std::string property_name)
       : MaterialProperty(property_name, MaterialPropertyType::SCALAR)
   {}
 
-  /// Construct a named scalar property with the specified value.
-  explicit ScalarProperty(const std::string& property_name,
+  /// Construct with the specified value.
+  explicit ScalarProperty(const double scalar_value)
+      : MaterialProperty(MaterialPropertyType::SCALAR), value(scalar_value)
+  {}
+
+  /// Construct with a specified value and a name.
+  explicit ScalarProperty(const std::string property_name,
                           const double scalar_value)
       : MaterialProperty(property_name, MaterialPropertyType::SCALAR),
         value(scalar_value)
@@ -122,50 +120,52 @@ public:
 class IsotropicMultiGroupSource : public MaterialProperty
 {
 public:
-  std::vector<double> values;
+  std::vector<double> values; ///< The multigroup source values.
 
 public:
   /// Default constructor.
   IsotropicMultiGroupSource()
-      : MaterialProperty(MaterialPropertyType::ISOTROPIC_MG_SOURCE)
+    : MaterialProperty(MaterialPropertyType::ISOTROPIC_MG_SOURCE)
   {}
 
-  /// Construct a named, empty source.
-  IsotropicMultiGroupSource(const std::string& property_name)
-      : MaterialProperty(property_name, MaterialPropertyType::ISOTROPIC_MG_SOURCE)
+  /// Default constructor with a name.
+  IsotropicMultiGroupSource(const std::string property_name)
+    : MaterialProperty(property_name, MaterialPropertyType::ISOTROPIC_MG_SOURCE)
   {}
 
-  /// Construct the source based on the provided STL vector.
+  /// Copy constructor with an STL vector.
   IsotropicMultiGroupSource(const std::vector<double>& mg_values)
-      : MaterialProperty(MaterialPropertyType::ISOTROPIC_MG_SOURCE), values(mg_values)
+    : MaterialProperty(MaterialPropertyType::ISOTROPIC_MG_SOURCE),
+      values(mg_values)
   {}
 
-  /// Construct a named source from the provided STL vector.
-  IsotropicMultiGroupSource(const std::string& property_name,
+  /// Copy constructor with a name and an STL vector
+  IsotropicMultiGroupSource(const std::string property_name,
                             const std::vector<double>& mg_values)
       : MaterialProperty(property_name, MaterialPropertyType::ISOTROPIC_MG_SOURCE),
         values(mg_values)
   {}
 
-  /// Move constructor with the provided STL vector.
+  /// Move constructor with an STL vector
   IsotropicMultiGroupSource(std::vector<double>&& mg_values)
-      : MaterialProperty(MaterialPropertyType::ISOTROPIC_MG_SOURCE), values(mg_values)
+    : MaterialProperty(MaterialPropertyType::ISOTROPIC_MG_SOURCE),
+      values(mg_values)
   {}
 
-  /// Move constructor with a name and the provided STL vector.
-  IsotropicMultiGroupSource(const std::string& property_name,
+  /// Move constructor with a name and an STL vector.
+  IsotropicMultiGroupSource(const std::string property_name,
                             std::vector<double>&& mg_values)
       : MaterialProperty(property_name, MaterialPropertyType::ISOTROPIC_MG_SOURCE),
         values(mg_values)
   {}
 
-  /// Construct a source fram the provided initializer list.
+  /// Construct with an initializer list.
   IsotropicMultiGroupSource(std::initializer_list<double>& mg_values)
       : MaterialProperty(MaterialPropertyType::ISOTROPIC_MG_SOURCE), values(mg_values)
   {}
 
-  /// Construct a named source from the provided iinitializer list.
-  IsotropicMultiGroupSource(const std::string& property_name,
+  /// Construct a named source and an initializer list.
+  IsotropicMultiGroupSource(const std::string property_name,
                             std::initializer_list<double>& mg_values)
       : MaterialProperty(property_name, MaterialPropertyType::ISOTROPIC_MG_SOURCE),
         values(mg_values)
