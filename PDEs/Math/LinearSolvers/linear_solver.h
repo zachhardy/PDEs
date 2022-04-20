@@ -33,7 +33,7 @@ public:
 
 public:
   virtual void setup() = 0; ///< Abstract setup method.
-  virtual Vector solve() = 0; ///< Abstract solve method.
+  virtual Vector solve(const Vector& b) = 0; ///< Abstract solve method.
 };
 
 }
