@@ -11,6 +11,8 @@
 #include <sstream>
 #include <stdexcept>
 
+namespace math
+{
 
 /// A class representing a general vector.
 struct Vector
@@ -49,6 +51,7 @@ public:
     m_data = other.m_data;
     return *this;
   }
+
   /// Move assignment operator.
   Vector& operator=(Vector&& other)
   {
@@ -62,6 +65,7 @@ public:
     m_data = other;
     return *this;
   }
+
   /// Move assignment using an STL vector
   Vector& operator=(vector&& other)
   {
@@ -177,6 +181,7 @@ public:
    * \f]
    */
   Vector operator-() const { return -Vector(m_data); }
+
   /// See \ref operator-() const
   Vector& operator-()
   {
@@ -186,52 +191,54 @@ public:
   }
 
   /**
-   * \brief Element-wise multiplication by a scalar value.
+   * \brief Element-wise multiplication by a scalar a.
    * \f[
-   *    \vec{y} = \vec{x} \alpha \\
-   *    y_i = x_i \alpha, \hspace{0.25cm} \forall i
+   *    \vec{y} = \vec{x} c \\
+   *    y_i = x_i c, \hspace{0.25cm} \forall i
    * \f]
    */
-  Vector operator*(const double value) const
+  Vector operator*(const double c) const
   {
     Vector v(m_data);
     for (auto& entry : v)
-      entry *= value;
+      entry *= c;
     return v;
   }
-  /// See \ref operator*(const double value) const
-  Vector& operator*=(const double value)
+
+  /// See \ref operator*(const double c) const
+  Vector& operator*=(const double c)
   {
     for (auto& entry : m_data)
-      entry *= value;
+      entry *= c;
     return *this;
   }
 
   /**
    * \brief Element-wise division by a scalar value.
    * \f[
-   *    \vec{y} = \frac{\vec{x}}{\alpha} \\
-   *    y_i = \frac{x_i}{\alpha}, \hspace{0.25cm} \forall i
+   *    \vec{y} = \frac{\vec{x}}{c} \\
+   *    y_i = \frac{x_i}{c}, \hspace{0.25cm} \forall i
    * \f]
    */
-  Vector operator/(const double value) const
+  Vector operator/(const double c) const
   {
-    if (value == 0.0)
+    if (c == 0.0)
       this->zero_division_error(__FUNCTION__);
 
     Vector v(m_data);
     for (auto& entry : v)
-      entry /= value;
+      entry /= c;
     return v;
   }
-  /// See \ref  operator/(const double value) const
-  Vector& operator/=(const double value)
+
+  /// See \ref  operator/(const double c) const
+  Vector& operator/=(const double c)
   {
-    if (value == 0.0)
+    if (c == 0.0)
       this->zero_division_error(__FUNCTION__);
 
     for (auto& entry : m_data)
-      entry /= value;
+      entry /= c;
     return *this;
   }
 
@@ -256,6 +263,7 @@ public:
       v[i] = m_data[i] + other[i];
     return v;
   }
+
   /// See \ref operator+(const Vector& other) const
   Vector& operator+=(const Vector& other)
   {
@@ -285,6 +293,7 @@ public:
       v[i] = m_data[i] - other[i];
     return v;
   }
+
   /// See \ref operator-(const Vector& other) const
   Vector& operator-=(const Vector& other)
   {
@@ -313,6 +322,7 @@ public:
       v[i] = m_data[i] * other[i];
     return v;
   }
+
   /// See \ref operator*(const Vector& other) const
   Vector& operator*=(const Vector& other)
   {
@@ -343,6 +353,7 @@ public:
       v[i] = m_data[i] / other[i];
     return v;
   }
+
   /// See \ref operator/(const Vector& other) const
   Vector& operator/(const Vector& other)
   {
@@ -385,6 +396,7 @@ public:
     for (const auto& v : m_data) if (std::fabs(v) > norm) norm = std::fabs(v);
     return norm;
   }
+
   /**
    * \brief Compute the \f$ \ell_1 \f$-norm.
    * \f[ ||\vec{v}||_{\ell_1} = \sum_i |v_i| \f]
@@ -395,11 +407,13 @@ public:
     for (const auto& v : m_data) norm += std::fabs(v);
     return norm;
   }
+
   /**
    * \brief Compute the \f$ \ell_2 \f$-norm.
    * \f[ ||\vec{v}||_{\ell_2} = \sqrt{ \sum_i |v_i|^2 } \f]
    */
   double l2_norm() const { return lp_norm(2.0); }
+
   /**
    * \brief Compute the \f$ \ell_{\ell_p} \f$-norm.
    * \f[ ||\vec{v}||_{\ell_p} = \left( \sum_i |v_i|^p \right)^{1/p} \f]
@@ -448,6 +462,7 @@ public:
     ss << std::setprecision(6) << m_data.back() << "]" << std::endl;
     return ss.str();
   }
+
   /// Print the vector to `std::cout`.
   void print() const { std::cout << this->to_string(); }
 
@@ -487,12 +502,9 @@ private:
 
 /**
  * \brief Return the element-wise product of a vector and a scalar value.
- * \f[ \vec{y} = \alpha \vec{x} \f]
+ * \f[ \vec{y} = c \vec{x} \f]
  */
-inline Vector operator*(const double value, const Vector& x)
-{
-  return x * value;
-}
+inline Vector operator*(const double c, const Vector& x) { return x * c; }
 
 /**
  * \brief Return the dot product between two vectors
@@ -505,16 +517,19 @@ inline double dot(const Vector& x, const Vector& y) { return x.dot(y); }
  * \f[ ||\vec{x}||_{\ell_\infty} = \max_i |x_i| \f]
  */
 inline double linf_norm(const Vector& x) { return x.linf_norm(); }
+
 /**
  * \brief Return the \f$ \ell_1 \f$ of a vector.
  * \f[ ||\vec{x}||_{\ell_1} = \sum_i |x_i| \f]
  */
 inline double l1_norm(const Vector& x) { return x.l1_norm(); }
+
 /**
  * \brief Return the \f$ \ell_2 \f$ of a vector.
  * \f[ ||\vec{x}||_{\ell_2} = \sqrt{\sum_i |x_i|^2} \f]
  */
 inline double l2_norm(const Vector& x) { return x.l2_norm(); }
+
 /**
  * \brief Return the \f$ \ell_{p} \f$ of a vector.
  * \f[ ||\vec{v}||_{\ell_p} = \left( \sum_i |v_i|^p \right)^{1/p} \f]
@@ -526,12 +541,7 @@ inline double lp_norm(const Vector& x, const double p) { return x.lp_norm(p); }
  *        the vector is zero, a copy of the vector is returned.
  * \f[ \hat{y} = \vec{x} / ||\vec{x}||_{\ell_2} \f]
  */
-inline Vector normalize(const Vector& x)
-{
-  double norm = x.l2_norm();
-  if (norm == 0.0) return Vector(x);
-  else return Vector(x) / norm;
-}
+inline Vector normalize(const Vector& x) { return Vector(x).normalize(); }
 
 /**
  * \brief Return the absolute value of a vector.
@@ -539,5 +549,6 @@ inline Vector normalize(const Vector& x)
  */
 inline Vector fabs(const Vector& x) { return Vector(x).fabs(); }
 
+}
 
 #endif //VECTOR_H
