@@ -5,7 +5,8 @@
 #include <fstream>
 #include <numeric>
 
-void CrossSections::read_xs_file(const std::string& file_name)
+/// Set the cross section data by reading a file.
+void material::CrossSections::read_xs_file(const std::string& file_name)
 {
   std::cout << "Reading cross-section file \"" << file_name << "\"\n";
 
@@ -29,7 +30,7 @@ void CrossSections::read_xs_file(const std::string& file_name)
   bool found_inv_velocity = false;
 
   // Read the file
-  unsigned int line_number = 0;
+  size_t line_number = 0;
   std::string line, word;
   while (std::getline(file, line))
   {
@@ -67,7 +68,7 @@ void CrossSections::read_xs_file(const std::string& file_name)
       if (found_groups)
       {
         transfer_matrices.resize(scattering_order + 1);
-        for (unsigned int m = 0; m < transfer_matrices.size(); ++m)
+        for (size_t m = 0; m < transfer_matrices.size(); ++m)
           transfer_matrices[m].resize(n_groups, std::vector<double>(n_groups));
       }
       else
@@ -82,14 +83,13 @@ void CrossSections::read_xs_file(const std::string& file_name)
     if (word == "NUM_PRECURSORS")
     {
       line_stream >> n_precursors;
-      has_precursors = (n_precursors > 0);
       precursor_lambda.assign(n_precursors, 0.0);
       precursor_yield.assign(n_precursors, 0.0);
 
       if (found_groups)
       {
         chi_delayed.resize(n_groups);
-        for (unsigned int g = 0; g < n_groups; ++g)
+        for (size_t g = 0; g < n_groups; ++g)
           chi_delayed[g].resize(n_precursors);
       }
       else
@@ -126,6 +126,7 @@ void CrossSections::read_xs_file(const std::string& file_name)
     {
       read_cross_section("VELOCITY", inv_velocity, f, ls, ln);
       found_velocity = true;
+      for (auto& v : inv_velocity) v = 1.0 / v;
     }
     if (word == "INV_VELOCITY_BEGIN")
     {
@@ -142,7 +143,7 @@ void CrossSections::read_xs_file(const std::string& file_name)
           "TRANSFER_MATRICES", transfer_matrices, f, ls, ln);
 
     // Read delayed neutron data
-    if (has_precursors)
+    if (n_precursors > 0)
     {
       if (word == "PRECURSOR_LAMBDA_BEGIN")
         read_precursor_property("PRECURSOR_LAMBDA", precursor_lambda, f, ls, ln);
@@ -156,21 +157,9 @@ void CrossSections::read_xs_file(const std::string& file_name)
   }//while open
   file.close();
 
-  // Convert velocity to inverse velocity
-  if (found_velocity)
-    for (auto& v : inv_velocity)
-      v = 1.0 / v;
-
-  // Compute the scattering xs from the transfer matrix
   compute_scattering_from_transfers();
-
-  // Enforce realistic total, abosrption, and scattering xs
   reconcile_cross_sections();
-
-  // Reconcile the fission properties
   reconcile_fission_properties();
-
-  // Compute macroscopic cross sections
   compute_macroscopic_cross_sections();
 
   std::cout << "Finished reading cross-section file \"" << file_name << "\"\n";

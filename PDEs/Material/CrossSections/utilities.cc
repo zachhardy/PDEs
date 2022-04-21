@@ -5,14 +5,14 @@
 #include <fstream>
 
 
-void CrossSections::reset()
+/// Clear all of the cross section data.
+void material::CrossSections::reset()
 {
   n_groups = 0;
   n_precursors = 0;
   scattering_order = 0;
 
   is_fissile = false;
-  has_precursors = false;
   density = 1.0;
 
   sigma_t.clear();
@@ -44,11 +44,20 @@ void CrossSections::reset()
 
 //######################################################################
 
-void CrossSections::read_cross_section(const std::string& keyword,
-                                       std::vector<double>& destination,
-                                       std::ifstream& file,
-                                       std::istringstream& line_stream,
-                                       unsigned int& line_number)
+/**
+ * \brief Read a cross section block from the cross section file.
+ * \param keyword The identifier for the current property block.
+ * \param destination The cross section vector to store the results in.
+ * \param file The file being parsed.
+ * \param line_stream Storage for a line in the file.
+ * \param line_number The current line number in the file.
+ */
+void material::CrossSections::read_cross_section(
+    const std::string& keyword,
+    std::vector<double>& destination,
+    std::ifstream& file,
+    std::istringstream& line_stream,
+    size_t& line_number)
 {
   std::string line;
 
@@ -57,7 +66,7 @@ void CrossSections::read_cross_section(const std::string& keyword,
   ++line_number;
 
   //========== Go through entries
-  unsigned int g = 0;
+  size_t g = 0;
   int group; double value;
   while (line != keyword + "_END")
   {
@@ -88,15 +97,22 @@ void CrossSections::read_cross_section(const std::string& keyword,
   }
 }
 
-
 //######################################################################
 
-
-void CrossSections::read_transfer_matrices(const std::string& keyword,
-                                           std::vector<TransferMatrix>& destination,
-                                           std::ifstream& file,
-                                           std::istringstream& line_stream,
-                                           unsigned int& line_number)
+/**
+ * \brief Read the transfer matrix block of the cross section file.
+ * \param keyword The identifier for the current property block.
+ * \param destination The vector of transfer matrices to store the result in.
+ * \param file The file being parsed.
+ * \param line_stream Storage for a line in the file.
+ * \param line_number The current line number in the file.
+ */
+void material::CrossSections::read_transfer_matrices(
+    const std::string& keyword,
+    std::vector<TransferMatrix>& destination,
+    std::ifstream& file,
+    std::istringstream& line_stream,
+    size_t& line_number)
 {
   std::string word, line;
 
@@ -139,14 +155,22 @@ void CrossSections::read_transfer_matrices(const std::string& keyword,
   }
 }
 
-
 //######################################################################
 
-void CrossSections::read_precursor_property(const std::string& keyword,
-                                            std::vector<double>& destination,
-                                            std::ifstream& file,
-                                            std::istringstream& line_stream,
-                                            unsigned int& line_number)
+/**
+ * \brief Read a precursor property from the cross section file.
+ * \param keyword The identifier for the current property block.
+ * \param destination The precursor property vector to store the result in.
+ * \param file The file being parsed.
+ * \param line_stream Storage for a line in the file.
+ * \param line_number The current line number in the file.
+ */
+void material::CrossSections::read_precursor_property(
+    const std::string& keyword,
+    std::vector<double>& destination,
+    std::ifstream& file,
+    std::istringstream& line_stream,
+    size_t& line_number)
 {
   std::string line;
 
@@ -155,7 +179,7 @@ void CrossSections::read_precursor_property(const std::string& keyword,
   ++line_number;
 
   //========== Go through entries
-  unsigned int j = 0;
+  size_t j = 0;
   int precursor_num; double value;
   while (line != keyword + "_END")
   {
@@ -189,11 +213,20 @@ void CrossSections::read_precursor_property(const std::string& keyword,
 
 //######################################################################
 
-void CrossSections::read_delayed_spectra(const std::string& keyword,
-                                         EmmissionSpectra& destination,
-                                         std::ifstream& file,
-                                         std::istringstream& line_stream,
-                                         unsigned int& line_number)
+/**
+ * \brief Read the delayed neutron spectra from the cross section file.
+ * \param keyword The identifier for the current property block.
+ * \param destination The vector of emmission spectra to store the results in.
+ * \param file The file being parsed.
+ * \param line_stream Storage for a line in the file.
+ * \param line_number The current line number in the file.
+ */
+void material::CrossSections::read_delayed_spectra(
+    const std::string& keyword,
+    EmmissionSpectra& destination,
+    std::ifstream& file,
+    std::istringstream& line_stream,
+    size_t& line_number)
 {
   std::string word, line;
 
@@ -227,4 +260,3 @@ void CrossSections::read_delayed_spectra(const std::string& keyword,
     ++line_number;
   }
 }
-
