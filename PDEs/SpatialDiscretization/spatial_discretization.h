@@ -6,10 +6,10 @@
 
 #include <memory>
 
-namespace math::discretization
+namespace discretization
 {
 
-enum class SpatialDiscretizationMethod
+enum class DiscretizationMethod
 {
   FINITE_VOLUME = 1,  ///< Finite volume (FV)
   PIECEWISE_LINEAR_CONTINUOUS = 2,  ///< Linear continuous (PWLC)
@@ -32,12 +32,12 @@ class SpatialDiscretization
 {
 public:
   const std::shared_ptr<grid::Mesh> mesh;
-  const SpatialDiscretizationMethod type;
+  const DiscretizationMethod type;
 
 public:
   explicit
   SpatialDiscretization(const std::shared_ptr<grid::Mesh> reference_mesh,
-                        const SpatialDiscretizationMethod discretization_type)
+                        const DiscretizationMethod discretization_type)
       : mesh(reference_mesh), type(discretization_type)
   {}
 

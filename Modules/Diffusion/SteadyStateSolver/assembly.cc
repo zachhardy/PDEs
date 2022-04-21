@@ -6,7 +6,8 @@ void diffusion::SteadyStateSolver::assemble_matrix()
 {
   switch (discretization->type)
   {
-    case SDMethod::FINITE_VOLUME: { fv_assemble_matrix(); break; }
+    case DiscretizationMethod::FINITE_VOLUME:
+    { fv_assemble_matrix(); break; }
     default: return;
   }
 }
@@ -18,7 +19,8 @@ void diffusion::SteadyStateSolver::assemble_rhs_vector()
 {
   switch (discretization->type)
   {
-    case SDMethod::FINITE_VOLUME: { fv_assemble_rhs_vector(); break; }
+    case DiscretizationMethod::FINITE_VOLUME:
+    { fv_assemble_rhs_vector(); break; }
     default: return;
   }
 }

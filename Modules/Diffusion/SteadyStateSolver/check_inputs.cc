@@ -27,7 +27,7 @@ void diffusion::SteadyStateSolver::check_inputs()
         << "No discretization available to the solver.";
     throw std::runtime_error(err.str());
   }
-  if (discretization->type != SDMethod::FINITE_VOLUME)
+  if (discretization->type != DiscretizationMethod::FINITE_VOLUME)
   {
     std::stringstream err;
     err << solver_string << "::" << __FUNCTION__ << ": "

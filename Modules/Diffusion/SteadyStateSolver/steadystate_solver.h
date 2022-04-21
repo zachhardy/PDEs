@@ -54,8 +54,8 @@ public:
   typedef std::shared_ptr<Boundary> BndryPtr;
 
   typedef grid::Mesh Mesh;
-  typedef math::discretization::SpatialDiscretizationMethod SDMethod;
-  typedef math::discretization::SpatialDiscretization SpatialDiscretization;
+  typedef discretization::DiscretizationMethod DiscretizationMethod;
+  typedef discretization::SpatialDiscretization SpatialDiscretization;
 
   typedef material::Material Material;
   typedef material::MaterialPropertyType MaterialPropertyType;
