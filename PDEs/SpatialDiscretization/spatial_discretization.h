@@ -6,7 +6,6 @@
 
 #include <memory>
 
-/// Types of spatial discretizations.
 enum class SpatialDiscretizationMethod
 {
   FINITE_VOLUME                   = 1,  ///< Finite volume (FV)
@@ -16,13 +15,8 @@ enum class SpatialDiscretizationMethod
   LAGRANGE_DISCONTINUOUS          = 5   ///< Discontinuous finite elements (DFEM)
 };
 
+//######################################################################
 
-/// Get the spatial discretization type as a string
-std::string spatial_discretization_method_name(
-    const SpatialDiscretizationMethod discretization_method);
-
-
-//################################################## Class def
 /**
  * \brief Abstracted base class for spatial discretizations.
  *
@@ -34,7 +28,7 @@ std::string spatial_discretization_method_name(
 class SpatialDiscretization
 {
 public:
-  const std::shared_ptr<Mesh> mesh; ///< A pointer to the Mesh.
+  const std::shared_ptr<grid::Mesh> mesh; ///< A pointer to the Mesh.
   const SpatialDiscretizationMethod type; ///< The SpatialDiscretization type.
 
 public:

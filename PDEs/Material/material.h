@@ -18,19 +18,6 @@ enum class MaterialPropertyType
   ISOTROPIC_MG_SOURCE = 2  ///< Isotropic neutron source.
 };
 
-inline std::string
-material_property_name(const MaterialPropertyType property_type)
-{
-  switch (property_type)
-  {
-    case MaterialPropertyType::SCALAR: return "SCALAR";
-    case MaterialPropertyType::CROSS_SECTIONS: return "CROSS_SECTIONS";
-    case MaterialPropertyType::ISOTROPIC_MG_SOURCE:
-    { return "ISOTROPIC_MG_SOURCE"; }
-    default: return "UNDEFINED";
-  }
-}
-
 //######################################################################
 
 /**

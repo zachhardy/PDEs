@@ -16,10 +16,8 @@ enum class CellType
   SHELL = 3     ///< 1D spherical geometry.
 };
 
-std::string cell_type_name(const CellType cell_type);
-
-
 //######################################################################
+
 /**
  * \brief A class representing a cell on a Mesh.
  *
