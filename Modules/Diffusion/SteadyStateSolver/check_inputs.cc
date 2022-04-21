@@ -20,8 +20,6 @@ void diffusion::SteadyStateSolver::check_inputs()
   }
 
   // Check the discretization
-  typedef math::SpatialDiscretizationMethod SDMethod;
-
   if (discretization == nullptr)
   {
     std::stringstream err;

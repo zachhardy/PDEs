@@ -12,8 +12,6 @@
  */
 void diffusion::SteadyStateSolver::initialize_materials()
 {
-  typedef material::MaterialPropertyType PropertyType;
-
   // Determine unique material ids
   std::set<int> unique_material_ids;
   for (const auto& cell : mesh->cells)
@@ -35,7 +33,6 @@ void diffusion::SteadyStateSolver::initialize_materials()
   matid_to_src_map.assign(materials.size(), -1);
 
   // Iterate over unique material ids
-  typedef material::IsotropicMultiGroupSource IsotropicMGSource;
   for (const int& material_id : unique_material_ids)
   {
     auto material = materials[material_id];
@@ -44,9 +41,9 @@ void diffusion::SteadyStateSolver::initialize_materials()
     for (const auto& property : material->properties)
     {
       // Handle cross sections
-      if (property->type == PropertyType::CROSS_SECTIONS)
+      if (property->type == MaterialPropertyType ::CROSS_SECTIONS)
       {
-        auto xs = std::static_pointer_cast<material::CrossSections>(property);
+        auto xs = std::static_pointer_cast<CrossSections>(property);
 
         /* Add the cross sections to the back of the list, assign the position
          * of the cross sections in the list to the corresponding entry for
@@ -58,7 +55,7 @@ void diffusion::SteadyStateSolver::initialize_materials()
       }
 
       // Handle isotropic multigroup sources
-      else if (property->type == PropertyType::ISOTROPIC_MG_SOURCE)
+      else if (property->type == MaterialPropertyType ::ISOTROPIC_MG_SOURCE)
       {
         auto src = std::static_pointer_cast<IsotropicMGSource>(property);
 

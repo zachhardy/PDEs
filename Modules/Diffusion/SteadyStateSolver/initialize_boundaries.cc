@@ -14,6 +14,7 @@ void diffusion::SteadyStateSolver::initialize_boundaries()
   int boundary_id = 0;
   for (const auto& bndry : boundary_info)
   {
+    // Get the boundary type and boundary values
     std::vector<BndryPtr> mg_boundary;
     const auto& btype = bndry.first;
     const auto& bvals = bndry.second;

@@ -1,5 +1,6 @@
 #include "steadystate_solver.h"
 #include "LinearSolvers/lu.h"
+#include "LinearSolvers/cholesky.h"
 #include <iomanip>
 
 void diffusion::SteadyStateSolver::execute()
@@ -8,8 +9,9 @@ void diffusion::SteadyStateSolver::execute()
 
   assemble_matrix();
   assemble_rhs_vector();
+  std::cout << system_matrix.to_string();
 
-  math::LU solver(system_matrix);
+  math::linear_solver::Cholesky solver(system_matrix);
   phi = solver.solve(system_rhs);
 
   std::cout << "Solution:\t" << phi.to_string();

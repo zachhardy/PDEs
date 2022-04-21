@@ -1,28 +1,30 @@
 #include "steadystate_solver.h"
 
 //############################################################
+
 void diffusion::SteadyStateSolver::assemble_matrix()
 {
   switch (discretization->type)
   {
-    case math::SpatialDiscretizationMethod::FINITE_VOLUME:
-    { fv_assemble_matrix(); break; }
+    case SDMethod::FINITE_VOLUME: { fv_assemble_matrix(); break; }
+    default: return;
   }
 }
 
 
 //############################################################
+
 void diffusion::SteadyStateSolver::assemble_rhs_vector()
 {
   switch (discretization->type)
   {
-    case math::SpatialDiscretizationMethod::FINITE_VOLUME:
-    { fv_assemble_rhs_vector(); break; }
+    case SDMethod::FINITE_VOLUME: { fv_assemble_rhs_vector(); break; }
+    default: return;
   }
 }
 
-
 //############################################################
+
 void diffusion::SteadyStateSolver::fv_assemble_matrix()
 {
   system_matrix *= 0.0; // Zero out the matrix
@@ -115,6 +117,7 @@ void diffusion::SteadyStateSolver::fv_assemble_matrix()
 
 
 //############################################################
+
 void diffusion::SteadyStateSolver::fv_assemble_rhs_vector()
 {
   system_rhs *= 0.0; // Zero out the vector
