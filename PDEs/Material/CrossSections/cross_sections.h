@@ -9,10 +9,7 @@
 namespace material
 {
 
-/**
- * A class for material cross sections for use in neutron diffusion
- * and neutron transport applications.
- */
+/// Neutron cross sections.
 class CrossSections : public MaterialProperty
 {
 protected:
