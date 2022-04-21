@@ -48,10 +48,10 @@ public:
   std::vector<std::shared_ptr<material::IsotropicMultiGroupSource>> material_src;
 
   /** Map a material ID to a particular CrossSection object.
-   *  See \ref initialize_materials. */
+   *  See \ref initialize_materials implementation for details. */
   std::vector<int> matid_to_xs_map;
   /** Map a material ID to a particular IsotropicMultiGroupSource object.
-   * See \ref initialize_materials. */
+   * See \ref initialize_materials implementation for details. */
   std::vector<int> matid_to_src_map;
 
   /** A mapping between the boundary ID and its description.
@@ -76,21 +76,20 @@ public:
 
 public:
 
-  void initialize(); ///< Initialize the diffusion solver.
-  void execute(); ///< Execute the diffusion solver.
-
-  void assemble_matrix(); ///< Assemble the matrix
-  void assemble_rhs_vector(); ///< Assemble the right-hand side.
+  void initialize();
+  void execute();
 
 private:
-  void fv_assemble_matrix(); ///< Assemble the matrix with the FV method.
-  void fv_assemble_rhs_vector(); ///< Assemble the RHS with the FV method.
+  void assemble_matrix();
+  void assemble_rhs_vector();
+
+  void fv_assemble_matrix();
+  void fv_assemble_rhs_vector();
 
 private:
-
-  void check_inputs(); ///< Check the solver inputs for validity.
-  void initialize_materials(); ///< Initialize the materials for simple access.
-  void initialize_boundaries(); ///< Initialize the boundary conditions.
+  void check_inputs();
+  void initialize_materials();
+  void initialize_boundaries();
 };
 
 }

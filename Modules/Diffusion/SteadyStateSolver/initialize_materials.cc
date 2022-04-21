@@ -2,7 +2,14 @@
 
 #include <set>
 
-
+/**
+ * \brief Initialize the material properties.
+ *
+ * Extract cross sections and sources from each material properties list for
+ * easy access. Each material must contain a cross section property and sources
+ * are optional. This routine creates a list of cross sections and sources and
+ * a corresponding mapping to the appropriate material ID defined on a Cell.
+ */
 void diffusion::SteadyStateSolver::initialize_materials()
 {
   typedef material::MaterialPropertyType PropertyType;
@@ -33,7 +40,6 @@ void diffusion::SteadyStateSolver::initialize_materials()
   {
     auto material = materials[material_id];
 
-    // Iterate over properties
     bool found_xs = false; bool found_src = false;
     for (const auto& property : material->properties)
     {
@@ -41,6 +47,10 @@ void diffusion::SteadyStateSolver::initialize_materials()
       if (property->type == PropertyType::CROSS_SECTIONS)
       {
         auto xs = std::static_pointer_cast<material::CrossSections>(property);
+
+        /* Add the cross sections to the back of the list, assign the position
+         * of the cross sections in the list to the corresponding entry for
+         * the current unique material ID in the mapping. */
         material_xs.push_back(xs);
         matid_to_xs_map[material_id] = material_xs.size() - 1;
         if (n_groups == 0) n_groups = xs->n_groups;
@@ -51,6 +61,10 @@ void diffusion::SteadyStateSolver::initialize_materials()
       else if (property->type == PropertyType::ISOTROPIC_MG_SOURCE)
       {
         auto src = std::static_pointer_cast<IsotropicMGSource>(property);
+
+        /* Add the cross sections to the back of the list, assign the position
+         * of the cross sections in the list to the corresponding entry for
+         * the current unique material ID in the mapping. */
         material_src.push_back(src);
         matid_to_src_map[material_id] = material_src.size() - 1;
         found_src = true;
@@ -58,7 +72,7 @@ void diffusion::SteadyStateSolver::initialize_materials()
     }//for property
 
     // Check validity of properties
-    if (!found_xs)
+    if (not found_xs)
     {
       std::stringstream err;
       err << "diffusion::SteadyStateSolver::" << __FUNCTION__ << ": "

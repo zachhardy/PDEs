@@ -1,6 +1,13 @@
 #include "steadystate_solver.h"
 
-
+/**
+ * \brief Initialize the boundary conditions.
+ *
+ * Boundary conditions are stored first boundary-wise, then group-wise. This
+ * allows for the complete specification of unique boundary conditions across
+ * all groups. This routine essentially parses the specialized input structures
+ * to create appropriate objects.
+ */
 void diffusion::SteadyStateSolver::initialize_boundaries()
 {
   // Loop over boundaries

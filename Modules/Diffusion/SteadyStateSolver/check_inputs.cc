@@ -1,6 +1,6 @@
 #include "steadystate_solver.h"
 
-
+/// Check the solver to ensure valid inputs.
 void diffusion::SteadyStateSolver::check_inputs()
 {
   // Check the mesh
