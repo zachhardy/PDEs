@@ -6,13 +6,16 @@
 
 #include <memory>
 
+namespace math
+{
+
 enum class SpatialDiscretizationMethod
 {
-  FINITE_VOLUME                   = 1,  ///< Finite volume (FV)
-  PIECEWISE_LINEAR_CONTINUOUS     = 2,  ///< Linear continuous (PWLC)
-  PIECEWISE_LINEAR_DISCONTINIOUS  = 3,  ///< Linear dicontinuous (PWLD)
-  LAGRANGE_CONTINUOUS             = 4,  ///< Continuous finite elements (CFEM)
-  LAGRANGE_DISCONTINUOUS          = 5   ///< Discontinuous finite elements (DFEM)
+  FINITE_VOLUME = 1,  ///< Finite volume (FV)
+  PIECEWISE_LINEAR_CONTINUOUS = 2,  ///< Linear continuous (PWLC)
+  PIECEWISE_LINEAR_DISCONTINIOUS = 3,  ///< Linear dicontinuous (PWLD)
+  LAGRANGE_CONTINUOUS = 4,  ///< Continuous finite elements (CFEM)
+  LAGRANGE_DISCONTINUOUS = 5   ///< Discontinuous finite elements (DFEM)
 };
 
 //######################################################################
@@ -28,19 +31,14 @@ enum class SpatialDiscretizationMethod
 class SpatialDiscretization
 {
 public:
-  const std::shared_ptr<grid::Mesh> mesh; ///< A pointer to the Mesh.
-  const SpatialDiscretizationMethod type; ///< The SpatialDiscretization type.
+  const std::shared_ptr<grid::Mesh> mesh;
+  const SpatialDiscretizationMethod type;
 
 public:
-  /**
-   * \brief Default constructor.
-   * \param in_mesh The spatial mesh being discretized.
-   * \param in_type The type of spatial discretization.
-   */
   explicit
-  SpatialDiscretization(const std::shared_ptr<Mesh> reference_mesh,
+  SpatialDiscretization(const std::shared_ptr<grid::Mesh> reference_mesh,
                         const SpatialDiscretizationMethod discretization_type)
-    : mesh(reference_mesh), type(discretization_type)
+      : mesh(reference_mesh), type(discretization_type)
   {}
 
 public:
@@ -49,7 +47,8 @@ public:
    *
    * This method should be overridden in derived classses.
    */
-  virtual size_t n_nodes() const { return 0; }
+  virtual size_t n_nodes() const
+  { return 0; }
 
   /**
    * \brief Get the number of DoFs in the spatial discretization.
@@ -64,7 +63,8 @@ public:
    *
    * This method should be overridden in derived classes.
    */
-  virtual size_t nodes_per_cell() const { return 0; }
+  virtual size_t nodes_per_cell() const
+  { return 0; }
 
   /**
    * \brief Get the number of DoFs per cell.
@@ -79,8 +79,9 @@ public:
    *
    * This method should be overridden in derived classes.
    */
-  virtual std::vector<Point> nodes() const = 0;
+  virtual std::vector<grid::Point> nodes() const = 0;
 
 };
 
+}
 #endif //SPATIAL_DISCRETIZATION_H

@@ -4,6 +4,8 @@
 #include "SpatialDiscretization/spatial_discretization.h"
 #include "Grid/Cell/cell.h"
 
+namespace math
+{
 
 /**
  * \brief A class for finite volume (FV) discretizations.
@@ -20,9 +22,9 @@ class FiniteVolume : public SpatialDiscretization
 public:   /*---------- Constructors, Destructors, and Assignment ----------*/
 
   /// Default constructor.
-  explicit FiniteVolume(std::shared_ptr<Mesh> reference_mesh)
-    : SpatialDiscretization(reference_mesh,
-                            SpatialDiscretizationMethod::FINITE_VOLUME)
+  explicit FiniteVolume(std::shared_ptr<grid::Mesh> reference_mesh)
+      : SpatialDiscretization(reference_mesh,
+                              SpatialDiscretizationMethod::FINITE_VOLUME)
   {}
 
 public: /*---------- Routines ----------*/
@@ -32,7 +34,8 @@ public: /*---------- Routines ----------*/
    *
    * For FV methods, this is the number of Cell objects on the Mesh.
    */
-  size_t n_nodes() const override { return mesh->cells.size(); }
+  size_t n_nodes() const override
+  { return mesh->cells.size(); }
 
   /**
    * \brief Get the number of DoFs in the FV discretization.
@@ -51,7 +54,8 @@ public: /*---------- Routines ----------*/
    *
    * For FV methods, this is 1.
    */
-  size_t nodes_per_cell() const override { return 1; }
+  size_t nodes_per_cell() const override
+  { return 1; }
 
   /**
    * \brief Get the number of DoFs per cell in the FV discretization.
@@ -68,15 +72,15 @@ public: /*---------- Routines ----------*/
    *
    * For FV methods, this is the Centroid of each Cell object.
    */
-  std::vector<Point> nodes() const override
+  std::vector<grid::Point> nodes() const override
   {
-    std::vector<Point> nodes;
+    std::vector<grid::Point> nodes;
     nodes.reserve(mesh->cells.size());
     for (const auto& cell : mesh->cells)
       nodes.emplace_back(cell->centroid);
     return nodes;
   }
-
 };
 
+}
 #endif //FINITE_VOLUME_H
