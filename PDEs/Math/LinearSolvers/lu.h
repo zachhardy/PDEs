@@ -29,7 +29,7 @@ public:
 
 public:
   /**
-   * \brief Perform the LU factorization and set initialized.
+   * \brief Perform the LU factorization.
    *
    * See \ref math::lu_factorization for implementation details.
    */
