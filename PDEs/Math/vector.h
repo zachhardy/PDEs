@@ -51,7 +51,6 @@ public:
     m_data = other.m_data;
     return *this;
   }
-
   /// Move assignment operator.
   Vector& operator=(Vector&& other)
   {
@@ -59,14 +58,13 @@ public:
     return *this;
   }
 
-  /// Copy assignment using an STL vector.
+  /// Copy assignment from an STL vector.
   Vector& operator=(const vector & other)
   {
     m_data = other;
     return *this;
   }
-
-  /// Move assignment using an STL vector
+  /// Move assignment from an STL vector
   Vector& operator=(vector&& other)
   {
     m_data = std::move(other);
@@ -80,7 +78,17 @@ public:
     return *this;
   }
 
-  ~Vector() = default; ///< Default destructor.
+  /// Comparison operator.
+  bool operator==(const Vector& other)
+  {
+    if (other.size() != this->size())
+      this->mismatched_size_error(__FUNCTION__);
+
+    bool is_equal = true;
+    for (size_t i = 0; i < this->size(); ++i)
+      if (other[i] != m_data[i]) { is_equal = false; break; }
+    return is_equal;
+  }
 
 public:
   /** \name Access Operators */
@@ -126,14 +134,14 @@ public:
   void pop_back() { m_data.pop_back(); }
 
   /// Resize to \p new_size elements, setting new elements to default.
-  void resize(size_t new_size) { m_data.resize(new_size); }
+  void resize(const size_t new_size) { m_data.resize(new_size); }
   /// Resize to \p new_size elements, setting new elements to default.
-  void resize(size_t new_size, const double value)
+  void resize(const size_t new_size, const double value)
   { m_data.resize(new_size, value); }
 
-  /// Swap the elements of this Vector with another Vector.
+  /// Swap the elements of this vector and another.
   void swap(Vector& other) { m_data.swap(other.m_data); }
-  /// Swap the elements of this Vector with an STL vector.
+  /// Swap the elements of this vector and an STL vector.
   void swap(vector& other) { m_data.swap(other); }
 
   /** @} */
@@ -181,7 +189,6 @@ public:
    * \f]
    */
   Vector operator-() const { return -Vector(m_data); }
-
   /// See \ref operator-() const
   Vector& operator-()
   {
@@ -204,7 +211,6 @@ public:
       entry *= c;
     return v;
   }
-
   /// See \ref operator*(const double c) const
   Vector& operator*=(const double c)
   {
@@ -230,7 +236,6 @@ public:
       entry /= c;
     return v;
   }
-
   /// See \ref  operator/(const double c) const
   Vector& operator/=(const double c)
   {
@@ -263,7 +268,6 @@ public:
       v[i] = m_data[i] + other[i];
     return v;
   }
-
   /// See \ref operator+(const Vector& other) const
   Vector& operator+=(const Vector& other)
   {
@@ -274,7 +278,6 @@ public:
       m_data[i] += other[i];
     return *this;
   }
-
 
   /**
    * \brief Element-wise subtraction of two vectors.
@@ -293,7 +296,6 @@ public:
       v[i] = m_data[i] - other[i];
     return v;
   }
-
   /// See \ref operator-(const Vector& other) const
   Vector& operator-=(const Vector& other)
   {
@@ -322,7 +324,6 @@ public:
       v[i] = m_data[i] * other[i];
     return v;
   }
-
   /// See \ref operator*(const Vector& other) const
   Vector& operator*=(const Vector& other)
   {
@@ -353,7 +354,6 @@ public:
       v[i] = m_data[i] / other[i];
     return v;
   }
-
   /// See \ref operator/(const Vector& other) const
   Vector& operator/(const Vector& other)
   {

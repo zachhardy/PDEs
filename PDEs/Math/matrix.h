@@ -12,17 +12,17 @@ namespace math
 
 class Matrix
 {
-private:
-  /// The underlying matrix data.
-  std::vector<std::vector<double>> m_data;
-
 public:
   typedef std::vector<double> vector;
   typedef std::vector<vector> matrix;
 
+private:
+  matrix m_data;
+
 public:
   /// Default constructor.
   Matrix() = default;
+
   /// Construct a matrix of dimension \p n set to default.
   explicit Matrix(size_t n) : m_data(n, vector(n)) {}
   /// Construct a matrix of dimension \p n set to \p value.
@@ -34,7 +34,6 @@ public:
   explicit Matrix(size_t n_rows, size_t n_cols)
     : m_data(n_rows, vector(n_cols))
   {}
-
   /// Construct a matrix with \p n_rows and \p n_cols set to \p value.
   explicit Matrix(size_t n_rows, size_t n_cols, const double value)
     : m_data(n_rows, vector(n_cols, value))
@@ -45,14 +44,14 @@ public:
   /// Move constructor
   Matrix(Matrix&& other) :  m_data(std::move(other.m_data)) {}
 
-  /// Copy construction of a matrix from an STL vector.
+  /// Copy construction from an STL vector.
   Matrix(const matrix& other)
   {
     if (not this->valid_stl(other))
       this->invalid_stl_error(__FUNCTION__);
     m_data = other;
   }
-  /// Move construction of a matrix from an STL vector.
+  /// Move construction from an STL vector.
   Matrix(matrix&& other)
   {
     if (not this->valid_stl(other))
@@ -60,7 +59,7 @@ public:
     m_data = std::move(other);
   }
 
-  /// Construct a matrix from an initialized list.
+  /// Construction from a nested initializer list.
   Matrix(std::initializer_list<std::initializer_list<double>> list)
   {
     matrix other;
@@ -79,7 +78,6 @@ public:
     m_data = other.m_data;
     return *this;
   }
-
   /// Move assignment operator.
   Matrix& operator=(Matrix&& other)
   {
@@ -96,7 +94,6 @@ public:
     m_data = other;
     return *this;
   }
-
   /// Move assignment from an STL vector
   Matrix& operator=(matrix&& other)
   {
@@ -104,6 +101,23 @@ public:
       this->invalid_stl_error(__FUNCTION__);
     m_data = std::move(other);
     return *this;
+  }
+
+  /// Comparison operator.
+  bool operator==(const Matrix& other)
+  {
+    if (other.n_rows() != this->n_rows() or
+        other.n_cols() != this->n_cols())
+      this->mismatched_size_error(__FUNCTION__);
+
+    bool is_equal = true;
+    for (size_t i = 0; i < this->n_rows(); ++i)
+    {
+      for (size_t j = 0; j < this->n_cols(); ++j)
+        if (other[i][j] != m_data[i][j]) { is_equal = false; break; }
+      if (not is_equal) break;;
+    }
+    return is_equal;
   }
 
 public:
@@ -138,40 +152,95 @@ public:
   /** \name Modifiers */
   /** @{ */
 
-  /// Clear the matrix
+  /// Clear the elements.
   void clear() { m_data.clear(); }
 
-  /// Resize the matrix to dimension \p n with default new values.
+  /// Remove the last row.
+  void pop_back() { m_data.pop_back(); }
+
+  /// Add a new row from \p values to the back of the matrix.
+  void push_back(const vector& values) { m_data.push_back(values); }
+  /// Add a new row from \p values in place to the back.
+  void emplace_back(const vector& values) { m_data.emplace_back(values); }
+
+  /// Resize to dimension \p n with default new values.
   void resize(const size_t n)
   {
     m_data.resize(n);
     for (auto& row : m_data)
       row.resize(n);
   }
-
-  /// Resize the matrix to dimension \p n, setting new elements to \p value.
+  /// Resize to dimension \p n, setting new elements to \p value.
   void resize(const size_t n, const double value)
   {
     m_data.resize(n);
     for (auto& row : m_data)
       row.resize(n, value);
   }
-
-  /// Resize the matrix to \p n_rows and \p n_cols with default new values.
+  /// Resize to \p n_rows and \p n_cols with default new values.
   void resize(const size_t n_rows, const size_t n_cols)
   {
     m_data.resize(n_rows);
     for (auto& row : m_data)
       row.resize(n_cols);
   }
-
-  /// Resize the matrix to \p n_rows and \p n_cols, setting new elements to \p value.
+  /// Resize to \p n_rows and \p n_cols, setting new elements to \p value.
   void resize(const size_t n_rows, const size_t n_cols, const double value)
   {
     m_data.resize(n_rows);
     for (auto& row : m_data)
       row.resize(n_cols, value);
   }
+
+  /// Swap the elements of two rows.
+  void swap_row(const size_t row0, const size_t row1)
+  { m_data[row0].swap(m_data[row1]); }
+  /// Swap the elements of a row and another vector.
+  void swap_row(const size_t row, Vector& other)
+  {
+    if (other.size() != this->n_cols())
+      this->mismatched_size_error(__FUNCTION__);
+
+    for (size_t j = 0; j < this->n_cols(); ++j)
+      std::swap(m_data[row][j], other[j]);
+  }
+  /// Swap the elements of a row with an STL vector.
+  void swap_row(const size_t row, vector& other)
+  {
+    if (other.size() != this->n_cols())
+      this->mismatched_size_error(__FUNCTION__);
+    m_data[row].swap(other);
+  }
+
+  /// Swap the elements of two columns.
+  void swap_column(const size_t column0, const size_t column1)
+  {
+    for (size_t i = 0; i < this->n_rows(); ++i)
+      std::swap(m_data[i][column0], m_data[i][column1]);
+  }
+  /// Swap the elements of a column and another vector.
+  void swap_column(const size_t column, Vector& other)
+  {
+    if (other.size() != this->n_rows())
+      this->mismatched_size_error(__FUNCTION__);
+
+    for (size_t i = 0; i < this->n_rows(); ++i)
+      std::swap(m_data[i][column], other[i]);
+  }
+  /// Swap the elements of a column with an STL vector.
+  void swap_column(const size_t column, vector& other)
+  {
+    if (other.size() != this->n_rows())
+      this->mismatched_size_error(__FUNCTION__);
+
+    for (size_t i = 0; i < this->n_rows(); ++i)
+      std::swap(m_data[i][column], other[i]);
+  }
+
+  /// Swap the elements of this matrix with another.
+  void swap(Matrix& other) { m_data.swap(other.m_data); }
+  /// Swap the elements of this matrix and an STL vector.
+  void swap(matrix& other) { m_data.swap(other); }
 
   /** @} */
   /** \name Memory */
@@ -184,7 +253,7 @@ public:
   size_t n_rows() const { return m_data.size(); }
   /// Return the number of columns.
   size_t n_cols() const { return m_data.front().size(); }
-  /// Return the number of elements in the matirx.
+  /// Return the number of elements <tt> n_rows * n_cols </tt>.
   size_t size() const { return this->n_rows() * this->n_cols(); }
 
   /// Get the number of rows that can be held in allocated memory.
@@ -196,7 +265,7 @@ public:
   }
 
   /// Return whether the matrix is empty.
-  bool empty() const { return m_data.empty(); }
+  bool empty() const noexcept { return m_data.empty(); }
 
   /** @} */
 public:
@@ -252,7 +321,6 @@ public:
         entry *= value;
     return m;
   }
-
   /// See \ref operator*(const double value) const
   Matrix& operator*=(const double value)
   {
@@ -280,7 +348,6 @@ public:
         entry /= value;
     return m;
   }
-
   /// See \ref operator/(const double value) const
   Matrix& operator/=(const double value)
   {
@@ -316,7 +383,6 @@ public:
         m[i][j] = m_data[i][j] + other[i][j];
     return m;
   }
-
   /// See \ref operator+(const Matrix& other) const
   Matrix& operator+=(const Matrix& other)
   {
@@ -349,7 +415,6 @@ public:
         m[i][j] = m_data[i][j] - other[i][j];
     return m;
   }
-
   /// See \ref operator-(const Matrix& other) const
   Matrix& operator-=(const Matrix& other)
   {
@@ -466,13 +531,11 @@ public:
         m_data[i][i] = diagonal[i];
     }
   }
-
   /// Set the diagonal of the matrix with an STL vector.
   void set_diagonal(const vector& diagonal)
   {
     return this->set_diagonal(Vector(diagonal));
   }
-
   /// Set the diagonal of the matrix with a fixed scalar value.
   void set_diagonal(const double value)
   {
@@ -487,33 +550,6 @@ public:
     size_t min_dim = std::min(this->n_rows(), this->n_cols());
     for (size_t i = 0; i < min_dim; ++i)
       m_data[i][i] = value;
-  }
-
-  /// Swap two rows.
-  void swap_row(size_t row0, size_t row1)
-  {
-    if (row0 > this->n_rows() or row1 > this->n_rows())
-    {
-      std::stringstream err;
-      err << "Matrix::" << __FUNCTION__ << ": "
-          << "Invalid row index encountered.";
-      throw std::length_error(err.str());
-    }
-    std::swap(m_data[row0], m_data[row1]);
-  }
-
-  /// Swap two columns.
-  void swap_column(size_t col0, size_t col1)
-  {
-    if (col0 > this->n_cols() or col1 > this->n_cols())
-    {
-      std::stringstream err;
-      err << "Matrix::" << __FUNCTION__ << ": "
-          << "Invalid column index encountered.";
-      throw std::length_error(err.str());
-    }
-    for (size_t i = 0; i < this->n_rows(); ++i)
-      std::swap(m_data[i][col0], m_data[i][col1]);
   }
 
   /// Return the number of non-zeros.
