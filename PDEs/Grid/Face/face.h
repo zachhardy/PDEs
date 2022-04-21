@@ -4,6 +4,9 @@
 #include "grid_structs.h"
 #include <vector>
 
+namespace grid
+{
+
 /**
  * \brief A class that represents a face on a Cell.
  *
@@ -19,25 +22,24 @@
 class Face
 {
 public:
-  std::vector<size_t> vertex_ids; ///< The vertex IDs that belong to this face.
+  std::vector<size_t> vertex_ids;
 
-  bool has_neighbor = false; ///< Flag for having a neighbor cell.
-  size_t neighbor_id = 0;    ///< The neighbor cell ID or boundary ID.
+  bool has_neighbor = false;
+  size_t neighbor_id = 0;  ///< The neighbor cell or boundary ID.
 
-  Normal normal;     ///< The face's outward pointing normal vector.
-  Centroid centroid; ///< The centroid of the face.
-  double area = 0.0; ///< The area of the face.
-
-public:
-  Face() = default;                    ///< Default constructor.
-  Face(const Face& other);             ///< Copy constructor.
-  Face(Face&& other);                  ///< Move constructor.
-  Face& operator=(const Face& other);  ///< Assignment operator.
+  Normal normal;
+  Centroid centroid;
+  double area = 0.0;
 
 public:
-  /// Get the contents of the Face to a string.
+  Face() = default;
+  Face(const Face& other);
+  Face(Face&& other);
+  Face& operator=(const Face& other);
+
+public:
   std::string to_string() const;
 };
 
-
+}
 #endif //FACE_H

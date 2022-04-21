@@ -1,11 +1,14 @@
 #ifndef POINT_H
 #define POINT_H
 
+#include <array>
+#include <cmath>
+
 #include <iostream>
 #include <sstream>
 
-#include <array>
-#include <cmath>
+namespace grid
+{
 
 /**
  * A struct for representint a point vector in Cartesian space.
@@ -405,4 +408,5 @@ inline Point direction(const Point& p) { return Point(p)/p.length(); }
 /// Return the absolute value of a point vector.
 inline Point abs(const Point& p) { return Point(fabs(p.x), fabs(p.y), fabs(p.z)); }
 
+}
 #endif //POINT_H

@@ -1,6 +1,6 @@
 #include "face.h"
 
-Face::Face(const Face& other)
+grid::Face::Face(const Face& other)
   : vertex_ids(other.vertex_ids),
     normal(other.normal),
     centroid(other.centroid),
@@ -12,7 +12,7 @@ Face::Face(const Face& other)
 
 //######################################################################
 
-Face::Face(Face&& other)
+grid::Face::Face(Face&& other)
   : vertex_ids(std::move(other.vertex_ids)),
     normal(other.normal),
     centroid(other.centroid),
@@ -23,7 +23,7 @@ Face::Face(Face&& other)
 
 //######################################################################
 
-Face& Face::operator=(const Face& other)
+grid::Face& grid::Face::operator=(const Face& other)
 {
   vertex_ids = other.vertex_ids;
   normal = other.normal;
@@ -36,7 +36,7 @@ Face& Face::operator=(const Face& other)
 
 //######################################################################
 
-std::string Face::to_string() const
+std::string grid::Face::to_string() const
 {
   std::stringstream ss;
   int v = 0;

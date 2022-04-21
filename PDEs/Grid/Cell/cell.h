@@ -6,7 +6,9 @@
 
 #include <vector>
 
-/// The available Cell types.
+namespace grid
+{
+
 enum class CellType
 {
   SLAB = 1,     ///< 1D Cartesian geometry.
@@ -14,7 +16,6 @@ enum class CellType
   SHELL = 3     ///< 1D spherical geometry.
 };
 
-/// Get the Cell type as a string.
 std::string cell_type_name(const CellType cell_type);
 
 
@@ -44,32 +45,28 @@ std::string cell_type_name(const CellType cell_type);
 class Cell
 {
 public:
+  const CellType type;
+  size_t id;
+  int material_id = 0;
 
-  const CellType type; ///< The type of the cell.
-  size_t id;           ///< A unique identifier tag.
-  int material_id = 0; ///< A tag to map to material properties.
+  Centroid  centroid;
+  double volume = 0.0;
 
-  // Geometric information
-  Centroid  centroid;   ///< The centroid of the cell.
-  double volume = 0.0; ///< The volume of the cell.
-
-  std::vector<size_t> vertex_ids; ///< The vertex IDs that belong to the cell.
-  std::vector<Face> faces;        ///< The faces that bound the cell.
+  std::vector<size_t> vertex_ids;
+  std::vector<Face> faces;
 
 public:
-
-  /// Default constructor.
   explicit Cell(const CellType cell_type)
     : type(cell_type)
   {}
 
-  Cell(const Cell& other);            ///< Copy constructor.
-  Cell(Cell&& other);                 ///< Move constructor.
-  Cell& operator=(const Cell& other); ///< Assignment operator.
+  Cell(const Cell& other);
+  Cell(Cell&& other);
+  Cell& operator=(const Cell& other);
 
 public:
-  /// Print the contents of the Cell to a string.
   std::string to_string() const;
 };
 
+}
 #endif //CELL_H

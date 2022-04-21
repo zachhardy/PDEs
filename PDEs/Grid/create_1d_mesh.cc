@@ -4,10 +4,15 @@
 #include <vector>
 #include <numeric>
 
-//######################################################################
-std::shared_ptr<Mesh>
-create_1d_mesh(const std::vector<double>& vertices,
-               const CoordinateSystem coordinate_system)
+/**
+ * \brief Create a 1D mesh from a list of vertices.
+ * \param vertices A list of vertex locations.
+ * \param coordinate_system The coordinate system type. The default is
+ *                          Cartesian coordinates.
+ */
+std::shared_ptr<grid::Mesh>
+grid::create_1d_mesh(const std::vector<double>& vertices,
+                     const CoordinateSystem coordinate_system)
 {
   std::cout << "Creating a 1D mesh from vertices." << std::endl;
 
@@ -49,27 +54,11 @@ create_1d_mesh(const std::vector<double>& vertices,
   switch (coordinate_system)
   {
     case CoordinateSystem::CARTESIAN:
-    {
-      cell_type = CellType::SLAB;
-      break;
-    }
+    { cell_type = CellType::SLAB; break; }
     case CoordinateSystem::CYLINDRICAL:
-    {
-      cell_type = CellType::ANNULUS;
-      break;
-    }
+    { cell_type = CellType::ANNULUS; break; }
     case CoordinateSystem::SPHERICAL:
-    {
-      cell_type = CellType::SHELL;
-      break;
-    }
-    default:
-    {
-      std::stringstream err;
-      err << __FUNCTION__ << ": "
-          << "CellType could not be determined from CoordinateSystem.";
-      throw std::runtime_error(err.str());
-    }
+    { cell_type = CellType::SHELL; break; }
   }
 
   // Create the cells
@@ -115,14 +104,23 @@ create_1d_mesh(const std::vector<double>& vertices,
 
 //############################################################
 /**
+ * \brief Create a zoned 1D mesh.
+ *
  * Zones are defined by edges, a number of subdivisions (cells), and a
  * material ID. This allows for non-uniform cells throughout the mesh and
+ *
+ * \param zone_edges The edges of mesh zones. There should be one more
+ *                   zone edge than number of zones.
+ * \param zone_subdivisions The number of cells per zone.
+ * \param material_ids The material ID per zone.
+ * \param coordinate_system The coordinate system type. The default is
+ *                          Cartesian coordinates.
  */
-std::shared_ptr<Mesh>
-create_1d_mesh(const std::vector<double>& zone_edges,
-               const std::vector<size_t>& zone_subdivisions,
-               const std::vector<int>& material_ids,
-               const CoordinateSystem coordinate_system)
+std::shared_ptr<grid::Mesh>
+grid::create_1d_mesh(const std::vector<double>& zone_edges,
+                     const std::vector<size_t>& zone_subdivisions,
+                     const std::vector<int>& material_ids,
+                     const CoordinateSystem coordinate_system)
 {
   std::cout << "Creating a 1D mesh from zones." << std::endl;
 
@@ -181,27 +179,11 @@ create_1d_mesh(const std::vector<double>& zone_edges,
   switch (coordinate_system)
   {
     case CoordinateSystem::CARTESIAN:
-    {
-      cell_type = CellType::SLAB;
-      break;
-    }
+    { cell_type = CellType::SLAB; break; }
     case CoordinateSystem::CYLINDRICAL:
-    {
-      cell_type = CellType::ANNULUS;
-      break;
-    }
+    { cell_type = CellType::ANNULUS; break; }
     case CoordinateSystem::SPHERICAL:
-    {
-      cell_type = CellType::SHELL;
-      break;
-    }
-    default:
-    {
-      std::stringstream err;
-      err << __FUNCTION__ << ": "
-          << "CellType could not be determined from CoordinateSystem.";
-      throw std::runtime_error(err.str());
-    }
+    { cell_type = CellType::SHELL; break; }å
   }
 
   // Create the cells, loop over zones, then cells per zone

@@ -4,6 +4,8 @@
 #include <set>
 
 /**
+ * \brief Establish the relationships between cells and their neighbors.
+ *
  * Connectivity is established by
  * 1. For each Vertex, determine which Cell objects the Vertex belongs to.
  * 2. For each Face of each Cell, compare vertex ids to those of adjacent cells

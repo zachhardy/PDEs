@@ -2,20 +2,20 @@
 
 #include <cmath>
 
-std::string cell_type_name(const CellType cell_type)
+std::string grid::cell_type_name(const CellType cell_type)
 {
   switch (cell_type)
   {
-    case CellType::SLAB:      return "SLAB";
-    case CellType::ANNULUS:   return "ANNULUS";
-    case CellType::SHELL:     return "SHELL";
-    default:                  return "NONE";
+    case CellType::SLAB: return "SLAB";
+    case CellType::ANNULUS: return "ANNULUS";
+    case CellType::SHELL: return "SHELL";
+    default: return "UNDEFINED";
   }
 }
 
 //######################################################################
 
-Cell::Cell(const Cell& other)
+grid::Cell::Cell(const Cell& other)
   : type(other.type),
     id(other.id),
     material_id(other.material_id),
@@ -27,7 +27,7 @@ Cell::Cell(const Cell& other)
 
 //######################################################################
 
-Cell::Cell(Cell&& other)
+grid::Cell::Cell(Cell&& other)
     : type(other.type),
     id(other.id),
     material_id(other.material_id),
@@ -39,7 +39,7 @@ Cell::Cell(Cell&& other)
 
 //######################################################################
 
-Cell& Cell::operator=(const Cell& other)
+grid::Cell& grid::Cell::operator=(const Cell& other)
 {
   id = other.id;
   material_id = other.material_id;
@@ -52,7 +52,7 @@ Cell& Cell::operator=(const Cell& other)
 
 //######################################################################
 
-std::string Cell::to_string() const
+std::string grid::Cell::to_string() const
 {
   std::stringstream ss;
   ss << "***** Cell " << id << " *****\n";

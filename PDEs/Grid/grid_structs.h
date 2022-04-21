@@ -5,8 +5,9 @@
 #include <vector>
 #include <memory>
 
+namespace grid
+{
 
-/// Coordinate system types.
 enum class CoordinateSystem
 {
   CARTESIAN   = 1,  ///< \f$ (x, y, z) \f$ coordinates
@@ -14,8 +15,17 @@ enum class CoordinateSystem
   SPHERICAL   = 3   ///< \f$ (r, \varphi, \theta) \f$ coordinates
 };
 
-/// Get the coordinate system type as a string.
-std::string coordinate_system_name(const CoordinateSystem coordinate_system);
+inline std::string
+coordinate_system_name(const CoordinateSystem coordinate_system)
+{
+  switch (coordinate_system)
+  {
+    case CoordinateSystem::CARTESIAN: return "CARTESIAN";
+    case CoordinateSystem::CYLINDRICAL: return "CYLINDRICAL";
+    case CoordinateSystem::SPHERICAL: return "SPHERICAL";
+    default: return "UNDEFINED";
+  }
+}
 
 //######################################################################
 
@@ -30,33 +40,19 @@ class Mesh;
 
 //######################################################################
 
-/**
- * \brief Create a 1D mesh from a list of vertices.
- * \param vertices A list of vertex locations.
- * \param coordinate_system The coordinate system type. The default is
- *                          Cartesian coordinates.
- */
 std::shared_ptr<Mesh>
 create_1d_mesh(const std::vector<double>& vertices,
                const CoordinateSystem coordinate_system =
                    CoordinateSystem::CARTESIAN);
 
-/**
- * \brief Create a zoned 1D mesh.
- * \param zone_edges The edges of mesh zones. There should be one more
- *                   zone edge than number of zones.
- * \param zone_subdivisions The number of cells per zone.
- * \param material_ids The material ID per zone.
- * \param coordinate_system The coordinate system type. The default is
- *                          Cartesian coordinates.
- */
+
 std::shared_ptr<Mesh>
 create_1d_mesh(const std::vector<double>& zone_edges,
                const std::vector<size_t>& zone_subdivisions,
                const std::vector<int>& material_ids,
                const CoordinateSystem coordinate_system =
                    CoordinateSystem::CARTESIAN);
-
+}
 
 #include "point.h"
 
