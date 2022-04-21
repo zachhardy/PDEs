@@ -17,9 +17,9 @@ protected:
   typedef std::vector<std::vector<double>> EmmissionSpectra;
 
 public:
-  unsigned int n_groups;
-  unsigned int scattering_order;
-  unsigned int n_precursors;
+  size_t n_groups;
+  size_t scattering_order;
+  size_t n_precursors;
 
   double density = 1.0; ///< Atom density in atoms/b-cm.
   bool is_fissile = false;
