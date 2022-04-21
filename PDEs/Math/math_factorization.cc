@@ -83,7 +83,7 @@ void math::row_echelon_form(Matrix& A, Vector& b, const bool pivot)
 /**
  * \brief Factor the matrix \f$ \boldsymbol{A} \f$ into an upper and lower
  *        triangular form in place.
- * \param A An \f$ n \times n \f$ matrix.
+ * \param A A \f$ n \times n \f$ matrix.
  * \param pivot A flag for whether pivoting is performed.
  *
  * An LU factorization defines the relationship
@@ -163,5 +163,47 @@ std::vector<size_t> math::lu_factorization(Matrix& A, const bool pivot)
     }
   }
   return P;
+}
+
+/**
+ * \brief Perform a Cholesky factorization on the matrix \f$ \boldsymbol{A} \f$.
+ * \param A A \f$ n \times n \f$ symmetric positive defined matrix.
+ *
+ * Cholesky factorization is meant for symmetric positive definite matrices into
+ * a lower triangular matrix and its transpose. This method is more efficient
+ * than the LU decomposition when applicable.
+ *
+ * \note Checks are not performed to ensure symetric positive definiteness. The
+ *       user is responsible for ensuring the matrix fits this criteria.
+ */
+void math::cholesky_factorization(Matrix& A)
+{
+  if (A.n_rows() != A.n_cols())
+  {
+    std::stringstream err;
+    err << __FUNCTION__ << ": "
+        << "LU factorization can only be performed on square matrices.";
+    throw std::runtime_error(err.str());
+  }
+
+  // Factor the matrix column-wise
+  for (size_t j = 0; j < A.n_cols(); ++j)
+  {
+    // Set the diagonal element
+    double sum = 0.0;
+    for (size_t k = 0; k < j; ++k)
+      sum += A[j][k] * A[j][k];
+    A[j][j] = std::sqrt(A[j][j] - sum);
+
+    // Set the off-diagonals
+    for (size_t i = j + 1; i < A.n_rows(); ++i)
+    {
+      sum = 0.0;
+      for (size_t k = 0; k < j; ++k)
+        sum += A[i][k] * A[j][k];
+      A[i][j] = (A[i][j] - sum) / A[j][j];
+      A[j][i] = 0.0;
+    }
+  }
 }
 

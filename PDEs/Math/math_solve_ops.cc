@@ -143,3 +143,39 @@ math::Vector math::lu_solve(const Matrix& A, const Vector& b,
   return x;
 }
 
+/**
+ * \brief Solve the Cholesky factored linear system.
+ * \param A A Cholesky factored \f$ n \times n \f$ matrix.
+ * \param b A vector of length \f$ n \f$.
+ * \return The solution \f$ \vec{x} \f$ of
+ *         \f$ \boldsymbol{A} \vec{x} = \vec{b} \f$.
+ *
+ * The Cholesky solve is a specialization of the LU solve in that
+ * \f$ \boldsymbol{U} = \boldsymbol{L}^T \f$. See \ref lu_solve for
+ * implementation detail.
+ */
+math::Vector math::cholesky_solve(const Matrix& A, const Vector& b)
+{
+  size_t n = b.size();
+
+  // Forward solve
+  Vector y(n, 0.0);
+  for (size_t i = 0; i < n; ++i)
+  {
+    double value = b[i];
+    for (size_t j = 0; j < i; ++j)
+      value -= A[i][j] * y[j];
+    y[i] = value / A[i][i];
+  }
+
+  // Backward solve
+  Vector x(n, 0.0);
+  for (int i = n - 1; i >= 0; --i)
+  {
+    double value = y[i];
+    for (size_t j = i + 1; j < n; ++j)
+      value -= A[j][i] * x[j];
+    x[i] = value / A[i][i];
+  }
+  return x;
+}
