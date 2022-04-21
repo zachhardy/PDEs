@@ -183,7 +183,7 @@ grid::create_1d_mesh(const std::vector<double>& zone_edges,
     case CoordinateSystem::CYLINDRICAL:
     { cell_type = CellType::ANNULUS; break; }
     case CoordinateSystem::SPHERICAL:
-    { cell_type = CellType::SHELL; break; }å
+    { cell_type = CellType::SHELL; break; }
   }
 
   // Create the cells, loop over zones, then cells per zone

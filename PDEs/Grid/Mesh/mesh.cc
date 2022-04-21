@@ -16,7 +16,7 @@
  *       cannot be established a-priori. Generally, this routine should only be
  *       utilized for unstructured meshes.
  */
-void Mesh::establish_connectivity()
+void grid::Mesh::establish_connectivity()
 {
   std::cout << "Establishing cell connectivity.\n";
 

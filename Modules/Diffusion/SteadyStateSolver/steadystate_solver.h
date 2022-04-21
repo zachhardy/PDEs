@@ -17,12 +17,7 @@
 namespace diffusion
 {
 
-/**
- * \brief A steady-state diffusion solver.
- *
- * The intended application for this solver is multigroup neutron diffusion
- * problems.
- */
+/// A steady-state multigroup neutron diffusion solver.
 class SteadyStateSolver
 {
 public:
@@ -32,70 +27,49 @@ public:
   typedef std::shared_ptr<Boundary> BndryPtr;
 
 private:
-  /// The solver type as a string.
   std::string solver_string = "diffusion::SteadyStateSolver";
 
 public:
-  //========== GENERAL INFORMATION ==========
+  size_t n_groups = 0; ///< The number of energy groups.
+  size_t n_precursors = 0; ///< The total number of delayed neutron precursors.
+  bool use_precursors = false; ///< A flag for using precursors.
 
-  /// The number of energy groups.
-  int n_groups = 0;
-  /// The number of delayed neutron precursors.
-  int n_precursors = 0;
-  /// The maximumum number of delayed neutron precursors on a single material.
-  int max_precursors_per_material = 0;
-  /// Flag for using delayed neutron precursors.
-  bool use_precursors = false;
+  /** The maximum number of precursors that live on any given material.
+   *  This is used to promote sparsity in the precursor vector for problems
+   *  with many materials with different precursor properties, such as burnup
+   *  applications. */
+  size_t max_precursors_per_material = 0;
 
-  //========== SPATIAL DOMAIN INFORMATION ==========
+  std::shared_ptr<grid::Mesh>  mesh;
+  std::shared_ptr<math::SpatialDiscretization> discretization;
+  std::vector<std::shared_ptr<material::Material>> materials;
 
-  /// A pointer to the Mesh the problem is defined on.
-  std::shared_ptr<Mesh>  mesh;
+  std::vector<std::shared_ptr<material::CrossSections>>  material_xs;
+  std::vector<std::shared_ptr<material::IsotropicMultiGroupSource>> material_src;
 
-  /// A pointer to the discretization of the problem on Mesh.
-  std::shared_ptr<SpatialDiscretization> discretization;
-
-  //========== MATERIAL INFORMATION ==========
-
-  /// The Material objects that exist within the problem.
-  std::vector<std::shared_ptr<Material>> materials;
-
-  /// Shorthand accessors for CrossSections properties.
-  std::vector<std::shared_ptr<CrossSections>>  material_xs;
-
-  /// Shorthand accessors for IsotropicMultiGroupSource properties.
-  std::vector<std::shared_ptr<IsotropicMultiGroupSource>> material_src;
-
-  /// Mapping from Cell `material_id` to CrossSections property index.
+  /** Map a material ID to a particular CrossSection object.
+   *  See \ref initialize_materials. */
   std::vector<int> matid_to_xs_map;
-
-  /// Mapping from Cell `material_id` to IsotropicMultiGroupSource property index.
+  /** Map a material ID to a particular IsotropicMultiGroupSource object.
+   * See \ref initialize_materials. */
   std::vector<int> matid_to_src_map;
 
-  //========== BOUNDARY CONDITIONS ==========
-  /**
-   * \brief A mapping between boundary ID and the boundary descriptions.
-   *
-   * The boundary description is given by a pair with a BoundaryType and a
-   * MultiGroupBoundaryValues entry. This latter is given by a vector of
-   * vectors whose outer indexing corresponds to a group and inner to the
-   * scalar boundary values. The inner indexing will generally be a one-entry
-   * vector unless a fully specified Robin boundary is provided.
-   */
+  /** A mapping between the boundary ID and its description.
+   *  The boundary description is defined by a pair with a BoundaryType and a
+   *  MultiGroupBoundaryValues entry. This latter is a vector of
+   *  vectors whose outer indexing corresponds to a group and inner to the
+   *  scalar boundary values. The inner indexing will generally be a one-entry
+   *  vector unless a fully specified Robin boundary is provided. */
   std::vector<BoundaryDescription> boundary_info;
-  /**
-   * \brief The multigroup boundary conditions.
-   *
-   * This is a vector of vectors of pointers to Boundary objects. The outer
-   * indexing corresponds to the boundary ID and the inner index to the group
-   * number. These are initialized at solver initialization.
-   */
+
+  /** The multigroup boundary conditions. This is a vector of vectors of pointers
+   *  to Boundary objects. The outer indexing corresponds to the boundary ID and
+   *  the inner index to the group number. These are initialized at solver
+   *  initialization. */
   std::vector<std::vector<BndryPtr>> boundaries;
 
-
-  //========== SYSTEM STORAGE ==========
-  math::Vector phi;        ///< The scalar flux unknowns.
-  math::Vector precursors; ///< The delayed neutron precursor unknwons.
+  math::Vector phi;
+  math::Vector precursors;
 
   math::Vector system_rhs;
   math::Matrix system_matrix;

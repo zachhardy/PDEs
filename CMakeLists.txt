@@ -72,7 +72,7 @@ include_directories("${PROJECT_SOURCE_DIR}/Modules")
 #-------------------- Source directories
 set(SOURCES)
 add_subdirectory("${PROJECT_SOURCE_DIR}/PDEs/Grid")
-git add_subdirectory("${PROJECT_SOURCE_DIR}/PDEs/Material")
+add_subdirectory("${PROJECT_SOURCE_DIR}/PDEs/Material")
 add_subdirectory("${PROJECT_SOURCE_DIR}/PDEs/Math")
 
 add_subdirectory("${PROJECT_SOURCE_DIR}/Modules")
