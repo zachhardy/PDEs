@@ -4,7 +4,7 @@
 #include "Math//math.h"
 #include "linear_solver.h"
 
-namespace math
+namespace math::linear_solver
 {
 
 class Cholesky : public LinearSolver
