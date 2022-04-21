@@ -661,5 +661,4 @@ inline Matrix multiply(const Matrix& A, const Matrix& B)
 }
 
 }
-
 #endif //MATRIX_H

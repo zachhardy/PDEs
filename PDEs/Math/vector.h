@@ -550,5 +550,4 @@ inline Vector normalize(const Vector& x) { return Vector(x).normalize(); }
 inline Vector fabs(const Vector& x) { return Vector(x).fabs(); }
 
 }
-
 #endif //VECTOR_H

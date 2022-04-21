@@ -4,9 +4,6 @@
 
 #include <sstream>
 
-namespace math
-{
-
 /**
  * \brief Solve a linear system using back substitution.
  * \param A An upper triangular \f$ n \times n \f$ matrix.
@@ -19,7 +16,7 @@ namespace math
  * decoupled from those above it. This allows for the direct computation of all
  * unknowns when solving from the last equation to the first.
  */
-Vector back_substitution(const Matrix& A, const Vector& b)
+math::Vector math::back_substitution(const Matrix& A, const Vector& b)
 {
   bool is_upper = true;
   for (size_t i = 0; i < b.size(); ++i)
@@ -59,7 +56,7 @@ Vector back_substitution(const Matrix& A, const Vector& b)
  * decoupled from those below it. This allows for the direct computation of all
  * unknowns when solving from the first equation to the last.
  */
-Vector forward_substitution(const Matrix& A, const Vector& b)
+math::Vector math::forward_substitution(const Matrix& A, const Vector& b)
 {
   bool is_lower = true;
   for (size_t i = 0; i < b.size(); ++i)
@@ -94,7 +91,7 @@ Vector forward_substitution(const Matrix& A, const Vector& b)
  * \return The solution \f$ \vec{x} \f$ of
  *         \f$ \boldsymbol{A} \vec{x} = \vec{b} \f$.
  */
-Vector gaussian_elimination(Matrix& A, Vector& b, const bool pivot)
+math::Vector math::gaussian_elimination(Matrix& A, Vector& b, const bool pivot)
 {
   row_echelon_form(A, b, pivot);
   return back_substitution(A, b);
@@ -119,7 +116,8 @@ Vector gaussian_elimination(Matrix& A, Vector& b, const bool pivot)
  * \f$ \boldsymbol{U} \vec{x} = \vec{y} \f$ where \f$ \vec{y} \f$ is now the
  * source term. This system can be solved using back substitution.
  */
-Vector lu_solve(const Matrix& A, const Vector& b, const std::vector<size_t> P)
+math::Vector math::lu_solve(const Matrix& A, const Vector& b,
+                            const std::vector<size_t> P)
 {
   size_t n = b.size();
 
@@ -145,4 +143,3 @@ Vector lu_solve(const Matrix& A, const Vector& b, const std::vector<size_t> P)
   return x;
 }
 
-}

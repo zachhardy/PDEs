@@ -2,9 +2,6 @@
 #include "matrix.h"
 #include "vector.h"
 
-namespace math
-{
-
 /**
  * \brief Factor a matrix and vector into row-echelon form.
  * \param A An \f$ n \times n \f$ matrix.
@@ -22,7 +19,7 @@ namespace math
  * unity.
  *
  */
-void row_echelon_form(Matrix& A, Vector& b, const bool pivot)
+void math::row_echelon_form(Matrix& A, Vector& b, const bool pivot)
 {
   if (A.n_rows() != A.n_cols() or A.n_rows() != b.size())
   {
@@ -101,7 +98,7 @@ void row_echelon_form(Matrix& A, Vector& b, const bool pivot)
  * contains the row operations used to form upper triangular system.
  *
  */
-std::vector<size_t> lu_factorization(Matrix& A, const bool pivot)
+std::vector<size_t> math::lu_factorization(Matrix& A, const bool pivot)
 {
   if (A.n_rows() != A.n_cols())
   {
@@ -168,4 +165,3 @@ std::vector<size_t> lu_factorization(Matrix& A, const bool pivot)
   return P;
 }
 
-}

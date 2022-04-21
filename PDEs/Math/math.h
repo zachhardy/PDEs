@@ -23,5 +23,4 @@ Vector gaussian_elimination(Matrix& A, Vector& b, const bool pivot = true);
 Vector lu_solve(const Matrix& A, const Vector& b, const std::vector<size_t> P);
 
 }
-
 #endif //MATH_H

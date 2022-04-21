@@ -15,10 +15,9 @@ namespace math
 class LinearSolver
 {
 protected:
-  Matrix& A;  ///< The matrix \f$ \boldsymbol{A} \f$.
+  Matrix& A;
 
 public:
-  /// Default constructor with a matrix and right-hand side.
   LinearSolver(Matrix& matrix) : A(matrix)
   {
     if (A.n_rows() != A.n_cols())
@@ -37,5 +36,4 @@ public:
 };
 
 }
-
 #endif //LINEAR_SOLVER_H
