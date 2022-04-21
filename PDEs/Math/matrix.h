@@ -443,7 +443,7 @@ public:
     Matrix m(this->n_rows(), other.n_cols(), 0.0);
     for (size_t i = 0; i < m.n_rows(); ++i)
     {
-      for (size_t j = 0; m.n_cols(); ++j)
+      for (size_t j = 0; j < m.n_cols(); ++j)
       {
         double value = 0.0;
         for (size_t k = 0; k < other.n_rows(); ++k)
