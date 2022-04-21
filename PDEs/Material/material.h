@@ -34,6 +34,8 @@ public:
   std::vector<std::shared_ptr<MaterialProperty>> properties;
 
 public:
+  Material() = default;
+
   explicit Material(const std::string material_name)
       : name(material_name)
   {}
