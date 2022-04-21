@@ -4,7 +4,7 @@
 #include "SpatialDiscretization/spatial_discretization.h"
 #include "Grid/Cell/cell.h"
 
-namespace math
+namespace math::discretization
 {
 
 /**

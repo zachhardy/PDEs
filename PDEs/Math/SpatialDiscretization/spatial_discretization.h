@@ -6,7 +6,7 @@
 
 #include <memory>
 
-namespace math
+namespace math::discretization
 {
 
 enum class SpatialDiscretizationMethod
