@@ -1,5 +1,8 @@
 #include "steadystate_solver.h"
 
+#include "lu.h"
+#include "cholesky.h"
+
 
 /**
  * \brief Initialize the solver.
@@ -13,9 +16,7 @@ void diffusion::SteadyStateSolver::initialize()
   std::cout << "Initializing the solver." << std::endl;
 
   check_inputs();
-
   initialize_materials();
-
   initialize_boundaries();
 
   phi.resize(discretization->n_dofs(n_groups));
@@ -25,5 +26,19 @@ void diffusion::SteadyStateSolver::initialize()
   system_rhs.resize(discretization->n_dofs(n_groups));
   system_matrix.resize(discretization->n_dofs(n_groups),
                        discretization->n_dofs(n_groups));
+
+  switch (linear_solver_type)
+  {
+    case linear_solver::LinearSolverType::LU:
+    {
+      linear_solver = std::make_shared<linear_solver::LU>(system_matrix);
+      break;
+    }
+    case linear_solver::LinearSolverType::CHOLESKY:
+    {
+      linear_solver = std::make_shared<linear_solver::Cholesky>(system_matrix);
+      break;
+    }
+  }
 }
 

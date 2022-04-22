@@ -7,6 +7,12 @@
 namespace linear_solver
 {
 
+enum class LinearSolverType
+{
+  LU = 0,
+  CHOLESKY = 1
+};
+
 using namespace math;
 
 //######################################################################

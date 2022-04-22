@@ -5,6 +5,7 @@
 #include "CrossSections/cross_sections.h"
 
 #include "math.h"
+#include "linear_solver.h"
 
 #include "Diffusion/SteadyStateSolver/steadystate_solver.h"
 
@@ -55,6 +56,9 @@ int main(int argc, char** argv)
     std::vector<std::vector<double>> bndry_vals;
     solver.boundary_info.emplace_back(BoundaryType::ZERO_FLUX, bndry_vals);
     solver.boundary_info.emplace_back(BoundaryType::ZERO_FLUX, bndry_vals);
+
+    // Linear solver option
+    solver.linear_solver_type = linear_solver::LinearSolverType::LU;
 
     // Run the problem
     solver.initialize();
