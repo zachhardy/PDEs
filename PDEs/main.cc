@@ -4,6 +4,8 @@
 #include "material.h"
 #include "CrossSections/cross_sections.h"
 
+#include "math.h"
+
 #include "Diffusion/SteadyStateSolver/steadystate_solver.h"
 
 #include <iostream>
@@ -24,7 +26,7 @@ int main(int argc, char** argv)
     // Create the mesh
     auto coord_sys = grid::CoordinateSystem::CARTESIAN;
     std::vector<double> zone_edges = {0.0, 1.0};
-    std::vector<size_t> zone_subdivisions = {100};
+    std::vector<size_t> zone_subdivisions = {4};
     std::vector<int> material_ids = {0};
 
     // Create mesh
@@ -32,7 +34,8 @@ int main(int argc, char** argv)
                                  material_ids, coord_sys);
 
     // Create discretization
-    solver.discretization = std::make_shared<math::FiniteVolume>(solver.mesh);
+    typedef discretization::FiniteVolume FV;
+    solver.discretization = std::make_shared<FV>(solver.mesh);
 
     // Create materials
     solver.materials.push_back(std::make_shared<material::Material>());
@@ -43,8 +46,9 @@ int main(int argc, char** argv)
     solver.materials.back()->properties.push_back(xs);
 
     // Multigroup source
+    typedef material::IsotropicMultiGroupSource IsotropicMultiGroupSource;
     std::vector<double> mg_source = {1.0};
-    auto src = std::make_shared<material::IsotropicMultiGroupSource>(mg_source);
+    auto src = std::make_shared<IsotropicMultiGroupSource>(mg_source);
     solver.materials.back()->properties.push_back(src);
 
     // Boundaries
@@ -55,8 +59,6 @@ int main(int argc, char** argv)
     // Run the problem
     solver.initialize();
     solver.execute();
-
-    std::cout << "Final Solution:\n" << solver.phi.to_string();
   }
   catch (std::exception &exc) {
     std::cerr << std::endl
