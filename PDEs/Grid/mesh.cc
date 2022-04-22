@@ -1,5 +1,5 @@
 #include "mesh.h"
-#include "../Cell/cell.h"
+#include "cell.h"
 
 #include <set>
 

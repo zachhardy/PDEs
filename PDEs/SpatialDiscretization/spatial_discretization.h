@@ -2,7 +2,7 @@
 #define SPATIAL_DISCRETIZATION_H
 
 #include "Grid/grid_structs.h"
-#include "Grid/Mesh/mesh.h"
+#include "Grid/mesh.h"
 
 #include <memory>
 

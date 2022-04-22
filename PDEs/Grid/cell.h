@@ -1,8 +1,8 @@
 #ifndef CELL_H
 #define CELL_H
 
-#include "../grid_structs.h"
-#include "../Face/face.h"
+#include "grid_structs.h"
+#include "Grid/face.h"
 
 #include <vector>
 

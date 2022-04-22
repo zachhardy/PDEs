@@ -4,7 +4,7 @@
 #include "../diffusion.h"
 #include "../boundaries.h"
 
-#include "Mesh/mesh.h"
+#include "Grid/mesh.h"
 #include "spatial_discretization.h"
 
 #include "material.h"
@@ -41,7 +41,7 @@ protected:
   typedef linear_solver::LinearSolver LinearSolver;
 
 private:
-  const std::string solver_string = "diffusion::SteadyStateSolver";
+  const std::string solver_string = "diffusion::SteadyStateSolver::";
 
 public:
   /*---------- General information ----------*/
@@ -67,10 +67,6 @@ public:
    * fully specified Robin boundary is provided.
    */
   std::vector<BoundaryDescription> boundary_info;
-
-  /*---------- Solutions ----------*/
-  math::Vector phi;
-  math::Vector precursors;
 
   /*---------- Options ----------*/
   LinearSolverType linear_solver_type;
@@ -100,26 +96,15 @@ protected:
    */
   std::vector<std::vector<BndryPtr>> boundaries;
 
-  /*---------- Linear system information ----------*/
-  math::Vector system_rhs;
-  math::Matrix system_matrix;
-
-  std::shared_ptr<LinearSolver> linear_solver;
-
 public:
   void initialize();
   void execute();
 
 protected:
-  void assemble_matrix();
-  void assemble_rhs_vector();
 
-  void fv_assemble_matrix();
-  void fv_assemble_rhs_vector();
 
   void check_inputs();
   void initialize_materials();
-  void initialize_boundaries();
 };
 
 }

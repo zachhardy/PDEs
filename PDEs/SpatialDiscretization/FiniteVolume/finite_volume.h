@@ -2,7 +2,7 @@
 #define FINITE_VOLUME_H
 
 #include "SpatialDiscretization/spatial_discretization.h"
-#include "Grid/Cell/cell.h"
+#include "Grid/cell.h"
 
 namespace discretization
 {

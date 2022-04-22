@@ -1,5 +1,5 @@
 #include "grid_structs.h"
-#include "Mesh/mesh.h"
+#include "mesh.h"
 
 #include <vector>
 #include <numeric>

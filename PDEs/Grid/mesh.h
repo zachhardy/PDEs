@@ -1,8 +1,8 @@
 #ifndef MESH_H
 #define MESH_H
 
-#include "../grid_structs.h"
-#include "../Cell/cell.h"
+#include "grid_structs.h"
+#include "cell.h"
 
 #include <vector>
 #include <memory>
