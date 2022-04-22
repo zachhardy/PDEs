@@ -1,11 +1,13 @@
 #ifndef LINEAR_SOLVER_H
 #define LINEAR_SOLVER_H
 
-#include "../matrix.h"
-#include "../vector.h"
+#include "Math/matrix.h"
+#include "Math/vector.h"
 
-namespace math::linear_solver
+namespace linear_solver
 {
+
+using namespace math;
 
 //######################################################################
 /**

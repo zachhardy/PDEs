@@ -4,9 +4,16 @@
 #include "Math//math.h"
 #include "linear_solver.h"
 
-namespace math::linear_solver
+namespace linear_solver
 {
+using namespace math;
 
+/**
+ * \brief A Cholesky decomposition solver.
+ *
+ * See \ref math::cholesky_factorization and \ref math::cholesky_solve for
+ * implementation details.
+ */
 class Cholesky : public LinearSolver
 {
 private:
