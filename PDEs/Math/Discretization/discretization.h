@@ -36,8 +36,8 @@ public:
 
 public:
   explicit
-  SpatialDiscretization(const std::shared_ptr<grid::Mesh> reference_mesh,
-                        const DiscretizationMethod discretization_type)
+  Discretization(const std::shared_ptr<grid::Mesh> reference_mesh,
+                 const DiscretizationMethod discretization_type)
       : mesh(reference_mesh), type(discretization_type)
   {}
 

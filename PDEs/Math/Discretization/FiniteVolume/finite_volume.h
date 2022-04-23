@@ -1,7 +1,7 @@
 #ifndef FINITE_VOLUME_H
 #define FINITE_VOLUME_H
 
-#include "SpatialDiscretization/spatial_discretization.h"
+#include "Discretization/discretization.h"
 #include "Grid/cell.h"
 
 namespace math
@@ -23,8 +23,7 @@ public:   /*---------- Constructors, Destructors, and Assignment ----------*/
 
   /// Default constructor.
   explicit FiniteVolume(std::shared_ptr<grid::Mesh> reference_mesh)
-      : SpatialDiscretization(reference_mesh,
-                              DiscretizationMethod::FINITE_VOLUME)
+      : Discretization(reference_mesh, DiscretizationMethod::FINITE_VOLUME)
   {}
 
 public: /*---------- Routines ----------*/

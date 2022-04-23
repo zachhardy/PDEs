@@ -18,7 +18,7 @@
  */
 void grid::Mesh::establish_connectivity()
 {
-  std::cout << "Establishing cell connectivity.\n";
+  std::cout << "Establishing cell connectivity...\n";
 
   // Determine the cells which contain a specific vertex. This is done using a
   // list where each element represents a vertex and its value contains a set
@@ -94,7 +94,7 @@ void grid::Mesh::establish_connectivity()
 /// Compute the geometric properties of the cells and faces.
 void  grid::Mesh::compute_geometric_info()
 {
-  std::cout << "Computing geometric information on cells and faces.\n";
+  std::cout << "Computing geometric information on cells and faces...\n";
 
   // Go through each cell
   for (auto& cell : cells)
@@ -164,7 +164,4 @@ void  grid::Mesh::compute_geometric_info()
       }
     }//for faces
   }//for cell
-
-  std::cout << "Finished computing geometric information on "
-               "cells and faces.\n";
 }

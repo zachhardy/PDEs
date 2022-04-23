@@ -14,7 +14,7 @@ std::shared_ptr<grid::Mesh>
 grid::create_1d_mesh(const std::vector<double>& vertices,
                      const CoordinateSystem coordinate_system)
 {
-  std::cout << "Creating a 1D mesh from vertices." << std::endl;
+  std::cout << "Creating a 1D mesh from vertices...\n";
 
   // Check for empty input
   if (vertices.empty())
@@ -96,7 +96,10 @@ grid::create_1d_mesh(const std::vector<double>& vertices,
   // Compute the cell and face geometric info
   mesh->compute_geometric_info();
 
-  std::cout << "Finished creating 1D mesh." << std::endl;
+  std::cout << "Mesh Details:\n"
+            << "\t# of Vertices: " << mesh->vertices.size() << "\n"
+            << "\t# of Cells:    " << mesh->cells.size() << "\n"
+            << "\t# of Lines:    " << mesh->cells.size() << "\n";
 
   return mesh;
 }
@@ -123,7 +126,7 @@ grid::create_1d_mesh(const std::vector<double>& zone_edges,
                      const std::vector<int>& material_ids,
                      const CoordinateSystem coordinate_system)
 {
-  std::cout << "Creating a 1D mesh from zones." << std::endl;
+  std::cout << "Creating a 1D mesh from zones...\n";
 
   // Check for empty inputs
   if (zone_edges.empty() or
@@ -228,7 +231,10 @@ grid::create_1d_mesh(const std::vector<double>& zone_edges,
   // Compute the cell and face geometric info
   mesh->compute_geometric_info();
 
-  std::cout << "Finished creating 1D mesh." << std::endl;
+  std::cout << "Mesh Details:\n"
+            << "\t# of Vertices: " << mesh->vertices.size() << "\n"
+            << "\t# of Cells:    " << mesh->cells.size() << "\n"
+            << "\t# of Lines:    " << mesh->cells.size() << "\n";
 
   return mesh;
 }
