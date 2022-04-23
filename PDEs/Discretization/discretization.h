@@ -6,7 +6,7 @@
 
 #include <memory>
 
-namespace discretization
+namespace math
 {
 
 enum class DiscretizationMethod
@@ -23,12 +23,12 @@ enum class DiscretizationMethod
 /**
  * \brief Abstracted base class for spatial discretizations.
  *
- * A SpatialDiscretization is built upon a Mesh object. Derived classes
+ * A Discretization is built upon a Mesh object. Derived classes
  * are meant to contain all members and routines that are necessary to define
  * the discrete representation of a solution and the operations necessary for
  * aiding in the construction a linear system to solve.
  */
-class SpatialDiscretization
+class Discretization
 {
 public:
   const std::shared_ptr<grid::Mesh> mesh;

@@ -4,7 +4,7 @@
 #include "SpatialDiscretization/spatial_discretization.h"
 #include "Grid/cell.h"
 
-namespace discretization
+namespace math
 {
 
 /**
@@ -17,7 +17,7 @@ namespace discretization
  * geometric information contained within the Cell and Face objects and does
  * not require many additional routines.
  */
-class FiniteVolume : public SpatialDiscretization
+class FiniteVolume : public Discretization
 {
 public:   /*---------- Constructors, Destructors, and Assignment ----------*/
 

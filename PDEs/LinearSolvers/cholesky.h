@@ -4,7 +4,7 @@
 #include "Math//math.h"
 #include "linear_solver.h"
 
-namespace linear_solver
+namespace linear_solvers
 {
 using namespace math;
 

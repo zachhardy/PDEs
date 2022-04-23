@@ -4,12 +4,12 @@
 #include "Math//math.h"
 #include "linear_solver.h"
 
-namespace linear_solver
+namespace linear_solvers
 {
 using namespace math;
 
 /**
- * \property linear_solver::LU::row_pivots
+ * \property linear_solvers::LU::row_pivots
  * \brief The pivot mapping vector.
  *
  * The index corresponds to the initial row number and the value to the pivoted

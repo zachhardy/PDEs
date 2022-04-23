@@ -4,7 +4,7 @@
 #include "Math/matrix.h"
 #include "Math/vector.h"
 
-namespace linear_solver
+namespace linear_solvers
 {
 
 enum class LinearSolverType
