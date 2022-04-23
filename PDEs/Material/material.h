@@ -5,7 +5,7 @@
 #include <vector>
 #include <memory>
 
-namespace material
+namespace physics
 {
 
 // Forward declaration

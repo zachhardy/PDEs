@@ -13,7 +13,7 @@
  * \f[ \sigma_{s,g} = \sum_{g^\prime} \sigma_{0, g \rightarrow g^\prime} ,\f]
  * which is obtained via column-wise sums.
  */
-void material::CrossSections::compute_scattering_from_transfers()
+void physics::CrossSections::compute_scattering_from_transfers()
 {
   sigma_s.assign(n_groups, 0.0);
   if (transfer_matrices.empty())
@@ -55,7 +55,7 @@ void material::CrossSections::compute_scattering_from_transfers()
  * provided and they do not agree with the transfer matrix, the \f$ \sigma_a \f$
  * values are taken as true.
  */
-void material::CrossSections::reconcile_cross_sections()
+void physics::CrossSections::reconcile_cross_sections()
 {
 
   // Determine whether sigma_a was specified
@@ -138,7 +138,7 @@ void material::CrossSections::reconcile_cross_sections()
  *    checks for total \f$ \nu \f$ and \f$ \chi \f$ are performed and the
  *    fission spectrum is normalized to unity.
  */
-void material::CrossSections::reconcile_fission_properties()
+void physics::CrossSections::reconcile_fission_properties()
 {
   // Check whether the material is fissile
   double sum_sigma_f = std::accumulate(sigma_f.begin(), sigma_f.end(), 0.0);
@@ -392,7 +392,7 @@ void material::CrossSections::reconcile_fission_properties()
  * If the \p diffusion_coeff was unspecified, it is computed via its standard
  * defintion, given by \f$ D = \frac{1}{3 \Sigma_t} \f$.
  */
-void material::CrossSections::compute_macroscopic_cross_sections()
+void physics::CrossSections::compute_macroscopic_cross_sections()
 {
   for (size_t g = 0; g < n_groups; ++g)
   {

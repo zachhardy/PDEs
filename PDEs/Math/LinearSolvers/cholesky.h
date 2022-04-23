@@ -4,9 +4,8 @@
 #include "Math//math.h"
 #include "linear_solver.h"
 
-namespace linear_solvers
+namespace math
 {
-using namespace math;
 
 /**
  * \brief A Cholesky decomposition solver.

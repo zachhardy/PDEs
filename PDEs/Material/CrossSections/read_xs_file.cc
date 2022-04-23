@@ -6,7 +6,7 @@
 #include <numeric>
 
 /// Set the cross section data by reading a file.
-void material::CrossSections::read_xs_file(const std::string& file_name)
+void physics::CrossSections::read_xs_file(const std::string& file_name)
 {
   std::cout << "Reading cross-section file \"" << file_name << "\"\n";
 

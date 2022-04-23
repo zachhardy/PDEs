@@ -6,7 +6,7 @@
 #include <string>
 #include <unordered_map>
 
-namespace material
+namespace physics
 {
 
 /// Neutron cross sections.

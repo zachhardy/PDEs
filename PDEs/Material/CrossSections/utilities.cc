@@ -6,7 +6,7 @@
 
 
 /// Clear all of the cross section data.
-void material::CrossSections::reset()
+void physics::CrossSections::reset()
 {
   n_groups = 0;
   n_precursors = 0;
@@ -52,7 +52,7 @@ void material::CrossSections::reset()
  * \param line_stream Storage for a line in the file.
  * \param line_number The current line number in the file.
  */
-void material::CrossSections::read_cross_section(
+void physics::CrossSections::read_cross_section(
     const std::string& keyword,
     std::vector<double>& destination,
     std::ifstream& file,
@@ -107,7 +107,7 @@ void material::CrossSections::read_cross_section(
  * \param line_stream Storage for a line in the file.
  * \param line_number The current line number in the file.
  */
-void material::CrossSections::read_transfer_matrices(
+void physics::CrossSections::read_transfer_matrices(
     const std::string& keyword,
     std::vector<TransferMatrix>& destination,
     std::ifstream& file,
@@ -165,7 +165,7 @@ void material::CrossSections::read_transfer_matrices(
  * \param line_stream Storage for a line in the file.
  * \param line_number The current line number in the file.
  */
-void material::CrossSections::read_precursor_property(
+void physics::CrossSections::read_precursor_property(
     const std::string& keyword,
     std::vector<double>& destination,
     std::ifstream& file,
@@ -221,7 +221,7 @@ void material::CrossSections::read_precursor_property(
  * \param line_stream Storage for a line in the file.
  * \param line_number The current line number in the file.
  */
-void material::CrossSections::read_delayed_spectra(
+void physics::CrossSections::read_delayed_spectra(
     const std::string& keyword,
     EmmissionSpectra& destination,
     std::ifstream& file,

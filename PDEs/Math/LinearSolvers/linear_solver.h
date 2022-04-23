@@ -4,7 +4,7 @@
 #include "Math/matrix.h"
 #include "Math/vector.h"
 
-namespace linear_solvers
+namespace math
 {
 
 enum class LinearSolverType
@@ -12,8 +12,6 @@ enum class LinearSolverType
   LU = 0,
   CHOLESKY = 1
 };
-
-using namespace math;
 
 //######################################################################
 /**

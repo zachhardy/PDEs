@@ -1,12 +1,11 @@
 #ifndef LU_H
 #define LU_H
 
-#include "Math//math.h"
+#include "../math.h"
 #include "linear_solver.h"
 
-namespace linear_solvers
+namespace math
 {
-using namespace math;
 
 /**
  * \property linear_solvers::LU::row_pivots
