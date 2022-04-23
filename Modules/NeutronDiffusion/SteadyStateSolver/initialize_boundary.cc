@@ -60,6 +60,7 @@ void neutron_diffusion::SteadyStateSolver::initialize_boundaries()
   std::cout << "Boundaries initialized: " << boundaries.size() << "\n";
 }
 
+//######################################################################
 
 /// Add a boundary to the solver.
 void neutron_diffusion::SteadyStateSolver::add_boundary(

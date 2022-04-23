@@ -104,14 +104,17 @@ protected:
 
 public:
   void initialize();
+  void execute() {}
 
   void add_boundary(BoundaryType bndry_type,
                     std::vector<std::vector<double>> mg_bndry_values = {});
 
 protected:
   void input_checks();
+
   void initialize_materials();
   void initialize_boundaries();
+
 
 };
 
