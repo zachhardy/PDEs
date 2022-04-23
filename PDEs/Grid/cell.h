@@ -48,7 +48,7 @@ class Cell
 public:
   const CellType type;
   size_t id;
-  int material_id = 0;
+  int material_id = -1;
 
   Centroid  centroid;
   double volume = 0.0;
