@@ -1,13 +1,11 @@
 #ifndef BOUNDARIES_H
 #define BOUNDARIES_H
 
-#include "diffusion.h"
-
 #include <sstream>
 #include <vector>
 
 
-namespace diffusion
+namespace neutron_diffusion
 {
 
 /// Types of diffusion boundary conditions.
@@ -22,12 +20,10 @@ enum class BoundaryType
   MARSHAK     = 7   ///< Robin boundary with `a, b = 0.25, 0.5`.
 };
 
-}
-
-
 //######################################################################
+
 /// Abstract base class for diffusion boundaries.
-class diffusion::Boundary
+class Boundary
 {
 public:
   const BoundaryType type;
@@ -36,10 +32,10 @@ public:
   explicit Boundary(BoundaryType boundary_type) : type(boundary_type) {}
 };
 
-
 //######################################################################
+
 /// Dirichlet boundary given by \f$ u_b = f^d \f$.
-class diffusion::DirichletBoundary : public Boundary
+class DirichletBoundary : public Boundary
 {
 public:
   double value = 0.0;
@@ -56,7 +52,7 @@ public:
 //######################################################################
 
 /// Neumann boundary given by \f$ \partial_{\hat{n}_b} u = f^n \f$.
-class diffusion::NeumannBoundary : public Boundary
+class NeumannBoundary : public Boundary
 {
 public:
   double value = 0.0;
@@ -73,7 +69,7 @@ public:
 //######################################################################
 
 /// Robin boundary given by \f$ a u_b + b \partial_{\hat{n}_b} u = f^r \f$.
-class diffusion::RobinBoundary : public Boundary
+class RobinBoundary : public Boundary
 {
 public:
     double a = 0.25;
@@ -94,4 +90,5 @@ public:
   {}
 };
 
+}
 #endif //BOUNDARIES_H
