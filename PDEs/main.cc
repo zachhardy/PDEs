@@ -1,5 +1,5 @@
 #include "grid_structs.h"
-#include "FiniteVolume/finite_volume.h"
+#include "Discretization/FiniteVolume/finite_volume.h"
 
 #include "material.h"
 #include "CrossSections/cross_sections.h"
@@ -7,7 +7,7 @@
 #include "math.h"
 #include "linear_solver.h"
 
-#include "Diffusion/SteadyStateSolver/steadystate_solver.h"
+#include "NeutronDiffusion/SteadyStateSolver/steadystate_solver.h"
 
 #include <iostream>
 #include <vector>
@@ -19,46 +19,43 @@
 int main(int argc, char** argv)
 {
   try{
-    using namespace diffusion;
+    using namespace grid;
+    using namespace math;
+    using namespace physics;
+    using namespace neutron_diffusion;
 
-    // Create solver
-    auto solver = SteadyStateSolver();
+    // Create the solver
+    SteadyStateSolver solver;
 
-    // Create the mesh
-    auto coord_sys = grid::CoordinateSystem::CARTESIAN;
-    std::vector<double> zone_edges = {0.0, 1.0};
-    std::vector<size_t> zone_subdivisions = {4};
-    std::vector<int> material_ids = {0};
+    // Create the vertices
+    size_t n_cells = 10;
+    double slab_width = 1.0;
+    double cell_width = slab_width / n_cells;
 
-    // Create mesh
-    solver.mesh = create_1d_mesh(zone_edges, zone_subdivisions,
-                                 material_ids, coord_sys);
+    std::vector<double> vertices(1, 0.0);
+    for (size_t i = 0; i < n_cells; ++i)
+      vertices.emplace_back(vertices.back() + cell_width);
 
-    // Create discretization
-    typedef discretization::FiniteVolume FV;
-    solver.discretization = std::make_shared<FV>(solver.mesh);
+    auto mesh = create_1d_mesh(vertices);
+    solver.mesh = mesh;
 
-    // Create materials
-    solver.materials.push_back(std::make_shared<material::Material>());
+    auto discretization = std::make_shared<FiniteVolume>(mesh);
+    solver.discretization = discretization;
 
-    // Cross sections
-    auto xs = std::make_shared<material::CrossSections>();
-    xs->read_xs_file("xs_data/test.xs");
-    solver.materials.back()->properties.push_back(xs);
+    auto material = std::make_shared<Material>();
 
-    // Multigroup source
-    typedef material::IsotropicMultiGroupSource IsotropicMultiGroupSource;
-    std::vector<double> mg_source = {1.0};
+    auto xs = std::make_shared<CrossSections>();
+    xs->read_xs_file("xs_data/test_1g.xs");
+    material->properties.emplace_back(xs);
+
+    std::vector<double> mg_source(xs->n_groups, 1.0);
     auto src = std::make_shared<IsotropicMultiGroupSource>(mg_source);
-    solver.materials.back()->properties.push_back(src);
+    material->properties.emplace_back(src);
 
-    // Boundaries
-    std::vector<std::vector<double>> bndry_vals;
-    solver.boundary_info.emplace_back(BoundaryType::ZERO_FLUX, bndry_vals);
-    solver.boundary_info.emplace_back(BoundaryType::ZERO_FLUX, bndry_vals);
+    solver.materials.emplace_back(material);
 
-    // Linear solver option
-    solver.linear_solver_type = linear_solver::LinearSolverType::LU;
+    solver.add_boundary(BoundaryType::ZERO_FLUX);
+    solver.add_boundary(BoundaryType::ZERO_FLUX);
 
     // Run the problem
     solver.initialize();
