@@ -102,6 +102,16 @@ protected:
    *  solver initialization. */
   std::vector<std::vector<BndryPtr>> boundaries;
 
+  /*---------- Data storage ----------*/
+  math::Vector  phi;
+  math::Vector  precursors;
+
+protected:
+  math::Matrix system_matrix;
+  math::Vector system_rhs;
+
+  std::shared_ptr<LinearSolver> linear_solver;
+
 public:
   void initialize();
   void execute() {}
