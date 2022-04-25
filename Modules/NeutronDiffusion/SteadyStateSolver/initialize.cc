@@ -13,9 +13,11 @@ void neutron_diffusion::SteadyStateSolver::initialize()
   initialize_boundaries();
 
   size_t n_nodes = discretization->n_nodes();
+
   phi.resize(n_groups * n_nodes, 0.0);
   precursors.resize(max_precursors_per_material * n_nodes, 0.0);
 
+  // Initialize linear solvers
   system_rhs.resize(n_groups * n_nodes, 0.0);
   system_matrix.resize(n_groups * n_nodes, n_groups * n_nodes, 0.0);
 

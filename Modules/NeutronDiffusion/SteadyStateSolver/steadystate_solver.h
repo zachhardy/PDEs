@@ -18,6 +18,12 @@
 namespace neutron_diffusion
 {
 
+enum class SolutionMethod
+{
+  FULL_SYSTEM = 0,
+  GROUPWISE = 1
+};
+
 /// A steady state solver for multigroup neutron diffusion applications.
 class SteadyStateSolver
 {
@@ -44,6 +50,7 @@ public:
 
   /*---------- Options ----------*/
 
+  SolutionMethod solution_method = SolutionMethod::FULL_SYSTEM;
   LinearSolverType linear_solver_type = LinearSolverType::LU;
 
   /*---------- General information ----------*/

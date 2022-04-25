@@ -71,7 +71,7 @@ void neutron_diffusion::SteadyStateSolver::assemble_fv_matrix()
           double D_eff = 1.0 / (w/D[g] + (1.0 - w)/D_nbr[g]);
 
           system_matrix[i + g][i + g] += D_eff/d_pn * face.area;
-          system_matrix[i+ g][j + g] -= D_eff/d_pn * face.area;
+          system_matrix[i + g][j + g] -= D_eff/d_pn * face.area;
         }//for group
       }//if interior face
 
@@ -105,7 +105,7 @@ void neutron_diffusion::SteadyStateSolver::assemble_fv_matrix()
             const auto& bndry = boundaries[bndry_id][g];
             const auto bc = std::static_pointer_cast<RobinBoundary>(bndry);
             system_matrix[i + g][i + g] +=
-                bc->a*D[g] / (bc->b*D[g] + bc->a*d_pf) * face.area;
+                bc->a*D[g]/(bc->b*D[g] + bc->a*d_pf) * face.area;
           }
         }
       }//if boundary face
@@ -163,7 +163,7 @@ void neutron_diffusion::SteadyStateSolver::assemble_fv_rhs()
           {
             const auto& bndry = boundaries[bndry_id][g];
             const auto bc = std::static_pointer_cast<DirichletBoundary>(bndry);
-            system_rhs[i + g] += D[g]/d_pf*bc->value * face.area;
+            system_rhs[i + g] += D[g]/d_pf * bc->value * face.area;
           }
         }//if Dirichlet
 
@@ -192,7 +192,7 @@ void neutron_diffusion::SteadyStateSolver::assemble_fv_rhs()
             const auto& bndry = boundaries[bndry_id][g];
             const auto bc = std::static_pointer_cast<RobinBoundary>(bndry);
             system_rhs[i + g] +=
-                D[g] / (bc->b*D[g] + bc->a*d_pf) * bc->f * face.area;
+                D[g]/(bc->b*D[g] + bc->a*d_pf) * bc->f * face.area;
           }
         }//if Robin
       }
