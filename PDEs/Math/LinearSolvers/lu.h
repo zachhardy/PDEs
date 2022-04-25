@@ -27,6 +27,9 @@ private:
  bool initialized = false;
  bool pivot = true;
 
+ /** The pivot mapping vector. The index corresponds to the initial row number
+  * and the value to the pivoted row number. This is used to map the right-hand
+  * side vector to the correct row when solving. */
  std::vector<size_t> row_pivots;
 
 public:
