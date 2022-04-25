@@ -125,7 +125,7 @@ void physics::CrossSections::reconcile_cross_sections()
  *    properties were specified, they are cleared.
  * 2. If fissile and delayed neutron precursor properties were specified, checks
  *    for prompt and delayed \f$ \nu \f$ and \f$ \chi \f$ are performed and
- *    fission/emmission spectra as well as precursor yields \f$ gamma \f$ are
+ *    fission/emmission spectra as well as precursor yields \f$ \gamma \f$ are
  *    normalized to unity. Lastly, the total \f$ \nu \f$ and \f$ \chi \f$
  *    quantities are computed from their prompt and delayed counterparts.
  *    The total neutrons per fission is computed via
