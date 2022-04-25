@@ -44,7 +44,7 @@ public:
 
   /*---------- Options ----------*/
 
-  LinearSolverType linear_solver_type;
+  LinearSolverType linear_solver_type = LinearSolverType::LU;
 
   /*---------- General information ----------*/
 
@@ -83,7 +83,7 @@ protected:
   std::vector<int> matid_to_src_map;
 
   /*---------- Boundary information ----------*/
-protected:
+public:
   /** A list containing a pair with the boundary type and index corresponding
    *  to the location of the boundary values within the boundary values vector.
    *  This is similar to the matid_to_xs_map attribute. */
@@ -96,6 +96,7 @@ protected:
    *  <tt>(a, b, f)</tt> are used. */
   std::vector<std::vector<std::vector<double>>> boundary_values;
 
+protected:
   /** The multigroup boundary conditions. This is a vector of vectors of
    *  pointers to Boundary objects. The outer indexing corresponds to the
    *  boundary index and the inner index to the group. These are created at
@@ -114,10 +115,14 @@ protected:
 
 public:
   void initialize();
-  void execute() {}
+  void execute();
 
-  void add_boundary(BoundaryType bndry_type,
-                    std::vector<std::vector<double>> mg_bndry_values = {});
+protected:
+  void assemble_matrix();
+  void assemble_rhs();
+
+  void assemble_fv_matrix();
+  void assemble_fv_rhs();
 
 protected:
   void input_checks();

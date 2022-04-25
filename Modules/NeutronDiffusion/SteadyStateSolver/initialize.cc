@@ -28,6 +28,7 @@ void neutron_diffusion::SteadyStateSolver::initialize()
   }
 }
 
+//######################################################################
 
 /// Validate the general setup of the simulation.
 void neutron_diffusion::SteadyStateSolver::input_checks()
