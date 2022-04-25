@@ -28,7 +28,7 @@ int main(int argc, char** argv)
     SteadyStateSolver solver;
 
     // Create the vertices
-    size_t n_cells = 10;
+    size_t n_cells = 3;
     double slab_width = 1.0;
     double cell_width = slab_width / n_cells;
 
@@ -45,7 +45,7 @@ int main(int argc, char** argv)
     auto material = std::make_shared<Material>();
 
     auto xs = std::make_shared<CrossSections>();
-    xs->read_xs_file("xs_data/test_1g.xs");
+    xs->read_xs_file("xs_data/test_2g.xs");
     material->properties.emplace_back(xs);
 
     std::vector<double> mg_source(xs->n_groups, 1.0);
@@ -54,8 +54,8 @@ int main(int argc, char** argv)
 
     solver.materials.emplace_back(material);
 
-    solver.add_boundary(BoundaryType::ZERO_FLUX);
-    solver.add_boundary(BoundaryType::ZERO_FLUX);
+    solver.boundary_info.emplace_back(BoundaryType::REFLECTIVE, -1);
+    solver.boundary_info.emplace_back(BoundaryType::REFLECTIVE, -1);
 
     // Run the problem
     solver.initialize();
