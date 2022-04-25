@@ -1,5 +1,13 @@
 #include "steadystate_solver.h"
 
+/**
+ * \brief Assemble the full multigroup diffusion operator using the finite
+ *        volume method.
+ *
+ * This routine first clears the \p system_matrix. It then assembles the full
+ * multigroup operator, including the group-wise total interaction, diffusion,
+ * and boundary terms as well as the cross-group scattering and fission term.
+ */
 void neutron_diffusion::SteadyStateSolver::assemble_fv_matrix()
 {
   system_matrix *= 0.0; // Clear the matrix
@@ -105,6 +113,16 @@ void neutron_diffusion::SteadyStateSolver::assemble_fv_matrix()
   }//for cell
 }
 
+//######################################################################
+
+/**
+ * \brief Assemble the full multigroup right-hand side vector using the
+ *        finite volume method.
+ *
+ * This routine first clears the \p system_rhs. It then assembles the full
+ * multigroup right-hand side vector, including the multigroup inhomogeneous
+ * source and boundary sources.
+ */
 void neutron_diffusion::SteadyStateSolver::assemble_fv_rhs()
 {
   system_rhs *= 0.0; // Clear the rhs

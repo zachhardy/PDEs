@@ -1,8 +1,6 @@
 #include "steadystate_solver.h"
 
-#include "lu.h"
-#include "cholesky.h"
-
+/// Run the steady state multigroup diffusion simulation.
 void neutron_diffusion::SteadyStateSolver::execute()
 {
   assemble_matrix();
