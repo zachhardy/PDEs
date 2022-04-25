@@ -24,7 +24,6 @@ namespace math
 class LU : public LinearSolver
 {
 private:
- bool initialized = false;
  bool pivot = true;
 
  /** The pivot mapping vector. The index corresponds to the initial row number

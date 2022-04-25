@@ -15,9 +15,6 @@ namespace math
  */
 class Cholesky : public LinearSolver
 {
-private:
-  bool initialized = false;
-
 public:
   Cholesky(Matrix& matrix) : LinearSolver(matrix) {}
 

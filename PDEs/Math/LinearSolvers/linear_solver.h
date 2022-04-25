@@ -21,6 +21,7 @@ enum class LinearSolverType
 class LinearSolver
 {
 protected:
+  bool initialized = false;
   Matrix& A;
 
 public:
@@ -35,6 +36,8 @@ public:
       throw std::runtime_error(err.str());
     }
   }
+
+  void set_matrix(Matrix& matrix) { A = matrix; initialized = false; }
 
 public:
   virtual void setup() = 0; ///< Abstract setup method.
