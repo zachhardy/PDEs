@@ -8,6 +8,8 @@ doc/latex
 Makefile
 cmake-build-debug
 
+*.data
+
 .DS_Store
 .idea
 .git
