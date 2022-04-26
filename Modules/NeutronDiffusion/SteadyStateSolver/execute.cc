@@ -5,7 +5,7 @@
 /// Run the steady state multigroup diffusion simulation.
 void neutron_diffusion::SteadyStateSolver::execute()
 {
-  std::cout << "Executing solver...\n";
+  std::cout << "\nExecuting solver...\n";
 
   switch (solution_method)
   {
@@ -38,13 +38,15 @@ void neutron_diffusion::SteadyStateSolver::execute()
         phi_ell = phi;
 
         std::cout << "Iteration Number:  " << std::setw(4) << nit << " "
-                  << "DIfferrence:       " << diff << "\n";
+                  << "Differrence:       " << diff << "\n";
       }
       break;
     }
   }
 
   write_solution("solution", phi);
+
+  std::cout << "\nDone executing solver.\n";
 }
 
 //######################################################################

@@ -9,7 +9,7 @@ void neutron_diffusion::SteadyStateSolver::write_solution(
 
   std::string filename = file_base + ".data";
 
-  std::cout << "Writing solution to file " << filename << "...\n";
+  std::cout << "\nWriting solution to " << filename << ".\n";
 
   std::ofstream file(filename, std::ofstream::binary |
                                std::ofstream::out |

@@ -9,7 +9,7 @@
 void physics::CrossSections::read_xs_file(const std::string& file_name,
                                           const bool verbose)
 {
-  std::cout << "Reading cross-section file \"" << file_name << "\"...\n";
+  std::cout << "\nReading cross-section file \"" << file_name << "\"...\n";
 
   // Clear old cross sections
   reset();

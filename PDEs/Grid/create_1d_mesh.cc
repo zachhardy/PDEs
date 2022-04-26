@@ -15,7 +15,7 @@ grid::create_1d_mesh(const std::vector<double>& vertices,
                      const CoordinateSystem coordinate_system,
                      const bool verbose)
 {
-  std::cout << "Creating a 1D mesh from vertices...\n";
+  std::cout << "\nCreating a 1D mesh from vertices...\n";
 
   // Check for empty input
   if (vertices.empty())
@@ -131,7 +131,7 @@ grid::create_1d_mesh(const std::vector<double>& zone_edges,
                      const CoordinateSystem coordinate_system,
                      const bool verbose)
 {
-  std::cout << "Creating a 1D mesh from zones...\n";
+  std::cout << "\nCreating a 1D mesh from zones...\n";
 
   // Check for empty inputs
   if (zone_edges.empty() or

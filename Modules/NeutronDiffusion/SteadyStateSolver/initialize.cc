@@ -6,7 +6,7 @@
 /// Initialize the multigroup diffusion solver.
 void neutron_diffusion::SteadyStateSolver::initialize()
 {
-  std::cout << "Initializing the solver...\n";
+  std::cout << "\nInitializing solver...\n";
 
   input_checks();
   initialize_materials();
@@ -28,6 +28,36 @@ void neutron_diffusion::SteadyStateSolver::initialize()
     case LinearSolverType::CHOLESKY:
     { linear_solver = std::make_shared<math::Cholesky>(system_matrix); break; }
   }//switch linear solver type
+
+  std::string ls_str;
+  switch (linear_solver_type)
+  {
+      case LinearSolverType::LU: { ls_str = "LU"; break; }
+      case LinearSolverType::CHOLESKY: {ls_str = "Cholesky"; break; }
+      default: { ls_str = "UNDEFINED"; break; }
+  }
+
+  std::string algo_str;
+  switch (solution_method)
+  {
+    case SolutionMethod::DIRECT: { algo_str = "Direct"; break; }
+    case SolutionMethod::ITERATIVE: { algo_str = "Iterative"; break; }
+    default: { algo_str = "UNDEFINED"; break; }
+  }
+
+
+  std::cout << "\n***** Simulation Info *****\n"
+            << "    n_groups    : " << n_groups << "\n"
+            << "    n_precursors: " << n_precursors << "\n"
+            << "    n_dofs      : " << n_groups * n_nodes << "\n";
+
+  std::cout << "\n***** Algorithm Info *****\n"
+            << "    linear solver type : " << ls_str << "\n"
+            << "    solution algorithm : " << algo_str << "\n";
+
+  std::cout << "\nDone initializing solver.\n";
+
+
 }
 
 //######################################################################
