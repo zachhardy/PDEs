@@ -20,8 +20,8 @@ namespace neutron_diffusion
 
 enum class SolutionMethod
 {
-  FULL_SYSTEM = 0,
-  GROUPWISE = 1
+  DIRECT = 0,
+  ITERATIVE = 1
 };
 
 /// A steady state solver for multigroup neutron diffusion applications.
@@ -49,26 +49,22 @@ protected:
 public:
 
   /*---------- Options ----------*/
-
-  SolutionMethod solution_method = SolutionMethod::FULL_SYSTEM;
+  SolutionMethod solution_method = SolutionMethod::ITERATIVE;
   LinearSolverType linear_solver_type = LinearSolverType::LU;
 
-  /*---------- General information ----------*/
-
+  /*---------- General Information ----------*/
   size_t n_groups = 0;
   size_t n_precursors = 0;
   bool use_precursors = false;
 
-  /*---------- Spatial grid information ----------*/
-
+  /*---------- Spatial Grid Information ----------*/
   std::shared_ptr<Mesh> mesh;
   std::shared_ptr<Discretization> discretization;
 
-  /*---------- Material information ----------*/
-
+  /*---------- Material Information ----------*/
 public:
   std::vector<std::shared_ptr<Material>> materials;
-  std::vector<std::shared_ptr<CrossSections>>  material_xs;
+  std::vector<std::shared_ptr<CrossSections>> material_xs;
   std::vector<std::shared_ptr<IsotropicMGSource>> material_src;
 
 protected:
@@ -89,7 +85,7 @@ protected:
    *  once. */
   std::vector<int> matid_to_src_map;
 
-  /*---------- Boundary information ----------*/
+  /*---------- Boundary Information ----------*/
 public:
   /** A list containing a pair with the boundary type and index corresponding
    *  to the location of the boundary values within the boundary values vector.
@@ -110,11 +106,12 @@ protected:
    *  solver initialization. */
   std::vector<std::vector<BndryPtr>> boundaries;
 
-  /*---------- Data storage ----------*/
-  math::Vector  phi;
-  math::Vector  precursors;
-
 protected:
+  /*---------- Solutions ----------*/
+  math::Vector phi;
+  math::Vector precursors;
+
+  /*---------- System Storage ----------*/
   math::Matrix system_matrix;
   math::Vector system_rhs;
 
@@ -126,16 +123,20 @@ public:
 
 protected:
   void assemble_matrix();
-  void assemble_rhs();
+  void set_source();
 
   void assemble_fv_matrix();
-  void assemble_fv_rhs();
+  void set_fv_source();
 
 protected:
   void input_checks();
 
   void initialize_materials();
   void initialize_boundaries();
+
+protected:
+  void write_solution(const std::string filename,
+                      const math::Vector& output_flux) const;
 
 
 };
