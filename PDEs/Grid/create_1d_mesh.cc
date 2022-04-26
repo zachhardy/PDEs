@@ -12,7 +12,8 @@
  */
 std::shared_ptr<grid::Mesh>
 grid::create_1d_mesh(const std::vector<double>& vertices,
-                     const CoordinateSystem coordinate_system)
+                     const CoordinateSystem coordinate_system,
+                     const bool verbose)
 {
   std::cout << "Creating a 1D mesh from vertices...\n";
 
@@ -96,10 +97,13 @@ grid::create_1d_mesh(const std::vector<double>& vertices,
   // Compute the cell and face geometric info
   mesh->compute_geometric_info();
 
-  std::cout << "Mesh Details:\n"
-            << "\t# of Vertices: " << mesh->vertices.size() << "\n"
-            << "\t# of Cells:    " << mesh->cells.size() << "\n"
-            << "\t# of Lines:    " << mesh->cells.size() << "\n";
+  std::cout << "Done creating mesh.\n";
+
+  if (verbose)
+    std::cout << "Mesh Details:\n"
+              << "\t# of Vertices: " << mesh->vertices.size() << "\n"
+              << "\t# of Cells:    " << mesh->cells.size() << "\n"
+              << "\t# of Lines:    " << mesh->cells.size() << "\n";
 
   return mesh;
 }
@@ -124,7 +128,8 @@ std::shared_ptr<grid::Mesh>
 grid::create_1d_mesh(const std::vector<double>& zone_edges,
                      const std::vector<size_t>& zone_subdivisions,
                      const std::vector<int>& material_ids,
-                     const CoordinateSystem coordinate_system)
+                     const CoordinateSystem coordinate_system,
+                     const bool verbose)
 {
   std::cout << "Creating a 1D mesh from zones...\n";
 
@@ -231,10 +236,14 @@ grid::create_1d_mesh(const std::vector<double>& zone_edges,
   // Compute the cell and face geometric info
   mesh->compute_geometric_info();
 
-  std::cout << "Mesh Details:\n"
-            << "\t# of Vertices: " << mesh->vertices.size() << "\n"
-            << "\t# of Cells:    " << mesh->cells.size() << "\n"
-            << "\t# of Lines:    " << mesh->cells.size() << "\n";
+
+  std::cout << "Done creating mesh.\n";
+
+  if (verbose)
+    std::cout << "Mesh Details:\n"
+              << "\t# of Vertices: " << mesh->vertices.size() << "\n"
+              << "\t# of Cells:    " << mesh->cells.size() << "\n"
+              << "\t# of Lines:    " << mesh->cells.size() << "\n";
 
   return mesh;
 }

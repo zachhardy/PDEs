@@ -31,7 +31,8 @@ class Mesh;
 std::shared_ptr<Mesh>
 create_1d_mesh(const std::vector<double>& vertices,
                const CoordinateSystem coordinate_system =
-                   CoordinateSystem::CARTESIAN);
+                   CoordinateSystem::CARTESIAN,
+               const bool verbose = false);
 
 
 std::shared_ptr<Mesh>
@@ -39,7 +40,8 @@ create_1d_mesh(const std::vector<double>& zone_edges,
                const std::vector<size_t>& zone_subdivisions,
                const std::vector<int>& material_ids,
                const CoordinateSystem coordinate_system =
-                   CoordinateSystem::CARTESIAN);
+                   CoordinateSystem::CARTESIAN,
+               const bool verbose = false);
 }
 
 #include "point.h"
