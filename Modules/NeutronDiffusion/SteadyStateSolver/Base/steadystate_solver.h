@@ -1,7 +1,8 @@
 #ifndef STEADYSTATE_SOLVER_H
 #define STEADYSTATE_SOLVER_H
 
-#include "../boundaries.h"
+#include "NeutronDiffusion/boundaries.h"
+#include "NeutronDiffusion/Groupset/groupset.h"
 
 #include "Grid/mesh.h"
 #include "Discretization/discretization.h"
@@ -18,16 +19,16 @@
 namespace neutron_diffusion
 {
 
-enum class SolutionMethod
+enum class SolutionTechnique
 {
-  DIRECT = 0,
-  ITERATIVE = 1
+  FULL_SYSTEM = 0,
+  GROUPSET_WISE = 1
 };
 
 /// A steady state solver for multigroup neutron diffusion applications.
 class SteadyStateSolver
 {
-private:
+protected:
   const std::string solver_string = "diffusion::SteadyStateSolver::";
 
 protected:
@@ -49,13 +50,16 @@ protected:
 public:
 
   /*---------- Options ----------*/
-  SolutionMethod solution_method = SolutionMethod::ITERATIVE;
-  LinearSolverType linear_solver_type = LinearSolverType::LU;
+  SolutionTechnique solution_technique = SolutionTechnique::GROUPSET_WISE;
 
   /*---------- General Information ----------*/
   size_t n_groups = 0;
   size_t n_precursors = 0;
   bool use_precursors = false;
+
+  /*---------- Groupsets and Groups ----------*/
+  std::vector<int> groups;
+  std::vector<Groupset> groupsets;
 
   /*---------- Spatial Grid Information ----------*/
   std::shared_ptr<Mesh> mesh;
@@ -106,39 +110,25 @@ protected:
    *  solver initialization. */
   std::vector<std::vector<BndryPtr>> boundaries;
 
-protected:
+public:
   /*---------- Solutions ----------*/
   math::Vector phi;
   math::Vector precursors;
-
-  /*---------- System Storage ----------*/
-  math::Matrix system_matrix;
-  math::Vector system_rhs;
-
-  std::shared_ptr<LinearSolver> linear_solver;
 
 public:
   void initialize();
   void execute();
 
 protected:
-  void assemble_matrix();
-  void set_source();
-
-  void assemble_fv_matrix();
-  void set_fv_source();
+  virtual void assemble_matrix(Groupset& groupset) {}
+  virtual void set_source(Groupset& groupset) {}
 
 protected:
   void input_checks();
 
   void initialize_materials();
   void initialize_boundaries();
-
-protected:
-  void write_solution(const std::string filename,
-                      const math::Vector& output_flux) const;
-
-
+  virtual void initialize_discretization() = 0;
 };
 
 }
