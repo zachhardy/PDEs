@@ -28,7 +28,7 @@ int main(int argc, char** argv)
     SteadyStateSolver solver;
 
     // Create the vertices
-    size_t n_cells = 3;
+    size_t n_cells = 100;
     double slab_width = 1.0;
     double cell_width = slab_width / n_cells;
 
@@ -36,7 +36,7 @@ int main(int argc, char** argv)
     for (size_t i = 0; i < n_cells; ++i)
       vertices.emplace_back(vertices.back() + cell_width);
 
-    auto mesh = create_1d_mesh(vertices);
+    auto mesh = create_1d_mesh(vertices, CoordinateSystem::CARTESIAN);
     solver.mesh = mesh;
 
     auto discretization = std::make_shared<FiniteVolume>(mesh);
@@ -54,8 +54,12 @@ int main(int argc, char** argv)
 
     solver.materials.emplace_back(material);
 
-    solver.boundary_info.emplace_back(BoundaryType::REFLECTIVE, -1);
-    solver.boundary_info.emplace_back(BoundaryType::REFLECTIVE, -1);
+    solver.boundary_info.emplace_back(BoundaryType::ZERO_FLUX, -1);
+    solver.boundary_info.emplace_back(BoundaryType::ZERO_FLUX, -1);
+
+    solver.solution_method = SolutionMethod::ITERATIVE;
+    solver.linear_solver_type = LinearSolverType::LU;
+
 
     // Run the problem
     solver.initialize();
