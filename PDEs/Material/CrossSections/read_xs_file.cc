@@ -6,7 +6,8 @@
 #include <numeric>
 
 /// Set the cross section data by reading a file.
-void physics::CrossSections::read_xs_file(const std::string& file_name)
+void physics::CrossSections::read_xs_file(const std::string& file_name,
+                                          const bool verbose)
 {
   std::cout << "Reading cross-section file \"" << file_name << "\"...\n";
 
@@ -162,8 +163,10 @@ void physics::CrossSections::read_xs_file(const std::string& file_name)
   reconcile_fission_properties();
   compute_macroscopic_cross_sections();
 
-  std::cout << "Cross Sections Details:\n"
-            << "\t# of Groups:     " << n_groups << "\n"
-            << "\t# of Precursors: " << n_precursors << "\n"
-            << "\tFissile?:     " << is_fissile << "\n";
-}
+  std::cout << "Done reading cross sections.\n";
+  if (verbose)
+    std::cout << "Cross Sections Details:\n"
+              << "\t# of Groups    : " << n_groups << "\n"
+              << "\t# of Precursors: " << n_precursors << "\n"
+              << "\tFissile?       : " << is_fissile << "\n";
+  }

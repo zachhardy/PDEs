@@ -61,7 +61,8 @@ public:
 
 public:
   void reset();
-  void read_xs_file(const std::string& file_name);
+  void read_xs_file(const std::string& file_name,
+                    const bool verbose = false);
 
 private:
   void compute_scattering_from_transfers();
