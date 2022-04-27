@@ -48,16 +48,6 @@ inline SourceFlags operator|(const SourceFlags f1,
 
 //######################################################################
 
-typedef math::LinearSolverType LinearSolverType;
-
-struct Options
-{
-  LinearSolverType linear_solver_type = LinearSolverType::LU;
-  SolutionTechnique solution_technique = SolutionTechnique::GROUPSET_WISE;
-};
-
-//######################################################################
-
 /// A steady state solver for multigroup neutron diffusion applications.
 class SteadyStateSolver
 {
@@ -83,7 +73,7 @@ protected:
 public:
 
   /*---------- Options ----------*/
-  Options options;
+  SolutionTechnique solution_technique = SolutionTechnique::GROUPSET_WISE;
 
   /*---------- General Information ----------*/
   size_t n_groups = 0;

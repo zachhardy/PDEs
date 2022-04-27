@@ -7,12 +7,17 @@ void neutron_diffusion::SteadyStateSolver::execute()
 {
   std::cout << "Executing solver...\n";
 
+  std::cout << "Initializing matrices...\n";
+
   // Initialize matrices
   for (auto& gs : groupsets)
-  { assemble_matrix(gs); gs.linear_solver->setup(); }
+  {
+    assemble_matrix(gs);
+    gs.linear_solver->setup();
+  }
 
   SourceFlags source_flags = APPLY_MATERIAL_SOURCE;
-  if (options.solution_technique == SolutionTechnique::GROUPSET_WISE)
+  if (solution_technique == SolutionTechnique::GROUPSET_WISE)
     source_flags = source_flags | APPLY_WGS_SCATTER_SOURCE |
                    APPLY_AGS_SCATTER_SOURCE | APPLY_WGS_FISSION_SOURCE |
                    APPLY_AGS_FISSION_SOURCE;

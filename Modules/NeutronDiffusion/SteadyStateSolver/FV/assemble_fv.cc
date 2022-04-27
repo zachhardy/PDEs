@@ -31,7 +31,7 @@ assemble_matrix(Groupset& groupset)
       A[i + g][i + g] += xs->sigma_t[g] * volume;
 
     //============================== Cross-group coupling
-    if (options.solution_technique == SolutionTechnique::FULL_SYSTEM)
+    if (solution_technique == SolutionTechnique::FULL_SYSTEM)
     {
       for (size_t g = gs_i; g <= gs_f; ++g)
       {
@@ -253,7 +253,7 @@ set_source(Groupset& groupset, math::Vector& b, SourceFlags source_flags)
     }//for group
 
     //============================== Cross-group coupling
-    if (options.solution_technique == SolutionTechnique::GROUPSET_WISE)
+    if (solution_technique == SolutionTechnique::GROUPSET_WISE)
     {
       for (size_t g = gs_i; g <= gs_f; ++g)
       {

@@ -16,7 +16,7 @@ void neutron_diffusion::SteadyStateSolver::initialize()
 {
   std::cout << "Initializing solver...\n";
 
-  if (options.solution_technique == SolutionTechnique::FULL_SYSTEM)
+  if (solution_technique == SolutionTechnique::FULL_SYSTEM)
   {
     std::cout << "Solution technique set to full system.\n";
 
@@ -58,6 +58,7 @@ void neutron_diffusion::SteadyStateSolver::initialize()
 
       case LinearSolverType::CHOLESKY:
       {
+        std::cout << "CHOLESKY\n";
         auto ls = std::make_shared<math::Cholesky>(groupset.matrix);
         groupset.linear_solver = ls;
         break;
