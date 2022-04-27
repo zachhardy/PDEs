@@ -24,18 +24,19 @@ public:
   Matrix() = default;
 
   /// Construct a matrix of dimension \p n set to default.
-  explicit Matrix(size_t n) : m_data(n, vector(n)) {}
+  explicit Matrix(const size_t n) : m_data(n, vector(n)) {}
   /// Construct a matrix of dimension \p n set to \p value.
-  explicit Matrix(size_t n, const double value)
+  explicit Matrix(const size_t n, const double value)
     : m_data(n, vector(n, value))
   {}
 
   /// Construct a matrix with \p n_rows and \p n_cols set to default.
-  explicit Matrix(size_t n_rows, size_t n_cols)
+  explicit Matrix(const size_t n_rows, const size_t n_cols)
     : m_data(n_rows, vector(n_cols))
   {}
   /// Construct a matrix with \p n_rows and \p n_cols set to \p value.
-  explicit Matrix(size_t n_rows, size_t n_cols, const double value)
+  explicit Matrix(const size_t n_rows, const size_t n_cols,
+                  const double value)
     : m_data(n_rows, vector(n_cols, value))
   {}
 
