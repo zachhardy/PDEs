@@ -48,15 +48,13 @@ public:
   /// Copy construction from an STL vector.
   Matrix(const matrix& other)
   {
-    if (not this->valid_stl(other))
-      this->invalid_stl_error(__FUNCTION__);
+    this->validate_stl_input(other, __FUNCTION__);
     m_data = other;
   }
   /// Move construction from an STL vector.
   Matrix(matrix&& other)
   {
-    if (not this->valid_stl(other))
-      this->invalid_stl_error(__FUNCTION__ );
+    this->validate_stl_input(other, __FUNCTION__);
     m_data = std::move(other);
   }
 
@@ -67,9 +65,7 @@ public:
     for (auto& row : list)
       other.push_back(row);
 
-    if (not this->valid_stl(other))
-      this->invalid_stl_error(__FUNCTION__);
-
+    this->validate_stl_input(other, __FUNCTION__);
     m_data = std::move(other);
   }
 
@@ -83,18 +79,14 @@ public:
   /// Copy assignment from an STL vector
   Matrix& operator=(const matrix& other)
   {
-    if (not this->valid_stl(other))
-      this->invalid_stl_error(__FUNCTION__);
-
+    this->validate_stl_input(other, __FUNCTION__);
     m_data = other;
     return *this;
   }
   /// Move assignment from an STL vector
   Matrix& operator=(matrix&& other)
   {
-    if (not this->valid_stl(other))
-      this->invalid_stl_error(__FUNCTION__);
-
+    validate_stl_input(other, __FUNCTION__);
     m_data = std::move(other);
     return *this;
   }
@@ -132,6 +124,29 @@ public:
   double at(const size_t i, const size_t j) const
   { return m_data.at(i).at(j);  }
 
+  /// Read/write access to the <tt>i</tt>'th diagonal element.
+  double& diagonal(const size_t i)
+  { return m_data[i][i]; }
+  /// Read access to the <tt>i</tt>'th diagonal element.
+  double diagonal(const size_t i) const
+  { return m_data[i][i]; }
+
+  /// Return the diagonal of the matrix.
+  vector diagonal() const
+  {
+    if (this->empty())
+      return vector();
+
+    // Compute minimum dimension = diagonal size
+    size_t min_dim = std::min(this->n_rows(), this->n_cols());
+
+    // Populate the diagonal vector
+    vector v(min_dim);
+    for (size_t i = 0; i < min_dim; ++i)
+      v.push_back(m_data[i][i]);
+    return v;
+  }
+
   /// Access the underlying matrix data.
   vector* data() { return m_data.data(); }
 
@@ -139,10 +154,10 @@ public:
   /** \name Modifiers */
   /** @{ */
 
-  /// Clear the elements.
+  /// Clear the matrix.
   void clear() { m_data.clear(); }
 
-  /// Remove the last row.
+  /// Remove the last row of the matrix.
   void pop_back() { m_data.pop_back(); }
 
   /// Add a new row from \p values to the back of the matrix.
@@ -181,12 +196,16 @@ public:
 
   /// Swap the elements of two rows.
   void swap_row(const size_t i1, const size_t i2)
-  { m_data[i1].swap(m_data[i1]); }
+  { m_data[i1].swap(m_data[i2]); }
   /// Swap the elements of a row and another vector.
   void swap_row(const size_t i, Vector& other)
   {
     if (other.size() != this->n_cols())
-      this->mismatched_size_error(__FUNCTION__);
+    {
+      std::stringstream err;
+      err << "Matrix::" << __FUNCTION__ << ": Mismatched sizes encountered.";
+      throw std::length_error(err.str());
+    }
 
     for (size_t j = 0; j < this->n_cols(); ++j)
       std::swap(m_data[i][j], other[j]);
@@ -195,7 +214,11 @@ public:
   void swap_row(const size_t i, vector& other)
   {
     if (other.size() != this->n_cols())
-      this->mismatched_size_error(__FUNCTION__);
+    {
+      std::stringstream err;
+      err << "Matrix::" << __FUNCTION__ << ": Mismatched sizes encountered.";
+      throw std::length_error(err.str());
+    }
     m_data[i].swap(other);
   }
 
@@ -209,7 +232,11 @@ public:
   void swap_column(const size_t j, Vector& other)
   {
     if (other.size() != this->n_rows())
-      this->mismatched_size_error(__FUNCTION__);
+    {
+      std::stringstream err;
+      err << "Matrix::" << __FUNCTION__ << ": Mismatched sizes encountered.";
+      throw std::length_error(err.str());
+    }
 
     for (size_t i = 0; i < this->n_rows(); ++i)
       std::swap(m_data[i][j], other[i]);
@@ -218,7 +245,11 @@ public:
   void swap_column(const size_t j, vector& other)
   {
     if (other.size() != this->n_rows())
-      this->mismatched_size_error(__FUNCTION__);
+    {
+      std::stringstream err;
+      err << "Matrix::" << __FUNCTION__ << ": Mismatched sizes encountered.";
+      throw std::length_error(err.str());
+    }
 
     for (size_t i = 0; i < this->n_rows(); ++i)
       std::swap(m_data[i][j], other[i]);
@@ -245,7 +276,11 @@ public:
     {
       size_t min_dim = std::min(this->n_rows(), this->n_cols());
       if (diagonal.size() != min_dim)
-        this->mismatched_size_error(__FUNCTION__);
+      {
+        std::stringstream err;
+        err << "Matrix::" << __FUNCTION__ << ": Mismatched sizes encountered.";
+        throw std::length_error(err.str());
+      }
 
       for (size_t i = 0; i < min_dim; ++i)
         m_data[i][i] = diagonal[i];
@@ -294,22 +329,6 @@ public:
       for (const auto& entry : row)
         if (entry != 0.0) ++nnz;
     return nnz;
-  }
-
-  /// Return the diagonal of the matrix.
-  Vector diagonal() const
-  {
-    if (this->empty())
-      return Vector();
-
-    // Compute minimum dimension = diagonal size
-    size_t min_dim = std::min(this->n_rows(), this->n_cols());
-
-    // Populate the diagonal vector
-    Vector v(min_dim);
-    for (size_t i = 0; i < min_dim; ++i)
-      v.push_back(m_data[i][i]);
-    return v;
   }
 
   /// Return whether the matrix is empty.
@@ -386,7 +405,11 @@ public:
   Matrix operator/(const double value) const
   {
     if (value == 0.0)
-      this->zero_division_error(__FUNCTION__);
+    {
+      std::stringstream err;
+      err << "Matrix::" << __FUNCTION__ << ": Zero division encountered.";
+      throw std::runtime_error(err.str());
+    }
 
     Matrix m(m_data);
     for (auto& row : m)
@@ -398,7 +421,11 @@ public:
   Matrix& operator/=(const double value)
   {
     if (value == 0.0)
-      this->zero_division_error(__FUNCTION__);
+    {
+      std::stringstream err;
+      err << "Matrix::" << __FUNCTION__ << ": Zero division encountered.";
+      throw std::runtime_error(err.str());
+    }
 
     for (auto& row : m_data)
       for (auto& entry : row)
@@ -421,7 +448,11 @@ public:
   {
     if (this->n_rows() != other.n_rows() or
         this->n_cols() != other.n_cols())
-      this->mismatched_size_error(__FUNCTION__);
+    {
+      std::stringstream err;
+      err << "Matrix::" << __FUNCTION__ << ": Mismatched sizes encountered.";
+      throw std::length_error(err.str());
+    }
 
     Matrix m(this->n_rows(), this->n_cols());
     for (size_t i = 0; i < m.n_rows(); ++i)
@@ -434,7 +465,11 @@ public:
   {
     if (this->n_rows() != other.n_rows() or
         this->n_cols() != other.n_cols())
-      this->mismatched_size_error(__FUNCTION__);
+    {
+      std::stringstream err;
+      err << "Matrix::" << __FUNCTION__ << ": Mismatched sizes encountered.";
+      throw std::length_error(err.str());
+    }
 
     for (size_t i = 0; i < this->n_rows(); ++i)
       for (size_t j = 0; j < this->n_cols(); ++j)
@@ -453,7 +488,11 @@ public:
   {
     if (this->n_rows() != other.n_rows() or
         this->n_cols() != other.n_cols())
-      this->mismatched_size_error(__FUNCTION__);
+    {
+      std::stringstream err;
+      err << "Matrix::" << __FUNCTION__ << ": Mismatched sizes encountered.";
+      throw std::length_error(err.str());
+    }
 
     Matrix m(this->n_rows(), this->n_cols());
     for (size_t i = 0; i < m.n_rows(); ++i)
@@ -466,7 +505,11 @@ public:
   {
     if (this->n_rows() != other.n_rows() or
         this->n_cols() != other.n_cols())
-      this->mismatched_size_error(__FUNCTION__);
+    {
+      std::stringstream err;
+      err << "Matrix::" << __FUNCTION__ << ": Mismatched sizes encountered.";
+      throw std::length_error(err.str());
+    }
 
     for (size_t i = 0; i < this->n_rows(); ++i)
       for (size_t j = 0; j < this->n_cols(); ++j)
@@ -484,7 +527,11 @@ public:
   Matrix operator*(const Matrix& other) const
   {
     if (this->n_cols() != other.n_rows())
-      this->mismatched_size_error(__FUNCTION__);
+    {
+      std::stringstream err;
+      err << "Matrix::" << __FUNCTION__ << ": Mismatched sizes encountered.";
+      throw std::length_error(err.str());
+    }
 
     Matrix m(this->n_rows(), other.n_cols(), 0.0);
     for (size_t i = 0; i < m.n_rows(); ++i)
@@ -510,7 +557,11 @@ public:
   Vector operator*(const Vector& vector) const
   {
     if (this->n_cols() != vector.size())
-      this->mismatched_size_error(__FUNCTION__);
+    {
+      std::stringstream err;
+      err << "Matrix::" << __FUNCTION__ << ": Mismatched sizes encountered.";
+      throw std::length_error(err.str());
+    }
 
     Vector v(this->n_rows(), 0.0);
     for (size_t i = 0; i < this->n_rows(); ++i)
@@ -561,58 +612,26 @@ public:
 private:
 
   /// Check STL matrix inputs.
-  static bool valid_stl(const matrix& other)
+  static void validate_stl_input(const matrix& other,
+                                 const std::string func_name)
   {
     bool valid = true;
     size_t ref_val = other.front().size();
     for (auto& row : other)
     {
       if (row.size() != ref_val )
-      {
-        valid = false;
-        break;
-      }
+      { valid = false; break; }
     }
-    return valid;
-  }
 
-  /// Determine whether zero elements exist.
-  bool has_zero_elements() const
-  {
-    bool has_zeros = false;
-    for (const auto& row : m_data)
+    // Throw error if not a valid matrix
+    if (not valid)
     {
-      for (const auto& entry : row)
-      {
-        if (entry == 0.0) { has_zeros = true; break; }
-      }
+      std::stringstream err;
+      err << "Matrix::" << func_name << ": "
+          << "Invalid STL input encountered. All columns (inner STL vectors) "
+          << "must have the same size.";
+      throw std::runtime_error(err.str());
     }
-    return has_zeros;
-  }
-
-  /// Invalid STL matrix error.
-  static void invalid_stl_error(const std::string func_name)
-  {
-    std::stringstream err;
-    err << "Matrix::" << func_name << ": "
-        << "All inner STL vectors must be of the same size.";
-    throw std::length_error(err.str());
-  }
-
-  /// Throw an error for division by zero.
-  static void zero_division_error(const std::string func_name)
-  {
-    std::stringstream err;
-    err << "Vector::" << func_name << ": Zero division encountered.";
-    throw std::runtime_error(err.str());
-  }
-
-  /// Throw an error for mismatched sizes.
-  static void mismatched_size_error(const std::string func_name)
-  {
-    std::stringstream err;
-    err << "Matrix::" << func_name << ": Mismatched sizes encountered.";
-    throw std::length_error(err.str());
   }
 };
 
@@ -626,20 +645,16 @@ private:
  * \f]
  */
 inline Matrix operator*(const double value, const Matrix& A)
-{
-  return A * value;
-}
+{ return A * value; }
 
-/** \brief Multiply a matrix by a scalar c.
+/** \brief Multiply a matrix by a scalar value.
  * \f[
  *      \boldsymbol{B} = \alpha \boldsymbol{A} \\
  *      b_{ij} = \alpha a_{ij}, \hspace{0.25cm} \forall i, j
  * \f]
  */
-inline Matrix multiply(const Matrix& A, const double c)
-{
-  return A * c;
-}
+inline Matrix multiply(const Matrix& A, const double value)
+{ return A * value; }
 
 /**
  * \brief Multiply a matrix by a vector.
@@ -649,9 +664,7 @@ inline Matrix multiply(const Matrix& A, const double c)
  * \f]
  */
 inline Vector multiply(const Matrix& A, const Vector& x)
-{
-  return A * x;
-}
+{ return A * x; }
 
 /**
  * \brief Multiply a matrix by a matrix.
@@ -661,9 +674,7 @@ inline Vector multiply(const Matrix& A, const Vector& x)
  * \f]
  */
 inline Matrix multiply(const Matrix& A, const Matrix& B)
-{
-   return A * B;
-}
+{ return A * B; }
 
 }
 #endif //MATRIX_H
