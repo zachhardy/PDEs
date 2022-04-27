@@ -5,33 +5,32 @@
 /// Run the steady state multigroup diffusion simulation.
 void neutron_diffusion::SteadyStateSolver::execute()
 {
-  std::cout << "\nExecuting solver...\n";
+  std::cout << "Executing solver...\n";
 
   // Initialize matrices
   for (auto& gs : groupsets)
   { assemble_matrix(gs); gs.linear_solver->setup(); }
 
-  auto phi_ell = phi;
-  double diff = 1.0;
-  bool converged = false;
+  SourceFlags source_flags = APPLY_MATERIAL_SOURCE;
+  if (options.solution_technique == SolutionTechnique::GROUPSET_WISE)
+    source_flags = source_flags | APPLY_WGS_SCATTER_SOURCE |
+                   APPLY_AGS_SCATTER_SOURCE | APPLY_WGS_FISSION_SOURCE |
+                   APPLY_AGS_FISSION_SOURCE;
 
   //======================================== Loop over groupsets
   for (auto& groupset : groupsets)
-    solve_groupset(groupset);
+    solve_groupset(groupset, source_flags);
 
   std::cout << "\nDone executing solver.\n";
 }
 
 //######################################################################
 
-/**
- * \brief Solve
- * \param groupset
- */
+/// Converge the system for the current groupset, lagging couplings from others.
 void neutron_diffusion::SteadyStateSolver::
-solve_groupset(Groupset& groupset)
+solve_groupset(Groupset& groupset, SourceFlags source_flags)
 {
-  std::cout << "***** Solving Groupset " << groupset.id << "\n";
+  std::cout << "\n***** Solving Groupset " << groupset.id << "\n\n";
 
   math::Vector phi_gs(groupset.rhs.size(), 0.0);
   auto phi_gs_ell = phi_gs;
@@ -43,14 +42,14 @@ solve_groupset(Groupset& groupset)
   {
     // Clear and reset the RHS
     groupset.rhs *= 0.0;
-    set_source(groupset, groupset.rhs);
+    set_source(groupset, groupset.rhs, source_flags);
 
     // Solve the system
     phi_gs = groupset.linear_solver->solve(groupset.rhs);
 
     // Convergence check, finalize iteration
     diff = math::l2_norm(phi_gs - phi_gs_ell);
-    scoped_transfer(groupset, phi_gs, phi);
+    scoped_copy(groupset, phi_gs, phi);
     phi_gs_ell = phi_gs;
 
     if (diff < groupset.tolerance)

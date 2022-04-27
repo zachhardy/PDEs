@@ -35,6 +35,8 @@ void neutron_diffusion::SteadyStateSolver::initialize()
   size_t n_nodes = discretization->n_nodes();
 
   phi.resize(n_groups * n_nodes, 0.0);
+  phi_ell.resize(phi.size(), 0.0);
+
   precursors.resize(max_precursors_per_material * n_nodes, 0.0);
 
   // Initialize groupsets

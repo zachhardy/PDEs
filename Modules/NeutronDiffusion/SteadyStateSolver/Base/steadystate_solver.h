@@ -28,12 +28,30 @@ enum class SolutionTechnique
 
 //######################################################################
 
+/// Bitwise source flags
+enum SourceFlags : int
+{
+  NO_FLAGS = 0,
+  APPLY_MATERIAL_SOURCE = (1 << 0),
+  APPLY_WGS_SCATTER_SOURCE = (1 << 1),
+  APPLY_AGS_SCATTER_SOURCE = (1 << 2),
+  APPLY_WGS_FISSION_SOURCE = (1 << 3),
+  APPLY_AGS_FISSION_SOURCE = (1 << 4)
+};
+
+inline SourceFlags operator|(const SourceFlags f1,
+                             const SourceFlags f2)
+{
+  return static_cast<SourceFlags>(static_cast<int>(f1) |
+                                  static_cast<int>(f2));
+}
+
+//######################################################################
+
 typedef math::LinearSolverType LinearSolverType;
 
 struct Options
 {
-  double tolerance = 1.0e-10;
-  size_t max_iterations = 100;
   LinearSolverType linear_solver_type = LinearSolverType::LU;
   SolutionTechnique solution_technique = SolutionTechnique::GROUPSET_WISE;
 };
@@ -128,18 +146,21 @@ protected:
 public:
   /*---------- Solutions ----------*/
   math::Vector phi;
+  math::Vector phi_ell;
+
   math::Vector precursors;
 
 public:
   void initialize();
   void execute();
-  void solve_groupset(Groupset& groupset);
+  void solve_groupset(Groupset& groupset, SourceFlags source_flags);
 
 protected:
   /// Virtual function for assembling a groupset matrix.
   virtual void assemble_matrix(Groupset& groupset) = 0;
   /// Virtual function for setting a groupset source.
-  virtual void set_source(Groupset& groupset, math::Vector& b) = 0;
+  virtual void set_source(Groupset& groupset, math::Vector& b,
+                          SourceFlags source_flags) = 0;
 
 protected:
   void input_checks();
@@ -151,9 +172,9 @@ protected:
   virtual void initialize_discretization() = 0;
 
 protected:
-  virtual void scoped_transfer(Groupset& groupset,
-                               const math::Vector& x,
-                               math::Vector& y) = 0;
+  virtual void scoped_copy(const Groupset& groupset,
+                           const math::Vector& x,
+                           math::Vector& y) = 0;
 };
 
 }

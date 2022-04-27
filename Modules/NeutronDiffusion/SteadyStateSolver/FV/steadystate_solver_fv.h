@@ -21,12 +21,13 @@ protected:
 
 protected:
   void assemble_matrix(Groupset& groupset) override;
-  void set_source(Groupset& groupset, math::Vector& b) override;
+  void set_source(Groupset& groupset, math::Vector& b,
+                  SourceFlags source_flags) override;
 
 protected:
-  void scoped_transfer(Groupset& groupset,
-                       const math::Vector& x,
-                       math::Vector& y) override;
+  void scoped_copy(const Groupset& groupset,
+                   const math::Vector& x,
+                   math::Vector& y) override;
 };
 
 }
