@@ -26,7 +26,7 @@ int main(int argc, char** argv)
 
 
     //================================================== Create the mesh
-    size_t n_cells = 30;
+    size_t n_cells = 50;
     double slab_width = 1.0;
     double cell_width = slab_width / n_cells;
 
@@ -63,15 +63,9 @@ int main(int argc, char** argv)
 
     // Initialize groupsets
     Groupset groupset(0);
-    groupset.linear_solver_type = math::LinearSolverType::CHOLESKY;
     for (size_t g = 0; g < n_groups; ++g)
       groupset.groups.emplace_back(solver.groups[g]);
     solver.groupsets.emplace_back(groupset);
-
-//    Groupset groupset1(1);
-//    for (size_t g = 63; g < n_groups; ++g)
-//      groupset1.groups.emplace_back(solver.groups[g]);
-//    solver.groupsets.emplace_back(groupset1);
 
     // Define boundary conditions
     solver.boundary_info.emplace_back(BoundaryType::ZERO_FLUX, -1);

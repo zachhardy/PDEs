@@ -162,9 +162,13 @@ protected:
   virtual void initialize_discretization() = 0;
 
 protected:
+  virtual void scoped_transfer(const Groupset& groupset,
+                               const math::Vector& x,
+                               math::Vector& destination) = 0;
   virtual void scoped_copy(const Groupset& groupset,
                            const math::Vector& x,
-                           math::Vector& y) = 0;
+                           math::Vector& destination) = 0;
+  virtual double compute_change(const Groupset& groupset) = 0;
 };
 
 }

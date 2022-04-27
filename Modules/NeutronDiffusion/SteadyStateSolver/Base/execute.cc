@@ -7,8 +7,6 @@ void neutron_diffusion::SteadyStateSolver::execute()
 {
   std::cout << "Executing solver...\n";
 
-  std::cout << "Initializing matrices...\n";
-
   // Initialize matrices
   for (auto& gs : groupsets)
   {
@@ -37,9 +35,7 @@ solve_groupset(Groupset& groupset, SourceFlags source_flags)
 {
   std::cout << "\n***** Solving Groupset " << groupset.id << "\n\n";
 
-  math::Vector phi_gs(groupset.rhs.size(), 0.0);
-  auto phi_gs_ell = phi_gs;
-  double diff = 1.0;
+  double change = 1.0;
   bool converged = false;
 
   //======================================== Start iterations
@@ -50,24 +46,23 @@ solve_groupset(Groupset& groupset, SourceFlags source_flags)
     set_source(groupset, groupset.rhs, source_flags);
 
     // Solve the system
-    phi_gs = groupset.linear_solver->solve(groupset.rhs);
+    auto x = groupset.linear_solver->solve(groupset.rhs);
 
     // Convergence check, finalize iteration
-    diff = math::l2_norm(phi_gs - phi_gs_ell);
-    scoped_copy(groupset, phi_gs, phi);
-    phi_gs_ell = phi_gs;
+    scoped_transfer(groupset, x, phi);
+    change = compute_change(groupset);
+    scoped_copy(groupset, phi, phi_ell);
 
-    if (diff < groupset.tolerance)
+    if (change < groupset.tolerance)
       converged = true;
 
     // Print iteration information
     std::stringstream iter_info;
     iter_info << "Iteration: " << std::setw(3) << nit << " "
-              << "Difference: " << diff;
+              << "Change: " << change;
     if (converged) iter_info << " CONVERGED";
     std::cout << iter_info.str() << "\n";
 
-    if (diff < groupset.tolerance)
-      break;
+    if (converged) break;
   }
 }

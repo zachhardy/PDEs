@@ -25,9 +25,13 @@ protected:
                   SourceFlags source_flags) override;
 
 protected:
+  void scoped_transfer(const Groupset& groupset,
+                       const math::Vector& x,
+                       math::Vector& destination) override;
   void scoped_copy(const Groupset& groupset,
                    const math::Vector& x,
-                   math::Vector& y) override;
+                   math::Vector& destination) override;
+  double compute_change(const Groupset& groupset) override;
 };
 
 }
