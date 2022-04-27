@@ -71,14 +71,9 @@ public: /*---------- Routines ----------*/
    *
    * For FV methods, this is the Centroid of each Cell object.
    */
-  std::vector<grid::Point> nodes() const override
-  {
-    std::vector<grid::Point> nodes;
-    nodes.reserve(mesh->cells.size());
-    for (const auto& cell : mesh->cells)
-      nodes.emplace_back(cell->centroid);
-    return nodes;
-  }
+  std::vector<grid::Point> nodes(const grid::Cell& cell) const override
+  { return std::vector<grid::Point>(1, cell.centroid); }
+
 };
 
 }

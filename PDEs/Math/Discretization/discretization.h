@@ -42,45 +42,20 @@ public:
   {}
 
 public:
-  /**
-   * \brief Get the number of nodes in the discretization.
-   *
-   * This method should be overridden in derived classses.
-   */
-  virtual size_t n_nodes() const
-  { return 0; }
+  /// Get the number of nodes in the discretization.
+  virtual size_t n_nodes() const { return 0; }
 
-  /**
-   * \brief Get the number of DoFs in the spatial discretization.
-   *
-   * This method should be overridden in derived classes.
-   */
-  virtual size_t n_dofs(const size_t n_components) const
-  { return 0; }
+  /// Get the number of DoFs in the spatial discretization.
+  virtual size_t n_dofs(const size_t n_components) const { return 0; }
 
-  /**
-   * \brief Get the number of nodes per cell.
-   *
-   * This method should be overridden in derived classes.
-   */
-  virtual size_t nodes_per_cell() const
-  { return 0; }
+  /// Get the number of nodes per cell.
+  virtual size_t nodes_per_cell() const { return 0; }
 
-  /**
-   * \brief Get the number of DoFs per cell.
-   *
-   * This method should be overriden in derived classes.
-   */
-  virtual size_t dofs_per_cell(const size_t n_components) const
-  { return 0; }
+  /// Get the number of DoFs per cell.
+  virtual size_t dofs_per_cell(const size_t n_components) const { return 0; }
 
-  /**
-   * \brief Get the location of the nodes across the spatial domain.
-   *
-   * This method should be overridden in derived classes.
-   */
-  virtual std::vector<grid::Point> nodes() const = 0;
-
+   /// Get the location of the nodes on a cell.
+  virtual std::vector<grid::Point> nodes(const grid::Cell& cell) const = 0;
 };
 
 }
