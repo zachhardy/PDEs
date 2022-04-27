@@ -4,7 +4,7 @@
 /// Create a boundary condition for each boundary and each group.
 void neutron_diffusion::SteadyStateSolver::initialize_boundaries()
 {
-  std::cout << "\nInitializing simulation boundaries...\n";
+  std::cout << "Initializing simulation boundaries...\n";
 
   //============================== Check number of boundaries
   if (mesh->dim == 1 and boundary_info.size() != 2)

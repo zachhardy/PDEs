@@ -41,7 +41,7 @@ int main(int argc, char** argv)
 
     // Create the cross sections
     auto xs = std::make_shared<CrossSections>();
-    xs->read_xs_file("xs_data/test_1g.xs");
+    xs->read_xs_file("xs_data/test_2g.xs");
     material->properties.emplace_back(xs);
 
     size_t n_groups = xs->n_groups;
@@ -70,7 +70,7 @@ int main(int argc, char** argv)
     solver.boundary_info.emplace_back(BoundaryType::ZERO_FLUX, -1);
     solver.boundary_info.emplace_back(BoundaryType::ZERO_FLUX, -1);
 
-    solver.options.solution_technique = SolutionTechnique::GROUPSET_WISE;
+    solver.options.solution_technique = SolutionTechnique::FULL_SYSTEM;
 
 
     //================================================== Run the problem

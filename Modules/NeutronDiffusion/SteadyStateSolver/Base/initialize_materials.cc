@@ -18,7 +18,7 @@
  */
 void neutron_diffusion::SteadyStateSolver::initialize_materials()
 {
-  std::cout << "\nInitializing materials...\n";
+  std::cout << "Initializing materials...\n";
 
   // Determine the unique material IDs on the mesh
   std::set<int> unique_material_ids;

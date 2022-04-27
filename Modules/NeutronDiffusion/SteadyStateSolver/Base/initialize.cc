@@ -14,13 +14,11 @@
  */
 void neutron_diffusion::SteadyStateSolver::initialize()
 {
-  std::cout << "\nInitializing solver...\n";
+  std::cout << "Initializing solver...\n";
 
   if (options.solution_technique == SolutionTechnique::FULL_SYSTEM)
   {
-    std::cout << "Solution technique set to full system...\n"
-              << "Clearing groupsets and creating a single groupset with "
-              << "all groups.\n";
+    std::cout << "Solution technique set to full system.\n";
 
     groupsets.clear();
     groupsets.emplace_back(0);
@@ -73,8 +71,7 @@ void neutron_diffusion::SteadyStateSolver::initialize()
     }//switch linear solver type
   }//for groupset
 
-
-  std::cout << "\nDone initializing solver.\n";
+  std::cout << "Done initializing solver.\n";
 }
 
 //######################################################################
