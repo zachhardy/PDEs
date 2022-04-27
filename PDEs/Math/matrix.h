@@ -75,16 +75,10 @@ public:
 
   /// Copy assignment operator.
   Matrix& operator=(const Matrix& other)
-  {
-    m_data = other.m_data;
-    return *this;
-  }
+  { m_data = other.m_data; return *this; }
   /// Move assignment operator.
   Matrix& operator=(Matrix&& other)
-  {
-    m_data = std::move(other.m_data);
-    return *this;
-  }
+  { m_data = std::move(other.m_data); return *this; }
 
   /// Copy assignment from an STL vector
   Matrix& operator=(const matrix& other)
@@ -100,51 +94,43 @@ public:
   {
     if (not this->valid_stl(other))
       this->invalid_stl_error(__FUNCTION__);
+
     m_data = std::move(other);
     return *this;
   }
 
-  /// Comparison operator.
-  bool operator==(const Matrix& other)
-  {
-    if (other.n_rows() != this->n_rows() or
-        other.n_cols() != this->n_cols())
-      this->mismatched_size_error(__FUNCTION__);
-
-    bool is_equal = true;
-    for (size_t i = 0; i < this->n_rows(); ++i)
-    {
-      for (size_t j = 0; j < this->n_cols(); ++j)
-        if (other[i][j] != m_data[i][j]) { is_equal = false; break; }
-      if (not is_equal) break;;
-    }
-    return is_equal;
-  }
-
 public:
-  /** \name Access Operators */
+  /** \name Accessors */
   /** @{ */
 
-  /// Read/write access for row \p row.
-  vector& operator[](const size_t row) { return m_data[row]; }
-  /// Read only access for row \p row.
-  vector operator[](const size_t row) const { return m_data[row]; }
+  /// Read/write access for row \p i.
+  vector& operator[](const size_t i) { return m_data[i]; }
+  /// Read only access for row \p i.
+  vector operator[](const size_t i) const { return m_data[i]; }
 
-  /// Read/write access for row \p row with bounds checking.
-  vector& at(const size_t row) { return m_data.at(row); }
-  /// Read only access for row \p row with bounds checking.
-  vector at(const size_t row) const { return m_data.at(row); }
+  /// Read/write access for row \p i.
+  vector& operator()(const size_t i) { return m_data[i]; }
+  /// Read only access for row \p i.
+  vector operator()(const size_t i) const { return m_data[i]; }
 
-  /// Read/write access for row \p row and column \p col with bounds checking.
-  double& at(const size_t row, const size_t col)
-  {
-    return m_data.at(row).at(col);
-  }
-  /// Read only access for row \p row and column \p col with bounds checking.
-  double at(const size_t row, const size_t col) const
-  {
-    return m_data.at(row).at(col);
-  }
+  /// Read/write access for row \p i with bounds checking.
+  vector& at(const size_t i) { return m_data.at(i); }
+  /// Read only access for row \p i with bounds checking.
+  vector at(const size_t i) const { return m_data.at(i); }
+
+  /// Read/write access for row \p i and column \p j.
+  double& operator()(const size_t i, const size_t j)
+  { return m_data[i][j]; }
+  /// Read only access for row \p i and column \p j.
+  double operator()(const size_t i, const size_t j) const
+  { return m_data[i][j]; }
+
+  /// Read/write access for row \p i and column \p j with bounds checking.
+  double& at(const size_t i, const size_t j)
+  { return m_data.at(i).at(j); }
+  /// Read only access for row \p i and column \p j with bounds checking.
+  double at(const size_t i, const size_t j) const
+  { return m_data.at(i).at(j);  }
 
   /// Access the underlying matrix data.
   vector* data() { return m_data.data(); }
@@ -194,48 +180,48 @@ public:
   }
 
   /// Swap the elements of two rows.
-  void swap_row(const size_t row0, const size_t row1)
-  { m_data[row0].swap(m_data[row1]); }
+  void swap_row(const size_t i1, const size_t i2)
+  { m_data[i1].swap(m_data[i1]); }
   /// Swap the elements of a row and another vector.
-  void swap_row(const size_t row, Vector& other)
+  void swap_row(const size_t i, Vector& other)
   {
     if (other.size() != this->n_cols())
       this->mismatched_size_error(__FUNCTION__);
 
     for (size_t j = 0; j < this->n_cols(); ++j)
-      std::swap(m_data[row][j], other[j]);
+      std::swap(m_data[i][j], other[j]);
   }
   /// Swap the elements of a row with an STL vector.
-  void swap_row(const size_t row, vector& other)
+  void swap_row(const size_t i, vector& other)
   {
     if (other.size() != this->n_cols())
       this->mismatched_size_error(__FUNCTION__);
-    m_data[row].swap(other);
+    m_data[i].swap(other);
   }
 
   /// Swap the elements of two columns.
-  void swap_column(const size_t column0, const size_t column1)
+  void swap_column(const size_t j1, const size_t j2)
   {
     for (size_t i = 0; i < this->n_rows(); ++i)
-      std::swap(m_data[i][column0], m_data[i][column1]);
+      std::swap(m_data[i][j1], m_data[i][j1]);
   }
   /// Swap the elements of a column and another vector.
-  void swap_column(const size_t column, Vector& other)
+  void swap_column(const size_t j, Vector& other)
   {
     if (other.size() != this->n_rows())
       this->mismatched_size_error(__FUNCTION__);
 
     for (size_t i = 0; i < this->n_rows(); ++i)
-      std::swap(m_data[i][column], other[i]);
+      std::swap(m_data[i][j], other[i]);
   }
   /// Swap the elements of a column with an STL vector.
-  void swap_column(const size_t column, vector& other)
+  void swap_column(const size_t j, vector& other)
   {
     if (other.size() != this->n_rows())
       this->mismatched_size_error(__FUNCTION__);
 
     for (size_t i = 0; i < this->n_rows(); ++i)
-      std::swap(m_data[i][column], other[i]);
+      std::swap(m_data[i][j], other[i]);
   }
 
   /// Swap the elements of this matrix with another.
@@ -243,12 +229,52 @@ public:
   /// Swap the elements of this matrix and an STL vector.
   void swap(matrix& other) { m_data.swap(other); }
 
-  /** @} */
-  /** \name Memory */
-  /** @{ */
+  /// Set the diagonal of the matrix.
+  void set_diagonal(const Vector& diagonal)
+  {
+    // If empty, define a square matrix with diagonal
+    if (this->empty())
+    {
+      this->resize(diagonal.size());
+      for (size_t i = 0; i < diagonal.size(); ++i)
+        m_data[i][i] = diagonal[i];
+    }
 
-  /// Reserve storage for a matrix with dimension \p n.
-  void reserve(const size_t n) { return m_data.reserve(n); }
+      // Handle initialized matrices
+    else
+    {
+      size_t min_dim = std::min(this->n_rows(), this->n_cols());
+      if (diagonal.size() != min_dim)
+        this->mismatched_size_error(__FUNCTION__);
+
+      for (size_t i = 0; i < min_dim; ++i)
+        m_data[i][i] = diagonal[i];
+    }
+  }
+  /// Set the diagonal of the matrix with an STL vector.
+  void set_diagonal(const vector& diagonal)
+  {
+    return this->set_diagonal(Vector(diagonal));
+  }
+  /// Set the diagonal of the matrix with a fixed scalar value.
+  void set_diagonal(const double value)
+  {
+    if (this->empty())
+    {
+      std::stringstream err;
+      err << "Matrix::" << __FUNCTION__ << ": "
+          << "Cannot set an empty matrix with a scalar value.";
+      throw std::runtime_error(err.str());
+    }
+
+    size_t min_dim = std::min(this->n_rows(), this->n_cols());
+    for (size_t i = 0; i < min_dim; ++i)
+      m_data[i][i] = value;
+  }
+
+  /** @} */
+  /** \name Information */
+  /** @{ */
 
   /// Return the number of rows.
   size_t n_rows() const { return m_data.size(); }
@@ -257,19 +283,39 @@ public:
   /// Return the number of elements <tt> n_rows * n_cols </tt>.
   size_t size() const { return this->n_rows() * this->n_cols(); }
 
-  /// Get the number of rows that can be held in allocated memory.
-  size_t capacity() const { return m_data.capacity(); }
-  /// Get the number of columns that can be held in row \p row.
-  size_t capacity(const size_t row) const
+  /// Return the number of non-zeros.
+  size_t n_nonzero_elements() const
   {
-    return m_data[row].capacity();
+    if (this->empty())
+      return 0;
+
+    size_t nnz = 0;
+    for (const auto& row : m_data)
+      for (const auto& entry : row)
+        if (entry != 0.0) ++nnz;
+    return nnz;
+  }
+
+  /// Return the diagonal of the matrix.
+  Vector diagonal() const
+  {
+    if (this->empty())
+      return Vector();
+
+    // Compute minimum dimension = diagonal size
+    size_t min_dim = std::min(this->n_rows(), this->n_cols());
+
+    // Populate the diagonal vector
+    Vector v(min_dim);
+    for (size_t i = 0; i < min_dim; ++i)
+      v.push_back(m_data[i][i]);
+    return v;
   }
 
   /// Return whether the matrix is empty.
   bool empty() const noexcept { return m_data.empty(); }
 
   /** @} */
-public:
   /** \name Iterators */
   /** @{ */
 
@@ -286,7 +332,6 @@ public:
   matrix::const_reverse_iterator crend() { return m_data.crend(); }
 
   /** @} */
-public:
   /** \name Scalar Operations */
   /** @{ */
 
@@ -487,83 +532,6 @@ public:
       for (size_t j = 0; j < m.n_cols(); ++j)
         m[i][j] = m_data[j][i];
     return m;
-  }
-
-  /** @} */
-public:
-  /** \name Miscellaneous Routines */
-  /** @{ */
-
-  /// Return the diagonal of the matrix.
-  Vector diagonal() const
-  {
-    if (this->empty())
-      return Vector();
-
-    // Compute minimum dimension = diagonal size
-    size_t min_dim = std::min(this->n_rows(), this->n_cols());
-
-    // Populate the diagonal vector
-    Vector v(min_dim);
-    for (size_t i = 0; i < min_dim; ++i)
-      v.push_back(m_data[i][i]);
-    return v;
-  }
-
-  /// Set the diagonal of the matrix.
-  void set_diagonal(const Vector& diagonal)
-  {
-    // If empty, define a square matrix with diagonal
-    if (this->empty())
-    {
-      this->resize(diagonal.size());
-      for (size_t i = 0; i < diagonal.size(); ++i)
-        m_data[i][i] = diagonal[i];
-    }
-
-    // Handle initialized matrices
-    else
-    {
-      size_t min_dim = std::min(this->n_rows(), this->n_cols());
-      if (diagonal.size() != min_dim)
-        this->mismatched_size_error(__FUNCTION__);
-
-      for (size_t i = 0; i < min_dim; ++i)
-        m_data[i][i] = diagonal[i];
-    }
-  }
-  /// Set the diagonal of the matrix with an STL vector.
-  void set_diagonal(const vector& diagonal)
-  {
-    return this->set_diagonal(Vector(diagonal));
-  }
-  /// Set the diagonal of the matrix with a fixed scalar value.
-  void set_diagonal(const double value)
-  {
-    if (this->empty())
-    {
-      std::stringstream err;
-      err << "Matrix::" << __FUNCTION__ << ": "
-          << "Cannot set an empty matrix with a scalar value.";
-      throw std::runtime_error(err.str());
-    }
-
-    size_t min_dim = std::min(this->n_rows(), this->n_cols());
-    for (size_t i = 0; i < min_dim; ++i)
-      m_data[i][i] = value;
-  }
-
-  /// Return the number of non-zeros.
-  size_t nnz() const
-  {
-    if (this->empty())
-      return 0;
-
-    size_t count = 0;
-    for (const auto& row : m_data)
-      for (const auto& entry : row)
-        if (entry != 0.0) ++count;
-    return count;
   }
 
   /** @} */
