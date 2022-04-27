@@ -16,7 +16,7 @@ void neutron_diffusion::SteadyStateSolver::initialize()
 {
   std::cout << "\nInitializing solver...\n";
 
-  if (solution_technique == SolutionTechnique::FULL_SYSTEM)
+  if (options.solution_technique == SolutionTechnique::FULL_SYSTEM)
   {
     std::cout << "Solution technique set to full system...\n"
               << "Clearing groupsets and creating a single groupset with "
@@ -24,7 +24,7 @@ void neutron_diffusion::SteadyStateSolver::initialize()
 
     groupsets.clear();
     groupsets.emplace_back(0);
-    for (const int group : groups)
+    for (const size_t group : groups)
       groupsets[0].groups.emplace_back(group);
   }
 
@@ -62,6 +62,14 @@ void neutron_diffusion::SteadyStateSolver::initialize()
         groupset.linear_solver = ls;
         break;
       }
+
+      default:
+      {
+        std::stringstream err;
+        err << solver_string << __FUNCTION__ << ": "
+            << "Unrecognized linear solver method.";
+        throw std::runtime_error(err.str());
+      }
     }//switch linear solver type
   }//for groupset
 
@@ -86,7 +94,7 @@ void neutron_diffusion::SteadyStateSolver::input_checks()
   }
 
   // Check that the groupsets contain all groups, no duplicates
-  std::set<int> groupset_groups;
+  std::set<size_t> groupset_groups;
   for (const auto& groupset : groupsets)
   {
     // Groupsets must have groups
@@ -113,7 +121,7 @@ void neutron_diffusion::SteadyStateSolver::input_checks()
     }
   }
 
-  std::set<int> groups_set(groups.begin(), groups.end());
+  std::set<size_t> groups_set(groups.begin(), groups.end());
   if (groupset_groups != groups_set)
   {
     std::stringstream err;

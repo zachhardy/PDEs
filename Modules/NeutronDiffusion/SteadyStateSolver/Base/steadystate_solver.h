@@ -19,11 +19,26 @@
 namespace neutron_diffusion
 {
 
+/// Algorithms to solve the multigroup diffusion problem.
 enum class SolutionTechnique
 {
-  FULL_SYSTEM = 0,
-  GROUPSET_WISE = 1
+  FULL_SYSTEM = 0,   ///< Solve the full multigroup system.
+  GROUPSET_WISE = 1  ///< Iteratively solve by groupset.
 };
+
+//######################################################################
+
+typedef math::LinearSolverType LinearSolverType;
+
+struct Options
+{
+  double tolerance = 1.0e-10;
+  size_t max_iterations = 100;
+  LinearSolverType linear_solver_type = LinearSolverType::LU;
+  SolutionTechnique solution_technique = SolutionTechnique::GROUPSET_WISE;
+};
+
+//######################################################################
 
 /// A steady state solver for multigroup neutron diffusion applications.
 class SteadyStateSolver
@@ -50,7 +65,7 @@ protected:
 public:
 
   /*---------- Options ----------*/
-  SolutionTechnique solution_technique = SolutionTechnique::GROUPSET_WISE;
+  Options options;
 
   /*---------- General Information ----------*/
   size_t n_groups = 0;
@@ -58,7 +73,7 @@ public:
   bool use_precursors = false;
 
   /*---------- Groupsets and Groups ----------*/
-  std::vector<int> groups;
+  std::vector<size_t> groups;
   std::vector<Groupset> groupsets;
 
   /*---------- Spatial Grid Information ----------*/
@@ -118,17 +133,27 @@ public:
 public:
   void initialize();
   void execute();
+  void solve_groupset(Groupset& groupset);
 
 protected:
-  virtual void assemble_matrix(Groupset& groupset) {}
-  virtual void set_source(Groupset& groupset) {}
+  /// Virtual function for assembling a groupset matrix.
+  virtual void assemble_matrix(Groupset& groupset) = 0;
+  /// Virtual function for setting a groupset source.
+  virtual void set_source(Groupset& groupset, math::Vector& b) = 0;
 
 protected:
   void input_checks();
 
   void initialize_materials();
   void initialize_boundaries();
+
+  /// Virtual function for creating a discretization.
   virtual void initialize_discretization() = 0;
+
+protected:
+  virtual void scoped_transfer(Groupset& groupset,
+                               const math::Vector& x,
+                               math::Vector& y) = 0;
 };
 
 }
