@@ -77,12 +77,15 @@ add_subdirectory("${PROJECT_SOURCE_DIR}/PDEs/Math")
 
 add_subdirectory("${PROJECT_SOURCE_DIR}/Modules")
 
+#-------------------- Link external libraries
+link_directories("${PETSC_ROOT}/lib")
 
 #-------------------- Define targets
 add_library(PDELib STATIC ${SOURCES})
 target_link_libraries(PDELib ${MPI_CXX_LIBRARIES})
+
 add_executable(${TARGET} PDEs/main.cc)
-target_link_libraries(${TARGET} PDELib Eigen3::Eigen)
+target_link_libraries(${TARGET} PDELib Eigen3::Eigen petsc)
 
 
 #-------------------- Write Makefile to root directory
