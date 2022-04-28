@@ -11,7 +11,7 @@
 #include "CrossSections/cross_sections.h"
 
 #include "vector.h"
-#include "matrix.h"
+#include "Math/matrix.h"
 
 #include "LinearSolvers/linear_solver.h"
 
@@ -135,10 +135,10 @@ protected:
 
 public:
   /*---------- Solutions ----------*/
-  math::Vector phi;
-  math::Vector phi_ell;
+  math::Vector<double> phi;
+  math::Vector<double> phi_ell;
 
-  math::Vector precursors;
+  math::Vector<double> precursors;
 
 public:
   void initialize();
@@ -146,10 +146,11 @@ public:
   void solve_groupset(Groupset& groupset, SourceFlags source_flags);
 
 protected:
-  /// Virtual function for assembling a groupset matrix.
+  /** Virtual function for assembling a groupset matrix. */
   virtual void assemble_matrix(Groupset& groupset) = 0;
-  /// Virtual function for setting a groupset source.
-  virtual void set_source(Groupset& groupset, math::Vector& b,
+
+  /** Virtual function for setting a groupset source. */
+  virtual void set_source(Groupset& groupset, math::Vector<double>& b,
                           SourceFlags source_flags) = 0;
 
 protected:
@@ -158,16 +159,16 @@ protected:
   void initialize_materials();
   void initialize_boundaries();
 
-  /// Virtual function for creating a discretization.
+  /** Virtual function for creating a discretization. */
   virtual void initialize_discretization() = 0;
 
 protected:
   virtual void scoped_transfer(const Groupset& groupset,
-                               const math::Vector& x,
-                               math::Vector& destination) = 0;
+                               const math::Vector<double>& x,
+                               math::Vector<double>& destination) = 0;
   virtual void scoped_copy(const Groupset& groupset,
-                           const math::Vector& x,
-                           math::Vector& destination) = 0;
+                           const math::Vector<double>& x,
+                           math::Vector<double>& destination) = 0;
   virtual double compute_change(const Groupset& groupset) = 0;
 };
 

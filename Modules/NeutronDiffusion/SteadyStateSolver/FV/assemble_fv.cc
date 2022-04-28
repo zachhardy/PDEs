@@ -11,7 +11,7 @@
 void neutron_diffusion::SteadyStateSolver_FV::
 assemble_matrix(Groupset& groupset)
 {
-  math::Matrix& A = groupset.matrix;
+  math::Matrix<double>& A = groupset.matrix;
   A *= 0.0;
 
   // Get groupset range
@@ -141,7 +141,8 @@ assemble_matrix(Groupset& groupset)
 //######################################################################
 
 void neutron_diffusion::SteadyStateSolver_FV::
-set_source(Groupset& groupset, math::Vector& b, SourceFlags source_flags)
+set_source(Groupset& groupset, math::Vector<double>& b,
+           SourceFlags source_flags)
 {
   const bool apply_mat_src         = (source_flags & APPLY_MATERIAL_SOURCE);
   const bool apply_wgs_scatter_src = (source_flags & APPLY_WGS_SCATTER_SOURCE);

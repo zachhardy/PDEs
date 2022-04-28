@@ -8,33 +8,29 @@ namespace math
 {
 
 /**
- * \brief A Cholesky decomposition solver.
- *
+ * A Cholesky decomposition solver.
  * See \ref math::cholesky_factorization and \ref math::cholesky_solve for
  * implementation details.
  */
 class Cholesky : public LinearSolver
 {
 public:
-  Cholesky(Matrix& matrix) : LinearSolver(matrix) {}
+  Cholesky(Matrix<double>& matrix) : LinearSolver(matrix) {}
 
 public:
   /**
-   * \brief Perform the Cholesky factorization.
-   *
+   * Perform the Cholesky factorization.
    * See \ref math::cholesky_factorization for implementation details.
    */
   void setup() override { cholesky_factorization(A); initialized = true; }
 
   /**
-   * \brief Solve the Cholesky factored linear system
-   *
+   * Solve the Cholesky factored linear system.
    * See \ref math::cholesky_solve for implementation details.
-   *
    * \param The right-hand side vector of the linear system.
    * \return The solution to the linear system.
    */
-  Vector solve(const Vector& b) override
+  Vector<double> solve(const Vector<double>& b) override
   {
     if (not initialized) setup();
     return cholesky_solve(A, b);

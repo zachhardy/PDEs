@@ -16,7 +16,9 @@
  * decoupled from those above it. This allows for the direct computation of all
  * unknowns when solving from the last equation to the first.
  */
-math::Vector math::back_substitution(const Matrix& A, const Vector& b)
+math::Vector<double>
+math::back_substitution(const Matrix<double>& A,
+                        const Vector<double>& b)
 {
   bool is_upper = true;
   for (size_t i = 0; i < b.size(); ++i)
@@ -33,7 +35,7 @@ math::Vector math::back_substitution(const Matrix& A, const Vector& b)
     throw std::runtime_error(err.str());
   }
 
-  Vector x(b.size(), 0.0);
+  Vector<double> x(b.size(), 0.0);
   for (int i = b.size() - 1; i >= 0; --i)
   {
     double value = b[i];
@@ -56,7 +58,9 @@ math::Vector math::back_substitution(const Matrix& A, const Vector& b)
  * decoupled from those below it. This allows for the direct computation of all
  * unknowns when solving from the first equation to the last.
  */
-math::Vector math::forward_substitution(const Matrix& A, const Vector& b)
+math::Vector<double>
+math::forward_substitution(const Matrix<double>& A,
+                           const Vector<double>& b)
 {
   bool is_lower = true;
   for (size_t i = 0; i < b.size(); ++i)
@@ -73,7 +77,7 @@ math::Vector math::forward_substitution(const Matrix& A, const Vector& b)
     throw std::runtime_error(err.str());
   }
 
-  Vector x(b.size(), 0.0);
+  Vector<double> x(b.size(), 0.0);
   for (size_t i = 0; i < b.size(); ++i)
   {
     double value = b[i];
@@ -91,7 +95,10 @@ math::Vector math::forward_substitution(const Matrix& A, const Vector& b)
  * \return The solution \f$ \vec{x} \f$ of
  *         \f$ \boldsymbol{A} \vec{x} = \vec{b} \f$.
  */
-math::Vector math::gaussian_elimination(Matrix& A, Vector& b, const bool pivot)
+math::Vector<double>
+math::gaussian_elimination(Matrix<double>& A,
+                           Vector<double>& b,
+                           const bool pivot)
 {
   row_echelon_form(A, b, pivot);
   return back_substitution(A, b);
@@ -116,13 +123,14 @@ math::Vector math::gaussian_elimination(Matrix& A, Vector& b, const bool pivot)
  * \f$ \boldsymbol{U} \vec{x} = \vec{y} \f$ where \f$ \vec{y} \f$ is now the
  * source term. This system can be solved using back substitution.
  */
-math::Vector math::lu_solve(const Matrix& A, const Vector& b,
+math::Vector<double> math::lu_solve(const Matrix<double>& A,
+                            const Vector<double>& b,
                             const std::vector<size_t> P)
 {
   size_t n = b.size();
 
   // Forward solve
-  Vector y(b.size(), 0.0);
+  Vector<double> y(b.size(), 0.0);
   for (size_t i = 0; i < b.size(); ++i)
   {
     double value = b[i];
@@ -132,7 +140,7 @@ math::Vector math::lu_solve(const Matrix& A, const Vector& b,
   }
 
   // Backward solve
-  Vector x(b.size(), 0.0);
+  Vector<double> x(b.size(), 0.0);
   for (int i = n - 1; i >= 0; --i)
   {
     double value = y[i];
@@ -154,12 +162,14 @@ math::Vector math::lu_solve(const Matrix& A, const Vector& b,
  * \f$ \boldsymbol{U} = \boldsymbol{L}^T \f$. See \ref lu_solve for
  * implementation detail.
  */
-math::Vector math::cholesky_solve(const Matrix& A, const Vector& b)
+math::Vector<double>
+math::cholesky_solve(const Matrix<double>& A,
+                     const Vector<double>& b)
 {
   size_t n = b.size();
 
   // Forward solve
-  Vector y(n, 0.0);
+  Vector<double> y(n, 0.0);
   for (size_t i = 0; i < n; ++i)
   {
     double value = b[i];
@@ -169,7 +179,7 @@ math::Vector math::cholesky_solve(const Matrix& A, const Vector& b)
   }
 
   // Backward solve
-  Vector x(n, 0.0);
+  Vector<double> x(n, 0.0);
   for (int i = n - 1; i >= 0; --i)
   {
     double value = y[i];

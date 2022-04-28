@@ -20,7 +20,7 @@ make_sparsity_pattern(std::vector<size_t> prealloc,
                       const size_t n_components, const bool is_coupled) const
 {
   // Resive based on the number of DoFs
-  sparsity_pattern.resize(this->n_dofs(n_components));
+  prealloc.resize(this->n_dofs(n_components));
 
   // Loop over cells
   for (const auto& cell : mesh->cells)
@@ -28,7 +28,7 @@ make_sparsity_pattern(std::vector<size_t> prealloc,
     const size_t ir = cell->id * n_components;
 
     for (size_t c = 0; c < n_components; ++c)
-      sparsity_pattern[ir + c] += is_coupled ? n_components : 1;
+      prealloc[ir + c] += is_coupled ? n_components : 1;
 
     // Loop over faces
     for (const auto& face : cell->faces)
@@ -37,7 +37,7 @@ make_sparsity_pattern(std::vector<size_t> prealloc,
       {
         const size_t jr = face.neighbor_id * n_components;
         for (size_t c = 0; c < n_components; ++c)
-          sparsity_pattern[ir + c] += 1;
+          prealloc[ir + c] += 1;
       }
     }//for face
   }//for cells

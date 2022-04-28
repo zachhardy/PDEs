@@ -12,6 +12,8 @@
 #include <iostream>
 #include <vector>
 
+#include <petsc.h>
+
 /**The main execution function.
  * \param argc int      Number of supplied arguments.
  * \param argv char**   Array of strings for each argument.
@@ -75,8 +77,13 @@ int main(int argc, char** argv)
 
 
     //================================================== Run the problem
+
+    PetscErrorCode ierr = PetscInitialize(&argc,&argv,(char*)0,NULL);
+
     solver.initialize();
     solver.execute();
+
+    PetscFinalize();
   }
   catch (std::exception &exc) {
     std::cerr << std::endl

@@ -2,7 +2,7 @@
 #define GROUPSET_H
 
 #include "vector.h"
-#include "matrix.h"
+#include "Math/matrix.h"
 #include "linear_solver.h"
 
 #include <memory>
@@ -23,8 +23,8 @@ public:
   double tolerance = 1.0e-8;
 
   /*---------- System Storage ----------*/
-  math::Matrix matrix;
-  math::Vector rhs;
+  math::Matrix<double> matrix;
+  math::Vector<double> rhs;
   std::shared_ptr<math::LinearSolver> linear_solver;
 
   Groupset() : id(-1) {}

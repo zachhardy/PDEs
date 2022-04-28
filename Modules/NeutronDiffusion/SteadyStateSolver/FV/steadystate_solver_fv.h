@@ -2,7 +2,7 @@
 #define STEADYSTATE_SOLVER_FV_H
 
 #include "NeutronDiffusion/SteadyStateSolver/Base/steadystate_solver.h"
-#include "Math/Discretization/finite_volume.h"
+#include "Math/Discretization/FiniteVolume/fv.h"
 
 namespace neutron_diffusion
 {
@@ -21,16 +21,16 @@ protected:
 
 protected:
   void assemble_matrix(Groupset& groupset) override;
-  void set_source(Groupset& groupset, math::Vector& b,
+  void set_source(Groupset& groupset, math::Vector<double>& b,
                   SourceFlags source_flags) override;
 
 protected:
   void scoped_transfer(const Groupset& groupset,
-                       const math::Vector& x,
-                       math::Vector& destination) override;
+                       const math::Vector<double>& x,
+                       math::Vector<double>& destination) override;
   void scoped_copy(const Groupset& groupset,
-                   const math::Vector& x,
-                   math::Vector& destination) override;
+                   const math::Vector<double>& x,
+                   math::Vector<double>& destination) override;
   double compute_change(const Groupset& groupset) override;
 };
 

@@ -7,8 +7,8 @@
  * \param destination The destination full multigroup vector.
  */
 void neutron_diffusion::SteadyStateSolver_FV::
-scoped_transfer(const Groupset& groupset, const math::Vector& x,
-                math::Vector& destination)
+scoped_transfer(const Groupset& groupset, const math::Vector<double>& x,
+                math::Vector<double>& destination)
 {
   const auto gs_i = groupset.groups.front();
   const auto gs_f = groupset.groups.back();
@@ -31,8 +31,8 @@ scoped_transfer(const Groupset& groupset, const math::Vector& x,
  * \param destination The vector copied into.
  */
 void neutron_diffusion::SteadyStateSolver_FV::
-scoped_copy(const Groupset& groupset, const math::Vector& x,
-            math::Vector& destination)
+scoped_copy(const Groupset& groupset, const math::Vector<double>& x,
+            math::Vector<double>& destination)
 {
   const auto gs_i = groupset.groups.front();
   const auto gs_f = groupset.groups.back();

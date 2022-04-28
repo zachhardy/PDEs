@@ -22,10 +22,10 @@ class LinearSolver
 {
 protected:
   bool initialized = false;
-  Matrix& A;
+  Matrix<double>& A;
 
 public:
-  LinearSolver(Matrix& matrix) : A(matrix)
+  LinearSolver(Matrix<double>& matrix) : A(matrix)
   {
     if (A.n_rows() != A.n_cols())
     {
@@ -37,11 +37,14 @@ public:
     }
   }
 
-  void set_matrix(Matrix& matrix) { A = matrix; initialized = false; }
+  void set_matrix(Matrix<double>& matrix) { A = matrix; initialized = false; }
 
 public:
-  virtual void setup() = 0; ///< Abstract setup method.
-  virtual Vector solve(const Vector& b) = 0; ///< Abstract solve method.
+  /** Abstract setup method. */
+  virtual void setup() = 0;
+
+  /** Abstract solve method. */
+  virtual Vector<double> solve(const Vector<double>& b) = 0;
 };
 
 }

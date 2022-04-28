@@ -19,7 +19,9 @@
  * unity.
  *
  */
-void math::row_echelon_form(Matrix& A, Vector& b, const bool pivot)
+void math::row_echelon_form(Matrix<double>& A,
+                            Vector<double>& b,
+                            const bool pivot)
 {
   if (A.n_rows() != A.n_cols() or A.n_rows() != b.size())
   {
@@ -98,7 +100,8 @@ void math::row_echelon_form(Matrix& A, Vector& b, const bool pivot)
  * contains the row operations used to form upper triangular system.
  *
  */
-std::vector<size_t> math::lu_factorization(Matrix& A, const bool pivot)
+std::vector<size_t>
+math::lu_factorization(Matrix<double>& A, const bool pivot)
 {
   if (A.n_rows() != A.n_cols())
   {
@@ -176,7 +179,7 @@ std::vector<size_t> math::lu_factorization(Matrix& A, const bool pivot)
  * \note Checks are not performed to ensure symetric positive definiteness. The
  *       user is responsible for ensuring the matrix fits this criteria.
  */
-void math::cholesky_factorization(Matrix& A)
+void math::cholesky_factorization(Matrix<double>& A)
 {
   if (A.n_rows() != A.n_cols())
   {
