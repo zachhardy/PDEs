@@ -35,8 +35,7 @@ public:
     : m_data(n_rows, vector(n_cols))
   {}
   /// Construct a matrix with \p n_rows and \p n_cols set to \p value.
-  explicit Matrix(const size_t n_rows, const size_t n_cols,
-                  const double value)
+  explicit Matrix(const size_t n_rows, const size_t n_cols, const double value)
     : m_data(n_rows, vector(n_cols, value))
   {}
 
@@ -111,25 +110,19 @@ public:
   vector at(const size_t i) const { return m_data.at(i); }
 
   /// Read/write access for row \p i and column \p j.
-  double& operator()(const size_t i, const size_t j)
-  { return m_data[i][j]; }
+  double& operator()(const size_t i, const size_t j) { return m_data[i][j]; }
   /// Read only access for row \p i and column \p j.
-  double operator()(const size_t i, const size_t j) const
-  { return m_data[i][j]; }
+  double operator()(const size_t i, const size_t j) const { return m_data[i][j]; }
 
   /// Read/write access for row \p i and column \p j with bounds checking.
-  double& at(const size_t i, const size_t j)
-  { return m_data.at(i).at(j); }
+  double& at(const size_t i, const size_t j) { return m_data.at(i).at(j); }
   /// Read only access for row \p i and column \p j with bounds checking.
-  double at(const size_t i, const size_t j) const
-  { return m_data.at(i).at(j);  }
+  double at(const size_t i, const size_t j) const { return m_data.at(i).at(j); }
 
   /// Read/write access to the <tt>i</tt>'th diagonal element.
-  double& diagonal(const size_t i)
-  { return m_data[i][i]; }
+  double& diagonal(const size_t i) { return m_data[i][i]; }
   /// Read access to the <tt>i</tt>'th diagonal element.
-  double diagonal(const size_t i) const
-  { return m_data[i][i]; }
+  double diagonal(const size_t i) const { return m_data[i][i]; }
 
   /// Return the diagonal of the matrix.
   vector diagonal() const
@@ -644,17 +637,16 @@ private:
  *      b_{ij} = \alpha a_{ij}, \hspace{0.25cm} \forall i, j
  * \f]
  */
-inline Matrix operator*(const double value, const Matrix& A)
-{ return A * value; }
+inline Matrix operator*(const double value, const Matrix& A) { return A * value; }
 
-/** \brief Multiply a matrix by a scalar value.
+/**
+ * \brief Multiply a matrix by a scalar value.
  * \f[
  *      \boldsymbol{B} = \alpha \boldsymbol{A} \\
  *      b_{ij} = \alpha a_{ij}, \hspace{0.25cm} \forall i, j
  * \f]
  */
-inline Matrix multiply(const Matrix& A, const double value)
-{ return A * value; }
+inline Matrix multiply(const Matrix& A, const double value) { return A * value; }
 
 /**
  * \brief Multiply a matrix by a vector.
@@ -663,8 +655,7 @@ inline Matrix multiply(const Matrix& A, const double value)
  *      \vec{y}_{i} = \sum_{j=1}^{n} a_{ij} x_{j}, \hspace{0.25cm} \forall i
  * \f]
  */
-inline Vector multiply(const Matrix& A, const Vector& x)
-{ return A * x; }
+inline Vector multiply(const Matrix& A, const Vector& x) { return A * x; }
 
 /**
  * \brief Multiply a matrix by a matrix.
@@ -673,8 +664,7 @@ inline Vector multiply(const Matrix& A, const Vector& x)
  *      c_{ij} = \sum_{k=1}^{n} a_{ik} b{kj}, \hspace{0.25cm} \forall i, j
  * \f]
  */
-inline Matrix multiply(const Matrix& A, const Matrix& B)
-{ return A * B; }
+inline Matrix multiply(const Matrix& A, const Matrix& B) { return A * B; }
 
 }
 #endif //MATRIX_H
