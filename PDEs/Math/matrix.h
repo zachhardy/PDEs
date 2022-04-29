@@ -196,7 +196,7 @@ public:
   size_t n_cols() const { return m_data.front().size(); }
 
   /** Return the number of elements <tt> n_rows * n_cols </tt>. */
-  size_t size() const { return this->n_rows() * this->n_cols(); }
+  size_t size() const { return m_data.size() * m_data.front().size(); }
 
   /** Return the number of non-zeros. */
   size_t n_nonzero_elements() const;
@@ -239,7 +239,6 @@ public:
   /** Constant iterator one past the end of row \p i. */
   typename std::vector<value_type>::const_iterator
   cend(const size_t i) const { return m_data[i].cend(); }
-
 
   /** @} */
   /** \name Scalar Operations */
@@ -741,7 +740,7 @@ Matrix<value_type>::operator*(const Vector<value_type>& x) const
     throw std::length_error(err.str());
   }
 
-  Vector v(this->n_rows(), 0.0);
+  Vector<value_type> v(this->n_rows(), 0.0);
   for (size_t i = 0; i < this->n_rows(); ++i)
     for (size_t j = 0; j < this->n_cols(); ++j)
       v[i] += m_data[i][j] * x[j];
