@@ -58,7 +58,7 @@ public: /*---------- Routines ----------*/
   { return std::vector<grid::Point>(1, cell.centroid); }
 
   void
-  make_sparsity_pattern(std::vector<size_t> prealloc,
+  make_sparsity_pattern(std::vector<std::vector<size_t>> pattern,
                         const size_t n_components = 1,
                         const bool is_coupled = false) const override;
 };

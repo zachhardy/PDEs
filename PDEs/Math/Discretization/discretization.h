@@ -60,19 +60,19 @@ public:
   /**
    * Define the sparsity pattern.
    *
-   * This routine defines the number of non-zero entries per row for a problem
-   * with the specified number of components. If the \p is_coupled flag is set
-   * to \p true, it is assumed that all components are coupled to one another,
-   * otherwise, it is assumed that the system is uncoupled in all
+   * This routine defines the column indices of non-zero entries per row for a
+   * problem with the specified number of components. If the \p is_coupled flag
+   * is set to \p true, it is assumed that all components are coupled to one
+   * another, otherwise, it is assumed that the system is uncoupled in all
    * components.
    *
-   * \param prealloc The number of entries per row to preallocate.
+   * \param pattern The column indices per row to allocate for.
    * \param n_components The number of components in the solution.
    * \param is_coupled A flag for allocating storage for coupling between
    *   solution components.
    */
   virtual void
-  make_sparsity_pattern(std::vector<size_t> prealloc,
+  make_sparsity_pattern(std::vector<std::vector<size_t>> pattern,
                         const size_t n_components = 1,
                         const bool is_coupled = false) const = 0;
 };
