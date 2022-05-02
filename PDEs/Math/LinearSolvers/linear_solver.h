@@ -18,14 +18,15 @@ enum class LinearSolverType
  * \brief An abstract base class for solving the linear system
  *        \f$ \boldsymbol{A} \vec{x} = \vec{b} \f$.
  */
+template<typename value_type>
 class LinearSolver
 {
 protected:
   bool initialized = false;
-  Matrix<double>& A;
+  Matrix<value_type>& A;
 
 public:
-  LinearSolver(Matrix<double>& matrix) : A(matrix)
+  LinearSolver(Matrix<value_type>& matrix) : A(matrix)
   {
     if (A.n_rows() != A.n_cols())
     {
@@ -37,14 +38,15 @@ public:
     }
   }
 
-  void set_matrix(Matrix<double>& matrix) { A = matrix; initialized = false; }
+  void set_matrix(Matrix<value_type>& matrix)
+  { A = matrix; initialized = false; }
 
 public:
   /** Abstract setup method. */
   virtual void setup() = 0;
 
   /** Abstract solve method. */
-  virtual Vector<double> solve(const Vector<double>& b) = 0;
+  virtual Vector<value_type> solve(const Vector<value_type>& b) = 0;
 };
 
 }

@@ -21,7 +21,8 @@ namespace math
  *
  * See \ref math::lu_factorization and \ref lu_solve for implementation details.
  */
-class LU : public LinearSolver
+template<typename value_type>
+class LU : public LinearSolver<value_type>
 {
 private:
  bool pivot = true;
@@ -35,8 +36,8 @@ private:
  std::vector<size_t> row_pivots;
 
 public:
- LU(Matrix<double>& matrix, const bool pivot_option = true)
-   : LinearSolver(matrix), pivot(pivot_option)
+ LU(Matrix<value_type>& matrix, const bool pivot_option = true)
+   : LinearSolver<value_type>(matrix), pivot(pivot_option)
  {}
 
 public:
@@ -44,27 +45,8 @@ public:
  bool get_pivot_option() const { return pivot; }
 
 public:
- /**
-  * Perform the LU factorization.
-  * See \ref math::lu_factorization for implementation details.
-  */
-  void setup() override
-  {
-    row_pivots = lu_factorization(A, pivot);
-    initialized = true;
-  }
-
-  /**
-   * Solve the LU factored linear system.
-   * See \ref math::lu_solve for implementation details.
-   * \param b The right-hand side vector of the linear system.
-   * \return The solution to the linear system.
-   */
-  Vector<double> solve(const Vector<double>& b) override
-  {
-    if (not initialized) setup();
-    return lu_solve(A, b, row_pivots);
-  }
+  void setup() override;
+  Vector<value_type> solve(const Vector<value_type>& b) override;
 };
 
 }
