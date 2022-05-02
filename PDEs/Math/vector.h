@@ -11,6 +11,8 @@
 #include <sstream>
 #include <stdexcept>
 
+#include "exceptions.h"
+
 namespace math
 {
 
@@ -260,13 +262,6 @@ private:
 
   /** Return whether or not the vector has zero elements. */
   bool has_zero_elements() const;
-
-  /** Throw an error for division by zero. */
-  static void zero_division_error(const std::string func_name);
-
-  /** Throw an error for of mismatched sizes. */
-  static bool mismatched_size_error(const std::string func_name);
-
 };
 
 /*-------------------- Inline Implementations --------------------*/
@@ -321,7 +316,8 @@ inline Vector<value_type>
 Vector<value_type>::operator-() const
 {
   Vector<value_type> v(m_data);
-  for (auto& elem : v) elem = -elem;
+  for (auto& elem : v)
+    elem = -elem;
   return v;
 }
 
@@ -330,7 +326,8 @@ template<typename value_type>
 inline Vector<value_type>&
 Vector<value_type>::operator-()
 {
-  for (auto& elem : m_data) elem = -elem;
+  for (auto& elem : m_data)
+    elem = -elem;
   return *this;
 }
 
@@ -340,7 +337,8 @@ inline Vector<value_type>
 Vector<value_type>::operator*(const value_type value) const
 {
   Vector<value_type> v(m_data);
-  for (auto& entry : v) entry *= value;
+  for (auto& elem : v)
+    elem *= value;
   return v;
 }
 
@@ -349,7 +347,8 @@ template<typename value_type>
 inline Vector<value_type>&
 Vector<value_type>::operator*=(const value_type value)
 {
-  for (auto& elem : m_data) elem *= value;
+  for (auto& elem : m_data)
+    elem *= value;
   return *this;
 }
 
@@ -358,9 +357,10 @@ template<typename value_type>
 inline Vector<value_type>
 Vector<value_type>::operator/(const value_type value) const
 {
-  if (value == 0.0) this->zero_division_error(__FUNCTION__);
+  Assert(value != 0.0, "Zero Division Error.");
   Vector<value_type> v(m_data);
-  for (auto& elem : v) elem /= value;
+  for (auto& elem : v)
+    elem /= value;
   return v;
 }
 
@@ -369,8 +369,9 @@ template<typename value_type>
 inline Vector<value_type>&
 Vector<value_type>::operator/=(const value_type value)
 {
-  if (value == 0.0) this->zero_division_error(__FUNCTION__);
-  for (auto& elem : m_data) elem /= value;
+  Assert(value != 0.0, "Zero Division Error.");
+  for (auto& elem : m_data)
+    elem /= value;
   return *this;
 }
 
@@ -379,9 +380,7 @@ template<typename value_type>
 inline Vector<value_type>
 Vector<value_type>::operator+(const Vector<value_type>& other) const
 {
-  if (m_data.size() != other.size())
-    this->mismatched_size_error(__FUNCTION__);
-
+  Assert(m_data.size() == other.size(), "Mismatched Size Error.");
   Vector<value_type> v(m_data.size());
   for (size_t i = 0; i < v.size(); ++i)
     v[i] = m_data[i] + other[i];
@@ -393,9 +392,7 @@ template<typename value_type>
 inline Vector<value_type>&
 Vector<value_type>::operator+=(const Vector<value_type>& other)
 {
-  if (m_data.size() != other.size())
-    this->mismatched_size_error(__FUNCTION__);
-
+  Assert(m_data.size() == other.size(), "Mismatched Size Error.");
   for (size_t i = 0; i < m_data.size(); ++i)
     m_data[i] += other[i];
   return *this;
@@ -406,9 +403,7 @@ template<typename value_type>
 inline Vector<value_type>
 Vector<value_type>::operator-(const Vector<value_type>& other) const
 {
-  if (m_data.size() != other.size())
-    this->mismatched_size_error(__FUNCTION__);
-
+  Assert(m_data.size() == other.size(), "Mismatched Size Error.");
   Vector v(m_data.size());
   for (size_t i = 0; i < v.size(); ++i)
     v[i] = m_data[i] - other[i];
@@ -420,9 +415,7 @@ template<typename value_type>
 inline Vector<value_type>&
 Vector<value_type>::operator-=(const Vector<value_type>& other)
 {
-  if (m_data.size() != other.size())
-    this->mismatched_size_error(__FUNCTION__);
-
+  Assert(m_data.size() == other.size(), "Mismatched Size Error.");
   for (size_t i = 0; i < m_data.size(); ++i)
     m_data[i] -= other[i];
   return *this;
@@ -433,9 +426,7 @@ template<typename value_type>
 inline Vector<value_type>
 Vector<value_type>::operator*(const Vector<value_type>& other) const
 {
-  if (m_data.size() != other.size())
-    this->mismatched_size_error(__FUNCTION__);
-
+  Assert(m_data.size() == other.size(), "Mismatched Size Error.");
   Vector v(m_data.size());
   for (size_t i = 0; i < v.size(); ++i)
     v[i] = m_data[i] * other[i];
@@ -447,9 +438,7 @@ template<typename value_type>
 inline Vector<value_type>&
 Vector<value_type>::operator*=(const Vector<value_type>& other)
 {
-  if (m_data.size() != other.size())
-    this->mismatched_size_error(__FUNCTION__);
-
+  Assert(m_data.size() == other.size(), "Mismatched Size Error.");
   for (size_t i = 0; i < m_data.size(); ++i)
     m_data[i] *= other[i];
   return *this;
@@ -460,11 +449,8 @@ template<typename value_type>
 inline Vector<value_type>
 Vector<value_type>::operator/(const Vector<value_type>& other) const
 {
-  if (m_data.size() != other.size())
-    this->mismatched_size_error(__FUNCTION__);
-  if (other.has_zero_elements())
-    this->zero_division_error(__FUNCTION__);
-
+  Assert(m_data.size() == other.size(), "Mismatched Size Error.");
+  Assert(not other.has_zero_elements(), "Zero Division Error.");
   Vector v(m_data.size());
   for (size_t i = 0; i < v.size(); ++i)
     v[i] = m_data[i] / other[i];
@@ -476,11 +462,8 @@ template<typename value_type>
 inline Vector<value_type>&
 Vector<value_type>::operator/=(const Vector<value_type>& other)
 {
-  if (m_data.size() != other.size())
-    this->mismatched_size_error(__FUNCTION__);
-  if (other.has_zero_elements())
-    this->zero_division_error(__FUNCTION__);
-
+  Assert(m_data.size() == other.size(), "Mismatched Size Error.");
+  Assert(not other.has_zero_elements(), "Zero Division Error.");
   for (size_t i = 0; i < m_data.size(); ++i)
     m_data[i] /= other[i];
   return *this;
@@ -491,9 +474,7 @@ template<typename value_type>
 inline value_type
 Vector<value_type>::dot(const Vector<value_type>& other) const
 {
-  if (m_data.size() != other.size())
-    this->mismatched_size_error(__FUNCTION__);
-
+  Assert(m_data.size() == other.size(), "Mismatched Size Error.");
   value_type value = 0.0;
   for (size_t i = 0; i < m_data.size(); ++i)
     value += m_data[i] * other[i];
@@ -556,7 +537,8 @@ template<typename value_type>
 inline Vector<value_type>&
 Vector<value_type>::fabs()
 {
-  for (auto& elem : m_data) elem = std::fabs(elem);
+  for (auto& elem : m_data)
+    elem = std::fabs(elem);
   return *this;
 }
 
@@ -581,27 +563,6 @@ inline bool Vector<value_type>::has_zero_elements() const
     if (v == 0.0) { has_zeros = true; break; }
   return has_zeros;
 }
-
-
-template<typename value_type>
-inline void
-Vector<value_type>::zero_division_error(const std::string func_name)
-{
-  std::stringstream err;
-  err << "Vector::" << func_name << ": Zero division encountered.";
-  throw std::runtime_error(err.str());
-}
-
-
-template<typename value_type>
-inline bool
-Vector<value_type>::mismatched_size_error(const std::string func_name)
-{
-  std::stringstream err;
-  err << "Vector::" << func_name << ": Mismatched sizes encountered.";
-  throw std::length_error(err.str());
-}
-
 
 /** Element-wise multiplication by a scalar. */
 template<typename value_type>

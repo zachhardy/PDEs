@@ -53,7 +53,7 @@ public:
   Matrix(std::vector<std::vector<value_type>>&& other);
 
   /** Construction from a nested initializer list. */
-  Matrix(std::initializer_list<std::initializer_list<value_type>> list);
+  Matrix(std::initializer_list<std::initializer_list<value_type>>& list);
 
   /** Copy assignment operator. */
   Matrix& operator=(const Matrix& other);
@@ -151,8 +151,7 @@ public:
   { m_data.resize(n_rows, std::vector<value_type>(n_cols, value)); }
 
   /** Swap the elements of two rows. */
-  void swap_row(const size_t i1, const size_t i2)
-  { m_data[i1].swap(m_data[i2]); }
+  void swap_row(const size_t i1, const size_t i2);
 
   /** Swap the elements of a row and another vector. */
   void swap_row(const size_t i, Vector<value_type>& other);
@@ -317,12 +316,8 @@ public:
 
   /** @} */
 private:
-
-  /** Check STL matrix inputs. */
-  static void
-  validate_stl_input(const std::vector<std::vector<value_type>>& other,
-                     const std::string func_name);
-
+  static void check_stl(const std::vector<std::vector<value_type>>& x,
+                        const std::string func_name);
 };
 
 /*-------------------- Inline Implementations --------------------*/
@@ -331,31 +326,33 @@ template<typename value_type>
 inline Matrix<value_type>::
 Matrix(const std::vector<std::vector<value_type>>& other)
 {
-  this->validate_stl_input(other, __FUNCTION__);
+  this->check_stl(other, __PRETTY_FUNCTION__);
   m_data = other;
 }
+
 
 
 template<typename value_type>
 inline Matrix<value_type>::
 Matrix(std::vector<std::vector<value_type>>&& other)
 {
-  this->validate_stl_input(other, __FUNCTION__);
+  this->check_stl(other, __PRETTY_FUNCTION__);
   m_data = std::move(other);
 }
+
 
 
 template<typename value_type>
 inline Matrix<value_type>::
-Matrix(std::initializer_list<std::initializer_list<value_type>> list)
+Matrix(std::initializer_list<std::initializer_list<value_type>>& list)
 {
-  std::vector<std::vector<value_type>> other;
+  std::vector<std::vector<value_type>> A;
   for (auto& row : list)
-    other.push_back(row);
-
-  this->validate_stl_input(other, __FUNCTION__);
-  m_data = std::move(other);
+    A.emplace_back(row);
+  this->check_stl(list, __PRETTY_FUNCTION__);
+  m_data = A;
 }
+
 
 
 template<typename value_type>
@@ -367,6 +364,7 @@ Matrix<value_type>::operator=(const Matrix<value_type>& other)
 }
 
 
+
 template<typename value_type>
 inline Matrix<value_type>&
 Matrix<value_type>::operator=(Matrix<value_type>&& other)
@@ -376,24 +374,27 @@ Matrix<value_type>::operator=(Matrix<value_type>&& other)
 }
 
 
+
 template<typename value_type>
 inline Matrix<value_type>&
 Matrix<value_type>::operator=(const std::vector<std::vector<value_type>>& other)
 {
-  this->validate_stl_input(other, __FUNCTION__);
+  this->check_stl(other, __PRETTY_FUNCTION__);
   m_data = other;
   return *this;
 }
+
 
 
 template<typename value_type>
 inline Matrix<value_type>&
 Matrix<value_type>::operator=(std::vector<std::vector<value_type>>&& other)
 {
-  this->validate_stl_input(other, __FUNCTION__);
+  this->check_stl(other, __PRETTY_FUNCTION__);
   m_data = std::move(other);
   return *this;
 }
+
 
 
 template<typename value_type>
@@ -414,75 +415,74 @@ Matrix<value_type>::diagonal() const
 }
 
 
+
+template<typename value_type>
+inline void
+Matrix<value_type>::swap_row(const size_t i1, const size_t i2)
+{
+  Assert(i1 < this->n_rows(), "Invalid row index.");
+  Assert(i2 < this->n_rows(), "Invalid row index.");
+  m_data[i1].swap(m_data[i2]);
+}
+
+
+
 template<typename value_type>
 inline void
 Matrix<value_type>::swap_row(const size_t i, Vector<value_type>& other)
 {
-  if (other.size() != this->n_cols())
-  {
-    std::stringstream err;
-    err << "Matrix::" << __FUNCTION__ << ": Mismatched sizes encountered.";
-    throw std::length_error(err.str());
-  }
-
-  for (size_t j = 0; j < this->n_cols(); ++j)
-    std::swap(m_data[i][j], other[j]);
+  Assert(i < this->n_rows(), "Invalid row index.");
+  Assert(other.size() == this->n_cols(), "Mismatched size error.");
+  m_data[i].swap(other);
 }
+
 
 
 template<typename value_type>
 inline void
 Matrix<value_type>::swap_row(const size_t i, std::vector<value_type>& other)
 {
-  if (other.size() != this->n_cols())
-  {
-    std::stringstream err;
-    err << "Matrix::" << __FUNCTION__ << ": Mismatched sizes encountered.";
-    throw std::length_error(err.str());
-  }
+  Assert(i < this->n_rows(), "Invalid row index.");
+  Assert(other.size() == this->n_cols(), "Mismatched size error.");
   m_data[i].swap(other);
 }
+
 
 
 template<typename value_type>
 inline void
 Matrix<value_type>::swap_column(const size_t j1, const size_t j2)
 {
+  Assert(j1 < this->n_cols(), "Invalid column index.");
+  Assert(j2 < this->n_cols(), "Invalid column index.");
   for (size_t i = 0; i < this->n_rows(); ++i)
     std::swap(m_data[i][j1], m_data[i][j1]);
 }
+
 
 
 template<typename value_type>
 inline void
 Matrix<value_type>::swap_column(const size_t j, Vector<value_type>& other)
 {
-  if (other.size() != this->n_rows())
-  {
-    std::stringstream err;
-    err << "Matrix::" << __FUNCTION__ << ": Mismatched sizes encountered.";
-    throw std::length_error(err.str());
-  }
-
+  Assert(j < this->n_cols(), "Invalid column index.");
+  Assert(other.size() == this->n_rows(), "Mismatched size error.");
   for (size_t i = 0; i < this->n_rows(); ++i)
     std::swap(m_data[i][j], other[i]);
 }
+
 
 
 template<typename value_type>
 inline void
 Matrix<value_type>::swap_column(const size_t j, std::vector<value_type>& other)
 {
-  if (other.size() != this->n_rows())
-  {
-    std::stringstream err;
-    err << "Matrix::" << __FUNCTION__ << ": Mismatched sizes encountered.";
-    throw std::length_error(err.str());
-  }
-
+  Assert(j < this->n_cols(), "Invalid column index.");
+  Assert(other.size() == this->n_rows(), "Mismatched size error.");
   for (size_t i = 0; i < this->n_rows(); ++i)
     std::swap(m_data[i][j], other[i]);
 }
+
 
 
 template<typename value_type>
@@ -501,34 +501,24 @@ Matrix<value_type>::set_diagonal(const Vector <value_type>& diagonal)
   else
   {
     size_t min_dim = std::min(this->n_rows(), this->n_cols());
-    if (diagonal.size() != min_dim)
-    {
-      std::stringstream err;
-      err << "Matrix::" << __FUNCTION__ << ": Mismatched sizes encountered.";
-      throw std::length_error(err.str());
-    }
-
+    Assert(diagonal.size() == min_dim, "Mismatched size error.");
     for (size_t i = 0; i < min_dim; ++i)
       m_data[i][i] = diagonal[i];
   }
 }
 
 
+
 template<typename value_type>
 inline void Matrix<value_type>::set_diagonal(const value_type value)
 {
-  if (this->empty())
-  {
-    std::stringstream err;
-    err << "Matrix::" << __FUNCTION__ << ": "
-        << "Cannot set an empty matrix with a scalar value.";
-    throw std::runtime_error(err.str());
-  }
+  Assert(not this->empty(), "Cannot set an empty matrix with a scalar.");
 
   size_t min_dim = std::min(this->n_rows(), this->n_cols());
   for (size_t i = 0; i < min_dim; ++i)
     m_data[i][i] = value;
 }
+
 
 
 template<typename value_type>
@@ -540,6 +530,7 @@ inline size_t Matrix<value_type>::n_nonzero_elements() const
       if (entry != 0.0) ++nnz;
   return nnz;
 }
+
 
 
 template<typename value_type>
@@ -554,6 +545,7 @@ Matrix<value_type>::operator-() const
 }
 
 
+
 template<typename value_type>
 inline Matrix<value_type>&
 Matrix<value_type>::operator-()
@@ -563,6 +555,7 @@ Matrix<value_type>::operator-()
       elem = -elem;
   return *this;
 }
+
 
 
 template<typename value_type>
@@ -577,6 +570,7 @@ Matrix<value_type>::operator*(const value_type value) const
 }
 
 
+
 template<typename value_type>
 inline Matrix<value_type>&
 Matrix<value_type>::operator*=(const value_type value)
@@ -588,16 +582,12 @@ Matrix<value_type>::operator*=(const value_type value)
 }
 
 
+
 template<typename value_type>
 inline Matrix<value_type>
 Matrix<value_type>::operator/(const value_type value) const
 {
-  if (value == 0.0)
-  {
-    std::stringstream err;
-    err << "Matrix::" << __FUNCTION__ << ": Zero division encountered.";
-    throw std::runtime_error(err.str());
-  }
+  Assert(value != 0.0, "Zero division error.");
 
   Matrix m(m_data);
   for (auto& row : m)
@@ -607,16 +597,12 @@ Matrix<value_type>::operator/(const value_type value) const
 }
 
 
+
 template<typename value_type>
 inline Matrix<value_type>&
 Matrix<value_type>::operator/=(const value_type value)
 {
-  if (value == 0.0)
-  {
-    std::stringstream err;
-    err << "Matrix::" << __FUNCTION__ << ": Zero division encountered.";
-    throw std::runtime_error(err.str());
-  }
+  Assert(value != 0.0, "Zero division error.");
 
   for (auto& row : m_data)
     for (auto& elem : row)
@@ -625,17 +611,14 @@ Matrix<value_type>::operator/=(const value_type value)
 }
 
 
+
 template<typename value_type>
 inline Matrix<value_type>
 Matrix<value_type>::operator+(const Matrix<value_type>& other) const
 {
-  if (this->n_rows() != other.n_rows() or
-      this->n_cols() != other.n_cols())
-  {
-    std::stringstream err;
-    err << "Matrix::" << __FUNCTION__ << ": Mismatched sizes encountered.";
-    throw std::length_error(err.str());
-  }
+  Assert(this->n_rows() == other.n_rows() and
+         this->n_rows() == other.n_cols(),
+         "Mismatched size error.");
 
   Matrix m(this->n_rows(), this->n_cols());
   for (size_t i = 0; i < m.n_rows(); ++i)
@@ -645,17 +628,14 @@ Matrix<value_type>::operator+(const Matrix<value_type>& other) const
 }
 
 
+
 template<typename value_type>
 inline Matrix<value_type>&
 Matrix<value_type>::operator+=(const Matrix<value_type>& other)
 {
-  if (this->n_rows() != other.n_rows() or
-      this->n_cols() != other.n_cols())
-  {
-    std::stringstream err;
-    err << "Matrix::" << __FUNCTION__ << ": Mismatched sizes encountered.";
-    throw std::length_error(err.str());
-  }
+  Assert(this->n_rows() == other.n_rows() and
+         this->n_cols() == other.n_cols(),
+         "Mismatched size error.");
 
   for (size_t i = 0; i < this->n_rows(); ++i)
     for (size_t j = 0; j < this->n_cols(); ++j)
@@ -664,17 +644,14 @@ Matrix<value_type>::operator+=(const Matrix<value_type>& other)
 }
 
 
+
 template<typename value_type>
 inline Matrix<value_type>
 Matrix<value_type>::operator-(const Matrix<value_type>& other) const
 {
-  if (this->n_rows() != other.n_rows() or
-      this->n_cols() != other.n_cols())
-  {
-    std::stringstream err;
-    err << "Matrix::" << __FUNCTION__ << ": Mismatched sizes encountered.";
-    throw std::length_error(err.str());
-  }
+  Assert(this->n_rows() == other.n_rows() and
+         this->n_rows() == other.n_cols(),
+         "Mismatched size error.");
 
   Matrix m(this->n_rows(), this->n_cols());
   for (size_t i = 0; i < m.n_rows(); ++i)
@@ -684,17 +661,14 @@ Matrix<value_type>::operator-(const Matrix<value_type>& other) const
 }
 
 
+
 template<typename value_type>
 inline Matrix<value_type>&
 Matrix<value_type>::operator-=(const Matrix<value_type>& other)
 {
-  if (this->n_rows() != other.n_rows() or
-      this->n_cols() != other.n_cols())
-  {
-    std::stringstream err;
-    err << "Matrix::" << __FUNCTION__ << ": Mismatched sizes encountered.";
-    throw std::length_error(err.str());
-  }
+  Assert(this->n_rows() == other.n_rows() and
+         this->n_rows() == other.n_cols(),
+         "Mismatched size error.");
 
   for (size_t i = 0; i < this->n_rows(); ++i)
     for (size_t j = 0; j < this->n_cols(); ++j)
@@ -703,16 +677,12 @@ Matrix<value_type>::operator-=(const Matrix<value_type>& other)
 }
 
 
+
 template<typename value_type>
 inline Matrix<value_type>
 Matrix<value_type>::operator*(const Matrix<value_type>& other) const
 {
-  if (this->n_cols() != other.n_rows())
-  {
-    std::stringstream err;
-    err << "Matrix::" << __FUNCTION__ << ": Mismatched sizes encountered.";
-    throw std::length_error(err.str());
-  }
+  Assert(this->n_cols() == other.n_rows(), "Mismatched size error.");
 
   Matrix m(this->n_rows(), other.n_cols(), 0.0);
   for (size_t i = 0; i < m.n_rows(); ++i)
@@ -729,16 +699,12 @@ Matrix<value_type>::operator*(const Matrix<value_type>& other) const
 }
 
 
+
 template<typename value_type>
 inline Vector<value_type>
 Matrix<value_type>::operator*(const Vector<value_type>& x) const
 {
-  if (this->n_cols() != x.size())
-  {
-    std::stringstream err;
-    err << "Matrix::" << __FUNCTION__ << ": Mismatched sizes encountered.";
-    throw std::length_error(err.str());
-  }
+  Assert(this->n_cols() == x.size(), "Mismatched size error.")
 
   Vector<value_type> v(this->n_rows(), 0.0);
   for (size_t i = 0; i < this->n_rows(); ++i)
@@ -746,6 +712,7 @@ Matrix<value_type>::operator*(const Vector<value_type>& x) const
       v[i] += m_data[i][j] * x[j];
   return v;
 }
+
 
 
 template<typename value_type>
@@ -758,6 +725,7 @@ Matrix<value_type>::transpose() const
       m[i][j] = m_data[j][i];
   return m;
 }
+
 
 
 template<typename value_type>
@@ -777,30 +745,27 @@ inline std::string Matrix<value_type>::to_string() const
 }
 
 
+
 template<typename value_type>
 inline void
-Matrix<value_type>::
-validate_stl_input(const std::vector<std::vector<value_type>>& other,
-                   const std::string func_name)
+Matrix<value_type>::check_stl(
+    const std::vector<std::vector<value_type>>& A,
+    const std::string func_name)
 {
-  bool valid = true;
-  size_t ref_val = other.front().size();
-  for (auto& row : other)
-  {
-    if (row.size() != ref_val )
-    { valid = false; break; }
-  }
+  bool is_valid = true;
+  auto m = A.front().size();
+  for (size_t i = 0; i < A.size(); ++i)
+    if (A[i].size() != m) { is_valid = false; break; }
 
-  // Throw error if not a valid matrix
-  if (not valid)
+  if (not is_valid)
   {
     std::stringstream err;
-    err << "Matrix::" << func_name << ": "
-        << "Invalid STL input encountered. All columns (inner STL vectors) "
-        << "must have the same size.";
+    err << func_name << ": "
+        << "Invalid STL matrix. All rows must have the same size.";
     throw std::runtime_error(err.str());
   }
 }
+
 
 
 /** Element-wise multiplication by a scalar value. */
@@ -810,6 +775,7 @@ operator*(const value_type value, const Matrix<value_type>& A)
 { return A * value; }
 
 
+
 /** Multiply a matrix by a scalar value. */
 template<typename value_type>
 inline Matrix<value_type>
@@ -817,11 +783,13 @@ multiply(const Matrix<value_type>& A, const value_type value)
 { return value * A; }
 
 
+
 /** Multiply a matrix by a vector. */
 template<typename value_type>
 inline Vector<value_type>
 multiply(const Matrix<value_type> A, const Vector<value_type> x)
 { return A * x; }
+
 
 
 /** Multiply a matrix by a matrix. */
