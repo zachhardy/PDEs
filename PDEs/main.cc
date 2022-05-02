@@ -9,6 +9,8 @@
 #include "NeutronDiffusion/Groupset/groupset.h"
 #include "NeutronDiffusion/SteadyStateSolver/FV/steadystate_solver_fv.h"
 
+#include "exceptions.h"
+
 #include <iostream>
 #include <vector>
 
@@ -25,7 +27,6 @@ int main(int argc, char** argv)
     using namespace math;
     using namespace physics;
     using namespace neutron_diffusion;
-
 
     //================================================== Create the mesh
     size_t n_cells = 50;

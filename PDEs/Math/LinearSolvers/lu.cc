@@ -31,7 +31,7 @@ void math::LU<value_type>::setup()
   {
     /* Find the row index for the largest magnitude entry in this column.
      * This is only done for sub-diagonal elements. */
-    double max = 0.0;
+    value_type max = 0.0;
     size_t argmax = j;
     for (size_t i = j; i < n; ++i)
     {
@@ -61,7 +61,7 @@ void math::LU<value_type>::setup()
      * sub-diagonal and the current row's leading value. */
     for (size_t i = j + 1; i < n; ++i)
     {
-      double factor = A[i][j] / A[j][j];
+      value_type factor = A[i][j] / A[j][j];
       for (size_t k = j + 1; k < n; ++k)
         A[i][k] -= A[j][k] * factor;
       A[i][j] = factor;
