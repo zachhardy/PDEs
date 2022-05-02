@@ -25,7 +25,7 @@ public:
   /*---------- System Storage ----------*/
   math::Matrix<double> matrix;
   math::Vector<double> rhs;
-  std::shared_ptr<math::LinearSolver> linear_solver;
+  std::shared_ptr<math::LinearSolver<double>> linear_solver;
 
   Groupset() : id(-1) {}
   explicit Groupset(int groupset_num) : id(groupset_num) {}

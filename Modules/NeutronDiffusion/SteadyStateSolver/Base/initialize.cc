@@ -51,7 +51,7 @@ void neutron_diffusion::SteadyStateSolver::initialize()
     {
       case LinearSolverType::LU:
       {
-        auto ls = std::make_shared<math::LU>(groupset.matrix);
+        auto ls = std::make_shared<math::LU<double>>(groupset.matrix);
         groupset.linear_solver = ls;
         break;
       }
@@ -59,7 +59,7 @@ void neutron_diffusion::SteadyStateSolver::initialize()
       case LinearSolverType::CHOLESKY:
       {
         std::cout << "CHOLESKY\n";
-        auto ls = std::make_shared<math::Cholesky>(groupset.matrix);
+        auto ls = std::make_shared<math::Cholesky<double>>(groupset.matrix);
         groupset.linear_solver = ls;
         break;
       }

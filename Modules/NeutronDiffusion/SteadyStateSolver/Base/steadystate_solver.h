@@ -68,7 +68,7 @@ protected:
   typedef std::shared_ptr<Boundary> BndryPtr;
 
   typedef math::LinearSolverType LinearSolverType;
-  typedef math::LinearSolver LinearSolver;
+  typedef math::LinearSolver<double> LinearSolver;
 
 public:
 
