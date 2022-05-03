@@ -27,11 +27,10 @@ public:
   /** Default constructor. */
   Vector() = default;
 
-  /** Construct a vector with \p n elements. */
-  explicit Vector(const size_t n) : m_data(n) {}
-
   /** Construct a vector with \p n elements set to \p value */
-  explicit Vector(const size_t n, const value_type value) : m_data(n, value) {}
+  explicit Vector(const size_t n, const value_type value = 0.0)
+    : m_data(n, value)
+  {}
 
   /** Copy constructor. */
   Vector(const Vector& other) : m_data(other.m_data) {}
@@ -49,112 +48,193 @@ public:
   Vector(std::initializer_list<value_type> list) : m_data(list) {}
 
   /** Copy assignment operator. */
-  Vector& operator=(const Vector& other);
+  Vector& operator=(const Vector& other)
+  {
+    m_data = other.m_data;
+    return *this;
+  }
 
   /** Move assignment operator. */
-  Vector& operator=(Vector&& other);
+  Vector& operator=(Vector&& other)
+  {
+    m_data = std::move(other.m_data);
+    return *this;
+  }
 
   /** Copy assignment from an STL vector. */
-  Vector& operator=(const std::vector<value_type>& other);
+  Vector& operator=(const std::vector<value_type>& other)
+  {
+    m_data = other;
+    return *this;
+  }
 
   /** Move assignment from an STL vector. */
-  Vector& operator=(std::vector<value_type>&& other);
+  Vector& operator=(std::vector<value_type>&& other)
+  {
+    m_data = std::move(other);
+    return *this;
+  }
 
   /** Assigment using an initializer list. */
-  Vector& operator=(std::initializer_list<value_type>& list);
+  Vector& operator=(std::initializer_list<value_type>& list)
+  {
+    m_data = list;
+    return *this;
+  }
 
 public:
   /** \name Access Operators */
   /** @{ */
 
   /** Read/write access for element \p i. */
-  double& operator[](const size_t i) { return m_data[i]; }
+  double& operator[](const size_t i)
+  {
+    return m_data[i];
+  }
 
   /** Read only access for element \p i. */
-  double operator[](const size_t i) const { return m_data[i]; }
+  double operator[](const size_t i) const
+  {
+    return m_data[i];
+  }
 
   /** Read/write access for element \p i with bounds checking. */
-  double& at(const size_t i) { return m_data.at(i); }
+  double& at(const size_t i)
+  {
+    return m_data.at(i);
+  }
 
   /** Read only access for element \p i with bounds checking. */
-  double at(const size_t i) const { return m_data.at(i); }
+  double at(const size_t i) const
+  {
+    return m_data.at(i);
+  }
 
   /** Read/write access for the first element. */
-  double& front() { return m_data.front(); }
+  double& front()
+  {
+    return m_data.front();
+  }
 
   /** Read only access for the first element. */
-  double front() const { return m_data.front(); }
+  double front() const
+  {
+    return m_data.front();
+  }
 
   /** Read/write access for the last element. */
-  double& back() { return m_data.back(); }
+  double& back()
+  {
+    return m_data.back();
+  }
 
   /** Read only access for the last element. */
-  double back() const { return m_data.back(); }
+  double back() const
+  {
+    return m_data.back();
+  }
 
   /** Access the underlying data. */
-  double* data() { return m_data.data(); }
+  double* data()
+  {
+    return m_data.data();
+  }
 
   /** @} */
   /** \name Modifiers */
   /** @{ */
 
   /** Clear the elements. */
-  void clear() { m_data.clear(); }
+  void clear()
+  {
+    m_data.clear();
+  }
 
   /** Add a new element set to \p value to the back. */
-  void push_back(const value_type value) { m_data.push_back(value); }
+  void push_back(const value_type value)
+  {
+    m_data.push_back(value);
+  }
 
   /** Add a new element set to \p value in place to the back. */
-  void emplace_back(const value_type value) { m_data.emplace_back(value); }
+  void emplace_back(const value_type value)
+  {
+    m_data.emplace_back(value);
+  }
 
   /** Remove the last element. */
-  void pop_back() { m_data.pop_back(); }
+  void pop_back()
+  {
+    m_data.pop_back();
+  }
 
   /** Resize to \p new_size elements, setting new elements to default. */
-  void resize(const size_t new_size) { m_data.resize(new_size); }
-
-  /** Resize to \p new_size elements, setting new elements to default. */
-  void resize(const size_t new_size, const value_type value)
-  { m_data.resize(new_size, value); }
+  void resize(const size_t new_size, const value_type value = 0.0)
+  {
+    m_data.resize(new_size, value);
+  }
 
   /** Swap the elements of this vector and another. */
-  void swap(Vector& other) { m_data.swap(other.m_data); }
+  void swap(Vector& other)
+  {
+    m_data.swap(other.m_data);
+  }
 
   /** Swap the elements of this vector and an STL vector. */
-  void swap(std::vector<value_type>& other) { m_data.swap(other); }
+  void swap(std::vector<value_type>& other)
+  {
+    m_data.swap(other);
+  }
 
   /** @} */
   /** \name Memory */
   /** @{ */
 
   /** Allocate memory for \p new_size elements. */
-  void reserve(const size_t new_size) { m_data.reserve(new_size); }
+  void reserve(const size_t new_size)
+  {
+    m_data.reserve(new_size);
+  }
 
   /** Return the number of elements. */
-  size_t size() const { return m_data.size(); }
+  size_t size() const
+  {
+    return m_data.size();
+  }
 
   /** Return whether the vector is empty. */
-  bool empty() const { return m_data.empty(); }
+  bool empty() const noexcept
+  {
+    return m_data.empty();
+  }
 
   /** @} */
   /** \name Iterators */
   /** @{ */
 
   /** Mutable iterator at the start of the vector. */
-  typename std::vector<value_type>::iterator
-  begin() { return m_data.begin(); }
+  typename std::vector<value_type>::iterator begin()
+  {
+    return m_data.begin();
+  }
 
   /** Mutable iterator one past the end of the vector. */
-  typename std::vector<value_type>::iterator
-  end() { return m_data.end(); }
+  typename std::vector<value_type>::iterator end()
+  {
+    return m_data.end();
+  }
 
   /** Constant iterator at the start of the vector. */
-  typename std::vector<value_type>::const_iterator
-  cbegin() const { return m_data.cbegin(); }
+  typename std::vector<value_type>::const_iterator cbegin() const
+  {
+    return m_data.cbegin();
+  }
 
   /** Constant iterator at the end of the vector. */
-  typename std::vector<value_type>::const_iterator
-  cend() const { return m_data.cend(); }
+  typename std::vector<value_type>::const_iterator cend() const
+  {
+    return m_data.cend();
+  }
 
   /** @} */
 public:
@@ -162,89 +242,248 @@ public:
   /** @{ */
 
   /** Element-wise negation. */
-  Vector operator-() const;
+  Vector operator-() const
+  {
+    Vector x(m_data);
+    for (auto& elem : x)
+      elem -= elem;
+    return x;
+  }
 
   /** Element-wise negation in-place. */
-  Vector& operator-();
+  Vector& operator-()
+  {
+    for (auto& elem : m_data)
+      elem -= elem;
+    return *this;
+  }
 
   /** Element-wise multiplication by a scalar. */
-  Vector operator*(const value_type value) const;
+  Vector operator*(const value_type value) const
+  {
+    Vector x(m_data);
+    for (auto& elem : x)
+      elem *= value;
+    return x;
+  }
 
   /** Element-wise multiplication by a scalar in-place. */
-  Vector& operator*=(const value_type value);
+  Vector& operator*=(const value_type value)
+  {
+    for (auto& elem : m_data)
+      elem *= value;
+    return *this;
+  }
 
   /** Element-wise division by a scalar. */
-  Vector operator/(const value_type value) const;
+  Vector operator/(const value_type value) const
+  {
+    Assert(value != 0.0, "Zero division error.");
+
+    Vector x(m_data);
+    for (auto& elem : x)
+      elem /= value;
+    return x;
+  }
 
   /** Element-wise division by a scalar in-place. */
-  Vector& operator/=(const value_type value);
+  Vector& operator/=(const value_type value)
+  {
+    Assert(value != 0.0, "Zero division error.");
+
+    for (auto& elem : m_data)
+      elem /= value;
+    return *this;
+  }
 
   /** @} */
   /** \name Vector-Vector Operations */
   /** @{ */
 
   /** Element-wise addition of two vectors. */
-  Vector operator+(const Vector& other) const;
+  Vector operator+(const Vector& other) const
+  {
+    Assert(other.size() == m_data.size(), "Dimension mismatch error.");
+
+    Vector x(m_data);
+    for (size_t i = 0; i < x.size(); ++i)
+      x[i] += other[i];
+    return x;
+  }
 
   /** Element-wise addition of two vectors in-place. */
-  Vector& operator+=(const Vector& other);
+  Vector& operator+=(const Vector& other)
+  {
+    Assert(other.size() == m_data.size(), "Dimension mismatch error.");
+
+    for (size_t i = 0; i < m_data.size(); ++i)
+      m_data[i] += other[i];
+    return *this;
+  }
 
   /** Element-wise subtraction of two vectors. */
-  Vector operator-(const Vector& other) const;
+  Vector operator-(const Vector& other) const
+  {
+    Assert(other.size() == m_data.size(), "Dimension mismatch error.");
+
+    Vector x(m_data);
+    for (size_t i = 0; i < x.size(); ++i)
+      x[i] -= other[i];
+    return x;
+  }
 
   /** Element-wise subtraction of two vectors in-place. */
-  Vector& operator-=(const Vector& other);
+  Vector& operator-=(const Vector& other)
+  {
+    Assert(other.size() == m_data.size(), "Dimension mismatch error.");
+
+    for (size_t i = 0; i < m_data.size(); ++i)
+      m_data[i] -= other[i];
+    return *this;
+  }
 
   /** Element-wise multiplication of two vectors. */
-  Vector operator*(const Vector& other) const;
+  Vector operator*(const Vector& other) const
+  {
+    Assert(other.size() == m_data.size(), "Dimension mismatch error.");
+
+    Vector x(m_data);
+    for (size_t i = 0; i < x.size(); ++i)
+      x[i] *= other[i];
+    return x;
+  }
 
   /** Element-wise multiplication of two vectors in-place. */
-  Vector& operator*=(const Vector& other);
+  Vector& operator*=(const Vector& other)
+  {
+    Assert(other.size() == m_data.size(), "Dimension mismatch error.");
+
+    for (size_t i = 0; i < m_data.size(); ++i)
+      m_data[i] *= other[i];
+    return *this;
+  }
 
   /** Element-wise division of two vectors. */
-  Vector operator/(const Vector& other) const;
+  Vector operator/(const Vector& other) const
+  {
+    Assert(other.size() == m_data.size(), "Dimension mismatch error.");
+    Assert(not other.has_zero_elements(), "Zero division error.");
+
+    Vector x(m_data);
+    for (size_t i = 0; i < x.size(); ++i)
+      x[i] /= other[i];
+    return x;
+  }
 
   /** Element-wise division of two vectors in-place. */
-  Vector& operator/=(const Vector& other);
+  Vector& operator/=(const Vector& other)
+  {
+    Assert(other.size() == m_data.size(), "Dimension mismatch error.");
+    Assert(not other.has_zero_elements(), "Zero division error.");
+
+    for (size_t i = 0; i < m_data.size(); ++i)
+      m_data[i] /= other[i];
+    return *this;
+  }
 
   /**
    * Return the dot product between this and another vector.
    * \f$ c = \vec{x} \cdot \vec{y} = \sum_i x_i y_i .\f$
    */
-  value_type dot(const Vector& other) const;
+  value_type dot(const Vector& other) const
+  {
+    Assert(other.size() == m_data.size(), "Dimension mismatch error.");
+
+    value_type c = 0.0;
+    for (size_t i = 0; i < m_data.size(); ++i)
+      c += m_data[i] * other[i];
+    return c;
+  }
 
   /** @} */
   /** \name  Norms */
   /** @{ */
 
   /** Compute the \f$ \ell_\infty \f$-norm.
-   *  \f$ ||\vec{v}||_{\ell_\infty} = \max_i |v_i| \f$ */
-  value_type linf_norm() const;
+   *  \f$ ||\vec{x}||_{\ell_\infty} = \max_i |x_i| \f$ */
+  value_type linf_norm() const
+  {
+    value_type norm = 0.0;
+    for (const auto& elem : m_data)
+      if (std::fabs(elem) > norm)
+        norm = std::fabs(elem);
+    return norm;
+  }
 
   /** Compute the \f$ \ell_1 \f$-norm.
-   *  \f$ ||\vec{v}||_{\ell_1} = \sum_i |v_i| \f$ */
-  value_type l1_norm() const;
+   *  \f$ ||\vec{x}||_{\ell_1} = \sum_i |x_i| \f$ */
+  value_type l1_norm() const
+  {
+    value_type norm = 0.0;
+    for (const auto& elem : m_data)
+      norm += std::fabs(elem);
+    return norm;
+  }
 
-  /* Compute the \f$ \ell_2 \f$-norm.
-   * \f$ ||\vec{v}||_{\ell_2} = \sqrt{ \sum_i |v_i|^2 } \f$ */
-  value_type l2_norm() const;
+  /** Compute the \f$ \ell_2 \f$-norm.
+   * \f$ ||\vec{x}||_{\ell_2} = \sqrt{ \sum_i |x_i|^2 } \f$ */
+  value_type l2_norm() const
+  {
+    value_type norm = 0.0;
+    for (const auto& elem : m_data)
+      norm += std::fabs(elem * elem);
+    return std::sqrt(norm);
+  }
 
   /** Compute the \f$ \ell_{\ell_p} \f$-norm.
-   *  \f$ ||\vec{v}||_{\ell_p} = \left( \sum_i |v_i|^p \right)^{1/p} \f$ */
-  value_type lp_norm(const value_type p) const;
+   *  \f$ ||\vec{x}||_{\ell_p} = \left( \sum_i |x_i|^p \right)^{1/p} \f$ */
+  value_type lp_norm(const value_type p) const
+  {
+    value_type norm = 0.0;
+    for (const auto& elem : m_data)
+      norm += std::pow(std::fabs(elem), p);
+    return std::pow(norm, 1.0/p);
+  }
 
   /** @} */
   /** \name Vector Operations */
   /** @{ */
 
-  /** Normalize this vector to unit length in place.
-   *  \f$ \hat{v} = \frac{\vec{v}}{||\vec{v}||_{\ell_2}} \f$
-   *  \note If the vector is uniformly zero, nothing is done.
-   */
-  Vector& normalize();
+  /** Return the unit-length direction vector.
+   *  \f$ \hat{x} = \frac{\vec{x}}{||\vec{x}||_{\ell_2} \f$
+   *  \note If the vector is uniformly zero, nothing is done. */
+  Vector direction() const
+  {
+    Vector x(m_data);
+    value_type norm = x.l2_norm();
+    return (norm == 0.0)? x : x/norm;
+  }
+
+  /** Normalize this vector to unit length in-place.
+   *  \f$ \hat{x} = \frac{\vec{x}}{||\vec{x}||_{\ell_2}} \f$
+   *  \note If the vector is uniformly zero, nothing is done. */
+  Vector& normalize()
+  {
+    value_type norm = this->l2_norm();
+    return (norm == 0.0)? *this : this->operator/=(norm);
+  }
 
   /** Element-wise absolute value. */
-  Vector& fabs();
+  Vector fabs() const
+  {
+    Vector x(m_data);
+    for (auto& elem : x)
+      elem = std::fabs(elem);
+    return x;
+  }
+
+  /** Element-wise absolute value in-place. */
+  Vector& fabs()
+  {
+    for (auto& elem : m_data)
+      elem = std::fabs(elem);
+    return *this;
+  }
 
   /** @} */
 public:
@@ -252,363 +491,103 @@ public:
   /** @{ */
 
   /** Return the vector as a string. */
-  std::string to_string() const;
+  std::string to_string() const
+  {
+    std::stringstream ss;
+    ss << "[";
+    for (size_t i = 0; i < m_data.size() - 1; ++i)
+      ss << std::setprecision(6) << m_data[i] << " ";
+    ss << std::setprecision(6) << m_data.back() << "]\n";
+    return ss.str();
+  }
 
   /** Print the vector to `std::cout`. */
-  void print() const { std::cout << this->to_string(); }
+  void print() const
+  {
+    std::cout << this->to_string();
+  }
 
   /** @} */
 private:
 
-  /** Return whether or not the vector has zero elements. */
-  bool has_zero_elements() const;
+  /** Return whether the vector has zero elements. */
+  bool has_zero_elements() const
+  {
+    for (const auto& elem : m_data)
+      if (elem == 0.0) return true;
+    return false;
+  }
 };
+
 
 /*-------------------- Inline Implementations --------------------*/
 
-template<typename value_type>
-inline Vector<value_type>&
-Vector<value_type>::operator=(const Vector<value_type>& other)
-{
-  m_data = other.m_data;
-  return *this;
-}
-
-
-template<typename value_type>
-inline Vector<value_type>&
-Vector<value_type>::operator=(Vector<value_type>&& other)
-{
-  m_data = std::move(other.m_data);
-  return *this;
-}
-
-
-template<typename value_type>
-inline Vector<value_type>&
-Vector<value_type>::operator=(const std::vector<value_type>& other)
-{
-  m_data = other;
-  return *this;
-}
-
-
-template<typename value_type>
-inline Vector<value_type>&
-Vector<value_type>::operator=(std::vector<value_type>&& other)
-{
-  m_data = std::move(other);
-  return *this;
-}
-
-
-template<typename value_type>
-inline Vector<value_type>&
-Vector<value_type>::operator=(std::initializer_list<value_type>& list)
-{
-  m_data = list;
-  return *this;
-}
-
-
-template<typename value_type>
-inline Vector<value_type>
-Vector<value_type>::operator-() const
-{
-  Vector<value_type> v(m_data);
-  for (auto& elem : v)
-    elem = -elem;
-  return v;
-}
-
-
-template<typename value_type>
-inline Vector<value_type>&
-Vector<value_type>::operator-()
-{
-  for (auto& elem : m_data)
-    elem = -elem;
-  return *this;
-}
-
-
-template<typename value_type>
-inline Vector<value_type>
-Vector<value_type>::operator*(const value_type value) const
-{
-  Vector<value_type> v(m_data);
-  for (auto& elem : v)
-    elem *= value;
-  return v;
-}
-
-
-template<typename value_type>
-inline Vector<value_type>&
-Vector<value_type>::operator*=(const value_type value)
-{
-  for (auto& elem : m_data)
-    elem *= value;
-  return *this;
-}
-
-
-template<typename value_type>
-inline Vector<value_type>
-Vector<value_type>::operator/(const value_type value) const
-{
-  Assert(value != 0.0, "Zero Division Error.");
-  Vector<value_type> v(m_data);
-  for (auto& elem : v)
-    elem /= value;
-  return v;
-}
-
-
-template<typename value_type>
-inline Vector<value_type>&
-Vector<value_type>::operator/=(const value_type value)
-{
-  Assert(value != 0.0, "Zero Division Error.");
-  for (auto& elem : m_data)
-    elem /= value;
-  return *this;
-}
-
-
-template<typename value_type>
-inline Vector<value_type>
-Vector<value_type>::operator+(const Vector<value_type>& other) const
-{
-  Assert(m_data.size() == other.size(), "Mismatched Size Error.");
-  Vector<value_type> v(m_data.size());
-  for (size_t i = 0; i < v.size(); ++i)
-    v[i] = m_data[i] + other[i];
-  return v;
-}
-
-
-template<typename value_type>
-inline Vector<value_type>&
-Vector<value_type>::operator+=(const Vector<value_type>& other)
-{
-  Assert(m_data.size() == other.size(), "Mismatched Size Error.");
-  for (size_t i = 0; i < m_data.size(); ++i)
-    m_data[i] += other[i];
-  return *this;
-}
-
-
-template<typename value_type>
-inline Vector<value_type>
-Vector<value_type>::operator-(const Vector<value_type>& other) const
-{
-  Assert(m_data.size() == other.size(), "Mismatched Size Error.");
-  Vector v(m_data.size());
-  for (size_t i = 0; i < v.size(); ++i)
-    v[i] = m_data[i] - other[i];
-  return v;
-}
-
-
-template<typename value_type>
-inline Vector<value_type>&
-Vector<value_type>::operator-=(const Vector<value_type>& other)
-{
-  Assert(m_data.size() == other.size(), "Mismatched Size Error.");
-  for (size_t i = 0; i < m_data.size(); ++i)
-    m_data[i] -= other[i];
-  return *this;
-}
-
-
-template<typename value_type>
-inline Vector<value_type>
-Vector<value_type>::operator*(const Vector<value_type>& other) const
-{
-  Assert(m_data.size() == other.size(), "Mismatched Size Error.");
-  Vector v(m_data.size());
-  for (size_t i = 0; i < v.size(); ++i)
-    v[i] = m_data[i] * other[i];
-  return v;
-}
-
-
-template<typename value_type>
-inline Vector<value_type>&
-Vector<value_type>::operator*=(const Vector<value_type>& other)
-{
-  Assert(m_data.size() == other.size(), "Mismatched Size Error.");
-  for (size_t i = 0; i < m_data.size(); ++i)
-    m_data[i] *= other[i];
-  return *this;
-}
-
-
-template<typename value_type>
-inline Vector<value_type>
-Vector<value_type>::operator/(const Vector<value_type>& other) const
-{
-  Assert(m_data.size() == other.size(), "Mismatched Size Error.");
-  Assert(not other.has_zero_elements(), "Zero Division Error.");
-  Vector v(m_data.size());
-  for (size_t i = 0; i < v.size(); ++i)
-    v[i] = m_data[i] / other[i];
-  return v;
-}
-
-
-template<typename value_type>
-inline Vector<value_type>&
-Vector<value_type>::operator/=(const Vector<value_type>& other)
-{
-  Assert(m_data.size() == other.size(), "Mismatched Size Error.");
-  Assert(not other.has_zero_elements(), "Zero Division Error.");
-  for (size_t i = 0; i < m_data.size(); ++i)
-    m_data[i] /= other[i];
-  return *this;
-}
-
-
-template<typename value_type>
-inline value_type
-Vector<value_type>::dot(const Vector<value_type>& other) const
-{
-  Assert(m_data.size() == other.size(), "Mismatched Size Error.");
-  value_type value = 0.0;
-  for (size_t i = 0; i < m_data.size(); ++i)
-    value += m_data[i] * other[i];
-  return *this;
-}
-
-
-template<typename value_type>
-inline value_type Vector<value_type>::linf_norm() const
-{
-  value_type norm = 0.0;
-  for (const auto& elem : m_data)
-    if (std::fabs(elem) > norm)
-      norm = std::fabs(elem);
-  return norm;
-}
-
-
-template<typename value_type>
-inline value_type Vector<value_type>::l1_norm() const
-{
-  value_type norm = 0.0;
-  for (const auto& elem : m_data)
-    norm += std::fabs(elem);
-  return norm;
-}
-
-
-template<typename value_type>
-inline value_type Vector<value_type>::l2_norm() const
-{
-  value_type norm = 0.0;
-  for (const auto& elem : m_data)
-    norm += elem * elem;
-  return std::sqrt(norm);
-}
-
-
-template<typename value_type>
-inline value_type Vector<value_type>::lp_norm(const value_type p) const
-{
-  value_type norm = 0.0;
-  for (const auto& elem : m_data)
-    norm += std::pow(std::fabs(elem), p);
-  return std::pow(norm, 1.0/p);
-}
-
-
-template<typename value_type>
-inline Vector<value_type>&
-Vector<value_type>::normalize()
-{
-  value_type length = this->l2_norm();
-  if (length == 0.0) return *this;
-  else return this->operator/=(length);
-}
-
-
-template<typename value_type>
-inline Vector<value_type>&
-Vector<value_type>::fabs()
-{
-  for (auto& elem : m_data)
-    elem = std::fabs(elem);
-  return *this;
-}
-
-
-template<typename value_type>
-inline std::string Vector<value_type>::to_string() const
-{
-  std::stringstream ss;
-  ss << "[";
-  for (size_t i = 0; i < m_data.size() - 1; ++i)
-    ss << std::setprecision(6) << m_data[i] << " ";
-  ss << std::setprecision(6) << m_data.back() << "]\n";
-  return ss.str();
-}
-
-
-template<typename value_type>
-inline bool Vector<value_type>::has_zero_elements() const
-{
-  bool has_zeros = false;
-  for (const auto& v : m_data)
-    if (v == 0.0) { has_zeros = true; break; }
-  return has_zeros;
-}
 
 /** Element-wise multiplication by a scalar. */
 template<typename value_type>
 inline Vector<value_type> operator*(const value_type value,
                                     const Vector<value_type>& x)
-{ return x * value; }
+{
+  return x * value;
+}
 
 
 /** Return the dot product between two vectors. */
 template<typename value_type>
 inline value_type dot(const Vector<value_type>& x,
                       const Vector<value_type>& y)
-{ x.dot(y); }
+{
+  return x.dot(y);
+}
 
 
 /** Return the \f$ \ell_\infty \f$-norm of a vector. */
 template<typename value_type>
-inline value_type linf_norm(const Vector<value_type>& x) { x.linf_norm(); }
+inline value_type linf_norm(const Vector<value_type>& x)
+{
+  return x.linf_norm();
+}
 
 
 /** Return the \f$ \ell_1 \f$-norm of a vector. */
 template<typename value_type>
-inline value_type l1_norm(const Vector<value_type>& x) { x.l1_norm(); }
+inline value_type l1_norm(const Vector<value_type>& x)
+{
+  return x.l1_norm();
+}
 
 
 /** Return the \f$ \ell_2 \f$-norm of a vector. */
 template<typename value_type>
-inline value_type l2_norm(const Vector<value_type>& x) { x.l2_norm(); }
+inline value_type l2_norm(const Vector<value_type>& x)
+{
+  return x.l2_norm();
+}
 
 
 /** Return the \f$ \ell_p \f$-norm of a vector. */
 template<typename value_type>
 inline value_type lp_norm(const Vector<value_type>& x,
-                          const value_type p) { x.lp_norm(p); }
+                          const value_type p)
+{
+  return x.lp_norm(p);
+}
 
 
 /** Return the direction (unit) vector of a vector. */
 template<typename value_type>
-inline Vector<value_type> normalize(const Vector<value_type>& x)
-{ return Vector<value_type>(x).normalize(); }
+inline Vector<value_type> direction(const Vector<value_type>& x)
+{
+  return x.direction();
+}
 
 
 /** Return the element-wise absolute value of a vector. */
 template<typename value_type>
 inline Vector<value_type> fabs(const Vector<value_type>& x)
-{ return Vector<value_type>(x).fabs(); }
+{
+  return x.fabs();
+}
 
 }
 #endif //VECTOR_H
