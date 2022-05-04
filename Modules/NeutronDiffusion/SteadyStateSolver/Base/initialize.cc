@@ -1,7 +1,7 @@
 #include "steadystate_solver.h"
 
-#include "lu.h"
-#include "cholesky.h"
+#include "LinearSolvers/Direct/lu.h"
+#include "LinearSolvers/Direct/cholesky.h"
 
 #include <set>
 
