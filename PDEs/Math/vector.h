@@ -464,8 +464,8 @@ public:
    *  \note If the vector is uniformly zero, nothing is done. */
   Vector& normalize()
   {
-    value_type norm = this->l2_norm();
-    return (norm == 0.0)? *this : this->operator/=(norm);
+    value_type norm = l2_norm();
+    return (norm == 0.0)? *this : operator/=(norm);
   }
 
   /** Element-wise absolute value. */
@@ -504,7 +504,7 @@ public:
   /** Print the vector to `std::cout`. */
   void print() const
   {
-    std::cout << this->to_string();
+    std::cout << to_string();
   }
 
   /** @} */
@@ -531,63 +531,6 @@ inline Vector<value_type> operator*(const value_type value,
   return x * value;
 }
 
-
-/** Return the dot product between two vectors. */
-template<typename value_type>
-inline value_type dot(const Vector<value_type>& x,
-                      const Vector<value_type>& y)
-{
-  return x.dot(y);
-}
-
-
-/** Return the \f$ \ell_\infty \f$-norm of a vector. */
-template<typename value_type>
-inline value_type linf_norm(const Vector<value_type>& x)
-{
-  return x.linf_norm();
-}
-
-
-/** Return the \f$ \ell_1 \f$-norm of a vector. */
-template<typename value_type>
-inline value_type l1_norm(const Vector<value_type>& x)
-{
-  return x.l1_norm();
-}
-
-
-/** Return the \f$ \ell_2 \f$-norm of a vector. */
-template<typename value_type>
-inline value_type l2_norm(const Vector<value_type>& x)
-{
-  return x.l2_norm();
-}
-
-
-/** Return the \f$ \ell_p \f$-norm of a vector. */
-template<typename value_type>
-inline value_type lp_norm(const Vector<value_type>& x,
-                          const value_type p)
-{
-  return x.lp_norm(p);
-}
-
-
-/** Return the direction (unit) vector of a vector. */
-template<typename value_type>
-inline Vector<value_type> direction(const Vector<value_type>& x)
-{
-  return x.direction();
-}
-
-
-/** Return the element-wise absolute value of a vector. */
-template<typename value_type>
-inline Vector<value_type> fabs(const Vector<value_type>& x)
-{
-  return x.fabs();
-}
 
 }
 #endif //VECTOR_H

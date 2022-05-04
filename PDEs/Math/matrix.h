@@ -14,10 +14,6 @@ template<typename value_type>
 class Matrix
 {
 private:
-  typedef std::initializer_list<value_type> RowInitializer;
-  typedef std::initializer_list<RowInitializer> MatrixInitializer;
-
-private:
   std::vector<std::vector<value_type>> m_data;
 
 public:
@@ -49,14 +45,14 @@ public:
   /** Copy construction from an STL vector. */
   Matrix(const std::vector<std::vector<value_type>>& other)
   {
-    this->check_stl(other, __PRETTY_FUNCTION__);
+    check_stl(other, __PRETTY_FUNCTION__);
     m_data = other;
   }
 
   /** Move construction from an STL vector. */
   Matrix(std::vector<std::vector<value_type>>&& other)
   {
-    this->check_stl(other, __PRETTY_FUNCTION__);
+    check_stl(other, __PRETTY_FUNCTION__);
     m_data = std::move(other);
   }
 
@@ -66,7 +62,7 @@ public:
     m_data.clear();
     for (auto& row : list)
       m_data.emplace_back(row);
-    this->check_stl(m_data, __PRETTY_FUNCTION__);
+    check_stl(m_data, __PRETTY_FUNCTION__);
   }
 
   /** Copy assignment operator. */
@@ -86,7 +82,7 @@ public:
   /** Copy assignment from an STL vector. */
   Matrix& operator=(const std::vector<std::vector<value_type>>& other)
   {
-    this->check_stl(other, __PRETTY_FUNCTION__);
+    check_stl(other, __PRETTY_FUNCTION__);
     m_data = other;
     return *this;
   }
@@ -94,7 +90,7 @@ public:
   /** Move assignment from an STL vector. */
   Matrix& operator=(std::vector<std::vector<value_type>>&& other)
   {
-    this->check_stl(other, __PRETTY_FUNCTION__);
+    check_stl(other, __PRETTY_FUNCTION__);
     m_data = std::move(other);
     return *this;
   }
@@ -182,7 +178,7 @@ public:
       return std::vector<value_type>();
 
     // Compute diagonal dimension = min(n_rows, n_cols)
-    size_t min_dim = std::min(this->n_rows(), this->n_cols());
+    size_t min_dim = std::min(n_rows(), n_cols());
 
     // Populate the diagonal vector
     std::vector<value_type> diag;
@@ -241,7 +237,7 @@ public:
   /** Swap the elements of two rows. */
   void swap_row(const size_t i0, const size_t i1)
   {
-    Assert(i0 < this->n_rows() && i1 < this->n_rows(),
+    Assert(i0 < n_rows() && i1 < n_rows(),
            "Invalid row indices provided.");
     m_data[i0].swap(m_data[i1]);
   }
@@ -249,9 +245,9 @@ public:
   /** Swap the elements of two columns. */
   void swap_column(const size_t j0, const size_t j1)
   {
-    Assert(j0 < this->n_cols() && j1 < this->n_cols(),
+    Assert(j0 < n_cols() && j1 < n_cols(),
            "Invalid column indices provided.");
-    for (size_t i = 0; i < this->n_rows(); ++i)
+    for (size_t i = 0; i < n_rows(); ++i)
       std::swap(m_data[i][j0], m_data[i][j1]);
   }
 
@@ -275,7 +271,7 @@ public:
       // Override the diagonal of an initialized matrix
     else
     {
-      size_t min_dim = std::min(this->n_rows(), this->n_cols());
+      size_t min_dim = std::min(n_rows(), n_cols());
       Assert(diag.size() == min_dim, "Dimension mismatch error.");
       for (size_t i = 0; i < min_dim; ++i)
         m_data[i][i] = diag[i];
@@ -285,7 +281,7 @@ public:
   /** Set the diagonal of the matrix with an STL vector. */
   void set_diagonal(const std::vector<value_type>& diag)
   {
-    this->set_diagonal(Vector(diag));
+    set_diagonal(Vector(diag));
   }
 
   /** Set the diagonal of the matrix with a fixed scalar value. */
@@ -294,7 +290,7 @@ public:
     if (m_data.empty())
       m_data.resize(1, std::vector<value_type>(1, value));
 
-    size_t min_dim = std::min(this->n_rows(), this->n_cols());
+    size_t min_dim = std::min(n_rows(), n_cols());
     for (size_t i = 0; i < min_dim; ++i)
       m_data[i][i] = value;
   }
@@ -404,11 +400,11 @@ public:
   /** Element-wise negation. */
   Matrix operator-() const
   {
-    Matrix A(m_data);
-    for (auto& row : A)
+    Matrix B(m_data);
+    for (auto& row : B)
       for (auto& elem : row)
         elem = -elem;
-    return A;
+    return B;
   }
 
   /** Element-wise negation in-place. */
@@ -423,11 +419,11 @@ public:
   /** Element-wise multiplication by a scalar. */
   Matrix operator*(const value_type value) const
   {
-    Matrix A(m_data);
-    for (auto& row : A)
+    Matrix B(m_data);
+    for (auto& row : B)
       for (auto& elem : row)
         elem *= value;
-    return A;
+    return B;
   }
 
   /** Element-wise multiplication by a scalar in-place. */
@@ -444,11 +440,11 @@ public:
   {
     Assert(value != 0.0, "Division by zero error.");
 
-    Matrix A(m_data);
-    for (auto& row : A)
+    Matrix B(m_data);
+    for (auto& row : B)
       for (auto& elem : row)
         elem /= value;
-    return A;
+    return B;
   }
 
   /** Element-wise division by a scalar in-place. */
@@ -466,29 +462,29 @@ public:
   /** \name Linear Algebra Operations */
   /** @{ */
 
-   /** Element-wise addition of two matrices. */
+  /** Element-wise addition of two matrices. */
   Matrix operator+(const Matrix& other) const
   {
-    Assert(this->n_rows() == other.n_rows() &&
-           this->n_cols() == other.n_cols(),
+    Assert(n_rows() == other.n_rows() &&
+           n_cols() == other.n_cols(),
            "Dimension mismatch error.");
 
-    Matrix A(m_data);
-    for (size_t i = 0; i < A.n_rows(); ++i)
-      for (size_t j = 0; j < A.n_cols(); ++j)
-        A[i][j] += other[i][j];
-    return A;
+    Matrix C(m_data);
+    for (size_t i = 0; i < C.n_rows(); ++i)
+      for (size_t j = 0; j < C.n_cols(); ++j)
+        C[i][j] += other[i][j];
+    return C;
   }
 
   /** Element-wise addition of two matrices in-place. */
   Matrix& operator+=(const Matrix& other)
   {
-    Assert(this->n_rows() == other.n_rows() &&
-           this->n_cols() == other.n_cols(),
+    Assert(n_rows() == other.n_rows() &&
+           n_cols() == other.n_cols(),
            "Dimension mismatch error.");
 
-    for (size_t i = 0; i < this->n_rows(); ++i)
-      for (size_t j = 0; j < this->n_cols(); ++j)
+    for (size_t i = 0; i < n_rows(); ++i)
+      for (size_t j = 0; j < n_cols(); ++j)
         m_data[i][j] += other[i][j];
     return *this;
   }
@@ -496,26 +492,26 @@ public:
   /** Element-wise subtraction of two matrices. */
   Matrix operator-(const Matrix& other) const
   {
-    Assert(this->n_rows() == other.n_rows() and
-           this->n_rows() == other.n_cols(),
+    Assert(n_rows() == other.n_rows() and
+           n_rows() == other.n_cols(),
            "Dimension mismatch error.");
 
-    Matrix A(m_data);
-    for (size_t i = 0; i < A.n_rows(); ++i)
-      for (size_t j = 0; j < A.n_cols(); ++j)
-        A[i][j] -= other[i][j];
-    return A;
+    Matrix C(m_data);
+    for (size_t i = 0; i < C.n_rows(); ++i)
+      for (size_t j = 0; j < C.n_cols(); ++j)
+        C[i][j] -= other[i][j];
+    return C;
   }
 
   /** Element-wise subtraction of two matrices in-place. */
   Matrix& operator-=(const Matrix& other)
   {
-    Assert(this->n_rows() == other.n_rows() and
-           this->n_rows() == other.n_cols(),
+    Assert(n_rows() == other.n_rows() and
+           n_rows() == other.n_cols(),
            "Dimension mismatch error.");
 
-    for (size_t i = 0; i < this->n_rows(); ++i)
-      for (size_t j = 0; j < this->n_cols(); ++j)
+    for (size_t i = 0; i < n_rows(); ++i)
+      for (size_t j = 0; j < n_cols(); ++j)
         m_data[i][j] -= other[i][j];
     return *this;
   }
@@ -529,20 +525,20 @@ public:
    */
   Matrix operator*(const Matrix& other) const
   {
-    Assert(this->n_cols() == other.n_rows(), "Dimension mismatch error.");
+    Assert(n_cols() == other.n_rows(), "Dimension mismatch error.");
 
-    Matrix A(this->n_rows(), other.n_cols());
-    for (size_t i = 0; i < A.n_rows(); ++i)
+    Matrix C(n_rows(), other.n_cols());
+    for (size_t i = 0; i < C.n_rows(); ++i)
     {
-      for (size_t j = 0; j < A.n_cols(); ++j)
+      for (size_t j = 0; j < C.n_cols(); ++j)
       {
-        value_type value = 0.0;
-        for (size_t k = 0; k < this->n_cols(); ++k)
-          value += m_data[i][k] * other[k][j];
-        A[i][j] += value;
+        value_type c_ij = 0.0;
+        for (size_t k = 0; k < C.n_rows(); ++k)
+          c_ij += m_data[i][k] * other[k][j];
+        C[i][j] += c_ij;
       }
     }
-    return A;
+    return C;
   }
 
   /**
@@ -554,11 +550,11 @@ public:
    */
   Vector<value_type> operator*(const Vector<value_type>& x) const
   {
-    Assert(x.size() == this->n_cols(), "Dimension mismatch error.");
+    Assert(x.size() == n_cols(), "Dimension mismatch error.");
 
-    Vector<value_type> Ax(this->n_rows());
-    for (size_t i = 0; i < this->n_rows(); ++i)
-      for (size_t j = 0; j < this->n_cols(); ++j)
+    Vector<value_type> Ax(n_rows());
+    for (size_t i = 0; i < n_rows(); ++i)
+      for (size_t j = 0; j < n_cols(); ++j)
         Ax[i] += m_data[i][j] * x[j];
     return Ax;
   }
@@ -572,7 +568,7 @@ public:
    */
   Matrix transpose() const
   {
-    Matrix At(this->n_cols(), this->n_rows());
+    Matrix At(n_cols(), n_rows());
     for (size_t i = 0; i < At.n_rows(); ++i)
       for (size_t j = 0; j < At.n_cols(); ++j)
         At[i][j] = m_data[j][i];
@@ -602,7 +598,7 @@ public:
   /** Print the vector to `std::cout`. */
   void print() const
   {
-    std::cout << this->to_string();
+    std::cout << to_string();
   }
 
   /** @} */
@@ -631,33 +627,6 @@ inline Matrix<value_type>
 operator*(const value_type value, const Matrix<value_type>& A)
 {
   return A * value;
-}
-
-
-/** Multiply a matrix by a scalar value. */
-template<typename value_type>
-inline Matrix<value_type>
-multiply(const Matrix<value_type>& A, const value_type value)
-{
-  return value * A;
-}
-
-
-/** Multiply a matrix by a vector. */
-template<typename value_type>
-inline Vector<value_type>
-multiply(const Matrix<value_type> A, const Vector<value_type> x)
-{
-  return A * x;
-}
-
-
-/** Multiply a matrix by a matrix. */
-template<typename value_type>
-inline Vector<value_type>
-multiply(const Matrix<value_type> A, const Matrix<value_type> B)
-{
-  return A * B;
 }
 
 }
