@@ -39,7 +39,10 @@ public:
   }
 
   void set_matrix(Matrix<value_type>& matrix)
-  { A = matrix; initialized = false; }
+  {
+    A = matrix;
+    initialized = false;
+  }
 
 public:
   /** Abstract setup method. */
