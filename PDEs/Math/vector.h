@@ -27,7 +27,7 @@ public:
   /** Default constructor. */
   Vector() = default;
 
-  /** Construct a vector with \p n elements set to \p value */
+  /** Construct a vector with \p n elements insert to \p value */
   explicit Vector(const size_t n, const value_type value = 0.0)
     : m_data(n, value)
   {}
@@ -150,13 +150,13 @@ public:
     m_data.clear();
   }
 
-  /** Add a new element set to \p value to the back. */
+  /** Add a new element insert to \p value to the back. */
   void push_back(const value_type value)
   {
     m_data.push_back(value);
   }
 
-  /** Add a new element set to \p value in place to the back. */
+  /** Add a new element insert to \p value in place to the back. */
   void emplace_back(const value_type value)
   {
     m_data.emplace_back(value);

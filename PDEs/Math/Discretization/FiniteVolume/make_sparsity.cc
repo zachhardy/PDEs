@@ -4,7 +4,7 @@
  * Define the sparsity pattern.
  *
  * This routine defines the number of non-zero entries per row for a problem
- * with the specified number of components. If the \p is_coupled flag is set
+ * with the specified number of components. If the \p is_coupled flag is insert
  * to \p true, it is assumed that all components are coupled to one another,
  * otherwise, it is assumed that the system is uncoupled in all components.
  * For FV discretizations, each node is coupled to those on the neighboring

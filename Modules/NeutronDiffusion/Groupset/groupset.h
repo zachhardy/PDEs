@@ -3,7 +3,7 @@
 
 #include "vector.h"
 #include "Math/matrix.h"
-#include "linear_solver.h"
+#include "Math/LinearSolvers/linear_solver.h"
 
 #include <memory>
 #include <vector>

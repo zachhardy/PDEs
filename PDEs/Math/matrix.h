@@ -13,19 +13,19 @@ namespace math
 template<typename value_type>
 class Matrix
 {
-private:
+protected:
   std::vector<std::vector<value_type>> m_data;
 
 public:
   /** Default constructor. */
   Matrix() = default;
 
-  /** Construct a square matrix of dimension \p n set to \p value. */
+  /** Construct a square matrix of dimension \p n insert to \p value. */
   explicit Matrix(const size_t n, const value_type value = 0.0)
       : m_data(n, std::vector<value_type>(n, value))
   {}
 
-  /** Construct a matrix with \p n_rows and \p n_cols set to \p value. */
+  /** Construct a matrix with \p n_rows and \p n_cols insert to \p value. */
   explicit Matrix(const size_t n_rows,
                   const size_t n_cols,
                   const value_type value = 0.0)

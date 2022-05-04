@@ -15,7 +15,7 @@ namespace math
 template<typename value_type>
 class SparseMatrix
 {
-private:
+protected:
   size_t rows;
   size_t cols;
 
@@ -146,7 +146,9 @@ public:
   }
 
   /** Set the element at row \p i and column \p j to \p value. */
-  void set(const size_t i, const size_t j, const value_type value)
+  void insert(const size_t i, const size_t j,
+              const value_type value,
+              const bool adding = true)
   {
     Assert(i < rows && j < cols, "Out of range error.");
 
@@ -167,7 +169,7 @@ public:
    if (*rel_loc == j)
    {
      size_t jr = rel_loc - colnums.begin();
-     m_data[i][jr] += value;
+     m_data[i][jr] = (adding)? m_data[i][jr] + value : value;
      return;
    }
 
@@ -176,17 +178,18 @@ public:
    m_data[i].insert(rel_loc, value);
   }
 
-  /** Set a list of elements. See \ref set.*/
-  void set(const std::vector<size_t>& row_indices,
-           const std::vector<size_t>& col_indices,
-           const std::vector<value_type>& values)
+  /** Set a list of elements. See \ref insert.*/
+  void insert(const std::vector<size_t>& row_indices,
+              const std::vector<size_t>& col_indices,
+              const std::vector<value_type>& values,
+              const bool adding = true)
   {
     Assert(row_indices.size() == col_indices.size() &&
            row_indices.size() == values.size(),
            "All inputs must be of the same length.");
 
     for (size_t i = 0; i < row_indices.size(); ++i)
-      this->set(row_indices[i], col_indices[i], values[i]);
+      this->insert(row_indices[i], col_indices[i], values[i], adding);
   }
 
   /** @} */
@@ -274,7 +277,7 @@ public:
     SparseMatrix A(*this);
     for (size_t i = 0; i < rows; ++i)
       for (size_t jr = 0; jr < other.m_indices[i].size(); ++jr)
-        A.set(i, other.m_indices[i][jr], other.m_data[i][jr]);
+        A.insert(i, other.m_indices[i][jr], other.m_data[i][jr]);
     return A;
   }
 
@@ -287,7 +290,7 @@ public:
 
     for (size_t i = 0; i < rows; ++i)
       for (size_t jr = 0; jr < other.m_indices[i].size(); ++jr)
-        this->set(i, other.m_indices[i][jr], other.m_data[i][jr]);
+        this->insert(i, other.m_indices[i][jr], other.m_data[i][jr]);
     return *this;
   }
 
@@ -301,7 +304,7 @@ public:
     SparseMatrix A(*this);
     for (size_t i = 0; i < rows; ++i)
       for (size_t jr = 0; jr < other.m_indices[i].size(); ++jr)
-        A.set(i, other.m_indices[i][jr], -other.m_data[i][jr]);
+        A.insert(i, other.m_indices[i][jr], -other.m_data[i][jr]);
     return A;
   }
 
@@ -314,7 +317,7 @@ public:
 
     for (size_t i = 0; i < rows; ++i)
       for (size_t jr = 0; jr < other.m_indices[i].size(); ++jr)
-        this->set(i, other.m_indices[i][jr], -other.m_data[i][jr]);
+        this->insert(i, other.m_indices[i][jr], -other.m_data[i][jr]);
     return *this;
   }
 
@@ -362,7 +365,7 @@ public:
           // Compute c_{ik} += a_{ij} b_{jk}
           size_t k = other.m_indices[j][kr];
           value_type c_ik = a_ij * other.m_data[j][kr];
-          A.set(i, k, c_ik);
+          A.insert(i, k, c_ik);
         }//for columns in row j of other matrix
       }//for columns in row i of this matrix
     }//for row

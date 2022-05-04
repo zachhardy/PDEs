@@ -1,7 +1,7 @@
 #ifndef CHOLESKY_H
 #define CHOLESKY_H
 
-#include "linear_solver.h"
+#include "Math/LinearSolvers/linear_solver.h"
 
 namespace math
 {
