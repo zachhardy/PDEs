@@ -26,45 +26,48 @@ void math::LU<value_type>::setup()
   for (size_t i = 0; i < n; ++i)
     row_pivots.emplace_back(i);
 
-  // Go through each column in the matrix.
-  for (size_t j = 0; j < n; ++j)
+  //======================================== Apply Doolittle algorithm
+  for (size_t i = 0; i < n; ++i)
   {
-    /* Find the row index for the largest magnitude entry in this column.
-     * This is only done for sub-diagonal elements. */
-    value_type max = 0.0;
-    size_t argmax = j;
-    for (size_t i = j; i < n; ++i)
+    if (pivot)
     {
-      if (std::fabs(A[i][j]) > max)
+      /* Find the row containing the largest magnitude entry for column i.
+       * This is only done for the sub-diagonal elements. */
+      size_t argmax = i;
+      value_type max = std::fabs(A[i][i]);
+      for (size_t k = i + 1; k < n; ++k)
       {
-        max = std::fabs(A[i][j]);
-        argmax = i;
+        if (std::fabs(A[k][i]) > max)
+        {
+          argmax = k;
+          max = std::fabs(A[k][i]);
+        }
       }
-    }
 
-    // If the sub-diagonal is uniformly zero, throw error
-    Assert(A[argmax][j] != 0.0,
-           "Degenerate matrix encountered. "
-           "Specifically, all elements on the sub-diagonal were zero.");
+      // If the sub-diagonal is uniformly zero, throw error
+      Assert(A[argmax][i] != 0.0, "Singular matrix error ");
 
-    /* Swap the current row and the row containing the largest magnitude
-     * entry corresponding for the current column. This is done to improve
-     * the numerical stability of the algorithm. */
-    if (pivot and argmax != j)
+      /* Swap the current row and the row containing the largest magnitude
+       * entry corresponding for the current column. This is done to improve
+       * the numerical stability of the algorithm. */
+      if (argmax != i)
+      {
+        std::swap(row_pivots[i], row_pivots[argmax]);
+        A.swap_row(i, argmax);
+      }
+    }//if pivot
+
+    // Compute the elements of the LU decomposition
+    for (size_t j = i + 1; j < n; ++j)
     {
-      std::swap(row_pivots[j], row_pivots[argmax]);
-      A.swap_row(j, argmax);
-    }
+      /* Lower triangular components. This represents the row operations
+       * performed to attain the upper-triangular, row-echelon matrix. */
+      A[j][i] /= A[i][i];
 
-    /* Perform row-wise operations such that all sub-diagonal values are zero.
-     * This is done by subtracting the current row times the ratio of the
-     * sub-diagonal and the current row's leading value. */
-    for (size_t i = j + 1; i < n; ++i)
-    {
-      value_type factor = A[i][j] / A[j][j];
-      for (size_t k = j + 1; k < n; ++k)
-        A[i][k] -= A[j][k] * factor;
-      A[i][j] = factor;
+      /* Upper triangular components. This represents the row-echelon form of
+       * the original matrix. */
+      for (size_t k = i + 1; k < n; ++k)
+        A[j][k] -= A[j][i] * A[i][k];
     }
   }
   this->initialized = true;
