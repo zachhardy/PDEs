@@ -575,22 +575,6 @@ public:
     return dst;
   }
 
-  void vmult(const Vector<value_type>& x,
-             Vector<value_type>& dst)
-  {
-    Assert(n_cols() == x.size(), "Dimension mismatch error.");
-    Assert(n_rows() == dst.size(), "Dimension mismatch error.");
-
-    for (size_t i = 0; i < n_rows(); ++i)
-    {
-      value_type value = 0.0;
-      for (size_t j = 0; j < n_cols(); ++j)
-        value += m_data[i][j] * x[j];
-      dst[i] = value;
-    }
-
-  }
-
   /** @} */
   /** \name Print Utilities */
   /** @{ */
