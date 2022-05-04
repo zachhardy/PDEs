@@ -45,7 +45,7 @@ void math::LU<value_type>::setup()
       }
 
       // If the sub-diagonal is uniformly zero, throw error
-      Assert(A[argmax][i] != 0.0, "Singular matrix error ");
+      Assert(A[argmax][i] != 0.0, "Singular matrix error.");
 
       /* Swap the current row and the row containing the largest magnitude
        * entry corresponding for the current column. This is done to improve
