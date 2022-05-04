@@ -2,6 +2,7 @@
 #define SPARSE_MATRIX_H
 
 #include "vector.h"
+#include "matrix.h"
 #include "exceptions.h"
 
 #include <cmath>
@@ -15,58 +16,80 @@ namespace math
 template<typename value_type>
 class SparseMatrix
 {
-protected:
+private:
+  typedef std::vector<std::vector<size_t>> SparsityPattern;
+
+private:
   size_t rows;
   size_t cols;
 
+  SparsityPattern m_colnums;
   std::vector<std::vector<value_type>> m_data;
-  std::vector<std::vector<size_t>> m_indices;
+
 
 public:
   /** Default constructor. */
-  SparseMatrix() = default;
+  SparseMatrix() : rows(0), cols(0) {}
 
   /** Construct a square sparse matrix with dimension \p n. */
   explicit SparseMatrix(const size_t n)
-      : rows(n), cols(n), m_data(n), m_indices(n)
+      : rows(n), cols(n), m_data(n), m_colnums(n)
   {}
 
   /** Construct a sparse matrix with \p n_rows and \p n_cols. */
   explicit SparseMatrix(const size_t n_rows, const size_t n_cols)
-    : rows(n_rows), cols(n_cols), m_data(n_rows), m_indices(n_rows)
+    : rows(n_rows), cols(n_cols), m_data(n_rows),
+      m_colnums(n_rows)
   {}
 
-  /** Construct a sparsity pattern. */
-  SparseMatrix(const std::vector<std::vector<size_t>>& pattern)
-    : rows(pattern.size()), m_data(pattern.size()), m_indices(pattern)
+  /** Construct from a sparsity pattern. */
+  SparseMatrix(const SparsityPattern& sparsity_pattern)
+    : rows(pattern.size()), m_data(pattern.size()),
+      m_colnums(sparsity_pattern)
   {
     cols = 0;
     for (size_t i = 0; i < rows; ++i)
     {
       // Sort column indices for the row
-      std::stable_sort(m_indices[i].begin(), m_indices[i].end());
+      auto& colnums = m_colnums[i];
+      std::stable_sort(colnums.begin(), colnums.end());
 
       // Resize the data vector for the row
-      m_data[i].resize(m_indices[i].size(), 0.0);
+      m_data[i].resize(m_colnums[i].size(), 0.0);
 
       // Check the largest column index
-      for (const auto& j : m_indices[i])
+      for (const auto& j : m_colnums[i])
         if (j > cols) cols = j;
     }
   }
 
   /** Copy constructor. */
   SparseMatrix(const SparseMatrix& other)
-    : rows(other.rows), cols(other.cols),
-      m_data(other.m_data), m_indices(other.m_indices)
+    : rows(other.rows), cols(other.cols), m_data(other.m_data),
+      m_colnums(other.m_colnums)
   {}
 
   /** Move constructor. */
   SparseMatrix(SparseMatrix&& other)
     : rows(other.rows), cols(other.cols),
       m_data(std::move(other.m_data)),
-      m_indices(std::move(other.m_indices))
+      m_colnums(std::move(other.m_colnums))
   {}
+
+  /** Initialize with a dense matrix. */
+  SparseMatrix(const Matrix<value_type>& other)
+    : rows(other.n_rows()), cols(other.n_cols()),
+      m_data(other.n_rows()),
+      m_colnums(other.n_rows())
+  {
+    for (size_t i = 0; i < rows; ++i)
+      for (size_t j = 0; j < cols; ++j)
+        if (other[i][j] != 0.0)
+        {
+          m_data[i].push_back(other[i][j]);
+          m_colnums[i].push_back(j);
+        }
+  }
 
   /** Copy assignment operator. */
   SparseMatrix& operator=(const SparseMatrix& other)
@@ -74,7 +97,7 @@ public:
     rows = other.rows;
     cols = other.cols;
     m_data = other.m_data;
-    m_indices = other.m_indices;
+    m_colnums = other.m_colnums;
     return *this;
   }
 
@@ -84,7 +107,7 @@ public:
     rows = other.rows;
     cols = other.cols;
     m_data = std::move(other.m_data);
-    m_indices = std::move(other.m_indices);
+    m_colnums = std::move(other.m_colnums);
     return *this;
   }
 
@@ -98,11 +121,11 @@ public:
     Assert(i < rows && j < cols, "Out of range error.");
 
     // If row is uninitialized, return zero
-    if (m_indices[i].empty())
+    if (m_colnums[i].empty())
       return 0.0;
 
     // Otherwise, look for the specified column in the row
-    const auto& colnums = m_indices[i];
+    const auto& colnums = m_colnums[i];
     auto rel_loc = std::lower_bound(colnums.begin(), colnums.end(), j);
 
     // If the column is not in the row, return zero
@@ -120,7 +143,7 @@ public:
     Assert(i < rows && j < cols, "Out of range error.");
 
     // Check whether the row exists
-    const auto& colnums = m_indices[i];
+    const auto& colnums = m_colnums[i];
     Assert(not colnums.empty(),
            "Invalid access attempt. Element not initialized.");
 
@@ -142,7 +165,29 @@ public:
   {
     rows = cols = 0;
     m_data.clear();
-    m_indices.clear();
+    m_colnums.clear();
+  }
+
+  /** Reinitialize the sparse matrix with dimension \p n. */
+  void reinit(const size_t n)
+  {
+    rows = cols = n;
+    m_colnums.clear();
+    m_data.clear();
+
+    m_colnums.resize(n);
+    m_data.resize(n);
+  }
+
+  /** Reinitialize the sparse matrix with \p n_rows and \p n_cols. */
+  void reinit(const size_t n_rows, const size_t n_cols)
+  {
+    rows = n_rows; cols = n_cols;
+    m_colnums.clear();
+    m_data.clear();
+
+    m_colnums.resize(n_rows);
+    m_data.resize(n_rows);
   }
 
   /** Set the element at row \p i and column \p j to \p value. */
@@ -152,30 +197,30 @@ public:
   {
     Assert(i < rows && j < cols, "Out of range error.");
 
-   /* If the row is empty or the column number is larger than all current
-    * entries on the row, add to the back of the row. */
-   if (m_indices[i].size() == 0 or m_indices[i].back() < j)
-   {
-     m_indices[i].push_back(j);
-     m_data[i].push_back(value);
-     return;
-   }
+    /* If the row is empty or the column number is larger than all current
+     * entries on the row, add to the back of the row. */
+    if (m_colnums[i].size() == 0 or m_colnums[i].back() < j)
+    {
+      m_colnums[i].push_back(j);
+      m_data[i].push_back(value);
+      return;
+    }
 
-   // Find the index to insert which maintains sorting
-   auto& colnums = m_indices[i];
-   auto rel_loc = std::lower_bound(colnums.begin(), colnums.end(), j);
+    // Find the index to insert which maintains sorting
+    auto& colnums = m_colnums[i];
+    auto jloc = std::lower_bound(colnums.begin(), colnums.end(), j);
+    size_t jr = jloc - colnums.begin();
 
-   // If this points to an existing column, add to it
-   if (*rel_loc == j)
-   {
-     size_t jr = rel_loc - colnums.begin();
-     m_data[i][jr] = (adding)? m_data[i][jr] + value : value;
-     return;
-   }
+    // If this points to an existing column, add to it
+    if (*jloc == j)
+    {
+      m_data[i][jr] = (adding)? m_data[i][jr] + value : value;
+      return;
+    }
 
-   // Otherwise, insert into its sorted location
-   m_indices[i].insert(rel_loc, j);
-   m_data[i].insert(rel_loc, value);
+    // Insert the entries into the data structures maintaining sorting
+    m_colnums[i].insert(jloc, j);
+    m_data[i].insert(m_data[i].begin() + jr, value);
   }
 
   /** Set a list of elements. See \ref insert.*/
@@ -189,7 +234,24 @@ public:
            "All inputs must be of the same length.");
 
     for (size_t i = 0; i < row_indices.size(); ++i)
-      this->insert(row_indices[i], col_indices[i], values[i], adding);
+      insert(row_indices[i], col_indices[i], values[i], adding);
+  }
+
+  /** Swap the elements of two rows. */
+  void swap_row(const size_t i0, const size_t i1)
+  {
+    Assert(i0 < rows && i1 < rows, "Invalid row indices provided.");
+    m_colnums[i0].swap(m_colnums[i1]);
+    m_data[i0].swap(m_data[i1]);
+  }
+
+  /** Swap the elements of this sparse matrix with another. */
+  void swap(SparseMatrix& other)
+  {
+    std::swap(rows, other.rows);
+    std::swap(cols, other.cols);
+    m_colnums.swap(other.m_colnums);
+    m_data.swap(other.m_data);
   }
 
   /** @} */
@@ -212,7 +274,7 @@ public:
   size_t nnz() const
   {
     size_t nnz = 0;
-    for (const auto& colnums : m_indices)
+    for (const auto& colnums : m_colnums)
       nnz += colnums.size();
     return nnz;
   }
@@ -276,8 +338,8 @@ public:
 
     SparseMatrix A(*this);
     for (size_t i = 0; i < rows; ++i)
-      for (size_t jr = 0; jr < other.m_indices[i].size(); ++jr)
-        A.insert(i, other.m_indices[i][jr], other.m_data[i][jr]);
+      for (size_t jr = 0; jr < other.m_colnums[i].size(); ++jr)
+        A.insert(i, other.m_colnums[i][jr], other.m_data[i][jr]);
     return A;
   }
 
@@ -289,8 +351,8 @@ public:
            "Dimension mismatch error.");
 
     for (size_t i = 0; i < rows; ++i)
-      for (size_t jr = 0; jr < other.m_indices[i].size(); ++jr)
-        this->insert(i, other.m_indices[i][jr], other.m_data[i][jr]);
+      for (size_t jr = 0; jr < other.m_colnums[i].size(); ++jr)
+        this->insert(i, other.m_colnums[i][jr], other.m_data[i][jr]);
     return *this;
   }
 
@@ -303,8 +365,8 @@ public:
 
     SparseMatrix A(*this);
     for (size_t i = 0; i < rows; ++i)
-      for (size_t jr = 0; jr < other.m_indices[i].size(); ++jr)
-        A.insert(i, other.m_indices[i][jr], -other.m_data[i][jr]);
+      for (size_t jr = 0; jr < other.m_colnums[i].size(); ++jr)
+        A.insert(i, other.m_colnums[i][jr], -other.m_data[i][jr]);
     return A;
   }
 
@@ -316,8 +378,8 @@ public:
            "Dimension mismatch error.");
 
     for (size_t i = 0; i < rows; ++i)
-      for (size_t jr = 0; jr < other.m_indices[i].size(); ++jr)
-        this->insert(i, other.m_indices[i][jr], -other.m_data[i][jr]);
+      for (size_t jr = 0; jr < other.m_colnums[i].size(); ++jr)
+        this->insert(i, other.m_colnums[i][jr], -other.m_data[i][jr]);
     return *this;
   }
 
@@ -334,8 +396,8 @@ public:
 
     Vector<value_type> Ax(cols);
     for (size_t i = 0; i < rows; ++i)
-      for (size_t jr = 0; jr < m_indices[i].size(); ++jr)
-        Ax[i] += m_data[i][jr] * x[m_indices[i][jr]];
+      for (size_t jr = 0; jr < m_colnums[i].size(); ++jr)
+        Ax[i] += m_data[i][jr] * x[m_colnums[i][jr]];
     return Ax;
   }
 
@@ -354,16 +416,16 @@ public:
     for (size_t i = 0; i < rows; ++i)
     {
       // Loop over relative column indices for row i of this
-      for (size_t jr = 0; jr < m_indices[i].size(); ++jr)
+      for (size_t jr = 0; jr < m_colnums[i].size(); ++jr)
       {
-        size_t j = m_indices[i][jr];
+        size_t j = m_colnums[i][jr];
         value_type a_ij = m_data[i][jr];
 
         // Loop over relative column indices of row j of other
-        for (size_t kr = 0; kr < other.m_indices[j].size(); ++kr)
+        for (size_t kr = 0; kr < other.m_colnums[j].size(); ++kr)
         {
           // Compute c_{ik} += a_{ij} b_{jk}
-          size_t k = other.m_indices[j][kr];
+          size_t k = other.m_colnums[j][kr];
           value_type c_ik = a_ij * other.m_data[j][kr];
           A.insert(i, k, c_ik);
         }//for columns in row j of other matrix
@@ -371,19 +433,31 @@ public:
     }//for row
   }
 
-  void vmult(const Vector<value_type>& x,
-             Vector<value_type>        dst)
+  std::string to_string() const
   {
-    Assert(rows == x.size(), "Dimension mismatch error.");
-    Assert(cols == dst.size(), "Dimension mismatch error.");
+    std::stringstream ss;
+    auto fill = std::cout.fill(' ');
+    ss << std::left << std::setw(8)
+       << "Row"    << fill << std::setw(8)
+       << "Column" << fill << std::setw(10)
+       << std::right << "Value" << fill << "\n";
+    ss << std::left << std::setw(8)
+       << "---" << fill << std::setw(8)
+       << "------" << fill << std::setw(10)
+       << std::right << "-----" << fill << "\n";
 
     for (size_t i = 0; i < rows; ++i)
-    {
-      value_type value = 0.0;
-      for (size_t jr = 0; jr < m_indices[i].size(); ++jr)
-        value += m_data[i][jr] * x[m_indices[i][jr]];
-      dst[i] = value;
-    }
+      for (size_t jr = 0; jr < m_colnums[i].size(); ++jr)
+        ss << std::left << std::setw(8)
+           << i << fill << std::setw(8)
+           << m_colnums[i][jr] << fill << std::setw(10)
+           << std::right << m_data[i][jr] << fill << "\n";
+    return ss.str();
+  }
+
+  void print() const
+  {
+    std::cout << to_string();
   }
 
   /** @} */
