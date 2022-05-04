@@ -1,7 +1,13 @@
-#include "math.h"
+#ifndef GAUSSIAN_ELIMINATION_H
+#define GAUSSIAN_ELIMINATION_H
+
 #include "matrix.h"
 #include "vector.h"
+#include <cmath>
 
+
+namespace math
+{
 
 /**
  * Solve a system using Gaussian elimination.
@@ -20,14 +26,14 @@
  *         \f$ \boldsymbol{A} \vec{x} = \vec{b} \f$.
  */
 template<typename value_type>
-math::Vector<value_type>
-math::gaussian_elimination(Matrix<value_type>& A,
-                           Vector<value_type>& b,
-                           const bool pivot)
+Vector<value_type>
+gaussian_elimination(Matrix<value_type>& A,
+                     Vector<value_type>& b,
+                     const bool pivot)
 {
-  Assert(A.n_rows() == A.n_cols(), "Invalid matrix dimensions. "
-                                   "The matrix must be square.");
-  Assert(b.size() == A.n_rows(), "Mismatched size error.");
+  Assert(A.n_rows() == A.n_cols(),
+         "Square matrices are required for Gaussian elimination.");
+  Assert(b.size() == A.n_rows(), "Dimension mismatch error.");
 
   size_t n = b.size();
 
@@ -85,9 +91,5 @@ math::gaussian_elimination(Matrix<value_type>& A,
   }
   return x;
 }
-
-template
-math::Vector<double>
-math::gaussian_elimination(Matrix<double>& A,
-                           Vector<double>& b,
-                           const bool pivot);
+}
+#endif //GAUSSIAN_ELIMINATION_H

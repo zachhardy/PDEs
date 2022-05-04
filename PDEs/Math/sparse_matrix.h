@@ -368,6 +368,21 @@ public:
     }//for row
   }
 
+  void vmult(const Vector<value_type>& x,
+             Vector<value_type>        dst)
+  {
+    Assert(rows == x.size(), "Dimension mismatch error.");
+    Assert(cols == dst.size(), "Dimension mismatch error.");
+
+    for (size_t i = 0; i < rows; ++i)
+    {
+      value_type value = 0.0;
+      for (size_t jr = 0; jr < m_indices[i].size(); ++jr)
+        value += m_data[i][jr] * x[m_indices[i][jr]];
+      dst[i] = value;
+    }
+  }
+
   /** @} */
 };
 

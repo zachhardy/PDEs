@@ -400,11 +400,11 @@ public:
   /** Element-wise negation. */
   Matrix operator-() const
   {
-    Matrix B(m_data);
-    for (auto& row : B)
+    Matrix dst(m_data);
+    for (auto& row : dst)
       for (auto& elem : row)
         elem = -elem;
-    return B;
+    return dst;
   }
 
   /** Element-wise negation in-place. */
@@ -419,11 +419,11 @@ public:
   /** Element-wise multiplication by a scalar. */
   Matrix operator*(const value_type value) const
   {
-    Matrix B(m_data);
-    for (auto& row : B)
+    Matrix dst(m_data);
+    for (auto& row : dst)
       for (auto& elem : row)
         elem *= value;
-    return B;
+    return dst;
   }
 
   /** Element-wise multiplication by a scalar in-place. */
@@ -440,11 +440,11 @@ public:
   {
     Assert(value != 0.0, "Division by zero error.");
 
-    Matrix B(m_data);
-    for (auto& row : B)
+    Matrix dst(m_data);
+    for (auto& row : dst)
       for (auto& elem : row)
         elem /= value;
-    return B;
+    return dst;
   }
 
   /** Element-wise division by a scalar in-place. */
@@ -469,11 +469,11 @@ public:
            n_cols() == other.n_cols(),
            "Dimension mismatch error.");
 
-    Matrix C(m_data);
-    for (size_t i = 0; i < C.n_rows(); ++i)
-      for (size_t j = 0; j < C.n_cols(); ++j)
-        C[i][j] += other[i][j];
-    return C;
+    Matrix dst(m_data);
+    for (size_t i = 0; i < dst.n_rows(); ++i)
+      for (size_t j = 0; j < dst.n_cols(); ++j)
+        dst[i][j] += other[i][j];
+    return dst;
   }
 
   /** Element-wise addition of two matrices in-place. */
@@ -496,11 +496,11 @@ public:
            n_rows() == other.n_cols(),
            "Dimension mismatch error.");
 
-    Matrix C(m_data);
-    for (size_t i = 0; i < C.n_rows(); ++i)
-      for (size_t j = 0; j < C.n_cols(); ++j)
-        C[i][j] -= other[i][j];
-    return C;
+    Matrix dst(m_data);
+    for (size_t i = 0; i < dst.n_rows(); ++i)
+      for (size_t j = 0; j < dst.n_cols(); ++j)
+        dst[i][j] -= other[i][j];
+    return dst;
   }
 
   /** Element-wise subtraction of two matrices in-place. */
@@ -527,18 +527,18 @@ public:
   {
     Assert(n_cols() == other.n_rows(), "Dimension mismatch error.");
 
-    Matrix C(n_rows(), other.n_cols());
-    for (size_t i = 0; i < C.n_rows(); ++i)
+    Matrix dst(n_rows(), other.n_cols());
+    for (size_t i = 0; i < dst.n_rows(); ++i)
     {
-      for (size_t j = 0; j < C.n_cols(); ++j)
+      for (size_t j = 0; j < dst.n_cols(); ++j)
       {
         value_type c_ij = 0.0;
-        for (size_t k = 0; k < C.n_rows(); ++k)
+        for (size_t k = 0; k < dst.n_rows(); ++k)
           c_ij += m_data[i][k] * other[k][j];
-        C[i][j] += c_ij;
+        dst[i][j] += c_ij;
       }
     }
-    return C;
+    return dst;
   }
 
   /**
@@ -552,11 +552,11 @@ public:
   {
     Assert(x.size() == n_cols(), "Dimension mismatch error.");
 
-    Vector<value_type> Ax(n_rows());
+    Vector<value_type> dst(n_rows());
     for (size_t i = 0; i < n_rows(); ++i)
       for (size_t j = 0; j < n_cols(); ++j)
-        Ax[i] += m_data[i][j] * x[j];
-    return Ax;
+        dst[i] += m_data[i][j] * x[j];
+    return dst;
   }
 
   /**
@@ -568,11 +568,27 @@ public:
    */
   Matrix transpose() const
   {
-    Matrix At(n_cols(), n_rows());
-    for (size_t i = 0; i < At.n_rows(); ++i)
-      for (size_t j = 0; j < At.n_cols(); ++j)
-        At[i][j] = m_data[j][i];
-    return At;
+    Matrix dst(n_cols(), n_rows());
+    for (size_t i = 0; i < dst.n_rows(); ++i)
+      for (size_t j = 0; j < dst.n_cols(); ++j)
+        dst[i][j] = m_data[j][i];
+    return dst;
+  }
+
+  void vmult(const Vector<value_type>& x,
+             Vector<value_type>& dst)
+  {
+    Assert(n_cols() == x.size(), "Dimension mismatch error.");
+    Assert(n_rows() == dst.size(), "Dimension mismatch error.");
+
+    for (size_t i = 0; i < n_rows(); ++i)
+    {
+      value_type value = 0.0;
+      for (size_t j = 0; j < n_cols(); ++j)
+        value += m_data[i][j] * x[j];
+      dst[i] = value;
+    }
+
   }
 
   /** @} */
