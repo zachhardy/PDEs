@@ -15,8 +15,8 @@ enum class LinearSolverType
 
 //######################################################################
 /**
- * \brief An abstract base class for solving the linear system
- *        \f$ \boldsymbol{A} \vec{x} = \vec{b} \f$.
+ * An abstract base class for solving the linear system
+ * \f$ \boldsymbol{A} \vec{x} = \vec{b} \f$.
  */
 template<typename value_type>
 class LinearSolver
