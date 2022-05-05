@@ -1,5 +1,7 @@
 #include "cholesky.h"
 
+#include <cinttypes>
+
 /**
  * Perform a Cholesky factorization on the matrix \f$ \boldsymbol{A} \f$.
  *
@@ -14,22 +16,22 @@ template<typename value_type>
 void math::Cholesky<value_type>::setup()
 {
   auto& A = this->A;
-  size_t n = A.n_rows();
+  uint64_t n = A.n_rows();
 
   // Factor the matrix column-wise
-  for (size_t j = 0; j < n; ++j)
+  for (uint64_t j = 0; j < n; ++j)
   {
     // Set the diagonal element
     value_type sum = 0.0;
-    for (size_t k = 0; k < j; ++k)
+    for (uint64_t k = 0; k < j; ++k)
       sum += A[j][k] * A[j][k];
     A[j][j] = std::sqrt(A[j][j] - sum);
 
     // Set the off-diagonals
-    for (size_t i = j + 1; i < n; ++i)
+    for (uint64_t i = j + 1; i < n; ++i)
     {
       sum = 0.0;
-      for (size_t k = 0; k < j; ++k)
+      for (uint64_t k = 0; k < j; ++k)
         sum += A[i][k] * A[j][k];
       A[i][j] = (A[i][j] - sum) / A[j][j];
     }
@@ -58,15 +60,15 @@ math::Cholesky<value_type>::solve(const Vector<value_type>& b)
   if (not this->initialized)
     this->setup();
 
-  size_t n = A.n_rows();
+  uint64_t n = A.n_rows();
   value_type value = 0.0;
 
   // Forward solve
   Vector x(n, 0.0);
-  for (size_t i = 0; i < n; ++i)
+  for (uint64_t i = 0; i < n; ++i)
   {
     value = b[i];
-    for (size_t j = 0; j < i; ++j)
+    for (uint64_t j = 0; j < i; ++j)
       value -= A[i][j] * x[j];
     x[i] = value / A[i][i];
   }
@@ -75,7 +77,7 @@ math::Cholesky<value_type>::solve(const Vector<value_type>& b)
   for (int i = n - 1; i >= 0; --i)
   {
     value = x[i];
-    for (size_t j = i + 1; j < n; ++j)
+    for (uint64_t j = i + 1; j < n; ++j)
       value -= A[j][i] * x[j];
     x[i] = value / A[i][i];
   }

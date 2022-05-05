@@ -23,8 +23,8 @@ void grid::Mesh::establish_connectivity()
   // Determine the cells which contain a specific vertex. This is done using a
   // list where each element represents a vertex and its value contains a set
   // which holds the unique cell ids in which the vertex is found.
-  const size_t n_vertices = vertices.size();
-  std::vector<std::set<size_t>> vertex_cell_map(n_vertices);
+  const uint64_t n_vertices = vertices.size();
+  std::vector<std::set<uint64_t>> vertex_cell_map(n_vertices);
   for (const auto& cell : cells)
     for (const auto& v_id : cell->vertex_ids)
       vertex_cell_map.at(v_id).insert(cell->id);
@@ -43,11 +43,11 @@ void grid::Mesh::establish_connectivity()
       if (face.has_neighbor) continue;
 
       // Get the vertex ids for this face for comparison
-      const std::set<size_t> v_ids(face.vertex_ids.begin(),
+      const std::set<uint64_t> v_ids(face.vertex_ids.begin(),
                                    face.vertex_ids.end());
 
       // Use the vertex_cell_map to find neighbor cells
-      std::set<size_t> cells_to_search;
+      std::set<uint64_t> cells_to_search;
       for (const auto& v_id : face.vertex_ids)
         for (const auto& c_id : vertex_cell_map.at(v_id))
           if (c_id != cell->id)
@@ -65,7 +65,7 @@ void grid::Mesh::establish_connectivity()
           if (adj_face.has_neighbor) continue;
 
           // Get the adjacent face vertex ids
-          const std::set<size_t> adj_v_ids(adj_face.vertex_ids.begin(),
+          const std::set<uint64_t> adj_v_ids(adj_face.vertex_ids.begin(),
                                            adj_face.vertex_ids.end());
 
           // If this face and the adjacent face share vertex ids, they

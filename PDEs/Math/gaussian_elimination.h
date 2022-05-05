@@ -3,7 +3,8 @@
 
 #include "matrix.h"
 #include "vector.h"
-#include <cmath>
+
+#include <cinttypes>
 
 
 namespace math
@@ -35,17 +36,17 @@ gaussian_elimination(Matrix<value_type>& A,
          "Square matrices are required for Gaussian elimination.");
   Assert(b.size() == A.n_rows(), "Dimension mismatch error.");
 
-  size_t n = b.size();
+  uint64_t n = b.size();
 
   //======================================== Row-echelon factorization
   // Go through the columns of the matrix
-  for (size_t j = 0; j < n; ++j)
+  for (uint64_t j = 0; j < n; ++j)
   {
     /* Find the row index for the largest magnitude entry in this column.
      * This is only done for sub-diagonal elements. */
     value_type max = 0.0;
-    size_t argmax = j;
-    for (size_t i = j; i < n; ++i)
+    uint64_t argmax = j;
+    for (uint64_t i = j; i < n; ++i)
     {
       if (std::fabs(A[i][j]) > max)
       {
@@ -71,10 +72,10 @@ gaussian_elimination(Matrix<value_type>& A,
     /* Perform row-wise operations such that all sub-diagonal values are zero.
      * This is done by subtracting the current row times the ratio of the
      * sub-diagonal and the current row's leading value. */
-    for (size_t i = j + 1; i < n; ++i)
+    for (uint64_t i = j + 1; i < n; ++i)
     {
       value_type factor = A[i][j] / A[j][j];
-      for (size_t k = j; k < n; ++k)
+      for (uint64_t k = j; k < n; ++k)
         A[i][k] -= A[j][k] * factor;
       b[i] -= b[j] * factor;
     }

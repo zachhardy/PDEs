@@ -2,7 +2,9 @@
 #define FV_H
 
 #include "Discretization/discretization.h"
-#include "Grid/cell.h"
+#include "cell.h"
+
+#include <cinttypes>
 
 namespace math
 {
@@ -30,26 +32,26 @@ public: /*---------- Routines ----------*/
 
   /** Return the number of nodes per cell.
    *  For FV discretizations, there is 1 node per cell. */
-  size_t nodes_per_cell() const override
+  uint64_t nodes_per_cell() const override
   { return 1; }
 
   /** Return the number of DoFs per cell.
    *  This returns the number of nodes per cell multiplied by the number of
    *  solution components. For FV discretizations, this returns the number of
    *  solution components. See \ref nodes_per_cell. */
-  size_t dofs_per_cell(const size_t n_components) const override
+  uint64_t dofs_per_cell(const uint64_t n_components) const override
   { return n_components * nodes_per_cell(); }
 
   /** Return the number of nodes in the discretization.
    * For FV discretizations, this is equivalent to the number of cells. */
-  size_t n_nodes() const override
+  uint64_t n_nodes() const override
   { return mesh->cells.size(); }
 
   /** Return the number of DoFs in the discretization.
    *  This returns the number of nodes multiplied by the number of solution
    *  components. For FV discretizations, this returns the number of cells times
    *  the number of solution components. See \ref n_nodes.*/
-  size_t n_dofs(const size_t n_components) const override
+  uint64_t n_dofs(const uint64_t n_components) const override
   { return n_components * n_nodes(); }
 
   /** Return the location of the nodes on the specified Cell. For FV
@@ -58,8 +60,8 @@ public: /*---------- Routines ----------*/
   { return std::vector<grid::Point>(1, cell.centroid); }
 
   void
-  make_sparsity_pattern(std::vector<std::vector<size_t>> pattern,
-                        const size_t n_components = 1,
+  make_sparsity_pattern(std::vector<std::vector<uint64_t>> pattern,
+                        const uint64_t n_components = 1,
                         const bool is_coupled = false) const override;
 };
 

@@ -1,7 +1,7 @@
 #ifndef LU_H
 #define LU_H
 
-#include "Math/LinearSolvers/linear_solver.h"
+#include "LinearSolvers/linear_solver.h"
 
 namespace math
 {

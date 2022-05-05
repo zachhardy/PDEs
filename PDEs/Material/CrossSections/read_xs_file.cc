@@ -31,7 +31,7 @@ void physics::CrossSections::read_xs_file(const std::string& file_name,
   bool found_inv_velocity = false;
 
   // Read the file
-  size_t line_number = 0;
+  uint64_t line_number = 0;
   std::string line, word;
   while (std::getline(file, line))
   {
@@ -69,7 +69,7 @@ void physics::CrossSections::read_xs_file(const std::string& file_name,
       if (found_groups)
       {
         transfer_matrices.resize(scattering_order + 1);
-        for (size_t m = 0; m < transfer_matrices.size(); ++m)
+        for (uint64_t m = 0; m < transfer_matrices.size(); ++m)
           transfer_matrices[m].resize(n_groups, std::vector<double>(n_groups));
       }
       else
@@ -90,7 +90,7 @@ void physics::CrossSections::read_xs_file(const std::string& file_name,
       if (found_groups)
       {
         chi_delayed.resize(n_groups);
-        for (size_t g = 0; g < n_groups; ++g)
+        for (uint64_t g = 0; g < n_groups; ++g)
           chi_delayed[g].resize(n_precursors);
       }
       else

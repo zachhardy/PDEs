@@ -32,7 +32,7 @@ void neutron_diffusion::SteadyStateSolver::initialize_boundaries()
   for (const auto& boundary : boundary_info)
   {
     std::vector<BndryPtr> mg_bcs;
-    for (size_t g = 0; g < n_groups; ++g)
+    for (uint64_t g = 0; g < n_groups; ++g)
     {
       BndryPtr bc;
       switch (boundary.first)

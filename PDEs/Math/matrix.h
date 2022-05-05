@@ -1,11 +1,13 @@
 #ifndef MATRIX_H
 #define MATRIX_H
 
-#include "Math/vector.h"
+#include "vector.h"
+#include "exceptions.h"
 
 #include <cmath>
 #include <vector>
 #include <iomanip>
+#include <cinttypes>
 
 namespace math
 {
@@ -21,13 +23,13 @@ public:
   Matrix() = default;
 
   /** Construct a square matrix of dimension \p n insert to \p value. */
-  explicit Matrix(const size_t n, const value_type value = 0.0)
+  explicit Matrix(const uint64_t n, const value_type value = 0.0)
       : m_data(n, std::vector<value_type>(n, value))
   {}
 
   /** Construct a matrix with \p n_rows and \p n_cols insert to \p value. */
-  explicit Matrix(const size_t n_rows,
-                  const size_t n_cols,
+  explicit Matrix(const uint64_t n_rows,
+                  const uint64_t n_cols,
                   const value_type value = 0.0)
       : m_data(n_rows, std::vector<value_type>(n_cols, value))
   {}
@@ -100,73 +102,73 @@ public:
   /** @{ */
 
   /** Read/write access for row \p i. */
-  std::vector<value_type>& operator[](const size_t i)
+  std::vector<value_type>& operator[](const uint64_t i)
   {
     return m_data[i];
   }
 
   /** Read only access for row \p i. */
-  std::vector<value_type> operator[](const size_t i) const
+  std::vector<value_type> operator[](const uint64_t i) const
   {
     return m_data[i];
   }
 
   /** Read/write access for row \p i. */
-  std::vector<value_type>& operator()(const size_t i)
+  std::vector<value_type>& operator()(const uint64_t i)
   {
     return m_data[i];
   }
 
   /** Read only access for row \p i. */
-  std::vector<value_type> operator()(const size_t i) const
+  std::vector<value_type> operator()(const uint64_t i) const
   {
     return m_data[i];
   }
 
   /** Read/write access for row \p i with bounds checking. */
-  std::vector<value_type>& at(const size_t i)
+  std::vector<value_type>& at(const uint64_t i)
   {
     return m_data.at(i);
   }
 
   /** Read only access for row \p i with bounds checking. */
-  std::vector<value_type> at(const size_t i) const
+  std::vector<value_type> at(const uint64_t i) const
   {
     return m_data.at(i);
   }
 
   /** Read/write access for row \p i and column \p j. */
-  value_type& operator()(const size_t i, const size_t j)
+  value_type& operator()(const uint64_t i, const uint64_t j)
   {
     return m_data[i][j];
   }
 
   /** Read only access for row \p i and column \p j. */
-  value_type operator()(const size_t i, const size_t j) const
+  value_type operator()(const uint64_t i, const uint64_t j) const
   {
     return m_data[i][j];
   }
 
   /** Read/write access for row \p i and column \p j with bounds checking. */
-  value_type& at(const size_t i, const size_t j)
+  value_type& at(const uint64_t i, const uint64_t j)
   {
     return m_data.at(i).at(j);
   }
 
   /** Read only access for row \p i and column \p j with bounds checking. */
-  value_type at(const size_t i, const size_t j) const
+  value_type at(const uint64_t i, const uint64_t j) const
   {
     return m_data.at(i).at(j);
   }
 
   /** Read/write access to the <tt>i</tt>'th diagonal element. */
-  value_type& diagonal(const size_t i)
+  value_type& diagonal(const uint64_t i)
   {
     return m_data[i][i];
   }
 
   /** Read access to the <tt>i</tt>'th diagonal element. */
-  value_type diagonal(const size_t i) const
+  value_type diagonal(const uint64_t i) const
   {
     return m_data[i][i];
   }
@@ -178,11 +180,11 @@ public:
       return std::vector<value_type>();
 
     // Compute diagonal dimension = min(n_rows, n_cols)
-    size_t min_dim = std::min(n_rows(), n_cols());
+    uint64_t min_dim = std::min(n_rows(), n_cols());
 
     // Populate the diagonal vector
     std::vector<value_type> diag;
-    for (size_t i = 0; i < min_dim; ++i)
+    for (uint64_t i = 0; i < min_dim; ++i)
       diag.push_back(m_data[i][i]);
     return diag;
   }
@@ -222,20 +224,20 @@ public:
   }
 
   /** Resize to dimension \p n, setting new elements to \p value. */
-  void resize(const size_t n, const value_type value = 0.0)
+  void resize(const uint64_t n, const value_type value = 0.0)
   {
     m_data.resize(n, std::vector<value_type>(n, value));
   }
 
   /** Resize to \p n_rows and \p n_cols, setting new elements to \p value. */
-  void resize(const size_t n_rows, const size_t n_cols,
+  void resize(const uint64_t n_rows, const uint64_t n_cols,
               const value_type value = 0.0)
   {
     m_data.resize(n_rows, std::vector<value_type>(n_cols, value));
   }
 
   /** Swap the elements of two rows. */
-  void swap_row(const size_t i0, const size_t i1)
+  void swap_row(const uint64_t i0, const uint64_t i1)
   {
     Assert(i0 < n_rows() && i1 < n_rows(),
            "Invalid row indices provided.");
@@ -243,11 +245,11 @@ public:
   }
 
   /** Swap the elements of two columns. */
-  void swap_column(const size_t j0, const size_t j1)
+  void swap_column(const uint64_t j0, const uint64_t j1)
   {
     Assert(j0 < n_cols() && j1 < n_cols(),
            "Invalid column indices provided.");
-    for (size_t i = 0; i < n_rows(); ++i)
+    for (uint64_t i = 0; i < n_rows(); ++i)
       std::swap(m_data[i][j0], m_data[i][j1]);
   }
 
@@ -264,16 +266,16 @@ public:
     if (m_data.empty())
     {
       m_data.resize(diag.size(), std::vector<value_type>(diag.size()));
-      for (size_t i = 0; i < diag.size(); ++i)
+      for (uint64_t i = 0; i < diag.size(); ++i)
         m_data[i][i] = diag[i];
     }
 
       // Override the diagonal of an initialized matrix
     else
     {
-      size_t min_dim = std::min(n_rows(), n_cols());
+      uint64_t min_dim = std::min(n_rows(), n_cols());
       Assert(diag.size() == min_dim, "Dimension mismatch error.");
-      for (size_t i = 0; i < min_dim; ++i)
+      for (uint64_t i = 0; i < min_dim; ++i)
         m_data[i][i] = diag[i];
     }
   }
@@ -290,8 +292,8 @@ public:
     if (m_data.empty())
       m_data.resize(1, std::vector<value_type>(1, value));
 
-    size_t min_dim = std::min(n_rows(), n_cols());
-    for (size_t i = 0; i < min_dim; ++i)
+    uint64_t min_dim = std::min(n_rows(), n_cols());
+    for (uint64_t i = 0; i < min_dim; ++i)
       m_data[i][i] = value;
   }
 
@@ -300,27 +302,27 @@ public:
   /** @{ */
 
   /** Return the number of rows. */
-  size_t n_rows() const
+  uint64_t n_rows() const
   {
     return m_data.size();
   }
 
   /** Return the number of columns. */
-  size_t n_cols() const
+  uint64_t n_cols() const
   {
     return m_data.front().size();
   }
 
   /** Return the number of elements <tt> n_rows * n_cols </tt>. */
-  size_t size() const
+  uint64_t size() const
   {
     return m_data.size() * m_data.front().size();
   }
 
   /** Return the number of non-zeros. */
-  size_t nnz() const
+  uint64_t nnz() const
   {
-    size_t nnz = 0;
+    uint64_t nnz = 0;
     for (const auto& row : m_data)
       for (const auto& elem : row)
         if (elem != 0.0) ++nnz;
@@ -353,14 +355,14 @@ public:
 
   /** Mutable iterator at the start of row \p i. */
   typename std::vector<value_type>::iterator
-  begin(const size_t i)
+  begin(const uint64_t i)
   {
     return m_data[i].begin();
   }
 
   /** Mutable iterator one past the end of row \p i. */
   typename std::vector<value_type>::iterator
-  end(const size_t i)
+  end(const uint64_t i)
   {
     return m_data[i].end();
   }
@@ -381,14 +383,14 @@ public:
 
   /** Constant iterator at the start of the row \p i. */
   typename std::vector<value_type>::const_iterator
-  cbegin(const size_t i) const
+  cbegin(const uint64_t i) const
   {
     return m_data[i].cbegin();
   }
 
   /** Constant iterator one past the end of row \p i. */
   typename std::vector<value_type>::const_iterator
-  cend(const size_t i) const
+  cend(const uint64_t i) const
   {
     return m_data[i].cend();
   }
@@ -470,8 +472,8 @@ public:
            "Dimension mismatch error.");
 
     Matrix dst(m_data);
-    for (size_t i = 0; i < dst.n_rows(); ++i)
-      for (size_t j = 0; j < dst.n_cols(); ++j)
+    for (uint64_t i = 0; i < dst.n_rows(); ++i)
+      for (uint64_t j = 0; j < dst.n_cols(); ++j)
         dst[i][j] += other[i][j];
     return dst;
   }
@@ -483,8 +485,8 @@ public:
            n_cols() == other.n_cols(),
            "Dimension mismatch error.");
 
-    for (size_t i = 0; i < n_rows(); ++i)
-      for (size_t j = 0; j < n_cols(); ++j)
+    for (uint64_t i = 0; i < n_rows(); ++i)
+      for (uint64_t j = 0; j < n_cols(); ++j)
         m_data[i][j] += other[i][j];
     return *this;
   }
@@ -497,8 +499,8 @@ public:
            "Dimension mismatch error.");
 
     Matrix dst(m_data);
-    for (size_t i = 0; i < dst.n_rows(); ++i)
-      for (size_t j = 0; j < dst.n_cols(); ++j)
+    for (uint64_t i = 0; i < dst.n_rows(); ++i)
+      for (uint64_t j = 0; j < dst.n_cols(); ++j)
         dst[i][j] -= other[i][j];
     return dst;
   }
@@ -510,8 +512,8 @@ public:
            n_rows() == other.n_cols(),
            "Dimension mismatch error.");
 
-    for (size_t i = 0; i < n_rows(); ++i)
-      for (size_t j = 0; j < n_cols(); ++j)
+    for (uint64_t i = 0; i < n_rows(); ++i)
+      for (uint64_t j = 0; j < n_cols(); ++j)
         m_data[i][j] -= other[i][j];
     return *this;
   }
@@ -528,12 +530,12 @@ public:
     Assert(n_cols() == other.n_rows(), "Dimension mismatch error.");
 
     Matrix dst(n_rows(), other.n_cols());
-    for (size_t i = 0; i < dst.n_rows(); ++i)
+    for (uint64_t i = 0; i < dst.n_rows(); ++i)
     {
-      for (size_t j = 0; j < dst.n_cols(); ++j)
+      for (uint64_t j = 0; j < dst.n_cols(); ++j)
       {
         value_type c_ij = 0.0;
-        for (size_t k = 0; k < dst.n_rows(); ++k)
+        for (uint64_t k = 0; k < dst.n_rows(); ++k)
           c_ij += m_data[i][k] * other[k][j];
         dst[i][j] += c_ij;
       }
@@ -553,8 +555,8 @@ public:
     Assert(x.size() == n_cols(), "Dimension mismatch error.");
 
     Vector<value_type> dst(n_rows());
-    for (size_t i = 0; i < n_rows(); ++i)
-      for (size_t j = 0; j < n_cols(); ++j)
+    for (uint64_t i = 0; i < n_rows(); ++i)
+      for (uint64_t j = 0; j < n_cols(); ++j)
         dst[i] += m_data[i][j] * x[j];
     return dst;
   }
@@ -569,8 +571,8 @@ public:
   Matrix transpose() const
   {
     Matrix dst(n_cols(), n_rows());
-    for (size_t i = 0; i < dst.n_rows(); ++i)
-      for (size_t j = 0; j < dst.n_cols(); ++j)
+    for (uint64_t i = 0; i < dst.n_rows(); ++i)
+      for (uint64_t j = 0; j < dst.n_cols(); ++j)
         dst[i][j] = m_data[j][i];
     return dst;
   }
@@ -584,10 +586,10 @@ public:
   {
     std::stringstream ss;
     ss << "[";
-    for (size_t i = 0; i < m_data.size(); ++i)
+    for (uint64_t i = 0; i < m_data.size(); ++i)
     {
       ss << ((i == 0)? "[" : " [");
-      for (size_t j = 0; j < m_data[i].size() - 1; ++j)
+      for (uint64_t j = 0; j < m_data[i].size() - 1; ++j)
         ss << std::setw(10) << std::setprecision(6) << m_data[i][j] << " ";
       ss << std::setw(10) << std::setprecision(6) << m_data[i].back() << "]"
          << ((i == m_data.size()-1)? "]\n" : "\n");
@@ -608,7 +610,7 @@ private:
   {
     bool is_valid = true;
     auto m = A.front().size();
-    for (size_t i = 0; i < A.size(); ++i)
+    for (uint64_t i = 0; i < A.size(); ++i)
       if (A[i].size() != m) { is_valid = false; break; }
 
     Assert(is_valid,

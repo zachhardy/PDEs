@@ -4,6 +4,7 @@
 #include <vector>
 #include <numeric>
 
+
 /**
  * \brief Create a 1D mesh from a list of vertices.
  * \param vertices A list of vertex locations.
@@ -30,12 +31,12 @@ grid::create_1d_mesh(const std::vector<double>& vertices,
   std::shared_ptr<Mesh> mesh(new Mesh(1, coordinate_system));
 
   // Count the number of cells
-  size_t n_cells = vertices.size() - 1;
+  uint64_t n_cells = vertices.size() - 1;
 
   // Compute the cell widths
   std::vector<double> widths;
   widths.reserve(n_cells);
-  for (size_t v = 0; v < n_cells; ++v)
+  for (uint64_t v = 0; v < n_cells; ++v)
     widths.push_back(vertices[v + 1] - vertices[v]);
 
   // Initialize the vertices
@@ -63,7 +64,7 @@ grid::create_1d_mesh(const std::vector<double>& vertices,
   }
 
   // Create the cells
-  for (size_t c = 0; c < n_cells; ++c)
+  for (uint64_t c = 0; c < n_cells; ++c)
   {
     // Initialize the cell and face objects
     std::shared_ptr<Cell> cell(new Cell(cell_type));
@@ -126,7 +127,7 @@ grid::create_1d_mesh(const std::vector<double>& vertices,
  */
 std::shared_ptr<grid::Mesh>
 grid::create_1d_mesh(const std::vector<double>& zone_edges,
-                     const std::vector<size_t>& zone_subdivisions,
+                     const std::vector<uint64_t>& zone_subdivisions,
                      const std::vector<int>& material_ids,
                      const CoordinateSystem coordinate_system,
                      const bool verbose)
@@ -160,7 +161,7 @@ grid::create_1d_mesh(const std::vector<double>& zone_edges,
   auto mesh = std::make_shared<Mesh>(1, coordinate_system);
 
   // Count the number of cells
-  size_t n_cells = std::accumulate(zone_subdivisions.begin(),
+  uint64_t n_cells = std::accumulate(zone_subdivisions.begin(),
                                    zone_subdivisions.end(), 0);
 
   // Initialize the vertices
@@ -169,14 +170,14 @@ grid::create_1d_mesh(const std::vector<double>& zone_edges,
 
   // Define the vertices, loop over each zone, then the cells per zone
   double current_pos = 0.0;
-  for (size_t z = 0; z < zone_subdivisions.size(); ++z)
+  for (uint64_t z = 0; z < zone_subdivisions.size(); ++z)
   {
     // Define the width of cells in this zone z
     double zone_width = zone_edges[z+1] - zone_edges[z];
     double n_zone_cells = static_cast<double>(zone_subdivisions[z]);
     double cell_width = zone_width / n_zone_cells;
 
-    for (size_t c = 0; c < n_zone_cells; ++ c)
+    for (uint64_t c = 0; c < n_zone_cells; ++ c)
     {
       mesh->vertices.emplace_back(0.0, 0.0, current_pos+cell_width);
       current_pos += cell_width;
@@ -196,10 +197,10 @@ grid::create_1d_mesh(const std::vector<double>& zone_edges,
   }
 
   // Create the cells, loop over zones, then cells per zone
-  size_t count = 0;
-  for (size_t z = 0; z < zone_subdivisions.size(); ++z)
+  uint64_t count = 0;
+  for (uint64_t z = 0; z < zone_subdivisions.size(); ++z)
   {
-    for (size_t c = 0; c < zone_subdivisions[z]; ++c)
+    for (uint64_t c = 0; c < zone_subdivisions[z]; ++c)
     {
       // Initialize the cell and face objects
       auto cell = std::make_shared<Cell>(cell_type);

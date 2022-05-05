@@ -22,7 +22,7 @@ void neutron_diffusion::SteadyStateSolver::initialize()
 
     groupsets.clear();
     groupsets.emplace_back(0);
-    for (const size_t group : groups)
+    for (const uint64_t group : groups)
       groupsets[0].groups.emplace_back(group);
   }
 
@@ -32,7 +32,7 @@ void neutron_diffusion::SteadyStateSolver::initialize()
   initialize_boundaries();
 
   // Initialize system storage
-  size_t n_nodes = discretization->n_nodes();
+  uint64_t n_nodes = discretization->n_nodes();
 
   phi.resize(n_groups * n_nodes, 0.0);
   phi_ell.resize(phi.size(), 0.0);
@@ -42,7 +42,7 @@ void neutron_diffusion::SteadyStateSolver::initialize()
   // Initialize groupsets
   for (auto& groupset : groupsets)
   {
-    const size_t n_gsg = groupset.groups.size();
+    const uint64_t n_gsg = groupset.groups.size();
     groupset.matrix.resize(n_gsg * n_nodes, 0.0);
     groupset.rhs.resize(n_gsg * n_nodes, 0.0);
 
@@ -94,7 +94,7 @@ void neutron_diffusion::SteadyStateSolver::input_checks()
   }
 
   // Check that the groupsets contain all groups, no duplicates
-  std::set<size_t> groupset_groups;
+  std::set<uint64_t> groupset_groups;
   for (const auto& groupset : groupsets)
   {
     // Groupsets must have groups
@@ -121,7 +121,7 @@ void neutron_diffusion::SteadyStateSolver::input_checks()
     }
   }
 
-  std::set<size_t> groups_set(groups.begin(), groups.end());
+  std::set<uint64_t> groups_set(groups.begin(), groups.end());
   if (groupset_groups != groups_set)
   {
     std::stringstream err;

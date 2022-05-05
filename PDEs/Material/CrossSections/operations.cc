@@ -24,9 +24,9 @@ void physics::CrossSections::compute_scattering_from_transfers()
   // transfer matrices, the rows contain the destination groups and columns
   // the origin group. Due to this, computing sigma_s necessitates a column-
   // wise sum.
-  for (size_t gp = 0; gp < n_groups; ++gp)
+  for (uint64_t gp = 0; gp < n_groups; ++gp)
   {
-    for (size_t g = 0; g < n_groups; ++g)
+    for (uint64_t g = 0; g < n_groups; ++g)
     {
       if (transfer_matrices[0][g][gp] < 0.0)
       {
@@ -65,7 +65,7 @@ void physics::CrossSections::reconcile_cross_sections()
   // Compute aborption xs from transfer matrix, if not specified
   if (not specified_sigma_a)
   {
-    for (size_t g = 0; g < n_groups; ++g)
+    for (uint64_t g = 0; g < n_groups; ++g)
     {
       // Ensure positivity
       if (sigma_t[g] < 0.0)
@@ -94,7 +94,7 @@ void physics::CrossSections::reconcile_cross_sections()
   // Otherwise, recompute the total xs from absorption and scattering
   else
   {
-    for (size_t g = 0; g < n_groups; ++g)
+    for (uint64_t g = 0; g < n_groups; ++g)
     {
       // Ensure positivity
       if (sigma_a[g] < 0.0)
@@ -111,7 +111,7 @@ void physics::CrossSections::reconcile_cross_sections()
   }
 
   // Compute the removal cross sections
-  for (size_t g = 0; g < n_groups; ++g)
+  for (uint64_t g = 0; g < n_groups; ++g)
     sigma_r[g] = sigma_t[g] - transfer_matrices[0][g][g];
 }
 
@@ -161,7 +161,7 @@ void physics::CrossSections::reconcile_fission_properties()
   if (is_fissile)
   {
     // Check for negative cross sections
-    for (size_t g = 0; g < n_groups; ++g)
+    for (uint64_t g = 0; g < n_groups; ++g)
     {
       if (sigma_f[g] < 0.0)
       {
@@ -177,7 +177,7 @@ void physics::CrossSections::reconcile_fission_properties()
     std::pair<bool, bool> has_total(false, false);
     std::pair<bool, bool> has_prompt(false, false);
     std::pair<bool, bool> has_delayed(false, false);
-    for (size_t g = 0; g < n_groups; ++g)
+    for (uint64_t g = 0; g < n_groups; ++g)
     {
       if (not has_total.first and nu[g] > 0.0)
         has_total.first = true;
@@ -209,7 +209,7 @@ void physics::CrossSections::reconcile_fission_properties()
       }
 
       // Ensure positivity
-      for (size_t g = 0; g < n_groups; ++g)
+      for (uint64_t g = 0; g < n_groups; ++g)
       {
         if (nu_prompt[g] < 0.0 or nu_delayed[g] < 0.0)
         {
@@ -230,7 +230,7 @@ void physics::CrossSections::reconcile_fission_properties()
       }
 
       // Check precursor properties
-      for (size_t j = 0; j < n_precursors; ++j)
+      for (uint64_t j = 0; j < n_precursors; ++j)
       {
         if (precursor_lambda[j] < 1.0e-12)
         {
@@ -251,10 +251,10 @@ void physics::CrossSections::reconcile_fission_properties()
       }
 
       // Check delayed spectra
-      for (size_t j = 0; j < n_precursors; ++j)
+      for (uint64_t j = 0; j < n_precursors; ++j)
       {
         // Ensure positivity
-        for (size_t g = 0; g < n_groups; ++g)
+        for (uint64_t g = 0; g < n_groups; ++g)
         {
           if (chi_delayed[g][j] < 0.0)
           {
@@ -268,7 +268,7 @@ void physics::CrossSections::reconcile_fission_properties()
 
         // Compute spectra sum
         double sum = 0.0;
-        for (size_t g = 0; g < n_groups; ++g)
+        for (uint64_t g = 0; g < n_groups; ++g)
           sum += chi_delayed[g][j];
 
         if (sum < 1.0e-12)
@@ -296,10 +296,10 @@ void physics::CrossSections::reconcile_fission_properties()
       }
 
       // Normalize delayed spectra
-      for (size_t j = 0; j < n_precursors; ++j)
+      for (uint64_t j = 0; j < n_precursors; ++j)
       {
         double sum = 0.0;
-        for (size_t g = 0; g < n_groups; ++g)
+        for (uint64_t g = 0; g < n_groups; ++g)
           sum += chi_delayed[g][j];
 
         if (std::abs(sum - 1.0) > 1.0e-12)
@@ -310,7 +310,7 @@ void physics::CrossSections::reconcile_fission_properties()
                 << "for precursor species " << j << ".";
           std::cout << warn.str() << std::endl;
 
-          for (size_t g = 0; g < n_groups; ++g)
+          for (uint64_t g = 0; g < n_groups; ++g)
             chi_delayed[g][j] /= sum;
         }
       }
@@ -329,7 +329,7 @@ void physics::CrossSections::reconcile_fission_properties()
       }
 
       // Compute total quantities
-      for (size_t g = 0; g < n_groups; ++g)
+      for (uint64_t g = 0; g < n_groups; ++g)
       {
         nu[g] = nu_prompt[g] + nu_delayed[g];
 
@@ -340,7 +340,7 @@ void physics::CrossSections::reconcile_fission_properties()
         // species j.
         double beta = nu_delayed[g] / nu[g];
         chi[g] = (1.0 - beta) * chi_prompt[g];
-        for (size_t j = 0; j < n_precursors; ++j)
+        for (uint64_t j = 0; j < n_precursors; ++j)
           chi[g] = beta * precursor_yield[j] * chi_delayed[g][j];
       }
       has_total.first = true;
@@ -374,7 +374,7 @@ void physics::CrossSections::reconcile_fission_properties()
     }
 
     // Compute nu_sigma_f terms
-    for (size_t g = 0; g < n_groups; ++g)
+    for (uint64_t g = 0; g < n_groups; ++g)
     {
       nu_sigma_f[g] = nu[g] * sigma_f[g];
       nu_prompt_sigma_f[g] = nu_prompt[g] * sigma_f[g];
@@ -394,7 +394,7 @@ void physics::CrossSections::reconcile_fission_properties()
  */
 void physics::CrossSections::compute_macroscopic_cross_sections()
 {
-  for (size_t g = 0; g < n_groups; ++g)
+  for (uint64_t g = 0; g < n_groups; ++g)
   {
     sigma_t[g] *= density;
     sigma_a[g] *= density;
@@ -407,9 +407,9 @@ void physics::CrossSections::compute_macroscopic_cross_sections()
     nu_delayed_sigma_f[g] *= density;
   }
 
-  for (size_t m = 0; m <= scattering_order; ++m)
-    for (size_t g = 0; g < n_groups; ++g)
-      for (size_t gp = 0; gp < n_groups; ++gp)
+  for (uint64_t m = 0; m <= scattering_order; ++m)
+    for (uint64_t g = 0; g < n_groups; ++g)
+      for (uint64_t gp = 0; gp < n_groups; ++gp)
         transfer_matrices[m][g][gp] *= density;
 
   // Compute diffusion coefficient if unspecified
@@ -417,7 +417,7 @@ void physics::CrossSections::compute_macroscopic_cross_sections()
                                diffusion_coeff.end(), 0.0);
   if (sum < 1.0e-12)
   {
-    for (size_t g = 0; g < n_groups; ++g)
+    for (uint64_t g = 0; g < n_groups; ++g)
       diffusion_coeff[g] = 1.0 / (3.0 * sigma_t[g]);
   }
 }

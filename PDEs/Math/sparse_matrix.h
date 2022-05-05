@@ -9,6 +9,8 @@
 #include <vector>
 #include <algorithm>
 #include <sstream>
+#include <cinttypes>
+
 
 namespace math
 {
@@ -17,11 +19,11 @@ template<typename value_type>
 class SparseMatrix
 {
 private:
-  typedef std::vector<std::vector<size_t>> SparsityPattern;
+  typedef std::vector<std::vector<uint64_t>> SparsityPattern;
 
 private:
-  size_t rows;
-  size_t cols;
+  uint64_t rows;
+  uint64_t cols;
 
   SparsityPattern m_colnums;
   std::vector<std::vector<value_type>> m_data;
@@ -32,23 +34,23 @@ public:
   SparseMatrix() : rows(0), cols(0) {}
 
   /** Construct a square sparse matrix with dimension \p n. */
-  explicit SparseMatrix(const size_t n)
+  explicit SparseMatrix(const uint64_t n)
       : rows(n), cols(n), m_data(n), m_colnums(n)
   {}
 
   /** Construct a sparse matrix with \p n_rows and \p n_cols. */
-  explicit SparseMatrix(const size_t n_rows, const size_t n_cols)
+  explicit SparseMatrix(const uint64_t n_rows, const uint64_t n_cols)
     : rows(n_rows), cols(n_cols), m_data(n_rows),
       m_colnums(n_rows)
   {}
 
   /** Construct from a sparsity pattern. */
   SparseMatrix(const SparsityPattern& sparsity_pattern)
-    : rows(pattern.size()), m_data(pattern.size()),
+    : rows(sparsity_pattern.size()), m_data(sparsity_pattern.size()),
       m_colnums(sparsity_pattern)
   {
     cols = 0;
-    for (size_t i = 0; i < rows; ++i)
+    for (uint64_t i = 0; i < rows; ++i)
     {
       // Sort column indices for the row
       auto& colnums = m_colnums[i];
@@ -82,8 +84,8 @@ public:
       m_data(other.n_rows()),
       m_colnums(other.n_rows())
   {
-    for (size_t i = 0; i < rows; ++i)
-      for (size_t j = 0; j < cols; ++j)
+    for (uint64_t i = 0; i < rows; ++i)
+      for (uint64_t j = 0; j < cols; ++j)
         if (other[i][j] != 0.0)
         {
           m_data[i].push_back(other[i][j]);
@@ -116,7 +118,7 @@ public:
   /** @{ */
 
   /** Read access for the element at row \p i and column \p j. */
-  value_type operator()(const size_t i, const size_t j) const
+  value_type operator()(const uint64_t i, const uint64_t j) const
   {
     Assert(i < rows && j < cols, "Out of range error.");
 
@@ -133,12 +135,12 @@ public:
       return 0.0;
 
     // Otherwise, return the element
-    size_t jr = rel_loc - colnums.begin();
+    uint64_t jr = rel_loc - colnums.begin();
     return m_data[i][jr];
   }
 
   /** Read/write access for the element at row \p i and column \p j. */
-  value_type& operator()(const size_t i, const size_t j)
+  value_type& operator()(const uint64_t i, const uint64_t j)
   {
     Assert(i < rows && j < cols, "Out of range error.");
 
@@ -152,7 +154,7 @@ public:
     Assert(rel_loc != colnums.end(),
            "Invalid access attempt. Element not initialized.");
 
-    size_t jr = rel_loc - colnums.begin();
+    uint64_t jr = rel_loc - colnums.begin();
     return m_data[i][jr];
   }
 
@@ -169,7 +171,7 @@ public:
   }
 
   /** Reinitialize the sparse matrix with dimension \p n. */
-  void reinit(const size_t n)
+  void reinit(const uint64_t n)
   {
     rows = cols = n;
     m_colnums.clear();
@@ -180,7 +182,7 @@ public:
   }
 
   /** Reinitialize the sparse matrix with \p n_rows and \p n_cols. */
-  void reinit(const size_t n_rows, const size_t n_cols)
+  void reinit(const uint64_t n_rows, const uint64_t n_cols)
   {
     rows = n_rows; cols = n_cols;
     m_colnums.clear();
@@ -191,7 +193,7 @@ public:
   }
 
   /** Set the element at row \p i and column \p j to \p value. */
-  void insert(const size_t i, const size_t j,
+  void insert(const uint64_t i, const uint64_t j,
               const value_type value,
               const bool adding = true)
   {
@@ -209,7 +211,7 @@ public:
     // Find the index to insert which maintains sorting
     auto& colnums = m_colnums[i];
     auto jloc = std::lower_bound(colnums.begin(), colnums.end(), j);
-    size_t jr = jloc - colnums.begin();
+    uint64_t jr = jloc - colnums.begin();
 
     // If this points to an existing column, add to it
     if (*jloc == j)
@@ -224,8 +226,8 @@ public:
   }
 
   /** Set a list of elements. See \ref insert.*/
-  void insert(const std::vector<size_t>& row_indices,
-              const std::vector<size_t>& col_indices,
+  void insert(const std::vector<uint64_t>& row_indices,
+              const std::vector<uint64_t>& col_indices,
               const std::vector<value_type>& values,
               const bool adding = true)
   {
@@ -233,12 +235,12 @@ public:
            row_indices.size() == values.size(),
            "All inputs must be of the same length.");
 
-    for (size_t i = 0; i < row_indices.size(); ++i)
+    for (uint64_t i = 0; i < row_indices.size(); ++i)
       insert(row_indices[i], col_indices[i], values[i], adding);
   }
 
   /** Swap the elements of two rows. */
-  void swap_row(const size_t i0, const size_t i1)
+  void swap_row(const uint64_t i0, const uint64_t i1)
   {
     Assert(i0 < rows && i1 < rows, "Invalid row indices provided.");
     m_colnums[i0].swap(m_colnums[i1]);
@@ -259,21 +261,21 @@ public:
   /** @{ */
 
   /** Return the number of rows the sparse matrix represents. */
-  size_t n_rows() const
+  uint64_t n_rows() const
   {
     return rows;
   }
 
   /** Return the number of columns the sparse matrix represents. */
-  size_t n_cols() const
+  uint64_t n_cols() const
   {
     return cols;
   }
 
   /** Return the number of nonzero elements in the sparse matrix. */
-  size_t nnz() const
+  uint64_t nnz() const
   {
-    size_t nnz = 0;
+    uint64_t nnz = 0;
     for (const auto& colnums : m_colnums)
       nnz += colnums.size();
     return nnz;
@@ -337,8 +339,8 @@ public:
            "Dimension mismatch error.");
 
     SparseMatrix A(*this);
-    for (size_t i = 0; i < rows; ++i)
-      for (size_t jr = 0; jr < other.m_colnums[i].size(); ++jr)
+    for (uint64_t i = 0; i < rows; ++i)
+      for (uint64_t jr = 0; jr < other.m_colnums[i].size(); ++jr)
         A.insert(i, other.m_colnums[i][jr], other.m_data[i][jr]);
     return A;
   }
@@ -350,8 +352,8 @@ public:
            cols == other.n_cols(),
            "Dimension mismatch error.");
 
-    for (size_t i = 0; i < rows; ++i)
-      for (size_t jr = 0; jr < other.m_colnums[i].size(); ++jr)
+    for (uint64_t i = 0; i < rows; ++i)
+      for (uint64_t jr = 0; jr < other.m_colnums[i].size(); ++jr)
         this->insert(i, other.m_colnums[i][jr], other.m_data[i][jr]);
     return *this;
   }
@@ -364,8 +366,8 @@ public:
            "Dimension mismatch error.");
 
     SparseMatrix A(*this);
-    for (size_t i = 0; i < rows; ++i)
-      for (size_t jr = 0; jr < other.m_colnums[i].size(); ++jr)
+    for (uint64_t i = 0; i < rows; ++i)
+      for (uint64_t jr = 0; jr < other.m_colnums[i].size(); ++jr)
         A.insert(i, other.m_colnums[i][jr], -other.m_data[i][jr]);
     return A;
   }
@@ -377,8 +379,8 @@ public:
            cols == other.n_cols(),
            "Dimension mismatch error.");
 
-    for (size_t i = 0; i < rows; ++i)
-      for (size_t jr = 0; jr < other.m_colnums[i].size(); ++jr)
+    for (uint64_t i = 0; i < rows; ++i)
+      for (uint64_t jr = 0; jr < other.m_colnums[i].size(); ++jr)
         this->insert(i, other.m_colnums[i][jr], -other.m_data[i][jr]);
     return *this;
   }
@@ -395,8 +397,8 @@ public:
     Assert(cols == x.size(), "Dimension mismatch error.");
 
     Vector<value_type> Ax(cols);
-    for (size_t i = 0; i < rows; ++i)
-      for (size_t jr = 0; jr < m_colnums[i].size(); ++jr)
+    for (uint64_t i = 0; i < rows; ++i)
+      for (uint64_t jr = 0; jr < m_colnums[i].size(); ++jr)
         Ax[i] += m_data[i][jr] * x[m_colnums[i][jr]];
     return Ax;
   }
@@ -413,19 +415,19 @@ public:
     Assert(cols == other.n_rows(), "Dimension mismatch error.");
 
     SparseMatrix A(rows, other.n_cols());
-    for (size_t i = 0; i < rows; ++i)
+    for (uint64_t i = 0; i < rows; ++i)
     {
       // Loop over relative column indices for row i of this
-      for (size_t jr = 0; jr < m_colnums[i].size(); ++jr)
+      for (uint64_t jr = 0; jr < m_colnums[i].size(); ++jr)
       {
-        size_t j = m_colnums[i][jr];
+        uint64_t j = m_colnums[i][jr];
         value_type a_ij = m_data[i][jr];
 
         // Loop over relative column indices of row j of other
-        for (size_t kr = 0; kr < other.m_colnums[j].size(); ++kr)
+        for (uint64_t kr = 0; kr < other.m_colnums[j].size(); ++kr)
         {
           // Compute c_{ik} += a_{ij} b_{jk}
-          size_t k = other.m_colnums[j][kr];
+          uint64_t k = other.m_colnums[j][kr];
           value_type c_ik = a_ij * other.m_data[j][kr];
           A.insert(i, k, c_ik);
         }//for columns in row j of other matrix
@@ -446,8 +448,8 @@ public:
        << "------" << fill << std::setw(10)
        << std::right << "-----" << fill << "\n";
 
-    for (size_t i = 0; i < rows; ++i)
-      for (size_t jr = 0; jr < m_colnums[i].size(); ++jr)
+    for (uint64_t i = 0; i < rows; ++i)
+      for (uint64_t jr = 0; jr < m_colnums[i].size(); ++jr)
         ss << std::left << std::setw(8)
            << i << fill << std::setw(8)
            << m_colnums[i][jr] << fill << std::setw(10)

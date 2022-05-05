@@ -2,11 +2,13 @@
 #define GROUPSET_H
 
 #include "vector.h"
-#include "Math/matrix.h"
-#include "Math/LinearSolvers/linear_solver.h"
+#include "matrix.h"
+#include "LinearSolvers/linear_solver.h"
 
 #include <memory>
 #include <vector>
+#include <cinttypes>
+
 
 namespace neutron_diffusion
 {
@@ -15,11 +17,11 @@ class Groupset
 {
 public:
   int id;
-  std::vector<size_t> groups;
+  std::vector<uint64_t> groups;
 
   /*---------- Options ----------*/
   math::LinearSolverType linear_solver_type = math::LinearSolverType::LU;
-  size_t max_iterations = 100;
+  uint64_t max_iterations = 100;
   double tolerance = 1.0e-8;
 
   /*---------- System Storage ----------*/

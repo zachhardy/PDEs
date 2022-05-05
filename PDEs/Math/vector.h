@@ -1,17 +1,18 @@
 #ifndef VECTOR_H
 #define VECTOR_H
 
+#include "exceptions.h"
+
 #include <cmath>
 #include <vector>
 #include <algorithm>
 #include <numeric>
+#include <cinttypes>
 
 #include <iostream>
 #include <iomanip>
 #include <sstream>
-#include <stdexcept>
 
-#include "exceptions.h"
 
 namespace math
 {
@@ -28,7 +29,7 @@ public:
   Vector() = default;
 
   /** Construct a vector with \p n elements insert to \p value */
-  explicit Vector(const size_t n, const value_type value = 0.0)
+  explicit Vector(const uint64_t n, const value_type value = 0.0)
     : m_data(n, value)
   {}
 
@@ -87,25 +88,25 @@ public:
   /** @{ */
 
   /** Read/write access for element \p i. */
-  double& operator[](const size_t i)
+  double& operator[](const uint64_t i)
   {
     return m_data[i];
   }
 
   /** Read only access for element \p i. */
-  double operator[](const size_t i) const
+  double operator[](const uint64_t i) const
   {
     return m_data[i];
   }
 
   /** Read/write access for element \p i with bounds checking. */
-  double& at(const size_t i)
+  double& at(const uint64_t i)
   {
     return m_data.at(i);
   }
 
   /** Read only access for element \p i with bounds checking. */
-  double at(const size_t i) const
+  double at(const uint64_t i) const
   {
     return m_data.at(i);
   }
@@ -169,7 +170,7 @@ public:
   }
 
   /** Resize to \p new_size elements, setting new elements to default. */
-  void resize(const size_t new_size, const value_type value = 0.0)
+  void resize(const uint64_t new_size, const value_type value = 0.0)
   {
     m_data.resize(new_size, value);
   }
@@ -191,13 +192,13 @@ public:
   /** @{ */
 
   /** Allocate memory for \p new_size elements. */
-  void reserve(const size_t new_size)
+  void reserve(const uint64_t new_size)
   {
     m_data.reserve(new_size);
   }
 
   /** Return the number of elements. */
-  size_t size() const
+  uint64_t size() const
   {
     return m_data.size();
   }
@@ -306,7 +307,7 @@ public:
     Assert(other.size() == m_data.size(), "Dimension mismatch error.");
 
     Vector x(m_data);
-    for (size_t i = 0; i < x.size(); ++i)
+    for (uint64_t i = 0; i < x.size(); ++i)
       x[i] += other[i];
     return x;
   }
@@ -316,7 +317,7 @@ public:
   {
     Assert(other.size() == m_data.size(), "Dimension mismatch error.");
 
-    for (size_t i = 0; i < m_data.size(); ++i)
+    for (uint64_t i = 0; i < m_data.size(); ++i)
       m_data[i] += other[i];
     return *this;
   }
@@ -327,7 +328,7 @@ public:
     Assert(other.size() == m_data.size(), "Dimension mismatch error.");
 
     Vector x(m_data);
-    for (size_t i = 0; i < x.size(); ++i)
+    for (uint64_t i = 0; i < x.size(); ++i)
       x[i] -= other[i];
     return x;
   }
@@ -337,7 +338,7 @@ public:
   {
     Assert(other.size() == m_data.size(), "Dimension mismatch error.");
 
-    for (size_t i = 0; i < m_data.size(); ++i)
+    for (uint64_t i = 0; i < m_data.size(); ++i)
       m_data[i] -= other[i];
     return *this;
   }
@@ -348,7 +349,7 @@ public:
     Assert(other.size() == m_data.size(), "Dimension mismatch error.");
 
     Vector x(m_data);
-    for (size_t i = 0; i < x.size(); ++i)
+    for (uint64_t i = 0; i < x.size(); ++i)
       x[i] *= other[i];
     return x;
   }
@@ -358,7 +359,7 @@ public:
   {
     Assert(other.size() == m_data.size(), "Dimension mismatch error.");
 
-    for (size_t i = 0; i < m_data.size(); ++i)
+    for (uint64_t i = 0; i < m_data.size(); ++i)
       m_data[i] *= other[i];
     return *this;
   }
@@ -370,7 +371,7 @@ public:
     Assert(not other.has_zero_elements(), "Zero division error.");
 
     Vector x(m_data);
-    for (size_t i = 0; i < x.size(); ++i)
+    for (uint64_t i = 0; i < x.size(); ++i)
       x[i] /= other[i];
     return x;
   }
@@ -381,7 +382,7 @@ public:
     Assert(other.size() == m_data.size(), "Dimension mismatch error.");
     Assert(not other.has_zero_elements(), "Zero division error.");
 
-    for (size_t i = 0; i < m_data.size(); ++i)
+    for (uint64_t i = 0; i < m_data.size(); ++i)
       m_data[i] /= other[i];
     return *this;
   }
@@ -395,7 +396,7 @@ public:
     Assert(other.size() == m_data.size(), "Dimension mismatch error.");
 
     value_type c = 0.0;
-    for (size_t i = 0; i < m_data.size(); ++i)
+    for (uint64_t i = 0; i < m_data.size(); ++i)
       c += m_data[i] * other[i];
     return c;
   }
@@ -495,7 +496,7 @@ public:
   {
     std::stringstream ss;
     ss << "[";
-    for (size_t i = 0; i < m_data.size() - 1; ++i)
+    for (uint64_t i = 0; i < m_data.size() - 1; ++i)
       ss << std::setprecision(6) << m_data[i] << " ";
     ss << std::setprecision(6) << m_data.back() << "]\n";
     return ss.str();

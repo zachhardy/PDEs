@@ -2,7 +2,10 @@
 #define FACE_H
 
 #include "grid_structs.h"
+
 #include <vector>
+#include <cinttypes>
+
 
 namespace grid
 {
@@ -22,10 +25,10 @@ namespace grid
 class Face
 {
 public:
-  std::vector<size_t> vertex_ids;
+  std::vector<uint64_t> vertex_ids;
 
   bool has_neighbor = false;
-  size_t neighbor_id = 0;  ///< The neighbor cell or boundary ID.
+  uint64_t neighbor_id = 0;  ///< The neighbor cell or boundary ID.
 
   Normal normal;
   Centroid centroid;

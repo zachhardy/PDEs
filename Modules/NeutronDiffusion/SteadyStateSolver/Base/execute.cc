@@ -39,7 +39,7 @@ solve_groupset(Groupset& groupset, SourceFlags source_flags)
   bool converged = false;
 
   //======================================== Start iterations
-  for (size_t nit = 0; nit < groupset.max_iterations; ++nit)
+  for (uint64_t nit = 0; nit < groupset.max_iterations; ++nit)
   {
     // Clear and reset the RHS
     groupset.rhs *= 0.0;

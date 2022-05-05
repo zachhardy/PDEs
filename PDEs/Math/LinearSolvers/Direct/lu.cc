@@ -1,5 +1,6 @@
 #include "lu.h"
 
+#include <cinttypes>
 
 /**
  * Factor the matrix \f$ \boldsymbol{A} \f$ into an upper and lower triangular
@@ -20,22 +21,22 @@ template<typename value_type>
 void math::LU<value_type>::setup()
 {
   auto& A = this->A;
-  size_t n = A.n_rows();
+  uint64_t n = A.n_rows();
 
   // Initialize the pivot mappings such that each row maps to itself
-  for (size_t i = 0; i < n; ++i)
+  for (uint64_t i = 0; i < n; ++i)
     row_pivots.emplace_back(i);
 
   //======================================== Apply Doolittle algorithm
-  for (size_t i = 0; i < n; ++i)
+  for (uint64_t i = 0; i < n; ++i)
   {
     if (pivot)
     {
       /* Find the row containing the largest magnitude entry for column i.
        * This is only done for the sub-diagonal elements. */
-      size_t argmax = i;
+      uint64_t argmax = i;
       value_type max = std::fabs(A[i][i]);
-      for (size_t k = i + 1; k < n; ++k)
+      for (uint64_t k = i + 1; k < n; ++k)
       {
         if (std::fabs(A[k][i]) > max)
         {
@@ -58,7 +59,7 @@ void math::LU<value_type>::setup()
     }//if pivot
 
     // Compute the elements of the LU decomposition
-    for (size_t j = i + 1; j < n; ++j)
+    for (uint64_t j = i + 1; j < n; ++j)
     {
       /* Lower triangular components. This represents the row operations
        * performed to attain the upper-triangular, row-echelon matrix. */
@@ -66,7 +67,7 @@ void math::LU<value_type>::setup()
 
       /* Upper triangular components. This represents the row-echelon form of
        * the original matrix. */
-      for (size_t k = i + 1; k < n; ++k)
+      for (uint64_t k = i + 1; k < n; ++k)
         A[j][k] -= A[j][i] * A[i][k];
     }
   }
@@ -101,15 +102,15 @@ math::LU<value_type>::solve(const Vector<value_type>& b)
   if (not this->initialized)
     this->setup();
 
-  size_t n = A.n_rows();
+  uint64_t n = A.n_rows();
   value_type value = 0.0;
 
   // Forward solve
   Vector x(n, 0.0);
-  for (size_t i = 0; i < n; ++i)
+  for (uint64_t i = 0; i < n; ++i)
   {
     value = b[row_pivots[i]];
-    for (size_t j = 0; j < i; ++j)
+    for (uint64_t j = 0; j < i; ++j)
       value -= A[i][j] * x[j];
     x[i] = value;
   }
@@ -118,7 +119,7 @@ math::LU<value_type>::solve(const Vector<value_type>& b)
   for (int i = n - 1; i >= 0; --i)
   {
     value = x[i];
-    for (size_t j = i + 1; j < n; ++j)
+    for (uint64_t j = i + 1; j < n; ++j)
       value -= A[i][j] * x[j];
     x[i] = value / A[i][i];
   }

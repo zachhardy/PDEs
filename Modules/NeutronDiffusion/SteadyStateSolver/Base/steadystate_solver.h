@@ -11,7 +11,7 @@
 #include "CrossSections/cross_sections.h"
 
 #include "vector.h"
-#include "Math/matrix.h"
+#include "matrix.h"
 
 #include "LinearSolvers/linear_solver.h"
 
@@ -76,12 +76,12 @@ public:
   SolutionTechnique solution_technique = SolutionTechnique::GROUPSET_WISE;
 
   /*---------- General Information ----------*/
-  size_t n_groups = 0;
-  size_t n_precursors = 0;
+  uint64_t n_groups = 0;
+  uint64_t n_precursors = 0;
   bool use_precursors = false;
 
   /*---------- Groupsets and Groups ----------*/
-  std::vector<size_t> groups;
+  std::vector<uint64_t> groups;
   std::vector<Groupset> groupsets;
 
   /*---------- Spatial Grid Information ----------*/
@@ -117,7 +117,7 @@ public:
   /** A list containing a pair with the boundary type and index corresponding
    *  to the location of the boundary values within the boundary values vector.
    *  This is similar to the matid_to_xs_map attribute. */
-  std::vector<std::pair<BoundaryType, size_t>> boundary_info;
+  std::vector<std::pair<BoundaryType, uint64_t>> boundary_info;
 
   /** The multigroup boundary values. The outer index corresponds to the
    *  boundary index, the middle to the group, and the last to the boundary
