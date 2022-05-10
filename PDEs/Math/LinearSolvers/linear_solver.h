@@ -11,7 +11,8 @@ namespace math
 enum class LinearSolverType
 {
   LU = 0,
-  CHOLESKY = 1
+  CHOLESKY = 1,
+  SPARSE_LU = 2
 };
 
 //######################################################################
