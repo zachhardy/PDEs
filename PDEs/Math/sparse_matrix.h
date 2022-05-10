@@ -409,8 +409,6 @@ public:
     return Ax;
   }
 
-  void lu_factorization(const bool pivot = true);
-
   /**
    * Compute a matrix-matrix product.
    * This is computed via

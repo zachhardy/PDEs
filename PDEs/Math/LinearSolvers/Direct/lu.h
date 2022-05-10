@@ -6,20 +6,7 @@
 namespace math
 {
 
-/**
- * \property linear_solvers::LU::row_pivots
- * \brief The pivot mapping vector.
- *
- * The index corresponds to the initial row number and the value to the pivoted
- * row number. This is used to map the right-hand side vector to the correct row
- * when solving.
- */
-
-/**
- * \brief An LU decomposition solver.
- *
- * See \ref math::lu_factorization and \ref lu_solve for implementation details.
- */
+/** A class for an LU decomposition solver. */
 template<typename value_type>
 class LU : public LinearSolver<value_type>
 {
