@@ -281,6 +281,12 @@ public:
     return nnz;
   }
 
+  /** Returns whether an element exists or not. */
+  bool exists(const uint64_t i, const uint64_t j)
+  {
+    return std::binary_search(m_colnums[i].begin(), m_colnums[i].end(), j);
+  }
+
   /** @} */
   /** \name Scalar Operations */
   /** @{ */
@@ -402,6 +408,8 @@ public:
         Ax[i] += m_data[i][jr] * x[m_colnums[i][jr]];
     return Ax;
   }
+
+  void lu_factorization(const bool pivot = true);
 
   /**
    * Compute a matrix-matrix product.

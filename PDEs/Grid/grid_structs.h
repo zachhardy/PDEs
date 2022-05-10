@@ -2,6 +2,7 @@
 #define GRID_STRUCTS_H
 
 #include <vector>
+#include <memory>
 #include <cinttypes>
 
 
