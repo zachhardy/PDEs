@@ -1,5 +1,7 @@
 #include "steadystate_solver.h"
 
+#include "LinearSolvers/Direct/sparse_lu.h"
+
 #include <fstream>
 
 /// Run the steady state multigroup diffusion simulation.
@@ -11,7 +13,6 @@ void neutron_diffusion::SteadyStateSolver::execute()
   for (auto& gs : groupsets)
   {
     assemble_matrix(gs);
-    gs.linear_solver->setup();
   }
 
   SourceFlags source_flags = APPLY_MATERIAL_SOURCE;
@@ -45,8 +46,9 @@ solve_groupset(Groupset& groupset, SourceFlags source_flags)
     groupset.rhs *= 0.0;
     set_source(groupset, groupset.rhs, source_flags);
 
-    // Solve the system
-    auto x = groupset.linear_solver->solve(groupset.rhs);
+    math::SparseLU<double> linear_solver(groupset.matrix);
+    auto x = linear_solver.solve(groupset.rhs);
+
 
     // Convergence check, finalize iteration
     scoped_transfer(groupset, x, phi);

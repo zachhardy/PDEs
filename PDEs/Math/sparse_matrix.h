@@ -25,7 +25,7 @@ private:
   uint64_t rows;
   uint64_t cols;
 
-  SparsityPattern colnums;
+  std::vector<std::vector<uint64_t>> colnums;
   std::vector<std::vector<value_type>> data;
 
 
@@ -565,15 +565,59 @@ public:
     iterator& operator*() { return *this; }
 
     uint64_t row() const { return current_row; }
+
     uint64_t index() const { return current_index; }
+
     uint64_t column() const
     {
       return ref_sparse_matrix->colnums[current_row][current_index];
     }
+
     value_type& value()
     {
       return ref_sparse_matrix->data[current_row][current_index];
     }
+  };
+
+  class const_iterator
+  {
+  private:
+    const SparseMatrix*  ref_sparse_matrix;
+    uint64_t current_row;
+    uint64_t current_index;
+
+    void advance()
+    {
+      Assert(current_row < ref_sparse_matrix->n_rows(), "Invalid row index.");
+
+      ++current_index;
+      if (current_index == ref_sparse_matrix->row_length(current_row))
+      {
+        if (current_row + 1 < ref_sparse_matrix->n_rows())
+        {
+          current_row += 1;
+          current_index = 0;
+        }
+        else
+        {
+          current_row = -1;
+          current_index = -1;
+        }
+      }
+    }
+
+  public:
+    const_iterator(const SparseMatrix* sparse_matrix,
+                   const uint64_t row, const uint64_t index)
+      : ref_sparse_matrix(sparse_matrix),
+        current_row(row), current_index(index)
+    {}
+
+    const_iterator(const SparseMatrix* sparse_matrix)
+      : ref_sparse_matrix(sparse_matrix),
+        current_row(-1), current_index(-1)
+    {}
+
   };
 
   iterator begin() { return begin(0); }

@@ -43,35 +43,8 @@ void neutron_diffusion::SteadyStateSolver::initialize()
   for (auto& groupset : groupsets)
   {
     const uint64_t n_gsg = groupset.groups.size();
-    groupset.matrix.resize(n_gsg * n_nodes, 0.0);
+    groupset.matrix.reinit(n_gsg * n_nodes);
     groupset.rhs.resize(n_gsg * n_nodes, 0.0);
-
-    //============================== Initialize linear solver
-    switch (groupset.linear_solver_type)
-    {
-      case LinearSolverType::LU:
-      {
-        auto ls = std::make_shared<math::LU<double>>(groupset.matrix);
-        groupset.linear_solver = ls;
-        break;
-      }
-
-      case LinearSolverType::CHOLESKY:
-      {
-        std::cout << "CHOLESKY\n";
-        auto ls = std::make_shared<math::Cholesky<double>>(groupset.matrix);
-        groupset.linear_solver = ls;
-        break;
-      }
-
-      default:
-      {
-        std::stringstream err;
-        err << solver_string << __FUNCTION__ << ": "
-            << "Unrecognized linear solver method.";
-        throw std::runtime_error(err.str());
-      }
-    }//switch linear solver type
   }//for groupset
 
   std::cout << "Done initializing solver.\n";

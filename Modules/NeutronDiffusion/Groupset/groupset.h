@@ -25,9 +25,8 @@ public:
   double tolerance = 1.0e-8;
 
   /*---------- System Storage ----------*/
-  math::Matrix<double> matrix;
+  math::SparseMatrix<double> matrix;
   math::Vector<double> rhs;
-  std::shared_ptr<math::LinearSolver<double>> linear_solver;
 
   Groupset() : id(-1) {}
   explicit Groupset(int groupset_num) : id(groupset_num) {}
