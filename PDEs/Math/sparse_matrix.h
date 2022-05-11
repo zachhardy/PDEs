@@ -280,10 +280,26 @@ public:
     return nnz;
   }
 
+  /** Return the number of entries in row \p i. */
+  uint64_t row_length(const uint64_t i) const
+  {
+    Assert(i < rows, "Dimension mismatch error.");
+    return colnums[i].size();
+  }
+
+  /** Return the column number for row \p i at position \p index. */
+  uint64_t column_number(const uint64_t i, const uint64_t index) const
+  {
+    Assert(i < rows, "Dimension mismatch error.");
+    Assert(index < row_length(i), "Index exceeds row length.");
+    return colnums[i][index];
+  }
+
   /** Returns whether an element exists or not. */
   bool exists(const uint64_t i, const uint64_t j)
   {
-    return std::binary_search(colnums[i].begin(), colnums[i].end(), j);
+    return std::binary_search(colnums[i].begin(),
+                              colnums[i].end(), j);
   }
 
   /** @} */
@@ -440,6 +456,10 @@ public:
     }//for row
   }
 
+  /** @} */
+  /** \name Printing */
+  /** @{ */
+
   std::string to_string() const
   {
     std::stringstream ss;
@@ -468,6 +488,119 @@ public:
   }
 
   /** @} */
+
+  /** Equality operator. */
+  bool operator==(const SparseMatrix& other) const
+  { return (colnums == other.colnums && data == other.data); }
+
+  /** Inequality operator. */
+  bool operator!=(const SparseMatrix& other) const
+  { return (colnums != other.colnums || data != other.data); }
+
+  class iterator
+  {
+  private:
+    SparseMatrix* ref_sparse_matrix;
+
+    uint64_t current_row;
+    uint64_t current_index;
+
+    void advance()
+    {
+      Assert(current_row < ref_sparse_matrix->n_rows(), "Invalid row index.");
+
+      ++current_index;
+      if (current_index == ref_sparse_matrix->row_length(current_row))
+      {
+        if (current_row + 1 < ref_sparse_matrix->n_rows())
+        {
+          current_row += 1;
+          current_index = 0;
+        }
+        else
+        {
+          current_row = -1;
+          current_index = -1;
+        }
+      }
+    }
+
+  public:
+    iterator(SparseMatrix* sparse_matrix,
+             const uint64_t row, const uint64_t index)
+      : ref_sparse_matrix(sparse_matrix),
+        current_row(row), current_index(index)
+    {}
+
+    iterator(SparseMatrix* sparse_matrix)
+      : ref_sparse_matrix(sparse_matrix),
+        current_row(-1), current_index(-1)
+    {}
+
+    iterator operator++()
+    {
+      advance();
+      return *this;
+    }
+
+    iterator operator++(int)
+    {
+      iterator it = *this;
+      advance();
+      return it;
+    }
+
+    bool operator==(const iterator& other)
+    {
+      return (ref_sparse_matrix == other.ref_sparse_matrix &&
+              current_row == other.current_row &&
+              current_index == other.current_index);
+    }
+
+    bool operator!=(const iterator& other)
+    {
+      return !(*this == other);
+    }
+
+    iterator& operator*() { return *this; }
+
+    uint64_t row() const { return current_row; }
+    uint64_t index() const { return current_index; }
+    uint64_t column() const
+    {
+      return ref_sparse_matrix->colnums[current_row][current_index];
+    }
+    value_type& value()
+    {
+      return ref_sparse_matrix->data[current_row][current_index];
+    }
+  };
+
+  iterator begin() { return begin(0); }
+  iterator end() { return {this}; }
+
+  iterator begin(const uint64_t i)
+  {
+    Assert(i < n_rows(), "Invalid row index.");
+    if (n_rows() == 0)
+      return end();
+
+    uint64_t row = i;
+    while (row < n_rows() && colnums[row].size() == 0)
+      ++row;
+
+    if (row == n_rows()) return end();
+    else return {this, row, 0};
+  }
+
+  iterator end(const uint64_t i)
+  {
+    Assert(i < n_rows(), "Invalid row index.");
+    if (i + 1 == n_rows()) return end();
+    else return begin(i + 1);
+  }
+
+
 };
 
 
