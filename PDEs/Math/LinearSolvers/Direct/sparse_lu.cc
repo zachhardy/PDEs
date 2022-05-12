@@ -59,11 +59,11 @@ void math::SparseLU<number>::setup()
 
         /* Upper triangular components. This represents the row-echelon form of
          * the original matrix. */
-        for (uint64_t k = i + 1; k < n; ++k)
+        for (auto entry = A.begin(i); entry != A.end(i); ++entry)
         {
-          number* a_ik = A.locate(i, k);
-          if (a_ik != nullptr && *a_ik != 0.0)
-            A.add(j, k, -(*a_ji) * (*a_ik));
+          uint64_t k = entry.column();
+          if (k > i)
+            A.add(j, k, -(*a_ji) * entry.value());
         }
       }
     }

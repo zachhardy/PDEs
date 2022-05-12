@@ -3,6 +3,7 @@
 
 #include "vector.h"
 #include "matrix.h"
+#include "sparse_matrix.h"
 #include "LinearSolvers/linear_solver.h"
 
 #include <memory>

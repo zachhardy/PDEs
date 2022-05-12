@@ -43,7 +43,7 @@ void neutron_diffusion::SteadyStateSolver::initialize()
   for (auto& groupset : groupsets)
   {
     const uint64_t n_gsg = groupset.groups.size();
-    groupset.matrix.reinit(n_gsg * n_nodes);
+    groupset.matrix.reinit(n_gsg * n_nodes, 0);
     groupset.rhs.resize(n_gsg * n_nodes, 0.0);
   }//for groupset
 

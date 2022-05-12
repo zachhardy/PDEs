@@ -1,5 +1,6 @@
 #include "steadystate_solver.h"
 
+#include "LinearSolvers/Direct/lu.h"
 #include "LinearSolvers/Direct/sparse_lu.h"
 
 #include <fstream>
@@ -11,9 +12,8 @@ void neutron_diffusion::SteadyStateSolver::execute()
 
   // Initialize matrices
   for (auto& gs : groupsets)
-  {
-    assemble_matrix(gs);
-  }
+   assemble_matrix(gs);
+
 
   SourceFlags source_flags = APPLY_MATERIAL_SOURCE;
   if (solution_technique == SolutionTechnique::GROUPSET_WISE)
@@ -39,6 +39,8 @@ solve_groupset(Groupset& groupset, SourceFlags source_flags)
   double change = 1.0;
   bool converged = false;
 
+  math::SparseLU<double> linear_solver(groupset.matrix);
+
   //======================================== Start iterations
   for (uint64_t nit = 0; nit < groupset.max_iterations; ++nit)
   {
@@ -46,9 +48,7 @@ solve_groupset(Groupset& groupset, SourceFlags source_flags)
     groupset.rhs *= 0.0;
     set_source(groupset, groupset.rhs, source_flags);
 
-    math::SparseLU<double> linear_solver(groupset.matrix);
     auto x = linear_solver.solve(groupset.rhs);
-
 
     // Convergence check, finalize iteration
     scoped_transfer(groupset, x, phi);
