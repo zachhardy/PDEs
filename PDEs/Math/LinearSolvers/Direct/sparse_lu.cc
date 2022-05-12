@@ -1,8 +1,8 @@
 #include "sparse_lu.h"
 
 
-template<typename value_type>
-void math::SparseLU<value_type>::setup()
+template<typename number>
+void math::SparseLU<number>::setup()
 {
   auto& A = this->A;
   uint64_t n = A.n_rows();
@@ -14,7 +14,8 @@ void math::SparseLU<value_type>::setup()
   //======================================== Apply Doolittle algorithm
   for (uint64_t i = 0; i < n; ++i)
   {
-    Assert(A.exists(i, i) && A(i, i) != 0.0,
+    number* a_ii = A.locate(i, i);
+    Assert(a_ii != nullptr && *a_ii != 0.0,
            "Diagonal terms must be nonzero.");
 
     if (pivot)
@@ -22,13 +23,14 @@ void math::SparseLU<value_type>::setup()
       /* Find the row containing the largest magnitude entry for column i.
        * This is only done for the sub-diagonal elements. */
       uint64_t argmax = i;
-      value_type max = std::fabs(A(i, i));
+      number max = std::fabs(*a_ii);
       for (uint64_t k = i + 1; k < n; ++k)
       {
-        if (A.exists(k, i) && A(k, i) > max)
+        number* a_ki = A.locate(k, i);
+        if (a_ki != nullptr && *a_ki > max)
         {
           argmax = k;
-          max = std::fabs(A(k, i));
+          max = std::fabs(*a_ki);
         }
       }
 
@@ -48,17 +50,21 @@ void math::SparseLU<value_type>::setup()
     // Compute the elements of the LU decomposition
     for (uint64_t j = i + 1; j < n; ++j)
     {
-      if (A.exists(j, i) && A(j, i) != 0.0)
+      number* a_ji = A.locate(j, i);
+      if (a_ji != nullptr && *a_ji != 0.0)
       {
         /* Lower triangular components. This represents the row operations
          * performed to attain the upper-triangular, row-echelon matrix. */
-        A.insert(j, i, A(j, i) / A(i, i), false);
+        A.set(j, i, (*a_ji) / (*a_ii));
 
         /* Upper triangular components. This represents the row-echelon form of
          * the original matrix. */
         for (uint64_t k = i + 1; k < n; ++k)
-          if (A.exists(i, k))
-            A.insert(j, k, -A(j, 1) * A(i, k));
+        {
+          number* a_ik = A.locate(i, k);
+          if (a_ik != nullptr && *a_ik != 0.0)
+            A.add(j, k, -(*a_ji) * (*a_ik));
+        }
       }
     }
   }
@@ -66,9 +72,9 @@ void math::SparseLU<value_type>::setup()
 }
 
 
-template<typename value_type>
-math::Vector<value_type>
-math::SparseLU<value_type>::solve(const Vector<value_type>& b)
+template<typename number>
+math::Vector<number>
+math::SparseLU<number>::solve(const Vector<number>& b)
 {
   auto& A = this->A;
   Assert(b.size() == A.n_rows(), "Dimension mismatch error.");
@@ -76,7 +82,7 @@ math::SparseLU<value_type>::solve(const Vector<value_type>& b)
     this->setup();
 
   uint64_t n = A.n_rows();
-  value_type value = 0.0;
+  number value = 0.0;
 
   // Forward solve
   Vector x(n, 0.0);

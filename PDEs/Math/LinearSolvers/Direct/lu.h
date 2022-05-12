@@ -7,8 +7,8 @@ namespace math
 {
 
 /** A class for an LU decomposition solver. */
-template<typename value_type>
-class LU : public LinearSolver<value_type>
+template<typename number>
+class LU : public LinearSolver<number>
 {
 private:
  bool pivot = true;
@@ -22,8 +22,8 @@ private:
  std::vector<size_t> row_pivots;
 
 public:
- LU(Matrix<value_type>& matrix, const bool pivot_option = true)
-   : LinearSolver<value_type>(matrix), pivot(pivot_option)
+ LU(Matrix<number>& matrix, const bool pivot_option = true)
+   : LinearSolver<number>(matrix), pivot(pivot_option)
  {}
 
 public:
@@ -31,7 +31,7 @@ public:
  bool get_pivot_option() const { return pivot; }
 
   void setup() override;
-  Vector<value_type> solve(const Vector<value_type>& b) override;
+  Vector<number> solve(const Vector<number>& b) override;
 };
 
 }

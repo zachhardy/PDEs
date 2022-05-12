@@ -11,11 +11,11 @@ namespace math
  * See \ref math::cholesky_factorization and \ref math::cholesky_solve for
  * implementation details.
  */
-template<typename value_type>
-class Cholesky : public LinearSolver<value_type>
+template<typename number>
+class Cholesky : public LinearSolver<number>
 {
 public:
-  Cholesky(Matrix<value_type>& matrix) : LinearSolver<value_type>(matrix) {}
+  Cholesky(Matrix<number>& matrix) : LinearSolver<number>(matrix) {}
 
 public:
   /**
@@ -31,7 +31,7 @@ public:
    * \param The right-hand side vector of the linear system.
    * \return The solution to the linear system.
    */
-  Vector<value_type> solve(const Vector<value_type>& b) override;
+  Vector<number> solve(const Vector<number>& b) override;
 //  {
 //    if (not initialized) setup();
 //    return cholesky_solve(A, b);

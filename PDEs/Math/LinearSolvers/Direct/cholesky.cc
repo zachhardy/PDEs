@@ -12,8 +12,8 @@
  * \note Checks are not performed to ensure symetric positive definiteness. The
  *       user is responsible for ensuring the matrix fits this criteria.
  */
-template<typename value_type>
-void math::Cholesky<value_type>::setup()
+template<typename number>
+void math::Cholesky<number>::setup()
 {
   auto& A = this->A;
   uint64_t n = A.n_rows();
@@ -22,7 +22,7 @@ void math::Cholesky<value_type>::setup()
   for (uint64_t j = 0; j < n; ++j)
   {
     // Set the diagonal element
-    value_type sum = 0.0;
+    number sum = 0.0;
     for (uint64_t k = 0; k < j; ++k)
       sum += A[j][k] * A[j][k];
     A[j][j] = std::sqrt(A[j][j] - sum);
@@ -51,9 +51,9 @@ void math::Cholesky<value_type>::setup()
  * \return The solution \f$ \vec{x} \f$ of
  *         \f$ \boldsymbol{A} \vec{x} = \vec{b} \f$.
  */
-template<typename value_type>
-math::Vector<value_type>
-math::Cholesky<value_type>::solve(const Vector<value_type>& b)
+template<typename number>
+math::Vector<number>
+math::Cholesky<number>::solve(const Vector<number>& b)
 {
   auto& A = this->A;
   Assert(b.size() == A.n_rows(), "Mismatched size error.");
@@ -61,7 +61,7 @@ math::Cholesky<value_type>::solve(const Vector<value_type>& b)
     this->setup();
 
   uint64_t n = A.n_rows();
-  value_type value = 0.0;
+  number value = 0.0;
 
   // Forward solve
   Vector x(n, 0.0);

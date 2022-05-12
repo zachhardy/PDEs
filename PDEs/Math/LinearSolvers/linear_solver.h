@@ -19,15 +19,15 @@ enum class LinearSolverType
  * An abstract base class for solving the linear system
  * \f$ \boldsymbol{A} \vec{x} = \vec{b} \f$.
  */
-template<typename value_type>
+template<typename number>
 class LinearSolver
 {
 protected:
   bool initialized = false;
-  Matrix<value_type>& A;
+  Matrix<number>& A;
 
 public:
-  LinearSolver(Matrix<value_type>& matrix) : A(matrix)
+  LinearSolver(Matrix<number>& matrix) : A(matrix)
   {
     if (A.n_rows() != A.n_cols())
     {
@@ -39,7 +39,7 @@ public:
     }
   }
 
-  void set_matrix(Matrix<value_type>& matrix)
+  void set_matrix(Matrix<number>& matrix)
   {
     A = matrix;
     initialized = false;
@@ -50,7 +50,7 @@ public:
   virtual void setup() = 0;
 
   /** Abstract solve method. */
-  virtual Vector<value_type> solve(const Vector<value_type>& b) = 0;
+  virtual Vector<number> solve(const Vector<number>& b) = 0;
 };
 
 
@@ -59,15 +59,15 @@ public:
  * An abstract base class for solving the linear system
  * \f$ \boldsymbol{A} \vec{x} = \vec{b} \f$.
  */
-template<typename value_type>
+template<typename number>
 class SparseLinearSolver
 {
 protected:
   bool initialized = false;
-  SparseMatrix<value_type>& A;
+  SparseMatrix<number>& A;
 
 public:
-  SparseLinearSolver(SparseMatrix<value_type>& matrix) : A(matrix)
+  SparseLinearSolver(SparseMatrix<number>& matrix) : A(matrix)
   {
     if (A.n_rows() != A.n_cols())
     {
@@ -79,7 +79,7 @@ public:
     }
   }
 
-  void set_matrix(SparseMatrix<value_type>& matrix)
+  void set_matrix(SparseMatrix<number>& matrix)
   {
     A = matrix;
     initialized = false;
@@ -90,7 +90,7 @@ public:
   virtual void setup() = 0;
 
   /** Abstract solve method. */
-  virtual Vector<value_type> solve(const Vector<value_type>& b) = 0;
+  virtual Vector<number> solve(const Vector<number>& b) = 0;
 };
 
 

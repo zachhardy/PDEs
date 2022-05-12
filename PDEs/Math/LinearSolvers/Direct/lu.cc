@@ -17,8 +17,8 @@
  * is identical to the row-echelon form. The lower triangular matrix then
  * contains the row operations used to form upper triangular system.
  */
-template<typename value_type>
-void math::LU<value_type>::setup()
+template<typename number>
+void math::LU<number>::setup()
 {
   auto& A = this->A;
   uint64_t n = A.n_rows();
@@ -35,7 +35,7 @@ void math::LU<value_type>::setup()
       /* Find the row containing the largest magnitude entry for column i.
        * This is only done for the sub-diagonal elements. */
       uint64_t argmax = i;
-      value_type max = std::fabs(A[i][i]);
+      number max = std::fabs(A[i][i]);
       for (uint64_t k = i + 1; k < n; ++k)
       {
         if (std::fabs(A[k][i]) > max)
@@ -93,9 +93,9 @@ void math::LU<value_type>::setup()
  * \return The solution \f$ \vec{x} \f$ of
  *         \f$ \boldsymbol{A} \vec{x} = \vec{b} \f$.
  */
-template<typename value_type>
-math::Vector<value_type>
-math::LU<value_type>::solve(const Vector<value_type>& b)
+template<typename number>
+math::Vector<number>
+math::LU<number>::solve(const Vector<number>& b)
 {
   auto& A = this->A;
   Assert(b.size() == A.n_rows(), "Mismatched size error.");
@@ -103,7 +103,7 @@ math::LU<value_type>::solve(const Vector<value_type>& b)
     this->setup();
 
   uint64_t n = A.n_rows();
-  value_type value = 0.0;
+  number value = 0.0;
 
   // Forward solve
   Vector x(n, 0.0);
