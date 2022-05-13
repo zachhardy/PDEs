@@ -18,288 +18,400 @@ template<typename number>
 class Matrix
 {
 public:
-  using row_iterator = typename Vector<number>::iterator ;
-  using const_row_iterator = typename Vector<number>::const_iterator;
+  using value_type          = number;
+  using size_type           = uint64_t;
+  using pointer             = Vector<value_type>*;
+  using const_pointer       = const Vector<value_type>*;
+  using reference           = Vector<value_type>&;
+  using const_reference     = const Vector<value_type>&;
+  using iterator            = Vector<value_type>*;
+  using const_iterator      = const Vector<value_type>*;
 
-  using iterator = typename std::vector<Vector<number>>::iterator;
-  using const_iterator = typename std::vector<Vector<number>>::const_iterator;
-  
 private:
-  std::vector<Vector<number>> m_data;
+  std::vector<Vector<value_type>> values;
 
 public:
-  /** Default constructor. */
-  Matrix() = default;
+  /// Default constructor.
+  Matrix()
+    : values(0) {}
 
-  /** Construct a matrix with \p n_rows and \p n_cols set to \p value. */
-  explicit Matrix(const uint64_t n_rows,
-                  const uint64_t n_cols,
-                  const number value = 0.0)
-    : m_data(n_rows, Vector<number>(n_cols, value))
-  {}
+  /// Copy constructor.
+  Matrix(const Matrix& other)
+    : values(other.values) {}
 
-  /** Construct a square matrix of dimension \p n set to \p value. */
-  explicit Matrix(const uint64_t n, const number value)
-    : Matrix(n, n, value)
-  {}
+  /// Move constructor.
+  Matrix(Matrix&& other)
+    : values(std::move(other.values)) {}
 
-  /** Copy constructor. */
-  Matrix(const Matrix& other) : m_data(other.m_data) {}
+  /// Construct a Matrix with \p n_rows and \p n_cols.
+  explicit
+  Matrix(const size_type n_rows, const size_type n_cols)
+    : values(n_rows, Vector<number>(n_cols)) {}
 
-  /** Move constructor. */
-  Matrix(Matrix&& other) : m_data(std::move(other.m_data)) {}
+  /// Construct a Matrix with \p n_rows and \p n_cols set to \p value.
+  explicit
+  Matrix(const size_t n_rows, const size_type n_cols, const value_type value)
+    : values(n_rows, Vector<number>(n_cols, value)) {}
 
-  /** Copy construction from an STL vector. */
-  Matrix(const std::vector<std::vector<number>>& other)
+  /// Construct a square Matrix with dimension \p n.
+  explicit
+  Matrix(const size_type n)
+    : Matrix<number>(n, n) {}
+
+  /// Construct a square Matrix with dimension \p n set to \p values.
+  explicit
+  Matrix(const size_type n, const value_type value)
+    : Matrix<number>(n, n, value) {}
+
+  /// Copy construction from an STL vector.
+  Matrix(const std::vector<std::vector<value_type>>& other)
   {
-    Assert(valid_stl_matrix(other),
-           "Invalid input. Ensure all rows are the same length.");
-    m_data = other;
+    Assert(valid_dimensions(other), "All rows must be the same length.");
+    values = other;
   }
 
-  /** Move construction from an STL vector. */
-  Matrix(std::vector<std::vector<number>>&& other)
+  /// Move construction from an STL vector.
+  Matrix(std::vector<std::vector<value_type>>&& other)
   {
-    Assert(valid_stl_matrix(other),
-           "Invalid input. Ensure all rows are the same length.");
-    m_data = std::move(other);
+    Assert(valid_dimensions(other), "All rows must be the same length.");
+    values = other;
   }
 
-  /** Construction from a nested initializer list. */
-  Matrix(std::initializer_list<std::initializer_list<number>>& init_list)
+  /// Construction from a nested initializer list.
+  Matrix(std::initializer_list<std::initializer_list<value_type>> list)
   {
-    m_data.clear();
-    for (auto& row : init_list)
-      m_data.push_back(row);
+    std::vector<std::vector<value_type>> tmp;
+    for (auto& row : list)
+      tmp.push_back(row);
 
-    uint64_t m = m_data.front().size();
-    for (const auto& row : m_data)
-      Assert(row.size() == m,
-             "Invalid input. Ensure all rows are the same length.");
+    Assert(valid_dimensions(tmp), "All rows must be the same length.");
+    values = tmp;
   }
 
-  /** Copy assignment operator. */
-  Matrix& operator=(const Matrix& other)
+  /// Copy assignment.
+  Matrix&
+  operator=(const Matrix& other)
   {
-    m_data = other.m_data;
+    values = other.values;
     return *this;
   }
 
-  /** Move assignment operator. */
-  Matrix& operator=(Matrix&& other)
+  /// Move assignment.
+  Matrix&
+  operator=(Matrix&& other)
   {
-    m_data = std::move(other.m_data);
+    values = std::move(other.values);
     return *this;
   }
 
-  /** Copy assignment from an STL vector. */
-  Matrix& operator=(const std::vector<std::vector<number>>& other)
+  /// Copy assignment from an STL vector.
+  Matrix&
+  operator=(const std::vector<std::vector<value_type>>& other)
   {
-    Assert(valid_stl_matrix(other),
-           "Invalid STL input. Ensure all rows are the same length.");
-    m_data.clear();
+    Assert(valid_dimensions(other), "All rows must be the same length.");
+
+    values.clear();
     for (const auto& row : other)
-      m_data.push_back(row);
+      values.push_back(row);
   }
 
-  /** Move assignment from an STL vector. */
-  Matrix& operator=(std::vector<std::vector<number>>&& other)
+  /// Move assignment from an STL vector.
+  Matrix&
+  operator=(std::vector<std::vector<value_type>>&& other)
   {
-    Assert(valid_stl_matrix(other),
-           "Invalid STL input. Ensure all rows are the same length.");
-    m_data.clear();
+    Assert(valid_dimensions(other), "All rows must be the same length.");
+
+    values.clear();
     for (auto& row : other)
-      m_data.push_back(std::move(row));
+      values.push_back(std::move(row));
   }
 
-  //###########################################################################
+  /// Equality comparison operator.
+  bool
+  operator==(const Matrix& other)
+  { return values == other.values; }
+
+  /// Inequality comparison operator.
+  bool
+  operator!=(const Matrix& other)
+  { return values != other.values; }
+
   /** \name Information */
   // @{
 
-  /** Return the number of rows. */
-  uint64_t n_rows() const { return m_data.size(); }
+  /// Return the number of rows in the Matrix.
+  size_type
+  n_rows() const
+  { return values.size(); }
 
-  /** Return the number of columns. */
-  uint64_t n_cols() const { return m_data.front().size(); }
+  /// Return the number of columns in the Matrix.
+  size_type
+  n_cols() const
+  { return values.front().size(); }
 
-  /** Return the number of elements in the matrix. */
-  uint64_t size() const { return n_rows() * n_cols(); }
+  /// Return the number of elements in the Matrix.
+  size_type
+  size() const
+  { return n_rows() * n_cols(); }
 
-  /** Return the number of nonzero elements in the matrix. */
-  uint64_t nnz() const
+  /// Return the number of nonzero elements in the Matrix.
+  size_type
+  nnz() const
   {
-    uint64_t count = 0;
-    for (const auto& row : m_data)
-      for (const auto& el : row)
-        if (el != 0.0) ++count;
+    size_type count = 0;
+    for (const auto& row : values)
+      for (const auto& elem : row)
+        if (elem != 0.0) ++count;
     return count;
   }
 
-  /** Return whether the matrix is empty. */
-  bool empty() const { return m_data.empty(); }
+  /// Return whether the Matrix is empty.
+  bool
+  empty() const
+  { return values.empty(); }
 
+  /// Return whether the Matrix is uniformly zero.
+  bool
+  all_zero() const
+  {return (nnz() == 0)? true : false; }
 
-  //###########################################################################
+  // @}
   /** \name Iterators */
   // @{
 
-  /** Mutable iterator to the start of row \p i. */
-  row_iterator begin(const uint64_t i)  { return m_data[i].begin(); }
+  /// Mutable iterator to the start of the Matrix.
+  iterator
+  begin()
+  { return values.begin(); }
 
-  /** Mutable iterator to the end of row \p i. */
-  row_iterator end(const uint64_t i) { return m_data[i].end(); }
+  /// Constant iterator to the start of the Matrix.
+  const_iterator
+  begin() const
+  { return values.begin(); }
 
-  /** Mutable iterator to the first row of the matrix. */
-  iterator begin() { return m_data.begin(); }
+  /// Mutable iterator to the end of the Matrix.
+  iterator
+  end()
+  { return values.end(); }
 
-  /** Mutable iterator to the end of the matrix. */
-  iterator end() { return m_data.end(); }
+  /// Constant iterator to the end of the Matrix.
+  const_iterator
+  end() const
+  { return values.end(); }
 
-  /** Constant iterator to the start of row \p i. */
-  const_row_iterator begin(const uint64_t i) const { return m_data[i].cbegin(); }
+  /// Mutable iterator to the start of row \p i.
+  typename Vector<value_type>::iterator
+  begin(const size_type i)
+  { return values[i].begin(); }
 
-  /** Constant iterator to the end of row \p i. */
-  const_row_iterator end(const uint64_t i) const { return m_data[i].cend(); }
+  /// Constant iterator to the end of row \p i.
+  typename Vector<value_type>::const_iterator
+  begin(const size_type i) const
+  { return values[i].begin(); }
 
-  /** Constant iterator to the first row of the matrix. */
-  const_iterator begin() const { return m_data.cbegin(); }
+  /// Mutable iterator to the end of row \p i.
+  typename Vector<value_type>::iterator
+  end(const size_type i)
+  { return values[i].end(); }
 
-  /** Constant iterator to the end of the matrix. */
-  const_iterator end() const { return m_data.cend(); }
+  /// Constant iterator to the end of row \p i.
+  typename Vector<value_type>::const_iterator
+  end(const size_type i) const
+  { return values[i].end(); }
 
   // @}
-
-  //###########################################################################
   /** \name Accessors */
   // @{
 
-  /** Read access for row \p i. */
-  Vector<number> operator[](const uint64_t i) const { return m_data[i]; }
+  /// Read/write access for row \p i.
+  reference
+  operator[](const size_type i)
+  { return values[i]; }
 
-  /** Read/write access for row \p i. */
-  Vector<number>& operator[](const uint64_t i) { return m_data[i]; }
+  /// Read only access for row \p i.
+  const_reference
+  operator[](const size_type i) const
+  { return values[i]; }
 
-  /** Read access for row \p i. */
-  Vector<number> operator()(const uint64_t i) const { return m_data[i]; }
+  /// Read/write access for row \p i. */
+  reference
+  operator()(const size_type i)
+  { return values[i]; }
 
-  /** Read/write access for row \p i. */
-  Vector<number>& operator()(const uint64_t i) { return m_data[i]; }
+  /// Read access for row \p i. */
+  const_reference
+  operator()(const size_type i) const
+  { return values[i]; }
 
-  /** Read access for row \p i with bounds checking. */
-  Vector<number> at(const uint64_t i) const { return m_data.at(i); }
+  /// Read/write access for row \p i with bounds checking.
+  reference
+  at(const size_type i)
+  { return values.at(i); }
 
-  /** Read/write access for row \p i with bounds checking. */
-  Vector<number>& at(const uint64_t i) { return m_data.at(i); }
+  /// Read only access for row \p i with bounds checking.
+  const_reference
+  at(const size_type i) const
+  { return values.at(i); }
 
-  /** Read access for element \p(i, \p j). */
-  number operator()(const uint64_t i, const uint64_t j) const { return m_data[i][j]; }
+  /// Read/write access for element <tt>(i, j)</tt>.
+  typename Vector<value_type>::reference
+  operator()(const size_type i, const size_type j)
+  { return values[i][j]; }
 
-  /** Read/write access for element \p(i, \p j). */
-  number& operator()(const uint64_t i, const uint64_t j) { return m_data[i][j]; }
+  /// Read only access for element <tt>(i, j)</tt>.
+  typename Vector<value_type>::const_reference
+  operator()(const size_type i, const size_type j) const
+  { return values[i][j]; }
 
-  /** Read access for element \p(i, \p j) with bounds checking. */
-  number at(const uint64_t i, const uint64_t j) const { return m_data.at(i).at(j); }
+  /// Read/write access for element <tt>(i, j)</tt> with bounds checking.
+  typename Vector<value_type>::reference
+  at(const size_type i, const size_type j)
+  { return values.at(i).at(j); }
 
-  /** Read/write access for element \p(i, \p j) with bounds checking. */
-  number& at(const uint64_t i, const uint64_t j) { return m_data.at(i).at(j); }
+  /// Read only access for element <tt>(i, j)</tt> with bounds checking.
+  typename Vector<value_type>::const_reference
+  at(const size_type i, const size_type j) const
+  { return values.at(i).at(j); }
 
-  /** Read access to the <tt>i</tt>'th diagonal. */
-  number diagonal(const uint64_t i) const { return m_data.at(i).at(i); }
+  /// Read/write access to the <tt>i</tt>'th diagonal element.
+  typename Vector<value_type>::reference
+  diagonal(const size_type i)
+  { return values.at(i).at(i); }
 
-  /** Read/write access to the <tt>i</tt>'th diagonal. */
-  number& diagonal(const uint64_t i) { return m_data.at(i).at(i); }
+  /// Read access to the <tt>i</tt>'th diagonal element.
+  typename Vector<value_type>::const_reference
+  diagonal(const size_type i) const
+  { return values.at(i).at(i); }
 
-  /** Return the diagonal of the matrix. */
-  Vector<number> diagonal() const
+  /// Return the diagonal of the Matrix.
+  Vector<value_type>
+  diagonal() const
   {
-    std::vector<number> diag;
+    Vector<number> diag;
     uint64_t min_dim = std::min(n_rows(), n_cols());
     for (uint64_t i = 0; i < min_dim; ++i)
-      diag.push_back(m_data[i][i]);
+      diag.push_back(values[i][i]);
     return diag;
   }
 
-  /** Return the underlying matrix m_data. */
-  Vector<number>* data() { return m_data.data(); }
+  /// Return the underlying Matrix data.
+  pointer
+  data()
+  { return values.data(); }
 
-  /** Return the underlying m_data for row \p i. */
-  number* row_data(const uint64_t i) { return m_data[i].data(); }
+  /// Return the underlying Matrix data.
+  const_pointer
+  data() const
+  { return values.data(); }
+
+  /// Return the underlying data for row \p i.
+  typename Vector<value_type>::pointer
+  data(const size_type i)
+  { return values[i].data(); }
+
+  /// Return the underlying data for row \p i.
+  typename Vector<value_type>::const_pointer
+  data(const size_type i) const
+  { return values[i].data(); }
 
   // @}
-
-  //###########################################################################
   /** \name Modifiers */
   // @{
 
-  /** Clear the matrix m_data. */
-  void clear() { m_data.clear(); }
+  /// Return the Matrix to an uninitialized state.
+  void
+  clear()
+  { values.clear(); }
 
-  /** Remove the last row of the matrix. */
-  void pop_back() { m_data.pop_back(); }
+  /// Remove the last row of the Matrix.
+  void
+  pop_back()
+  { values.pop_back(); }
 
-  /** Add a new row to the back of the matrix. */
-  void push_back(const Vector<number>& row) { m_data.push_back(row); }
-
-  void push_back(const std::vector<number>& row) { m_data.push_back(row); }
-
-  /** Add a new row in-place to the back of the matrix. */
-  void emplace_back(Vector<number>&& row) { m_data.emplace_back(row); }
-
-  void emplace_back(std::vector<number>&& row) { m_data.emplace_back(row); }
-
-
-  /** Resize to \p n_rows and \p n_cols, setting new elements to \p value. */
-  void resize(const uint64_t n_rows, const uint64_t n_cols,
-              const number value = 0.0)
-  { m_data.resize(n_rows, Vector<number>(n_cols, value)); }
-
-  /** Resize to dimension \p n, setting new elements to \p value. */
-  void resize(const uint64_t n, const number value = 0.0)
-  { resize(n, n, value); }
-
-  /** Swap the elements of two rows. */
-  void swap_row(const uint64_t i0, const uint64_t i1)
+  /// Add a row to the back of the Matrix.
+  void
+  push_back(const Vector<value_type>& row)
   {
-    Assert(i0 < n_rows() && i1 < n_rows(), "Out of range error.");
-    m_data[i0].swap(m_data[i1]);
+    Assert(row.size() == n_cols(), "Dimension mismatch error.");
+    values.push_back(row);
   }
 
-  /** Swap the elements of two columns. */
-  void swap_column(const uint64_t j0, const uint64_t j1)
+  /// Move a row to the back of the Matrix.
+  void
+  push_back(Vector<number>&& row)
+  {
+    Assert(row.size() == n_cols(), "Dimension mismatch error.")
+    values.emplace_back(row);
+  }
+
+  /// Resize to \p n_rows and \p n_cols.
+  void
+  resize(const size_type n_rows, const size_type n_cols)
+  { values.resize(n_rows, Vector<value_type>(n_cols)); }
+
+  /// Resize to dimension \p n.
+  void
+  resize(const size_type n)
+  { resize(n, n); }
+
+  /// Resize to \p n_rows and \p n_cols, setting new elements to \p value. */
+  void
+  resize(const size_type n_rows,
+         const size_type n_cols,
+         const value_type value)
+  { values.resize(n_rows, Vector<value_type>(n_cols, value)); }
+
+  /// Resize to dimension \p n, setting new elements to \p value. */
+  void
+  resize(const size_type n, const value_type value)
+  { resize(n, n, value); }
+
+  /// Swap the elements of two rows.
+  void
+  swap_row(const size_type i0, const size_type i1)
+  {
+    Assert(i0 < n_rows() && i1 < n_rows(), "Out of range error.");
+    values[i0].swap(values[i1]);
+  }
+
+  /// Swap the elements of two columns.
+  void
+  swap_column(const size_type j0, const size_type j1)
   {
     Assert(j0 < n_cols() && j1 < n_cols(), "Out of range error.");
     for (uint64_t i = 0; i < n_rows(); ++i)
-      std::swap(m_data[i][j0], m_data[i][j1]);
+      std::swap(values[i][j0], values[i][j1]);
   }
 
-  /** Swap the elements of this matrix with another. */
-  void swap(Matrix& other) { m_data.swap(other.m_data); }
+  /// Swap the elements of this matrix with another.
+  void
+  swap(Matrix& other)
+  { values.swap(other.values); }
 
-  /** Set the diagonal of a matrix. */
-  void set_diagonal(const Vector<number>& diag)
+  /// Set the diagonal of a matrix.
+  void
+  set_diagonal(const Vector<number>& diag)
   {
-    if (m_data.empty())
+    if (values.empty())
     {
       resize(diag.size());
       for (uint64_t i = 0; i < diag.size(); ++i)
-        m_data[i][i] = diag[i];
+        values[i][i] = diag[i];
     }
     else
     {
       uint64_t min_dim = std::min(n_rows(), n_cols());
       Assert(diag.size() == min_dim, "Dimension mismatch error.");
       for (uint64_t i = 0; i < min_dim; ++i)
-        m_data[i][i] = diag[i];
+        values[i][i] = diag[i];
     }
   }
 
-  void set_diagonal(const std::vector<number>& diag)
-  { set_diagonal(Vector<number>(diag)); }
-
-  /** Set the diagonal with a fixed scalar value. */
-  void set_diagonal(const number value)
+  /// Set the diagonal with a fixed scalar value.
+  void
+  set_diagonal(const value_type value)
   {
-    if (m_data.empty()) {
+    if (values.empty()) {
       resize(1, value);
       return;
     }
@@ -307,34 +419,35 @@ public:
     {
       uint64_t min_dim = std::min(n_rows(), n_cols());
       for (uint64_t i = 0; i < min_dim; ++i)
-        m_data[i][i] = value;
+        values[i][i] = value;
     }
   }
 
   // @}
-
-  //###########################################################################
   /** \name Scalar Operations */
   // @{
 
-  /** Element-wise negation in-place. */
-  Matrix& operator-()
+  /// Element-wise negation in-place.
+  Matrix&
+  operator-()
   {
-    for (auto& row : m_data)
+    for (auto& row : values)
       for (auto& entry : row)
         entry = -entry;
     return *this;
   }
 
-  /** Element-wise negation */
-  Matrix operator-() const
+  /// Element-wise negation.
+  Matrix
+  operator-() const
   {
     Matrix A = *this;
     return -A;
   }
 
-  /** Element-wise multiplication by a scalar in-place. */
-  Matrix& operator*=(const number value)
+  /// Element-wise multiplication by a scalar in-place.
+  Matrix&
+  operator*=(const value_type value)
   {
     for (auto& row : *this)
       for (auto& entry : row)
@@ -342,26 +455,30 @@ public:
     return *this;
   }
 
-  /** Element-wise multiplication by a scalar. */
-  Matrix operator*(const number value) const
+  /// Element-wise multiplication by a scalar.
+  Matrix
+  operator*(const value_type value) const
   {
     Matrix A = *this;
     A *= value;
     return A;
   }
 
-  /** Element-wise division by a scalar in-place. */
-  Matrix& operator/=(const number value)
+  /// Element-wise division by a scalar in-place.
+  Matrix&
+  operator/=(const value_type value)
   {
     Assert(value != 0.0, "Division by zero error.");
+
     for (auto& row : *this)
       for (auto& entry : row)
         entry /= value;
     return *this;
   }
 
-  /** Element-wise division by a scalar. */
-  Matrix operator/(const number value) const
+  /// Element-wise division by a scalar.
+  Matrix
+  operator/(const number value) const
   {
     Matrix A = *this;
     A /= value;
@@ -369,45 +486,49 @@ public:
   }
 
   //@}
-
-  //###########################################################################
   /** \name Linear Algebra */
   // @{
 
-  /** Element-wise addition of two matrices in-place. */
-  Matrix& operator+=(const Matrix& other)
+  /// Element-wise addition of two matrices in-place.
+  Matrix&
+  operator+=(const Matrix& other)
   {
     Assert(n_rows() == other.n_rows() &&
            n_cols() == other.n_cols(),
            "Dimension mismatch error.");
+
     for (uint64_t i = 0; i < n_rows(); ++i)
       for (uint64_t j = 0; j < n_cols(); ++j)
-        m_data[i][j] += other[i][j];
+        values[i][j] += other[i][j];
     return *this;
   }
 
-  /** Element-wise addition of two matrices. */
-  Matrix operator+(const Matrix& other) const
+  /// Element-wise addition of two matrices.
+  Matrix
+  operator+(const Matrix& other) const
   {
     Matrix A = *this;
     A += other;
     return A;
   }
 
-  /** Element-wise subtraction of two matrices in-place. */
-  Matrix& operator-=(const Matrix& other)
+  /// Element-wise subtraction of two matrices in-place.
+  Matrix&
+  operator-=(const Matrix& other)
   {
     Assert(n_rows() == other.n_rows() &&
            n_cols() == other.n_cols(),
            "Dimension mismatch error.");
+
     for (uint64_t i = 0; i < n_rows(); ++i)
       for (uint64_t j = 0; j < n_cols(); ++j)
-        m_data[i][j] -= other[i][j];
+        values[i][j] -= other[i][j];
     return *this;
   }
 
-  /** Element-wise subtraction of two matrices. */
-  Matrix operator-(const Matrix& other) const
+  /// Element-wise subtraction of two matrices.
+  Matrix
+  operator-(const Matrix& other) const
   {
     Matrix A = *this;
     A -= other;
@@ -421,16 +542,18 @@ public:
    *     c_{ij} = \sum_{k=1}^{n} a_{ik} b_{kj}, \hspace{0.25cm} \forall i, j
    * \f]
    */
-  Matrix operator*(const Matrix& other) const
+  Matrix
+  operator*(const Matrix& other) const
   {
     Assert(n_cols() == other.n_rows(), "Dimension mismatch error.");
+
     Matrix C(n_rows(), other.n_cols());
     for (uint64_t i = 0; i < n_rows(); ++i)
       for (uint64_t j = 0; j < other.n_cols(); ++j)
       {
         number c_ij = 0.0;
         for (uint64_t k = 0; k < n_cols(); ++k)
-          c_ij += m_data[i][k] * other[k][j];
+          c_ij += values[i][k] * other[k][j];
         C[i][j] += c_ij;
       }
     return C;
@@ -443,13 +566,14 @@ public:
    *     y_i = \sum_{j=1}^{n} a_{ij} x_j, \hspace{0.25cm} \forall i
    * \f]
    */
-  Vector<number> operator*(const Vector<number>& x) const
+  Vector<value_type>
+  operator*(const Vector<value_type>& x) const
   {
     Assert(x.size() == n_cols(), "Dimension mismatch error.");
     Vector<number> y(n_rows());
     for (uint64_t i = 0; i < n_rows(); ++i)
       for (uint64_t j = 0; j < n_cols(); ++j)
-        y[i] += m_data[i][j] * x[j];
+        y[i] += values[i][j] * x[j];
     return y;
   }
 
@@ -460,12 +584,13 @@ public:
    *     b_{ij} = a_{ji}, \hspace{0.25cm} \forall i, j
    * \f]
    */
-  Matrix transpose() const
+  Matrix
+  transpose() const
   {
     Matrix At(n_cols(), n_rows());
     for (uint64_t i = 0; i < At.n_rows(); ++i)
       for (uint64_t j = 0; j < At.n_cols(); ++j)
-        At[i][j] = m_data[j][i];
+        At[i][j] = values[j][i];
     return At;
   }
 
@@ -473,10 +598,11 @@ public:
 
   //###########################################################################
   /** Print the matrix. */
-  void print(std::ostream& os,
-             const bool scientific = false,
-             const unsigned int precision = 3,
-             const unsigned int width = 0) const
+  void
+  print(std::ostream& os,
+        const bool scientific = false,
+        const unsigned int precision = 3,
+        const unsigned int width = 0) const
   {
     unsigned int w                   = width;
     std::ios::fmtflags old_flags     = os.flags();
@@ -496,14 +622,15 @@ public:
     for (uint64_t i = 0; i < n_rows(); ++i)
     {
       for (uint64_t j = 0; j < n_cols(); ++j)
-        os << std::setw(w) << m_data[i][j];
+        os << std::setw(w) << values[i][j];
       os << std::endl;
     }
     os << std::endl;
   }
 
 private:
-  static bool valid_stl_matrix(const std::vector<std::vector<number>>& matix)
+  static bool
+  valid_dimensions(const std::vector<std::vector<value_type>>& matix)
   {
     uint64_t m = matix.front().size();
     for (const auto& row : matix)
