@@ -13,68 +13,68 @@
 namespace math
 {
 
-
 template<typename number>
 class Matrix
 {
 public:
-  using value_type          = number;
-  using size_type           = uint64_t;
-  using pointer             = Vector<value_type>*;
-  using const_pointer       = const Vector<value_type>*;
-  using reference           = Vector<value_type>&;
-  using const_reference     = const Vector<value_type>&;
-  using iterator            = Vector<value_type>*;
-  using const_iterator      = const Vector<value_type>*;
+  using value_type = number;
+  using size_type = uint64_t;
+  using pointer = Vector <value_type>*;
+  using const_pointer = const Vector <value_type>*;
+  using reference = Vector <value_type>&;
+  using const_reference = const Vector <value_type>&;
+  using iterator = Vector <value_type>*;
+  using const_iterator = const Vector <value_type>*;
 
 private:
-  std::vector<Vector<value_type>> values;
+  std::vector<Vector < value_type>> values;
 
 public:
   /// Default constructor.
   Matrix()
-    : values(0) {}
+      : values(0)
+  {}
 
   /// Copy constructor.
   Matrix(const Matrix& other)
-    : values(other.values) {}
+      : values(other.values)
+  {}
 
   /// Move constructor.
   Matrix(Matrix&& other)
-    : values(std::move(other.values)) {}
+      : values(std::move(other.values))
+  {}
 
   /// Construct a Matrix with \p n_rows and \p n_cols.
   explicit
   Matrix(const size_type n_rows, const size_type n_cols)
-    : values(n_rows, Vector<number>(n_cols)) {}
+      : values(n_rows, Vector<number>(n_cols))
+  {}
 
   /// Construct a Matrix with \p n_rows and \p n_cols set to \p value.
   explicit
   Matrix(const size_t n_rows, const size_type n_cols, const value_type value)
-    : values(n_rows, Vector<number>(n_cols, value)) {}
-
-  /// Construct a square Matrix with dimension \p n.
-  explicit
-  Matrix(const size_type n)
-    : Matrix<number>(n, n) {}
-
-  /// Construct a square Matrix with dimension \p n set to \p values.
-  explicit
-  Matrix(const size_type n, const value_type value)
-    : Matrix<number>(n, n, value) {}
+      : values(n_rows, Vector<number>(n_cols, value))
+  {}
 
   /// Copy construction from an STL vector.
   Matrix(const std::vector<std::vector<value_type>>& other)
   {
     Assert(valid_dimensions(other), "All rows must be the same length.");
-    values = other;
+
+    values.clear();
+    for (const auto& row : other)
+      values.push_back(row);
   }
 
   /// Move construction from an STL vector.
   Matrix(std::vector<std::vector<value_type>>&& other)
   {
     Assert(valid_dimensions(other), "All rows must be the same length.");
-    values = other;
+
+    values.clear();
+    for (const auto& row : other)
+      values.push_back(std::move(row));
   }
 
   /// Construction from a nested initializer list.
@@ -83,9 +83,11 @@ public:
     std::vector<std::vector<value_type>> tmp;
     for (auto& row : list)
       tmp.push_back(row);
-
     Assert(valid_dimensions(tmp), "All rows must be the same length.");
-    values = tmp;
+
+    values.clear();
+    for (const auto& row : tmp)
+      values.push_back(row);
   }
 
   /// Copy assignment.
@@ -124,6 +126,20 @@ public:
     values.clear();
     for (auto& row : other)
       values.push_back(std::move(row));
+  }
+
+  /// Assignment to a scalar value.
+  Matrix&
+  operator=(const value_type value)
+  {
+    Assert(!empty(), "Empty matrix error.");
+    for (size_type i = 0; i < n_rows(); ++i)
+    {
+      value_type* a_ij = values[i].data();
+      for (size_type j = 0; j < n_cols(); ++j)
+        *a_ij++ = value;
+    }
+    return *this;
   }
 
   /// Equality comparison operator.
@@ -173,7 +189,7 @@ public:
   /// Return whether the Matrix is uniformly zero.
   bool
   all_zero() const
-  {return (nnz() == 0)? true : false; }
+  { return (nnz() == 0) ? true : false; }
 
   // @}
   /** \name Iterators */
@@ -202,22 +218,34 @@ public:
   /// Mutable iterator to the start of row \p i.
   typename Vector<value_type>::iterator
   begin(const size_type i)
-  { return values[i].begin(); }
+  {
+    Assert(i < n_rows(), "Out of range error.");
+    return values[i].begin();
+  }
 
   /// Constant iterator to the end of row \p i.
   typename Vector<value_type>::const_iterator
   begin(const size_type i) const
-  { return values[i].begin(); }
+  {
+    Assert(i < n_rows(), "Out of range error.")
+    return values[i].begin();
+  }
 
   /// Mutable iterator to the end of row \p i.
   typename Vector<value_type>::iterator
   end(const size_type i)
-  { return values[i].end(); }
+  {
+    Assert(i < n_rows(), "Out of range error.")
+    return values[i].end();
+  }
 
   /// Constant iterator to the end of row \p i.
   typename Vector<value_type>::const_iterator
   end(const size_type i) const
-  { return values[i].end(); }
+  {
+    Assert(i < n_rows(), "Out of range error.")
+    return values[i].end();
+  }
 
   // @}
   /** \name Accessors */
@@ -284,7 +312,7 @@ public:
   { return values.at(i).at(i); }
 
   /// Return the diagonal of the Matrix.
-  Vector<value_type>
+  Vector <value_type>
   diagonal() const
   {
     Vector<number> diag;
@@ -330,7 +358,7 @@ public:
 
   /// Add a row to the back of the Matrix.
   void
-  push_back(const Vector<value_type>& row)
+  push_back(const Vector <value_type>& row)
   {
     Assert(row.size() == n_cols(), "Dimension mismatch error.");
     values.push_back(row);
@@ -338,7 +366,7 @@ public:
 
   /// Move a row to the back of the Matrix.
   void
-  push_back(Vector<number>&& row)
+  push_back(Vector <number>&& row)
   {
     Assert(row.size() == n_cols(), "Dimension mismatch error.")
     values.emplace_back(row);
@@ -349,11 +377,6 @@ public:
   resize(const size_type n_rows, const size_type n_cols)
   { values.resize(n_rows, Vector<value_type>(n_cols)); }
 
-  /// Resize to dimension \p n.
-  void
-  resize(const size_type n)
-  { resize(n, n); }
-
   /// Resize to \p n_rows and \p n_cols, setting new elements to \p value. */
   void
   resize(const size_type n_rows,
@@ -361,26 +384,21 @@ public:
          const value_type value)
   { values.resize(n_rows, Vector<value_type>(n_cols, value)); }
 
-  /// Resize to dimension \p n, setting new elements to \p value. */
-  void
-  resize(const size_type n, const value_type value)
-  { resize(n, n, value); }
-
   /// Swap the elements of two rows.
   void
-  swap_row(const size_type i0, const size_type i1)
+  swap_row(const size_type i, const size_type k)
   {
-    Assert(i0 < n_rows() && i1 < n_rows(), "Out of range error.");
-    values[i0].swap(values[i1]);
+    Assert(i < n_rows() && k < n_rows(), "Out of range error.");
+    values[i].swap(values[k]);
   }
 
   /// Swap the elements of two columns.
   void
-  swap_column(const size_type j0, const size_type j1)
+  swap_column(const size_type j, const size_type k)
   {
-    Assert(j0 < n_cols() && j1 < n_cols(), "Out of range error.");
+    Assert(j < n_cols() && k < n_cols(), "Out of range error.");
     for (uint64_t i = 0; i < n_rows(); ++i)
-      std::swap(values[i][j0], values[i][j1]);
+      std::swap(values[i][j], values[i][k]);
   }
 
   /// Swap the elements of this matrix with another.
@@ -390,7 +408,7 @@ public:
 
   /// Set the diagonal of a matrix.
   void
-  set_diagonal(const Vector<number>& diag)
+  set_diagonal(const Vector <number>& diag)
   {
     if (values.empty())
     {
@@ -402,6 +420,7 @@ public:
     {
       uint64_t min_dim = std::min(n_rows(), n_cols());
       Assert(diag.size() == min_dim, "Dimension mismatch error.");
+
       for (uint64_t i = 0; i < min_dim; ++i)
         values[i][i] = diag[i];
     }
@@ -411,16 +430,11 @@ public:
   void
   set_diagonal(const value_type value)
   {
-    if (values.empty()) {
-      resize(1, value);
-      return;
-    }
-    else
-    {
-      uint64_t min_dim = std::min(n_rows(), n_cols());
-      for (uint64_t i = 0; i < min_dim; ++i)
-        values[i][i] = value;
-    }
+    Assert(!empty(), "Empty matrix error.");
+
+    uint64_t min_dim = std::min(n_rows(), n_cols());
+    for (uint64_t i = 0; i < min_dim; ++i)
+      values[i][i] = value;
   }
 
   // @}
@@ -489,17 +503,63 @@ public:
   /** \name Linear Algebra */
   // @{
 
+  /**
+   * Addition of a scaled Matrix.
+   *
+   * \f[ \boldsymbol{A} += \alpha \boldsymbol{B} \\
+   *     a_{ij} +=  a_{ij} + \alpha b_{ij}, \hspace{0.25cm} \forall i, j
+   * \f]
+   */
+  void add(const Matrix& B, const value_type factor = 1.0)
+  {
+    Assert(!empty(), "Empty matrix error.")
+    Assert(n_rows() == B.n_rows(), "Dimension mismatch error.");
+    Assert(n_cols() == B.n_cols(), "Dimension mismatch error.");
+
+    for (size_type i = 0; i < n_rows(); ++i)
+    {
+      value_type* a_ij = values[i].data();
+      const value_type* b_ij = B.data(i);
+      for (size_type j = 0; j < n_cols(); ++j)
+        *a_ij++ += factor * *b_ij++;
+    }
+  }
+
+  /**
+   * Addition of a scaled transpose Matrix.
+   *
+   * \f[ \boldsymbol{A} += \alpha \boldsymbol{B}^T \\
+   *     a_{ij} += a_{ij} + \alpha b_{ji}, \hspace{0.25cm} \forall i, j
+   * \f]
+   */
+  void Tadd(const Matrix& B, const value_type factor = 1.0)
+  {
+    Assert(n_rows() == B.n_cols(), "Dimension mismatch error.");
+    Assert(n_cols() == B.n_rows(), "Dimension mismatch error.");
+
+    for (size_type i = 0; i < n_rows(); ++i)
+    {
+      value_type* a_ij = values[i].data();
+      for (size_type j = 0; j < n_cols(); ++j)
+        *a_ij++ += factor * B[j][i];
+    }
+  }
+
   /// Element-wise addition of two matrices in-place.
   Matrix&
-  operator+=(const Matrix& other)
+  operator+=(const Matrix& B)
   {
-    Assert(n_rows() == other.n_rows() &&
-           n_cols() == other.n_cols(),
+    Assert(n_rows() == B.n_rows() &&
+           n_cols() == B.n_cols(),
            "Dimension mismatch error.");
 
     for (uint64_t i = 0; i < n_rows(); ++i)
+    {
+      value_type* a_ij = values[i].data();
+      const value_type* b_ij = B.data(i);
       for (uint64_t j = 0; j < n_cols(); ++j)
-        values[i][j] += other[i][j];
+        *a_ij++ += *b_ij++;
+    }
     return *this;
   }
 
@@ -514,90 +574,280 @@ public:
 
   /// Element-wise subtraction of two matrices in-place.
   Matrix&
-  operator-=(const Matrix& other)
+  operator-=(const Matrix& B)
   {
-    Assert(n_rows() == other.n_rows() &&
-           n_cols() == other.n_cols(),
+    Assert(n_rows() == B.n_rows() &&
+           n_cols() == B.n_cols(),
            "Dimension mismatch error.");
 
     for (uint64_t i = 0; i < n_rows(); ++i)
+    {
+      value_type* a_ij = values[i].data();
+      const value_type* b_ij = B.data(i);
       for (uint64_t j = 0; j < n_cols(); ++j)
-        values[i][j] -= other[i][j];
+        *a_ij++ -= *b_ij++;
+    }
     return *this;
   }
 
   /// Element-wise subtraction of two matrices.
   Matrix
-  operator-(const Matrix& other) const
+  operator-(const Matrix& B) const
   {
     Matrix A = *this;
-    A -= other;
+    A -= B;
     return A;
   }
 
   /**
-   * Return the matrix-matrix product.
+   * Compute a matrix-matrix multiplication.
+   *
    * This is computed via
    * \f[ \boldsymbol{C} = \boldsymbol{A} \boldsymbol{B} \\
-   *     c_{ij} = \sum_{k=1}^{n} a_{ik} b_{kj}, \hspace{0.25cm} \forall i, j
+   *     c_{ij} = \sum_{k=0}^{n} a_{ik} b{kj}, \hspace{0.25cm} \forall i, j
    * \f]
    */
-  Matrix
-  operator*(const Matrix& other) const
+  void mmult(const Matrix& B, Matrix& dst,
+             const bool adding = false) const
   {
-    Assert(n_cols() == other.n_rows(), "Dimension mismatch error.");
+    Assert(!empty(), "Empty matrix error.");
+    Assert(dst.n_rows() == n_rows(), "Dimension mismatch error.");
+    Assert(dst.n_cols() == B.n_cols(), "Dimension mismatch error.");
+    Assert(n_cols() == B.n_rows(), "Dimension mismatch error.");
 
-    Matrix C(n_rows(), other.n_cols());
-    for (uint64_t i = 0; i < n_rows(); ++i)
-      for (uint64_t j = 0; j < other.n_cols(); ++j)
+    for (size_type i = 0; i < dst.n_rows(); ++i)
+    {
+      const value_type* a_i = values[i].data();
+      for (size_type j = 0; j < dst.n_cols(); ++j)
       {
-        number c_ij = 0.0;
-        for (uint64_t k = 0; k < n_cols(); ++k)
-          c_ij += values[i][k] * other[k][j];
-        C[i][j] += c_ij;
+        value_type c_ij = adding ? dst(i, j) : 0.0;
+        for (size_type k = 0; k < n_cols(); ++k)
+          c_ij += a_i[k] * B(k, j);
+        dst(i, j) = c_ij;
       }
+    }
+  }
+
+  /**
+   * Compute a transpose matrix-matrix multiplication.
+   *
+   * This is computed via
+   * \f[ \boldsymbol{C} = \boldsymbol{A}^T \boldsymbol{B} \\
+   *     c_{ij} = \sum_{k=0}^{n} a_{ki} b_{kj}, \hspace{0.25cm}, \forall i, j
+   * \f]
+   */
+  void Tmmult(const Matrix& B, Matrix& dst,
+              const bool adding = false) const
+  {
+    Assert(!empty(), "Empty matrix error.");
+    Assert(dst.n_rows() == n_cols(), "Dimension mismatch error.");
+    Assert(dst.n_cols() == B.n_cols(), "Dimension mismatch error.");
+    Assert(n_rows() == B.n_rows(), "Dimension mismatch error.");
+
+    for (size_type i = 0; i < dst.n_rows(); ++i)
+      for (size_type j = 0; j < dst.n_cols(); ++j)
+      {
+        value_type c_ij = adding ? dst(i, j) : 0.0;
+        for (size_type k = 0; k < n_rows(); ++k)
+          c_ij += values[k][i] * B(k, j);
+        dst(i, j) = c_ij;
+      }
+  }
+
+  /**
+   * Compute a matrix-transpose matrix multiplication.
+   *
+   * This is computed via
+   * \f[ \boldsymbol{C} = \boldsymbol{A} \boldsymbol{B}^T \\
+   *     c_{ij} = \sum_{k=1}^{n} a_{ik} b_{jk}, \hspace{0.25cm} \forall i, j
+   * \f]
+   */
+  void mTmult(const Matrix& B, Matrix& dst,
+               const bool adding = false) const
+  {
+    Assert(!empty(), "Empty matrix error.");
+    Assert(dst.n_rows() == n_rows(), "Dimension mismatch error.");
+    Assert(dst.n_cols() == B.n_rows(), "Dimension mismatch error.");
+    Assert(n_cols() == B.n_cols(), "Dimension mismatch error.");
+
+    for (size_type i = 0; i < dst.n_rows(); ++i)
+    {
+      const value_type* a_i = values[i].data();
+      for (size_type j = 0; j < dst.n_cols(); ++j)
+      {
+        const value_type* b_j = B.data(j);
+        value_type c_ij = adding ? dst(i, j) : 0.0;
+        for (size_type k = 0; k < n_cols(); ++k)
+          c_ij += a_i[k] * *b_j++;
+        dst(i, j) = c_ij;
+      }
+    }
+  }
+
+  /**
+   * Compute a transpose matrix-transpose matrix multiplication.
+   *
+   * This is computed via
+   * \f[ \boldsymbol{C} = \boldsymbol{A}^T \boldsymbol{B}^T \\
+   *     c_{ij} = \sum_{k=1}^{n} a_{ki} b_{jk}, \hspace{0.25cm} \forall i, j
+   * \f]
+   */
+  void TTmult(const Matrix& B, Matrix& dst,
+              const bool adding = false) const
+  {
+    Assert(!empty(), "Empty matrix error.");
+    Assert(dst.n_rows() == n_cols(), "Dimension mismatch error.");
+    Assert(dst.n_cols() == B.n_rows(), "Dimension mismatch error.");
+    Assert(n_rows() == B.n_cols(), "Dimension mismatch error.");
+
+    for (size_type i = 0; i < dst.n_rows(); ++i)
+      for (size_type j = 0; j < dst.n_cols(); ++j)
+      {
+        const value_type* b_j = B.data(j);
+        value_type c_ij = adding ? dst(i, j) : 0.0;
+        for (size_type k = 0; k < n_rows(); ++k)
+          c_ij += values[k][i] * *b_j++;
+        dst(i, j) = c_ij;
+      }
+  }
+
+  /**
+   * Return the matrix-matrix product.
+   * \see mmult
+   */
+  Matrix
+  operator*(const Matrix& B) const
+  {
+    Assert(n_cols() == B.n_rows(), "Dimension mismatch error.");
+
+    Matrix C(n_rows(), B.n_cols());
+    for (uint64_t i = 0; i < C.n_rows(); ++i)
+    {
+      const value_type* a_i = values[i].data();
+      for (uint64_t j = 0; j < C.n_cols(); ++j)
+      {
+        value_type c_ij = 0.0;
+        for (uint64_t k = 0; k < n_cols(); ++k)
+          c_ij += a_i[k] * B(k, j);
+        C(i, j) = c_ij;
+      }
+    }
     return C;
   }
 
   /**
    * Compute a matrix-vector product.
+   *
    * This is computed via
    * \f[ \vec{y} = \boldsymbol{A} \vec{x} \\
    *     y_i = \sum_{j=1}^{n} a_{ij} x_j, \hspace{0.25cm} \forall i
    * \f]
    */
+  void
+  vmult(const Vector<value_type>& x,
+        Vector<value_type>& dst,
+        const bool adding = false)
+  {
+    Assert(x.size() == n_cols(), "Dimension mismatch error.");
+    Assert(dst.size() == n_rows(), "Dimension mismatch error.");
+
+    for (size_type i = 0; i < n_rows(); ++i)
+    {
+      value_type v = adding ? dst[i] : 0.0;
+      const value_type* a_ij = values[i].data();
+      for (size_type j = 0; j < n_cols(); ++j)
+        v += *a_ij++ * x[j];
+      dst[i] = v;
+    }
+  }
+
+  /**
+   * Add a matrix-vector product to the destination vector.
+   * \see vmult
+   */
+  void
+  vmult_add(const Vector<value_type>& x,
+            Vector<value_type>& dst)
+  { vmult(x, dst, true); }
+
+  /**
+   * Compute a transpose matrix-vector product.
+   *
+   * \param x The Vector multiplying the transpose Matrix.
+   * \param dst The destination Vector.
+   *
+   * This is computed via
+   * \f[ \vec{y} = \boldsymbol{A}^T \vec{x} \\
+   *     y_i = \sum_{i=1}^{n} a_{ji} x_i, \hspace{0.25cm} \forall i
+   * \f]
+   */
+  void
+  Tvmult(const Vector<value_type>& x,
+         Vector<value_type>& dst,
+         const bool adding = false)
+  {
+    Assert(x.size() == n_rows(), "Dimension mismatch error.");
+    Assert(dst.size() == n_cols(), "Dimension mismatch error.");
+
+    dst = adding ? dst : 0.0;
+    for (size_type i = 0; i < n_rows(); ++i)
+    {
+      const value_type x_i = x[i];
+      const value_type* a_ij = values[i].data();
+      for (size_type j = 0; j < n_cols(); ++j)
+        dst[j] += *a_ij++ * x_i;
+    }
+  }
+
+  /**
+   * Add a transpose matrix-vector product to the destination vector.
+   * \see Tvmult
+   */
+  void
+  Tvmult_add(const Vector<value_type>& x,
+         Vector<value_type>& dst)
+  { Tvmult(x, dst, true); }
+
+  /**
+   * Compute a matrix-vector product.
+   * \see vmult
+   */
   Vector<value_type>
   operator*(const Vector<value_type>& x) const
   {
     Assert(x.size() == n_cols(), "Dimension mismatch error.");
+
     Vector<number> y(n_rows());
     for (uint64_t i = 0; i < n_rows(); ++i)
+    {
+      value_type y_i = 0.0;
+      const value_type* a_ij = values[i].data();
       for (uint64_t j = 0; j < n_cols(); ++j)
-        y[i] += values[i][j] * x[j];
+        y_i += *a_ij++ * x[j];
+      y[i] = y_i;
+    }
     return y;
   }
 
-  /**
-   * Return the transpose of a matrix.
-   * This is computed via
-   * \f[ \boldsymbol{B} = \boldsymbol{A}^T \\
-   *     b_{ij} = a_{ji}, \hspace{0.25cm} \forall i, j
-   * \f]
-   */
+  /// Return the transpose of the Matrix.
   Matrix
   transpose() const
   {
-    Matrix At(n_cols(), n_rows());
-    for (uint64_t i = 0; i < At.n_rows(); ++i)
-      for (uint64_t j = 0; j < At.n_cols(); ++j)
-        At[i][j] = values[j][i];
-    return At;
+    Matrix A_T(n_cols(), n_rows());
+    for (size_type i = 0; i < n_rows(); ++i)
+    {
+      const value_type* a_ij = values[i].data();
+      for (size_type j = 0; j < n_cols(); ++j)
+        A_T[j][i] = *a_ij++;
+    }
+    return A_T;
   }
 
   // @}
+  /** \name Printing Utilities */
+  // @{
 
-  //###########################################################################
-  /** Print the matrix. */
+  /// Print the matrix.
   void
   print(std::ostream& os,
         const bool scientific = false,
@@ -621,19 +871,22 @@ public:
 
     for (uint64_t i = 0; i < n_rows(); ++i)
     {
+      const value_type* a_ij = values[i].data();
       for (uint64_t j = 0; j < n_cols(); ++j)
-        os << std::setw(w) << values[i][j];
+        os << std::setw(w) << *a_ij++;
       os << std::endl;
     }
     os << std::endl;
   }
 
+  // @}
+
 private:
   static bool
-  valid_dimensions(const std::vector<std::vector<value_type>>& matix)
+  valid_dimensions(const std::vector<std::vector<value_type>>& A)
   {
-    uint64_t m = matix.front().size();
-    for (const auto& row : matix)
+    uint64_t m = A.front().size();
+    for (const auto& row : A)
       if (row.size() != m) return false;
     return true;
   }

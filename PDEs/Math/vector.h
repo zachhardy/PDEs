@@ -114,6 +114,15 @@ public:
     return *this;
   }
 
+  /// Assign a value to the vector.
+  Vector&
+  operator=(const value_type value)
+  {
+    for (auto& elem : values)
+      elem = value;
+    return *this;
+  }
+
   /// Equality comparison operator.
   bool
   operator==(const Vector& other)
