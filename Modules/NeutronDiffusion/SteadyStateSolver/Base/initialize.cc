@@ -16,6 +16,7 @@ void neutron_diffusion::SteadyStateSolver::initialize()
 {
   std::cout << "Initializing solver...\n";
 
+  // If the full system is being solved, only use one groupset.
   if (solution_technique == SolutionTechnique::FULL_SYSTEM)
   {
     std::cout << "Solution technique set to full system.\n";
@@ -26,24 +27,24 @@ void neutron_diffusion::SteadyStateSolver::initialize()
       groupsets[0].groups.emplace_back(group);
   }
 
+  //================================================== Initialize objects
   input_checks();
   initialize_discretization();
   initialize_materials();
   initialize_boundaries();
 
-  // Initialize system storage
+  //================================================== Initialize data storage
   uint64_t n_nodes = discretization->n_nodes();
 
   phi.resize(n_groups * n_nodes, 0.0);
   phi_ell.resize(phi.size(), 0.0);
-
   precursors.resize(max_precursors_per_material * n_nodes, 0.0);
 
-  // Initialize groupsets
+  //================================================== Initialize groupsets
   for (auto& groupset : groupsets)
   {
     const uint64_t n_gsg = groupset.groups.size();
-    groupset.matrix.reinit(n_gsg * n_nodes, 0);
+    groupset.matrix.resize(n_gsg * n_nodes, n_gsg * n_nodes);
     groupset.rhs.resize(n_gsg * n_nodes, 0.0);
   }//for groupset
 

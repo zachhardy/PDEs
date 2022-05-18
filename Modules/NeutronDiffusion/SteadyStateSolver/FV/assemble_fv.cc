@@ -11,8 +11,8 @@
 void neutron_diffusion::SteadyStateSolver_FV::
 assemble_matrix(Groupset& groupset)
 {
-  auto& A = groupset.matrix;
-  A *= 0.0;
+  math::Matrix<double> A(groupset.matrix.n_rows(),
+                         groupset.matrix.n_cols(), 0.0);
 
   // Get groupset range
   const auto n_gsg = groupset.groups.size();
@@ -30,7 +30,7 @@ assemble_matrix(Groupset& groupset)
     for (size_t g = gs_i; g <= gs_f; ++g)
     {
       double value = xs->sigma_t[g] * volume;
-      A.add(i + g, i + g, value);
+      A[i + g][i + g] += value;
     }
 
     //============================== Cross-group coupling
@@ -42,7 +42,7 @@ assemble_matrix(Groupset& groupset)
         for (size_t gp = gs_i; gp <= gs_f; ++gp)
         {
           double value = xs->transfer_matrices[0][g][gp] * volume;
-          A.add(i + g, i + gp, -value);
+          A[i + g][i + gp] -= value;
         }
 
         //==================== Fission term
@@ -55,7 +55,7 @@ assemble_matrix(Groupset& groupset)
             for (size_t gp = gs_i; gp <= gs_f; ++gp)
             {
               double value = chi * xs->nu_sigma_f[gp] * volume;
-              A.add(i + g, i + gp, -value);
+              A[i + g][i + gp] -= value;
             }
           }
 
@@ -66,7 +66,7 @@ assemble_matrix(Groupset& groupset)
             for (size_t gp = gs_i; gp <= gs_f; ++gp)
             {
               double value = chi_p * xs->nu_prompt_sigma_f[gp] * volume;
-              A.add(i + g, i + gp, -value);
+              A[i + g][i + gp] -= value;
             }
 
             for (size_t j = 0; j < xs->n_precursors; ++j)
@@ -77,7 +77,7 @@ assemble_matrix(Groupset& groupset)
               {
                 double value =
                     chi_d * gamma * xs->nu_delayed_sigma_f[gp] * volume;
-                A.add(i + g, i + gp, -value);
+                A[i + g][i + gp] -= value;
               }
             }//for precursors
           }
@@ -111,8 +111,8 @@ assemble_matrix(Groupset& groupset)
           const double D_eff = 1.0 / (w/D + (1.0 - w)/D_nbr);
 
           double value = D_eff / d_pn * face.area;
-          A.add(i + g, i + g, value);
-          A.add(i + g, j + g, -value);
+          A[i + g][i + g] += value;
+          A[i + g][j + g] -= value;
         }
       }//if interior face
 
@@ -131,7 +131,7 @@ assemble_matrix(Groupset& groupset)
           {
             const double D = xs->diffusion_coeff[g];
             double value = D / d_pf * face.area;
-            A.add(i + g, i + g, value);
+            A[i + g][i + g] += value;
           }
         }
 
@@ -147,12 +147,14 @@ assemble_matrix(Groupset& groupset)
             const auto bc = std::static_pointer_cast<RobinBoundary>(bndry);
             const double D = xs->diffusion_coeff[g];
             double value = bc->a*D/(bc->b*D + bc->a*d_pf) * face.area;
-            A.add(i + g, i + g, value);
+            A[i + g][i + g] += value;
           }
         }
       }//if boundary face
     }//for face
   }//for cell
+
+  groupset.matrix = A;
 }
 
 //######################################################################

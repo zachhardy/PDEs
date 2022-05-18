@@ -4,7 +4,6 @@
 #include "vector.h"
 #include "matrix.h"
 #include "sparse_matrix.h"
-#include "LinearSolvers/linear_solver.h"
 
 #include <memory>
 #include <vector>
@@ -21,12 +20,11 @@ public:
   std::vector<uint64_t> groups;
 
   /*---------- Options ----------*/
-  math::LinearSolverType linear_solver_type = math::LinearSolverType::LU;
   uint64_t max_iterations = 100;
   double tolerance = 1.0e-8;
 
   /*---------- System Storage ----------*/
-  math::SparseMatrix<double> matrix;
+  math::Matrix<double> matrix;
   math::Vector<double> rhs;
 
   Groupset() : id(-1) {}

@@ -1,6 +1,7 @@
 #include "steadystate_solver.h"
 
 #include "LinearSolvers/Direct/lu.h"
+#include "LinearSolvers/Direct/cholesky.h"
 #include "LinearSolvers/Direct/sparse_lu.h"
 
 #include <fstream>
@@ -39,7 +40,8 @@ solve_groupset(Groupset& groupset, SourceFlags source_flags)
   double change = 1.0;
   bool converged = false;
 
-  math::SparseLU<double> linear_solver(groupset.matrix);
+  math::Cholesky<double> solver = groupset.matrix;
+  solver.factorize();
 
   //======================================== Start iterations
   for (uint64_t nit = 0; nit < groupset.max_iterations; ++nit)
@@ -48,7 +50,7 @@ solve_groupset(Groupset& groupset, SourceFlags source_flags)
     groupset.rhs *= 0.0;
     set_source(groupset, groupset.rhs, source_flags);
 
-    auto x = linear_solver.solve(groupset.rhs);
+    auto x = solver.solve(groupset.rhs);
 
     // Convergence check, finalize iteration
     scoped_transfer(groupset, x, phi);

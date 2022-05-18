@@ -13,8 +13,6 @@
 #include "vector.h"
 #include "matrix.h"
 
-#include "LinearSolvers/linear_solver.h"
-
 
 namespace neutron_diffusion
 {
@@ -66,9 +64,6 @@ protected:
 
   typedef std::vector<double> RobinBndryVals;
   typedef std::shared_ptr<Boundary> BndryPtr;
-
-  typedef math::LinearSolverType LinearSolverType;
-  typedef math::LinearSolver<double> LinearSolver;
 
 public:
 
