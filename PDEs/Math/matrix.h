@@ -565,10 +565,10 @@ public:
 
   /// Element-wise addition of two matrices.
   Matrix
-  operator+(const Matrix& other) const
+  operator+(const Matrix& B) const
   {
     Matrix A = *this;
-    A += other;
+    A += B;
     return A;
   }
 
@@ -604,28 +604,38 @@ public:
    *
    * This is computed via
    * \f[ \boldsymbol{C} = \boldsymbol{A} \boldsymbol{B} \\
-   *     c_{ij} = \sum_{k=0}^{n} a_{ik} b{kj}, \hspace{0.25cm} \forall i, j
+   *     c_{ij} = \sum_{k=0}^{n} a_{ik} b_{kj}, \hspace{0.25cm} \forall i, j
    * \f]
    */
-  void mmult(const Matrix& B, Matrix& dst,
-             const bool adding = false) const
+  void
+  mmult(const Matrix& B, Matrix& C,
+        const bool adding = false) const
   {
     Assert(!empty(), "Empty matrix error.");
-    Assert(dst.n_rows() == n_rows(), "Dimension mismatch error.");
-    Assert(dst.n_cols() == B.n_cols(), "Dimension mismatch error.");
+    Assert(C.n_rows() == n_rows(), "Dimension mismatch error.");
+    Assert(C.n_cols() == B.n_cols(), "Dimension mismatch error.");
     Assert(n_cols() == B.n_rows(), "Dimension mismatch error.");
 
-    for (size_type i = 0; i < dst.n_rows(); ++i)
+    for (size_type i = 0; i < C.n_rows(); ++i)
     {
       const value_type* a_i = values[i].data();
-      for (size_type j = 0; j < dst.n_cols(); ++j)
+      for (size_type j = 0; j < C.n_cols(); ++j)
       {
-        value_type c_ij = adding ? dst(i, j) : 0.0;
+        value_type c_ij = adding ? C(i, j) : 0.0;
         for (size_type k = 0; k < n_cols(); ++k)
           c_ij += a_i[k] * B(k, j);
-        dst(i, j) = c_ij;
+        C(i, j) = c_ij;
       }
     }
+  }
+
+  /// See \ref mmult.
+  Matrix
+  mmult(const Matrix& B)
+  {
+    Matrix C(n_rows(), B.n_cols());
+    mmult(B, C);
+    return C;
   }
 
   /**
@@ -636,22 +646,32 @@ public:
    *     c_{ij} = \sum_{k=0}^{n} a_{ki} b_{kj}, \hspace{0.25cm}, \forall i, j
    * \f]
    */
-  void Tmmult(const Matrix& B, Matrix& dst,
-              const bool adding = false) const
+  void
+  Tmmult(const Matrix& B, Matrix& C,
+         const bool adding = false) const
   {
     Assert(!empty(), "Empty matrix error.");
-    Assert(dst.n_rows() == n_cols(), "Dimension mismatch error.");
-    Assert(dst.n_cols() == B.n_cols(), "Dimension mismatch error.");
+    Assert(C.n_rows() == n_cols(), "Dimension mismatch error.");
+    Assert(C.n_cols() == B.n_cols(), "Dimension mismatch error.");
     Assert(n_rows() == B.n_rows(), "Dimension mismatch error.");
 
-    for (size_type i = 0; i < dst.n_rows(); ++i)
-      for (size_type j = 0; j < dst.n_cols(); ++j)
+    for (size_type i = 0; i < C.n_rows(); ++i)
+      for (size_type j = 0; j < C.n_cols(); ++j)
       {
-        value_type c_ij = adding ? dst(i, j) : 0.0;
+        value_type c_ij = adding ? C(i, j) : 0.0;
         for (size_type k = 0; k < n_rows(); ++k)
           c_ij += values[k][i] * B(k, j);
-        dst(i, j) = c_ij;
+        C(i, j) = c_ij;
       }
+  }
+
+  /// See \ref Tmmult.
+  Matrix
+  Tmmult(const Matrix& B)
+  {
+    Matrix C(n_cols(), B.n_cols());
+    Tmmult(B, C);
+    return C;
   }
 
   /**
@@ -662,26 +682,36 @@ public:
    *     c_{ij} = \sum_{k=1}^{n} a_{ik} b_{jk}, \hspace{0.25cm} \forall i, j
    * \f]
    */
-  void mTmult(const Matrix& B, Matrix& dst,
-               const bool adding = false) const
+  void
+  mTmult(const Matrix& B, Matrix& C,
+         const bool adding = false) const
   {
     Assert(!empty(), "Empty matrix error.");
-    Assert(dst.n_rows() == n_rows(), "Dimension mismatch error.");
-    Assert(dst.n_cols() == B.n_rows(), "Dimension mismatch error.");
+    Assert(C.n_rows() == n_rows(), "Dimension mismatch error.");
+    Assert(C.n_cols() == B.n_rows(), "Dimension mismatch error.");
     Assert(n_cols() == B.n_cols(), "Dimension mismatch error.");
 
-    for (size_type i = 0; i < dst.n_rows(); ++i)
+    for (size_type i = 0; i < C.n_rows(); ++i)
     {
       const value_type* a_i = values[i].data();
-      for (size_type j = 0; j < dst.n_cols(); ++j)
+      for (size_type j = 0; j < C.n_cols(); ++j)
       {
         const value_type* b_j = B.data(j);
-        value_type c_ij = adding ? dst(i, j) : 0.0;
+        value_type c_ij = adding ? C(i, j) : 0.0;
         for (size_type k = 0; k < n_cols(); ++k)
           c_ij += a_i[k] * *b_j++;
-        dst(i, j) = c_ij;
+        C(i, j) = c_ij;
       }
     }
+  }
+
+  /// See \ref mTmult.
+  Matrix
+  mTmult(const Matrix& B)
+  {
+    Matrix C(n_rows(), B.n_rows());
+    mTmult(B, C);
+    return C;
   }
 
   /**
@@ -692,23 +722,33 @@ public:
    *     c_{ij} = \sum_{k=1}^{n} a_{ki} b_{jk}, \hspace{0.25cm} \forall i, j
    * \f]
    */
-  void TTmult(const Matrix& B, Matrix& dst,
-              const bool adding = false) const
+  void
+  TTmult(const Matrix& B, Matrix& C,
+         const bool adding = false) const
   {
     Assert(!empty(), "Empty matrix error.");
-    Assert(dst.n_rows() == n_cols(), "Dimension mismatch error.");
-    Assert(dst.n_cols() == B.n_rows(), "Dimension mismatch error.");
+    Assert(C.n_rows() == n_cols(), "Dimension mismatch error.");
+    Assert(C.n_cols() == B.n_rows(), "Dimension mismatch error.");
     Assert(n_rows() == B.n_cols(), "Dimension mismatch error.");
 
-    for (size_type i = 0; i < dst.n_rows(); ++i)
-      for (size_type j = 0; j < dst.n_cols(); ++j)
+    for (size_type i = 0; i < C.n_rows(); ++i)
+      for (size_type j = 0; j < C.n_cols(); ++j)
       {
         const value_type* b_j = B.data(j);
-        value_type c_ij = adding ? dst(i, j) : 0.0;
+        value_type c_ij = adding ? C(i, j) : 0.0;
         for (size_type k = 0; k < n_rows(); ++k)
           c_ij += values[k][i] * *b_j++;
-        dst(i, j) = c_ij;
+        C(i, j) = c_ij;
       }
+  }
+
+  /// See \ref TTmult.
+  Matrix
+  TTmult(const Matrix& B)
+  {
+    Matrix C(n_cols(), B.n_rows());
+    TTmult(B, C);
+    return C;
   }
 
   /**
@@ -745,20 +785,28 @@ public:
    */
   void
   vmult(const Vector<value_type>& x,
-        Vector<value_type>& dst,
+        Vector<value_type>& y,
         const bool adding = false)
   {
     Assert(x.size() == n_cols(), "Dimension mismatch error.");
-    Assert(dst.size() == n_rows(), "Dimension mismatch error.");
+    Assert(y.size() == n_rows(), "Dimension mismatch error.");
 
     for (size_type i = 0; i < n_rows(); ++i)
     {
-      value_type v = adding ? dst[i] : 0.0;
+      value_type v = adding ? y[i] : 0.0;
       const value_type* a_ij = values[i].data();
       for (size_type j = 0; j < n_cols(); ++j)
         v += *a_ij++ * x[j];
-      dst[i] = v;
+      y[i] = v;
     }
+  }
+
+  Vector<value_type>
+  vmult(const Vector<value_type>& x)
+  {
+    Vector<value_type> y(n_rows());
+    vmult(x, y);
+    return y;
   }
 
   /**
@@ -773,9 +821,6 @@ public:
   /**
    * Compute a transpose matrix-vector product.
    *
-   * \param x The Vector multiplying the transpose Matrix.
-   * \param dst The destination Vector.
-   *
    * This is computed via
    * \f[ \vec{y} = \boldsymbol{A}^T \vec{x} \\
    *     y_i = \sum_{i=1}^{n} a_{ji} x_i, \hspace{0.25cm} \forall i
@@ -783,21 +828,29 @@ public:
    */
   void
   Tvmult(const Vector<value_type>& x,
-         Vector<value_type>& dst,
+         Vector<value_type>& y,
          const bool adding = false)
   {
     Assert(x.size() == n_rows(), "Dimension mismatch error.");
-    Assert(dst.size() == n_cols(), "Dimension mismatch error.");
+    Assert(y.size() == n_cols(), "Dimension mismatch error.");
 
-    dst = adding ? dst : 0.0;
+    y = adding ? y : 0.0;
     for (size_type i = 0; i < n_rows(); ++i)
     {
       const value_type x_i = x[i];
       const value_type* a_ij = values[i].data();
       for (size_type j = 0; j < n_cols(); ++j)
-        dst[j] += *a_ij++ * x_i;
+        y[j] += *a_ij++ * x_i;
     }
   }
+
+  /// See \ref Tvmult.
+  Vector<value_type>
+  Tvmult(const Vector<value_type>& x)
+  {
+    Vector<value_type> y(n_cols());
+    Tvmult(x, y);
+    return y; }
 
   /**
    * Add a transpose matrix-vector product to the destination vector.
@@ -849,7 +902,7 @@ public:
 
   /// Print the matrix.
   void
-  print(std::ostream& os,
+  print(std::ostream& os = std::cout,
         const bool scientific = false,
         const unsigned int precision = 3,
         const unsigned int width = 0) const

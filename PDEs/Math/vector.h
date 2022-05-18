@@ -527,7 +527,7 @@ public:
 
   /// Print the vector.
   void
-  print(std::ostream& os,
+  print(std::ostream& os = std::cout,
         const bool scientific = false,
         const unsigned int precision = 3,
         const unsigned int width = 0) const
