@@ -19,15 +19,15 @@ class Matrix
 public:
   using value_type = number;
   using size_type = uint64_t;
-  using pointer = Vector <value_type>*;
-  using const_pointer = const Vector <value_type>*;
-  using reference = Vector <value_type>&;
+  using pointer = Vector<value_type>*;
+  using const_pointer = const Vector<value_type>*;
+  using reference = Vector<value_type>&;
   using const_reference = const Vector <value_type>&;
   using iterator = Vector <value_type>*;
-  using const_iterator = const Vector <value_type>*;
+  using const_iterator = const Vector<value_type>*;
 
-private:
-  std::vector<Vector < value_type>> values;
+protected:
+  std::vector<Vector<value_type>> values;
 
 public:
   /// Default constructor.
