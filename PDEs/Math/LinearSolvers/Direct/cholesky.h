@@ -57,19 +57,19 @@ public:
     size_type n = this->n_rows();
     for (size_type j = 0; j < n; ++j)
     {
-      // Set the diagonal element
       value_type sum = 0.0;
+      value_type* a_j = this->data(j);
       for (size_type k = 0; k < j; ++k)
-        sum += (*this)(j, k) * (*this)(j, k);
-      (*this)(j, j) = std::sqrt((*this)(j, j) - sum);
+        sum += std::pow(a_j[k], 2.0);
+      a_j[j] = std::sqrt(a_j[j] - sum);
 
-      // Set the off-diagonals
       for (size_type i = j + 1; i < n; ++i)
       {
         sum = 0.0;
+        value_type* a_i = this->data(i);
         for (size_type k = 0; k < j; ++k)
-          sum += (*this)(i, k) * (*this)(j, k);
-        (*this)(i, j) = ((*this)(i, j) - sum) / (*this)(j, j);
+          sum += a_i[k] * a_j[k];
+        a_i[j] = (a_i[j] - sum) / a_j[j];
       }
     }
     factorized = true;
@@ -94,26 +94,25 @@ public:
     if (!factorized)
       factorize();
 
-    size_type n = this->n_rows();
-    value_type value = 0.0;
-
     //================================================== Forward solve
+    size_type n = this->n_rows();
     for (size_type i = 0; i < n; ++i)
     {
-      value = b[i];
-      const value_type* a_ij = this->values[i].data();
+      value_type value = b[i];
+      const value_type* a_i = this->data(i);
       for (size_type j = 0; j < i; ++j)
-        value -= *a_ij++ * x[j];
+        value -= a_i[j] * x[j];
       x[i] = value / (*this)(i, i);
     }
 
     //================================================== Backward solve
     for (size_type i = n - 1; i != -1; --i)
     {
-      value = x[i];
-      const value_type* a_ij = this->values[i].data();
+      const value_type a_ii = (*this)(i, i);
+
+      value_type value = x[i];
       for (size_type j = i + 1; j < n; ++j)
-        value -= *a_ij++ * x[j];
+        value -= (*this)(j, i) * x[j];
       x[i] = value / (*this)(i, i);
     }
   }
@@ -125,8 +124,6 @@ public:
     solve(b, x);
     return x;
   }
-
-
 };
 
 }

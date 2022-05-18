@@ -384,6 +384,18 @@ public:
          const value_type value)
   { values.resize(n_rows, Vector<value_type>(n_cols, value)); }
 
+  /// See \ref resize
+  void
+  reinit(const size_type n_rows, const size_type n_cols)
+  { resize(n_rows, n_cols); }
+
+  /// See \ref resize
+  void
+  reinit(const size_type n_rows,
+         const size_type n_cols,
+         const value_type value)
+  { resize(n_rows, n_cols, value); }
+
   /// Swap the elements of two rows.
   void
   swap_row(const size_type i, const size_type k)
@@ -914,12 +926,12 @@ public:
     if (scientific)
     {
       os.setf(std::ios::scientific, std::ios::floatfield);
-      w = (!width)? precision + 7 : w;
+      w = (!width)? precision + 10 : w;
     }
     else
     {
       os.setf(std::ios::fixed, std::ios::floatfield);
-      w = (!width)? precision + 4 : w;
+      w = (!width)? precision + 5 : w;
     }
 
     for (uint64_t i = 0; i < n_rows(); ++i)

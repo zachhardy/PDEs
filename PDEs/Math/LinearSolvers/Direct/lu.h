@@ -25,7 +25,7 @@ private:
    * pivoted row number. This is used to map the right-hand side vector to the
    * correct row when solving.
    */
-  std::vector<size_t> row_pivots;
+  std::vector<size_type> row_pivots;
 
 public:
   /// Default constructor.
@@ -36,13 +36,13 @@ public:
 
   /// Copy constructor.
   LU(const LU& other)
-    : row_pivots(other.n_rows()), pivoting(other.pivoting),
+    : row_pivots(other.row_pivots), pivoting(other.pivoting),
       Matrix<value_type>(other.values)
   {}
 
   /// Move constructor.
   LU(LU&& other)
-    : row_pivots(other.n_rows()), pivoting(other.pivoting),
+    : row_pivots(std::move(other.row_pivots)), pivoting(other.pivoting),
       Matrix<value_type>(std::move(other.values))
   {}
 
@@ -55,7 +55,7 @@ public:
   /// Move from a Matrix.
   LU(Matrix<value_type>&& other, const bool pivot = true)
     : row_pivots(other.n_rows()), pivoting(pivot),
-      Matrix<value_type>(std::move(other))
+      Matrix<value_type>(other)
   {}
 
   /// Set the pivoting flag.
@@ -90,50 +90,50 @@ public:
 
     // Initialize the pivot mappings such that each row maps to itself
     for (size_type i = 0; i < n; ++i)
-      row_pivots.emplace_back(i);
+      row_pivots[i] = i;
 
     //======================================== Apply Doolittle algorithm
-    for (size_type i = 0; i < n; ++i)
+    for (size_type j = 0; j < n; ++j)
     {
       if (pivoting)
       {
-        /* Find the row containing the largest magnitude entry for column i.
+        /* Find the row containing the largest magnitude entry for column j.
          * This is only done for the sub-diagonal elements. */
-        size_type argmax = i;
-        value_type max = std::fabs((*this)(i, i));
-        for (size_type k = i + 1; k < n; ++k)
+        size_type argmax = j;
+        value_type max = std::fabs((*this)(j, j));
+        for (size_type k = j + 1; k < n; ++k)
         {
-          if (std::fabs((*this)(k, i)) > max)
+          if (std::fabs((*this)(k, j)) > max)
           {
             argmax = k;
-            max = std::fabs((*this)(k, i));
+            max = std::fabs((*this)(k, j));
           }
         }
 
         // If the sub-diagonal is uniformly zero, throw error
-        Assert((*this)[argmax][i] != 0.0, "Singular matrix error.");
+        Assert(max != 0.0, "Singular matrix error.");
 
         /* Swap the current row and the row containing the largest magnitude
          * entry corresponding for the current column. This is done to improve
          * the numerical stability of the algorithm. */
-        if (argmax != i)
+        if (argmax != j)
         {
-          std::swap(row_pivots[i], row_pivots[argmax]);
-          this->swap_row(i, argmax);
+          std::swap(row_pivots[j], row_pivots[argmax]);
+          this->swap_row(j, argmax);
         }
-      }//if pivotong
+      }//if pivoting
 
       // Compute the elements of the LU decomposition
-      for (size_type j = i + 1; j < n; ++j)
+      for (size_type i = j + 1; i < n; ++i)
       {
         /* Lower triangular components. This represents the row operations
          * performed to attain the upper-triangular, row-echelon matrix. */
-        (*this)(j, i) /= (*this)(i, i);
+        (*this)(i, j) /= (*this)(j, j);
 
         /* Upper triangular components. This represents the row-echelon form of
          * the original matrix. */
-        for (size_type k = i + 1; k < n; ++k)
-          (*this)(j, k) -= (*this)(j, i) * (*this)(i, k);
+        for (size_type k = j + 1; k < n; ++k)
+          (*this)(i, k) -= (*this)(i, j) * (*this)(j, k);
       }
     }
     factorized = true;
@@ -165,13 +165,11 @@ public:
     if (!factorized)
       factorize();
 
-    size_type n = this->n_rows();
-    value_type value = 0.0;
-
     //================================================== Forward solve
+    size_type n = this->n_rows();
     for (size_type i = 0; i < n; ++i)
     {
-      value = b[row_pivots[i]];
+      value_type value = b[row_pivots[i]];
       const value_type* a_ij = this->values[i].data();
       for (size_type j = 0; j < i; ++j)
         value -= *a_ij++ * x[j];
@@ -181,8 +179,8 @@ public:
     //================================================== Backward solve
     for (size_type i = n - 1; i != -1; --i)
     {
-      value = x[i];
-      const value_type* a_ij = this->values[i].data();
+      value_type value = x[i];
+      const value_type* a_ij = &this->values[i][i + 1];
       for (size_type j = i + 1; j < n; ++j)
         value -= *a_ij++ * x[j];
       x[i] = value / (*this)(i, i);
