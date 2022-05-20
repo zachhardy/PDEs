@@ -129,7 +129,6 @@ public:
         if (a_ij.column < i)
           x[a_ij.column] -= a_ij.value * x[i];
     }
-    x.print();
   }
 
   Vector<value_type>

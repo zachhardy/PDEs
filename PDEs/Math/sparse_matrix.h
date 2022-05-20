@@ -15,27 +15,9 @@
 namespace math
 {
 
-template<typename number>
-class SparseMatrixBase
-{
-public:
-  virtual number&
-  operator()(const uint64_t i, const uint64_t j) = 0;
-
-  virtual const number&
-  operator()(const uint64_t i, const uint64_t j) const = 0;
-
-  virtual number*
-  locate(const uint64_t i, const uint64_t j) = 0;
-
-  virtual const number*
-  locate(const uint64_t i, const uint64_t j) const = 0;
-};
-
-
 
 template<typename number>
-class SparseMatrix : public SparseMatrixBase<number>
+class SparseMatrix
 {
 public:
   using value_type = number;
@@ -548,7 +530,7 @@ public:
    * If no element exists null is returned.
    */
   value_type*
-  locate(const size_type i, const size_type j) override
+  locate(const size_type i, const size_type j)
   {
     Assert(i < rows && j < cols, "Out of range error.");
     for (size_type jr = 0; jr < row_length(i); ++jr)
@@ -562,7 +544,7 @@ public:
    * element exists, null is returned.
    */
   const value_type*
-  locate(const size_type i, const size_type j) const override
+  locate(const size_type i, const size_type j) const
   {
     Assert(i < rows && j < cols, "Out of range error.");
     for (uint64_t jr = 0; jr < row_length(i); ++jr)
@@ -574,7 +556,7 @@ public:
 
   /// Read/write access to element <tt>(i, j)</tt>.
   value_type&
-  operator()(const size_type i, const size_type j) override
+  operator()(const size_type i, const size_type j)
   {
     Assert(i < rows && j < cols, "Out of range error.");
     value_type* value_ptr = locate(i, j);
@@ -584,7 +566,7 @@ public:
 
   /// Read access to element <tt>(i, j)</tt>.
   const value_type&
-  operator()(const size_type i, const size_type j) const override
+  operator()(const size_type i, const size_type j) const
   {
     Assert(i < rows && j < cols, "Out of range error.");
     const value_type* value_ptr = locate(i, j);
@@ -750,7 +732,7 @@ public:
   SparseMatrix&
   operator-()
   {
-    for (auto elem : *this)
+    for (entry elem : *this)
       elem.value = -elem.value;
     return *this;
   }
@@ -759,7 +741,7 @@ public:
   SparseMatrix&
   operator*=(const value_type value)
   {
-    for (auto elem : *this)
+    for (entry elem : *this)
       elem.value *= value;
     return *this;
   }
@@ -770,7 +752,7 @@ public:
   {
     Assert(value != 0.0, "Zero division error.");
 
-    for (auto elem : *this)
+    for (entry elem : *this)
       elem.value /= value;
     return *this;
   }
@@ -829,7 +811,7 @@ public:
     Assert(y.size() == rows, "Dimension mismatch error.");
 
     if (!adding) y = 0.0;
-    for (const auto elem : *this)
+    for (const const_entry elem : *this)
       y[elem.row] += elem.value * x[elem.column];
   }
 
@@ -871,7 +853,7 @@ public:
     Assert(y.size() == cols, "Dimension mismatch error.");
 
     if (!adding) y = 0.0;
-    for (const auto& elem : *this)
+    for (const const_entry elem : *this)
       y[elem.column] += elem.value * x[elem.row];
   }
 
@@ -903,7 +885,7 @@ public:
     Assert(cols == x.size(), "Dimension mismatch error.");
 
     Vector<value_type> y(rows);
-    for (auto elem : *this)
+    for (const const_entry elem : *this)
       y[elem.row] += elem.value * x[elem.column];
     return y;
   }
@@ -927,10 +909,9 @@ public:
        << std::setw(10) << "-----" << std::endl;
 
     for (const auto elem : *this)
-//        os << std::setw(8)  << elem.row
-//           << std::setw(8)  << elem.column
-//           << std::setw(10) << elem.value << std::endl;
-      continue;
+      os << std::setw(8)  << elem.row
+         << std::setw(8)  << elem.column
+         << std::setw(10) << elem.value << std::endl;
   }
 
   /// Print the sparse matrix as a normal matrix with zero fill ins.
@@ -967,42 +948,12 @@ public:
       os << std::endl;
     }
     os << std::endl;
+    os.flags(old_flags);
+    os.precision(old_precision);
   }
 
   // @}
 };
-
-
-template<typename number>
-class TransposeSparseMatrix : public SparseMatrixBase<number>
-{
-private:
-  SparseMatrix<number>& ref_sparse_matrix;
-
-public:
-  TransposeSparseMatrix(const TransposeSparseMatrix& other) :
-    ref_sparse_matrix(other.ref_sparse_matrix) {}
-
-  TransposeSparseMatrix(const SparseMatrix<number>& other) :
-    ref_sparse_matrix(other) {}
-
-  number&
-  operator()(const uint64_t i, const uint64_t j) override
-  { return ref_sparse_matrix(j, i); }
-
-  const number&
-  operator()(const uint64_t i, const uint64_t j) const override
-  { return ref_sparse_matrix(j, i); }
-
-  number*
-  locate(const uint64_t i, const uint64_t j) override
-  { return ref_sparse_matrix.locate(j, i); }
-
-  const number*
-  locate(const uint64_t i, const uint64_t j) const override
-  { return ref_sparse_matrix(j, i); }
-};
-
 
 
 /*-------------------- Inline Implementations --------------------*/

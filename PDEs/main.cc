@@ -4,7 +4,6 @@
 #include "CrossSections/cross_sections.h"
 
 #include "math.h"
-#include "linear_solver.h"
 
 #include "NeutronDiffusion/Groupset/groupset.h"
 #include "NeutronDiffusion/SteadyStateSolver/FV/steadystate_solver_fv.h"
@@ -29,7 +28,7 @@ int main(int argc, char** argv)
     using namespace neutron_diffusion;
 
     //================================================== Create the mesh
-    size_t n_cells = 50;
+    size_t n_cells = 20;
     double slab_width = 1.0;
     double cell_width = slab_width / n_cells;
 
@@ -44,7 +43,7 @@ int main(int argc, char** argv)
 
     // Create the cross sections
     auto xs = std::make_shared<CrossSections>();
-    xs->read_xs_file("xs_data/test_2g.xs");
+    xs->read_xs_file("xs_data/test_1g.xs");
     material->properties.emplace_back(xs);
 
     size_t n_groups = xs->n_groups;
@@ -74,7 +73,7 @@ int main(int argc, char** argv)
     solver.boundary_info.emplace_back(BoundaryType::ZERO_FLUX, -1);
     solver.boundary_info.emplace_back(BoundaryType::ZERO_FLUX, -1);
 
-    solver.solution_technique = SolutionTechnique::GROUPSET_WISE;
+    solver.solution_technique = SolutionTechnique::FULL_SYSTEM;
 
 
     //================================================== Run the problem
