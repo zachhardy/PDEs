@@ -24,7 +24,7 @@ public:
   double tolerance = 1.0e-8;
 
   /*---------- System Storage ----------*/
-  math::Matrix<double> matrix;
+  math::SparseMatrix<double> matrix;
   math::Vector<double> rhs;
 
   Groupset() : id(-1) {}

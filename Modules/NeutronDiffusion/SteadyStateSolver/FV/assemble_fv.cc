@@ -28,10 +28,7 @@ assemble_matrix(Groupset& groupset)
 
     //==================== Total interaction terms
     for (size_t g = gs_i; g <= gs_f; ++g)
-    {
-      double value = xs->sigma_t[g] * volume;
-      A[i + g][i + g] += value;
-    }
+      A[i + g][i + g] += xs->sigma_t[g] * volume;
 
     //============================== Cross-group coupling
     if (solution_technique == SolutionTechnique::FULL_SYSTEM)
@@ -271,50 +268,6 @@ set_source(Groupset& groupset, math::Vector<double>& b,
       }
 
     }//for group
-
-    //============================== Cross-group coupling
-    if (solution_technique == SolutionTechnique::GROUPSET_WISE)
-    {
-      for (size_t g = gs_i; g <= gs_f; ++g)
-      {
-        //==================== Scattering term
-        for (size_t gp = g_i; gp <= g_f; ++gp)
-          b[i + g] += xs->transfer_matrices[0][g][gp] *
-                      phi[uk_map + gp] * volume;
-
-        //==================== Fission term
-        if (xs->is_fissile)
-        {
-          //========== Total fission
-          if (not use_precursors)
-          {
-            const double chi = xs->chi[g];
-            for (size_t gp = g_i; gp <= g_f; ++gp)
-              b[i + g] += chi * xs->nu_sigma_f[gp] *
-                          phi[uk_map + gp] * volume;
-          }
-
-          //========== Prompt + delayed fission
-          else
-          {
-            const double chi_p = xs->chi_prompt[g];
-            for (size_t gp = g_i; gp <= g_f; ++gp)
-              b[i + g] += chi_p * xs->nu_prompt_sigma_f[gp] *
-                          phi[uk_map + gp] * volume;
-
-            for (size_t j = 0; j < xs->n_precursors; ++j)
-            {
-              const double chi_d = xs->chi_delayed[g][j];
-              const double gamma = xs->precursor_yield[j];
-              for (size_t gp = g_i; gp <= g_f; ++gp)
-                b[i + g] += chi_d * gamma *
-                            xs->nu_delayed_sigma_f[gp] *
-                            phi[uk_map + gp] * volume;
-            }
-          }
-        }//if fissile
-      }//for group
-    }//if groupset-wise solver
 
     //================================================== Loop over faces
     for (const auto& face : cell->faces)

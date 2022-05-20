@@ -3,18 +3,18 @@
 #include "LinearSolvers/Direct/lu.h"
 #include "LinearSolvers/Direct/cholesky.h"
 #include "LinearSolvers/Direct/sparse_lu.h"
+#include "LinearSolvers/Direct/sparse_cholesky.h"
 
 #include <fstream>
 
 /// Run the steady state multigroup diffusion simulation.
-void neutron_diffusion::SteadyStateSolver::execute()
+void neutron_diffusion::SteadyStateSolver:: execute()
 {
   std::cout << "Executing solver...\n";
 
   // Initialize matrices
   for (auto& gs : groupsets)
    assemble_matrix(gs);
-
 
   SourceFlags source_flags = APPLY_MATERIAL_SOURCE;
   if (solution_technique == SolutionTechnique::GROUPSET_WISE)
@@ -40,16 +40,17 @@ solve_groupset(Groupset& groupset, SourceFlags source_flags)
   double change = 1.0;
   bool converged = false;
 
-  math::Cholesky<double> solver = groupset.matrix;
+  math::SparseCholesky<double> solver = groupset.matrix;
+  solver.print_formatted();
   solver.factorize();
+  solver.print_formatted();
 
   //======================================== Start iterations
   for (uint64_t nit = 0; nit < groupset.max_iterations; ++nit)
   {
-    // Clear and reset the RHS
+    // Compute the RHS and solve
     groupset.rhs *= 0.0;
     set_source(groupset, groupset.rhs, source_flags);
-
     auto x = solver.solve(groupset.rhs);
 
     // Convergence check, finalize iteration
@@ -65,7 +66,7 @@ solve_groupset(Groupset& groupset, SourceFlags source_flags)
     iter_info << "Iteration: " << std::setw(3) << nit << " "
               << "Change: " << change;
     if (converged) iter_info << " CONVERGED";
-    std::cout << iter_info.str() << "\n";
+//    std::cout << iter_info.str() << "\n";
 
     if (converged) break;
   }
