@@ -102,11 +102,11 @@ public:
         /* Find the row containing the largest magnitude entry for column i.
          * This is only done for the sub-diagonal elements. */
         size_type argmax = j;
-        value_type max = std::fabs(*a_jj);
+        value_type max = std::fabs((a_jj) ? *a_jj : 0.0);
         for (size_type k = j + 1; k < n; ++k)
         {
           const value_type* a_kj = this->locate(k, j);
-          if (a_kj != nullptr && *a_kj > max)
+          if (a_kj && *a_kj > max)
           {
             argmax = k;
             max = std::fabs(*a_kj);
@@ -131,7 +131,7 @@ public:
       {
         value_type* a_ij = this->locate(i, j);
 
-        if (a_ij != nullptr && *a_ij != 0.0)
+        if (a_ij && *a_ij != 0.0)
         {
           /* Lower triangular components. This represents the row operations
            * performed to attain the upper-triangular, row-echelon matrix. */
@@ -156,7 +156,6 @@ public:
     Assert(x.size() == this->n_cols(), "Dimension mismatch error.");
     if (!factorized)
       factorize();
-
 
     //================================================== Forward solve
     size_type n = this->n_rows();
