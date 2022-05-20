@@ -20,11 +20,18 @@ class SparseMatrixBase
 {
 public:
   virtual number&
-  operator()(const uint64_t, const uint64_t) = 0;
+  operator()(const uint64_t i, const uint64_t j) = 0;
 
   virtual const number&
-  operator()(const uint64_t, const uint64_t) const = 0;
+  operator()(const uint64_t i, const uint64_t j) const = 0;
+
+  virtual number*
+  locate(const uint64_t i, const uint64_t j) = 0;
+
+  virtual const number*
+  locate(const uint64_t i, const uint64_t j) const = 0;
 };
+
 
 
 template<typename number>
@@ -43,242 +50,6 @@ private:
 
   /// The row-wise nonzero data entries.
   std::vector<std::vector<value_type>> values;
-
-public:
-
-  class iterator
-  {
-  private:
-    SparseMatrix* sparse_matrix_ptr;
-
-    size_type current_row;
-    size_type current_index;
-    std::vector<size_type>::const_iterator col_ptr;
-    typename std::vector<value_type>::iterator val_ptr;
-
-    void
-    advance()
-    {
-      // Increment the column and value pointer
-      ++current_index; ++col_ptr; ++val_ptr;
-
-      /* If the column pointer is at the end of the row, increment the row
-       * and move the pointers to the start of the next row. */
-      if (col_ptr == sparse_matrix_ptr->colnums[current_row].end())
-      {
-        ++current_row;
-
-        /* If not the last row, move to the next row. If the last row, nothing
-         * need be done since all attributes are equivalent to the stop
-         * criteria. */
-        if (current_row < sparse_matrix_ptr->n_rows())
-        {
-          current_index = 0;
-          col_ptr = sparse_matrix_ptr->colnums[current_row].begin();
-          val_ptr = sparse_matrix_ptr->values[current_row].begin();
-        }
-      }
-    }
-
-  public:
-    iterator(SparseMatrix* sparse_matrix,
-             const size_type row,
-             const size_type index,
-             std::vector<size_type>::const_iterator col,
-             typename std::vector<value_type>::iterator val)
-      : sparse_matrix_ptr(sparse_matrix),
-        current_row(row), current_index(index),
-        col_ptr(col), val_ptr(val)
-    {}
-
-    iterator&
-    operator++()
-    { advance(); return *this; }
-
-    iterator
-    operator++(int)
-    { auto it = *this; advance(); return *this; }
-
-    bool
-    operator==(const iterator& other) const
-    {
-      return (sparse_matrix_ptr == other.sparse_matrix_ptr &&
-              current_row       == other.current_row       &&
-              current_index     == other.current_index     &&
-              col_ptr           == other.col_ptr           &&
-              val_ptr           == other.val_ptr);
-    }
-
-    bool
-    operator!=(const iterator& other) const
-    { return !(*this == other); }
-
-    bool
-    operator<(const iterator& other) const
-    {
-      if (current_row < other.current_row) return true;
-      if (current_row == other.current_row)
-        if (*col_ptr < *other.col_ptr) return true;
-      return false;
-    }
-
-    bool
-    operator<=(const iterator& other) const
-    {
-      if (*this == other) return true;
-      return (*this < other);
-    }
-
-    bool
-    operator>(const iterator& other) const
-    { return !(*this <= other); }
-
-    bool
-    operator>=(const iterator& other) const
-    { return !(*this < other); }
-
-    iterator&
-    operator*()
-    { return *this; }
-
-    iterator
-    operator->()
-    { return this; }
-
-    const size_type&
-    row() const
-    { return current_row; }
-
-    const size_type&
-    index() const
-    { return current_index; }
-
-    const size_type&
-    column() const
-    { return *col_ptr; }
-
-    value_type&
-    value() const
-    { return *val_ptr; }
-  };
-
-
-  class const_iterator
-  {
-  private:
-    const SparseMatrix* sparse_matrix_ptr;
-
-    size_type current_row;
-    size_type current_index;
-    std::vector<size_type>::const_iterator col_ptr;
-    typename std::vector<value_type>::const_iterator val_ptr;
-
-    void
-    advance()
-    {
-      // Increment the column and value pointer
-      ++current_index; ++col_ptr; ++val_ptr;
-
-      /* If the column pointer is at the end of the row, increment the row
-       * and move the pointers to the start of the next row. */
-      if (col_ptr == sparse_matrix_ptr->colnums[current_row].end())
-      {
-        ++current_row;
-
-        /* If not the last row, move to the next row. If the last row, nothing
-         * need be done since all attributes are equivalent to the stop
-         * criteria. */
-        if (current_row < sparse_matrix_ptr->n_rows())
-        {
-          current_index = 0;
-          col_ptr = sparse_matrix_ptr->colnums[current_row].begin();
-          val_ptr = sparse_matrix_ptr->values[current_row].begin();
-        }
-      }
-    }
-
-  public:
-    const_iterator(const SparseMatrix* sparse_matrix,
-                   const size_type row,
-                   const size_type index,
-                   std::vector<size_type>::const_iterator col,
-                   typename std::vector<value_type>::const_iterator val)
-        : sparse_matrix_ptr(sparse_matrix),
-          current_row(row), current_index(index),
-          col_ptr(col), val_ptr(val)
-    {}
-
-    const_iterator&
-    operator++()
-    { advance(); return *this; }
-
-    const_iterator
-    operator++(int)
-    { auto it = *this; advance(); return *this; }
-
-    bool
-    operator==(const const_iterator& other) const
-    {
-      return (sparse_matrix_ptr == other.sparse_matrix_ptr &&
-              current_row       == other.current_row       &&
-              current_index     == other.current_index     &&
-              col_ptr           == other.col_ptr           &&
-              val_ptr           == other.val_ptr);
-    }
-
-    bool
-    operator!=(const const_iterator& other) const
-    { return !(*this == other); }
-
-    bool
-    operator<(const const_iterator& other) const
-    {
-      if (current_row < other.current_row) return true;
-      if (current_row == other.current_row)
-        if (*col_ptr < *other.col_ptr) return true;
-      return false;
-    }
-
-    bool
-    operator<=(const const_iterator& other) const
-    {
-      if (*this == other) return true;
-      return (*this < other);
-    }
-
-    bool
-    operator>(const const_iterator& other) const
-    { return !(*this <= other); }
-
-    bool
-    operator>=(const const_iterator& other) const
-    { return !(*this < other); }
-
-    const_iterator&
-    operator*()
-    { return *this; }
-
-    const_iterator
-    operator->()
-    { return this; }
-
-    const size_type&
-    row() const
-    { return current_row; }
-
-    const size_type&
-    index() const
-    { return current_index; }
-
-    const size_type&
-    column() const
-    { return *col_ptr; }
-
-    const value_type&
-    value() const
-    { return *val_ptr; }
-  };
-
 
 public:
   /// Default constructor.
@@ -395,8 +166,8 @@ public:
   operator=(const value_type value)
   {
     Assert(!empty(), "Cannot set an empty matrix to a scalar.");
-    for (iterator& elem : *this)
-      elem.value() = value;
+    for (auto elem : *this)
+      elem.value = value;
   }
 
   /// Equality comparison operator.
@@ -445,8 +216,308 @@ public:
     return colnums[i].size();
   }
 
+  /// Return whether the SparseMatrix is empty.
+  bool
+  empty() const
+  {
+    return (rows == 0 && cols == 0 &&
+            colnums.empty() && values.empty());
+  }
+
+  // @}
+  /** \name Iterators */
+  // @{
+
+  struct entry
+  {
+    const size_type& row, column;
+    value_type& value;
+
+    entry(const size_type& i,
+          const size_type& j,
+          value_type& val) :
+      row(i), column(j), value(val) {}
+  };
+
+
+  class iterator
+  {
+  private:
+    using ConstColumnIterator = std::vector<size_type>::const_iterator;
+    using ValueIterator = typename std::vector<value_type>::iterator;
+
+  private:
+    SparseMatrix*       sparse_matrix_ptr;
+    size_type           current_row;
+//    size_type           current_index;
+    ConstColumnIterator col_ptr;
+    ValueIterator       val_ptr;
+
+    void
+    advance()
+    {
+      // Increment along the current row
+      ++col_ptr; ++val_ptr;
+
+      // If at the end of a row, handle it
+      if (col_ptr == sparse_matrix_ptr->colnums[current_row].end())
+      {
+        // Increment the row to the next non-empty row.
+        ++current_row;
+        while (current_row < sparse_matrix_ptr->rows &&
+               sparse_matrix_ptr->colnums.empty())
+          ++current_row;
+
+        /* Set the pointers to the next row, for valid rows, or to the invalid
+         * iterator, if at the end of the matrix. */
+        if (current_row < sparse_matrix_ptr->rows)
+          *this = sparse_matrix_ptr->begin(current_row);
+        else
+          *this = sparse_matrix_ptr->end();
+      }
+    }
+
+  public:
+    iterator(SparseMatrix* sparse_matrix,
+             const size_type row) :
+      sparse_matrix_ptr(sparse_matrix),
+      current_row(row),
+      col_ptr(sparse_matrix_ptr->colnums[current_row].begin()),
+      val_ptr(sparse_matrix_ptr->values[current_row].begin()) {}
+
+    iterator(SparseMatrix* sparse_matrix) :
+      sparse_matrix_ptr(sparse_matrix),
+      current_row(-1), col_ptr(), val_ptr() {}
+
+    iterator&
+    operator++()
+    { advance(); return *this; }
+
+    iterator
+    operator++(int)
+    { auto it = *this; advance(); return *this; }
+
+    entry
+    operator*()
+    { return {current_row, *col_ptr, *val_ptr}; }
+
+    bool
+    operator==(const iterator& other) const
+    {
+      return (sparse_matrix_ptr == other.sparse_matrix_ptr &&
+              current_row == other.current_row &&
+              col_ptr == other.col_ptr &&
+              val_ptr == other.val_ptr);
+    }
+
+    bool
+    operator!=(const iterator& other) const
+    { return !(*this == other); }
+  };
+
+
+  /// Mutable iterator to the first row of the SparseMatrix.
+  iterator
+  begin()
+  { return (!empty()) ? begin(0) : end();  }
+
+  /// Mutable iterator to the end of the SparseMatrix.
+  iterator
+  end()
+  { return {this}; }
+
+  /// Mutable iterator to the start of row \p i.
+  iterator
+  begin(const size_type i)
+  {
+    Assert(i < rows, "Out of range error.");
+    return {this, i};
+  }
+
+  /// Mutable iterator to the start of end \p i.
+  iterator
+  end(const size_type i)
+  {
+    Assert(i < rows, "Out of range error.");
+    if (i + 1 == rows) return end();
+    else return begin(i + 1);
+  }
+
+
+  struct const_entry
+  {
+    const size_type& row, column;
+    const value_type& value;
+
+    const_entry(const size_type& i,
+                const size_type& j,
+                const value_type& val) :
+        row(i), column(j), value(val) {}
+  };
+
+
+  class const_iterator
+  {
+  private:
+    using ConstColumnIterator = std::vector<size_type>::const_iterator;
+    using ConstValueIterator = typename std::vector<value_type>::const_iterator;
+
+  private:
+    const SparseMatrix*  sparse_matrix_ptr;
+    size_type            current_row;
+    ConstColumnIterator  col_ptr;
+    ConstValueIterator   val_ptr;
+
+    void
+    advance()
+    {
+      // Increment along the current row
+      ++col_ptr; ++val_ptr;
+
+      // If at the end of a row, handle it
+      if (col_ptr == sparse_matrix_ptr->colnums[current_row].end())
+      {
+        // Increment the row to the next non-empty row.
+        ++current_row;
+        while (current_row < sparse_matrix_ptr->rows &&
+               sparse_matrix_ptr->colnums.empty())
+          ++current_row;
+
+        /* Set the pointers to the next row, for valid rows, or to the invalid
+         * iterator, if at the end of the matrix. */
+        if (current_row < sparse_matrix_ptr->rows)
+          *this = sparse_matrix_ptr->begin(current_row);
+        else
+          *this = sparse_matrix_ptr->end();
+      }
+    }
+
+  public:
+    const_iterator(const SparseMatrix* sparse_matrix,
+                   const size_type row) :
+        sparse_matrix_ptr(sparse_matrix),
+        current_row(row),
+        col_ptr(sparse_matrix_ptr->colnums[current_row].begin()),
+        val_ptr(sparse_matrix_ptr->values[current_row].begin()) {}
+
+    const_iterator(const SparseMatrix* sparse_matrix) :
+      sparse_matrix_ptr(sparse_matrix),
+      current_row(-1), col_ptr(), val_ptr() {}
+
+    const_iterator&
+    operator++()
+    { advance(); return *this; }
+
+    const_iterator
+    operator++(int)
+    { auto it = *this; advance(); return *this; }
+
+    const_entry
+    operator*()
+    { return {current_row, *col_ptr, *val_ptr}; }
+
+    bool
+    operator==(const const_iterator& other) const
+    {
+      return (sparse_matrix_ptr == other.sparse_matrix_ptr &&
+              current_row == other.current_row &&
+              col_ptr == other.col_ptr &&
+              val_ptr == other.val_ptr);
+    }
+
+    bool
+    operator!=(const const_iterator& other) const
+    { return !(*this == other); }
+  };
+
+
+  /// Constant iterator to the first row of the SparseMatrix.
+  const_iterator
+  begin() const
+  { return (!empty()) ? begin(0) : end();  }
+
+  /// Constant iterator to the end of the SparseMatrix.
+  const_iterator
+  end() const
+  { return {this}; }
+
+  /// Constant iterator to the first entry of row \p i.
+  const_iterator
+  begin(const size_type i) const
+  {
+    Assert(i < rows, "Out of range error.");
+    return {this, i};
+  }
+
+  /// Constant iterator to the end of row \p i.
+  const_iterator
+  end(const size_type i) const
+  {
+    Assert(i < rows, "Out of range error.");
+    if (i + 1 == rows) return end();
+    else return begin(i + 1);
+  }
+
+
+  class row
+  {
+  private:
+    SparseMatrix* sparse_matrix_ptr;
+    const size_type row_num;
+
+  public:
+    row(SparseMatrix* sparse_matrix,
+        const size_type i) :
+      sparse_matrix_ptr(sparse_matrix), row_num(i) {}
+
+    iterator
+    begin()
+    { return sparse_matrix_ptr->begin(row_num); }
+
+    iterator
+    end()
+    { return sparse_matrix_ptr->end(row_num); }
+  };
+
+
+  /// Convenience function for mutable range-based for loops over row \p i.
+  row
+  row_iterator(const size_type i)
+  { return {this, i}; }
+
+
+  class const_row
+  {
+  private:
+    const SparseMatrix* sparse_matrix_ptr;
+    const size_type row_num;
+
+  public:
+    const_row(const SparseMatrix* sparse_matrix,
+        const size_type i) :
+        sparse_matrix_ptr(sparse_matrix), row_num(i) {}
+
+    const_iterator
+    begin()
+    { return sparse_matrix_ptr->begin(row_num); }
+
+    const_iterator
+    end()
+    { return sparse_matrix_ptr->end(row_num); }
+  };
+
+
+  /// Convenience function for constant range-based for loops over row \p i.
+  const_row
+  const_row_iterator(const size_type i)
+  { return {this, i}; }
+
+  // @}
+  /** \name Accessors */
+  // @{
+
   /// Return the column index for nonzero entry \p jr of row \p i.
-  size_type
+  const size_type&
   column(const size_type i, const size_type jr) const
   {
     Assert(i < rows, "Out of range error.");
@@ -454,12 +525,30 @@ public:
     return colnums[i][jr];
   }
 
+  /// Read/write access to nonzero entry \p jr of row \p i.
+  value_type&
+  value(const size_type i, const size_type jr)
+  {
+    Assert(i < rows, "Out of range error.");
+    Assert(jr < row_length(i), "Relative index exceeds row length.");
+    return values[i][jr];
+  }
+
+  /// Read access to nonzero entry \p jr of row \p i.
+  const value_type&
+  value(const size_type i, const size_type jr) const
+  {
+    Assert(i < rows, "Out of range error.");
+    Assert(jr < row_length(i), "Relative index exceeds row length.");
+    return values[i][jr];
+  }
+
   /**
    * Return a pointer to the element at index <tt>(i, j)</tt>.
    * If no element exists null is returned.
    */
   value_type*
-  locate(const size_type i, const size_type j)
+  locate(const size_type i, const size_type j) override
   {
     Assert(i < rows && j < cols, "Out of range error.");
     for (size_type jr = 0; jr < row_length(i); ++jr)
@@ -473,7 +562,7 @@ public:
    * element exists, null is returned.
    */
   const value_type*
-  locate(const size_type i, const size_type j) const
+  locate(const size_type i, const size_type j) const override
   {
     Assert(i < rows && j < cols, "Out of range error.");
     for (uint64_t jr = 0; jr < row_length(i); ++jr)
@@ -482,83 +571,6 @@ public:
     return nullptr;
   }
 
-  /// Return whether the SparseMatrix is empty.
-  bool
-  empty() const
-  {
-    return (rows == 0 && cols == 0 &&
-            colnums.empty() && values.empty());
-  }
-
-  // @}
-  /** \name Iterators */
-  // @{
-
-  /// Mutable iterator to the first row of the SparseMatrix.
-  iterator
-  begin()
-  { return {this, 0, 0, colnums[0].begin(), values[0].begin()};  }
-
-  /// Constant iterator to the first row of the SparseMatrix.
-  const_iterator
-  begin() const
-  { return {this, 0, 0, colnums[0].begin(), values[0].begin()};  }
-
-  /// Mutable iterator to the end of the SparseMatrix.
-  iterator
-  end()
-  {
-    return {this, rows, colnums[rows - 1].size(),
-            colnums[rows - 1].end(), values[rows - 1].end()};
-  }
-
-  /// Constant iterator to the end of the SparseMatrix.
-  const_iterator
-  end() const
-  {
-    return {this, rows, colnums[rows - 1].size(),
-            colnums[rows - 1].end(), values[rows - 1].end()};
-  }
-
-  /// Mutable iterator to the first entry of row \p i.
-  iterator
-  begin(const size_type i)
-  {
-    Assert(i < rows && !empty(), "Out of range error.");
-    return {this, i, 0, colnums[i].begin(), values[i].begin()};
-  }
-
-  /// Constant iterator to the first entry of row \p i.
-  const_iterator
-  begin(const size_type i) const
-  {
-    Assert(i < rows, "Out of range error.");
-    if (empty()) return end();
-    return {this, i, 0, colnums[i].begin(), values[i].begin()};
-  }
-
-  /// Mutable iterator to the end of row \p i.
-  iterator
-  end(const size_type i)
-  {
-    Assert(i < rows, "Out of range error.");
-    if (i + 1) return end();
-    return {this, i, colnums[i].size(), colnums[i].end(), values[i].end()};
-  }
-
-  /// Constant iterator to the end of row \p i.
-  const_iterator
-  end(const size_type i) const
-  {
-    Assert(i < rows, "Out of range error.");
-    if (i + 1 == rows) return end();
-    else return {this, i, colnums[i].size(),
-                 colnums[i].end(), values[i].end()};
-  }
-
-  // @}
-  /** \name Accessors */
-  // @{
 
   /// Read/write access to element <tt>(i, j)</tt>.
   value_type&
@@ -580,16 +592,48 @@ public:
     return *value_ptr;
   }
 
-  Vector<value_type>
+  /**
+   * Return a pointer to the diagonal element of row \p i. If no diagonal
+   * element exists, null is returned.
+   */
+  value_type*
+  diagonal(const size_type i)
+  { return locate(i, i); }
+
+  /**
+   * Return a constant pointer to the diagonal element of row \p i. If no
+   * diagonal element exists, null is returned.
+   */
+  const value_type*
+  diagonal(const size_type i) const
+  { return locate(i, i); }
+
+  /**
+   * Return a vector of pointers to the diagonal elements of the SparseMatrix.
+   * If any particular diagonal is not present, its value is null.
+   */
+   std::vector<value_type*>
+   diagonal()
+  {
+     size_type min_dim = std::min(rows, cols);
+     std::vector<value_type*> diag(min_dim);
+     for (size_type i = 0; i < min_dim; ++i)
+       diag[i] = diagonal(i);
+     return diag;
+  }
+
+  /**
+   * Return a vector of constant pointers to the diagonal elements of the
+   * SparseMatrix. If any particular diagonal is not present, its value is null.
+   */
+  std::vector<const value_type*>
   diagonal() const
   {
-    Assert(!empty(), "Empty matrix error.");
-
-    Vector<value_type> x(std::min(rows, cols), 0.0);
-    for (const_iterator& elem : *this)
-      if (elem.row() == elem.column())
-        x[elem.row()] = elem.value();
-    return x;
+    size_type min_dim = std::min(rows, cols);
+    std::vector<value_type*> diag(min_dim);
+    for (size_type i = 0; i < min_dim; ++i)
+      diag[i] = diagonal(i);
+    return diag;
   }
 
   // @}
@@ -706,8 +750,8 @@ public:
   SparseMatrix&
   operator-()
   {
-    for (iterator& elem : *this)
-      elem.value() = -elem.value();
+    for (auto elem : *this)
+      elem.value = -elem.value;
     return *this;
   }
 
@@ -715,8 +759,8 @@ public:
   SparseMatrix&
   operator*=(const value_type value)
   {
-    for (iterator& elem : *this)
-      elem.value() *= value;
+    for (auto elem : *this)
+      elem.value *= value;
     return *this;
   }
 
@@ -726,8 +770,8 @@ public:
   {
     Assert(value != 0.0, "Zero division error.");
 
-    for (iterator& elem : *this)
-      elem.value() /= value;
+    for (auto elem : *this)
+      elem.value /= value;
     return *this;
   }
 
@@ -785,8 +829,8 @@ public:
     Assert(y.size() == rows, "Dimension mismatch error.");
 
     if (!adding) y = 0.0;
-    for (const_iterator& elem : *this)
-      y[elem.row()] += elem.value() * x[elem.column()];
+    for (const auto elem : *this)
+      y[elem.row] += elem.value * x[elem.column];
   }
 
   /// See \ref vmult.
@@ -827,8 +871,8 @@ public:
     Assert(y.size() == cols, "Dimension mismatch error.");
 
     if (!adding) y = 0.0;
-    for (const_iterator& elem : *this)
-      y[elem.column()] += elem.value() * x[elem.row()];
+    for (const auto& elem : *this)
+      y[elem.column] += elem.value * x[elem.row];
   }
 
   /// See \ref Tvmult.
@@ -859,8 +903,8 @@ public:
     Assert(cols == x.size(), "Dimension mismatch error.");
 
     Vector<value_type> y(rows);
-    for (const_iterator& elem : *this)
-      y[elem.row()] += elem.value() * x[elem.column()];
+    for (auto elem : *this)
+      y[elem.row] += elem.value * x[elem.column];
     return y;
   }
 
@@ -882,10 +926,11 @@ public:
        << std::setw(8) << "------"
        << std::setw(10) << "-----" << std::endl;
 
-    for (const_iterator& elem : *this)
-        os << std::setw(8)  << elem.row()
-           << std::setw(8)  << elem.column()
-           << std::setw(10) << elem.value() << std::endl;
+    for (const auto elem : *this)
+//        os << std::setw(8)  << elem.row
+//           << std::setw(8)  << elem.column
+//           << std::setw(10) << elem.value << std::endl;
+      continue;
   }
 
   /// Print the sparse matrix as a normal matrix with zero fill ins.
@@ -921,10 +966,43 @@ public:
       }
       os << std::endl;
     }
+    os << std::endl;
   }
 
   // @}
 };
+
+
+template<typename number>
+class TransposeSparseMatrix : public SparseMatrixBase<number>
+{
+private:
+  SparseMatrix<number>& ref_sparse_matrix;
+
+public:
+  TransposeSparseMatrix(const TransposeSparseMatrix& other) :
+    ref_sparse_matrix(other.ref_sparse_matrix) {}
+
+  TransposeSparseMatrix(const SparseMatrix<number>& other) :
+    ref_sparse_matrix(other) {}
+
+  number&
+  operator()(const uint64_t i, const uint64_t j) override
+  { return ref_sparse_matrix(j, i); }
+
+  const number&
+  operator()(const uint64_t i, const uint64_t j) const override
+  { return ref_sparse_matrix(j, i); }
+
+  number*
+  locate(const uint64_t i, const uint64_t j) override
+  { return ref_sparse_matrix.locate(j, i); }
+
+  const number*
+  locate(const uint64_t i, const uint64_t j) const override
+  { return ref_sparse_matrix(j, i); }
+};
+
 
 
 /*-------------------- Inline Implementations --------------------*/
