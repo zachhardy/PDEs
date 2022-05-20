@@ -1,11 +1,21 @@
-#ifndef EXCEPTIONS_H
-#define EXCEPTIONS_H
+#ifndef MACROS_H
+#define MACROS_H
 
 #include <cassert>
 #include <stdexcept>
 #include <sstream>
 #include <iostream>
 
+/**
+ * Macros to open and close the code base namespace.
+ */
+#define PDES_NAMESPACE_OPEN namespace PDEs {
+#define PDES_NAMESPACE_CLOSE }
+
+
+/**
+ * General assert statement.
+ */
 #define Assert(cond, exc)                                   \
   {                                                         \
     if (!(cond))                                            \
@@ -24,4 +34,4 @@
       exit(EXIT_FAILURE);                                   \
     }                                                       \
   }
-#endif //EXCEPTIONS_H
+#endif //MACROS_H

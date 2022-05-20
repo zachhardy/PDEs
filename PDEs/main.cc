@@ -8,7 +8,7 @@
 #include "NeutronDiffusion/Groupset/groupset.h"
 #include "NeutronDiffusion/SteadyStateSolver/FV/steadystate_solver_fv.h"
 
-#include "exceptions.h"
+#include "macros.h"
 
 #include <iostream>
 #include <vector>

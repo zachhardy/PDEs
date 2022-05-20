@@ -1,7 +1,7 @@
 #ifndef VECTOR_H
 #define VECTOR_H
 
-#include "exceptions.h"
+#include "macros.h"
 
 #include <cmath>
 #include <vector>

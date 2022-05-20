@@ -2,7 +2,7 @@
 #define MATRIX_H
 
 #include "vector.h"
-#include "exceptions.h"
+#include "macros.h"
 
 #include <cmath>
 #include <vector>

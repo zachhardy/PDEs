@@ -3,7 +3,7 @@
 
 #include "vector.h"
 #include "matrix.h"
-#include "exceptions.h"
+#include "macros.h"
 
 #include <cmath>
 #include <vector>
