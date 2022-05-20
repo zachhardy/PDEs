@@ -41,9 +41,7 @@ solve_groupset(Groupset& groupset, SourceFlags source_flags)
   bool converged = false;
 
   math::SparseCholesky<double> solver = groupset.matrix;
-  solver.print_formatted();
   solver.factorize();
-  solver.print_formatted();
 
   //======================================== Start iterations
   for (uint64_t nit = 0; nit < groupset.max_iterations; ++nit)
@@ -66,7 +64,7 @@ solve_groupset(Groupset& groupset, SourceFlags source_flags)
     iter_info << "Iteration: " << std::setw(3) << nit << " "
               << "Change: " << change;
     if (converged) iter_info << " CONVERGED";
-//    std::cout << iter_info.str() << "\n";
+    std::cout << iter_info.str() << "\n";
 
     if (converged) break;
   }
