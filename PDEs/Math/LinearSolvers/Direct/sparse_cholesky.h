@@ -1,44 +1,47 @@
-#ifndef CHOLESKY_H
-#define CHOLESKY_H
+#ifndef SPARSE_CHOLESKY_H
+#define SPARSE_CHOLESKY_H
 
-#include "matrix.h"
+#include "sparse_matrix.h"
 
 namespace math
 {
 
 /** A class for a Choleky decomposition solver. */
 template<typename number = double>
-class Cholesky : public Matrix<number>
+class SparseCholesky : public SparseMatrix<number>
 {
 public:
-  using value_type = typename Matrix<number>::value_type;
-  using size_type = typename Matrix<number>::size_type;
+  using value_type = typename SparseMatrix<number>::value_type;
+  using size_type = typename SparseMatrix<number>::size_type;
+
+  using iterator = typename SparseMatrix<number>::iterator;
+  using entry = typename SparseMatrix<number>::entry;
 
 private:
   bool factorized = false;
 
 public:
   /// Default constructor.
-  Cholesky() = default;
+  SparseCholesky() = default;
 
   /// Copy constructor.
-  Cholesky(const Cholesky& other)
-    : Matrix<value_type>(other.values)
+  SparseCholesky(const SparseCholesky& other)
+      : SparseMatrix<value_type>(other.values)
   {}
 
   /// Move constructor.
-  Cholesky(Cholesky&& other)
-    : Matrix<value_type>(std::move(other.values))
+  SparseCholesky(SparseCholesky&& other)
+      : SparseMatrix<value_type>(std::move(other.values))
   {}
 
   /// Copy from a Matrix.
-  Cholesky(const Matrix<value_type>& other)
-    : Matrix<value_type>(other)
+  SparseCholesky(const SparseMatrix<value_type>& other)
+      : SparseMatrix<value_type>(other)
   {}
 
   /// Move from a Matrix.
-  Cholesky(Matrix<value_type>&& other)
-    : Matrix<value_type>(std::move(other))
+  SparseCholesky(SparseMatrix<value_type>&& other)
+      : SparseMatrix<value_type>(std::move(other))
   {}
 
   /**
@@ -57,19 +60,31 @@ public:
     size_type n = this->n_rows();
     for (size_type j = 0; j < n; ++j)
     {
-      value_type sum = 0.0;
-      value_type* a_j = this->data(j);
-      for (size_type k = 0; k < j; ++k)
-        sum += std::pow(a_j[k], 2.0);
-      a_j[j] = std::sqrt(a_j[j] - sum);
+      value_type* d = this->locate(j, j);
+      Assert(d && *d != 0.0,
+             "Singular matrix error.");
 
+      // Set the diagonal
+      value_type sum = 0.0;
+      for (const auto elem : this->const_row_iterator(j))
+        if (elem.column < j)
+          sum += elem.value * elem.value;
+      *d = std::sqrt(*d - sum);
+
+      // Set the off-diagonals
       for (size_type i = j + 1; i < n; ++i)
       {
         sum = 0.0;
-        value_type* a_i = this->data(i);
-        for (size_type k = 0; k < j; ++k)
-          sum += a_i[k] * a_j[k];
-        a_i[j] = (a_i[j] - sum) / a_j[j];
+        for (const auto a_ik : this->const_row_iterator(i))
+          if (a_ik.column < j)
+            for (const auto a_jk : this->const_row_iterator(j))
+              if (a_jk.column == a_ik.column)
+                sum += a_ik.value * a_jk.value;
+
+        value_type* a_ij = this->locate(i, j);
+        value_type value = (a_ij) ? (*a_ij - sum) / *d : -sum/ *d;
+        if (std::fabs(value) != 0.0)
+          this->set(i, j, value);
       }
     }
     factorized = true;
@@ -96,23 +111,25 @@ public:
 
     //================================================== Forward solve
     size_type n = this->n_rows();
+    Vector<value_type> y(n);
     for (size_type i = 0; i < n; ++i)
     {
       value_type value = b[i];
-      const value_type* a_i = this->data(i);
-      for (size_type j = 0; j < i; ++j)
-        value -= a_i[j] * x[j];
-      x[i] = value / this->diagonal(i);
+      for (const auto elem : this->const_row_iterator(i))
+        if (elem.column < i)
+          value -= elem.value * x[elem.column];
+      x[i] = value / (*this)(i, i);
     }
 
     //================================================== Backward solve
     for (size_type i = n - 1; i != -1; --i)
     {
-      x[i] /= this->diagonal(i);
-      const value_type* a_ij = this->data(i);
-      for (size_type j = 0; j < i; ++j)
-        x[j] -= *a_ij++ * x[i];
+      x[i] /= *this->diagonal(i);
+      for (const auto a_ij : this->const_row_iterator(i))
+        if (a_ij.column < i)
+          x[a_ij.column] -= a_ij.value * x[i];
     }
+    x.print();
   }
 
   Vector<value_type>
@@ -125,5 +142,4 @@ public:
 };
 
 }
-
-#endif //CHOLESKY_H
+#endif //SPARSE_CHOLESKY_H
