@@ -22,7 +22,7 @@ void neutron_diffusion::SteadyStateSolver::initialize_materials()
 
   // Determine the unique material IDs on the mesh
   std::set<int> unique_material_ids;
-  std::vector<size_t> invalid_cells;
+  std::vector<uint64_t> invalid_cells;
   for (const auto& cell : mesh->cells)
   {
     unique_material_ids.insert(cell->material_id);
@@ -53,7 +53,7 @@ void neutron_diffusion::SteadyStateSolver::initialize_materials()
   material_xs.clear();
   material_src.clear();
 
-  size_t n_materials = materials.size();
+  uint64_t n_materials = materials.size();
   matid_to_xs_map.assign(n_materials, -1);
   matid_to_src_map.assign(n_materials, -1);
 
@@ -129,7 +129,7 @@ void neutron_diffusion::SteadyStateSolver::initialize_materials()
     std::set<double> unique_decay_constants;
     for (const auto& xs : material_xs)
     {
-      for (size_t j = 0; j < xs->n_precursors; ++j)
+      for (uint64_t j = 0; j < xs->n_precursors; ++j)
         unique_decay_constants.insert(xs->precursor_lambda[j]);
 
       if (xs->n_precursors > max_precursors_per_material)

@@ -5,6 +5,7 @@
 
 #include <string>
 #include <unordered_map>
+#include <cinttypes>
 
 namespace physics
 {
@@ -17,9 +18,9 @@ protected:
   typedef std::vector<std::vector<double>> EmmissionSpectra;
 
 public:
-  size_t n_groups;
-  size_t scattering_order;
-  size_t n_precursors;
+  uint64_t n_groups;
+  uint64_t scattering_order;
+  uint64_t n_precursors;
 
   double density = 1.0; ///< Atom density in atoms/b-cm.
   bool is_fissile = false;
@@ -75,25 +76,25 @@ private:
                           std::vector<double>& destination,
                           std::ifstream& file,
                           std::istringstream& line_stream,
-                          size_t & line_number);
+                          uint64_t & line_number);
 
   void read_transfer_matrices(const std::string& keyword,
                               std::vector<TransferMatrix>& destination,
                               std::ifstream& file,
                               std::istringstream& line_stream,
-                              size_t & line_number);
+                              uint64_t & line_number);
 
   void read_precursor_property(const std::string& keyword,
                                std::vector<double>& destination,
                                std::ifstream& file,
                                std::istringstream& line_stream,
-                               size_t& line_number);
+                               uint64_t& line_number);
 
   void read_delayed_spectra(const std::string& keyword,
                             EmmissionSpectra& destination,
                             std::ifstream& file,
                             std::istringstream& line_stream,
-                            size_t& line_number);
+                            uint64_t& line_number);
 };
 
 }

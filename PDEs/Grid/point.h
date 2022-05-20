@@ -6,6 +6,7 @@
 
 #include <iostream>
 #include <sstream>
+#include <cinttypes>
 
 namespace grid
 {
@@ -59,7 +60,7 @@ public:
   /** @{ */
 
   /// Read/write access for element \p index.
-  double& operator[](const size_t index)
+  double& operator[](const uint64_t index)
   {
     if (index > 2)
       this->indexing_error(__FUNCTION__);
@@ -69,7 +70,7 @@ public:
     else              return z;
   }
   /// Read only access for element \p index.
-  double operator[](const size_t index) const
+  double operator[](const uint64_t index) const
   {
     if (index > 2)
       this->indexing_error(__FUNCTION__);

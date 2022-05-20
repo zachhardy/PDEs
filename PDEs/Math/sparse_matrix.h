@@ -2,485 +2,1020 @@
 #define SPARSE_MATRIX_H
 
 #include "vector.h"
+#include "matrix.h"
 #include "exceptions.h"
 
 #include <cmath>
 #include <vector>
 #include <algorithm>
 #include <sstream>
+#include <cinttypes>
+
 
 namespace math
 {
 
-template<typename value_type>
-class SparseMatrix
+template<typename number>
+class SparseMatrixBase
 {
-private:
-  size_t rows;
-  size_t cols;
+public:
+  virtual number&
+  operator()(const uint64_t i, const uint64_t j) = 0;
 
-  std::vector<std::vector<value_type>> m_data;
-  std::vector<std::vector<size_t>> m_indices;
+  virtual const number&
+  operator()(const uint64_t i, const uint64_t j) const = 0;
+
+  virtual number*
+  locate(const uint64_t i, const uint64_t j) = 0;
+
+  virtual const number*
+  locate(const uint64_t i, const uint64_t j) const = 0;
+};
+
+
+
+template<typename number>
+class SparseMatrix : public SparseMatrixBase<number>
+{
+public:
+  using value_type = number;
+  using size_type  = uint64_t;
+
+private:
+  uint64_t rows;  ///< The number of rows.
+  uint64_t cols;  ///< The number of columns.
+
+  /// The row-wise nonzero column indices.
+  std::vector<std::vector<size_type>> colnums;
+
+  /// The row-wise nonzero data entries.
+  std::vector<std::vector<value_type>> values;
 
 public:
-  /** Default constructor. */
-  SparseMatrix() = default;
-
-  /** Construct a square sparse matrix with dimension \p n. */
-  explicit SparseMatrix(const size_t n)
-      : rows(n), cols(n), m_data(n), m_indices(n)
+  /// Default constructor.
+  SparseMatrix()
+    : rows(0), cols(0), colnums(), values()
   {}
 
-  /** Construct a sparse matrix with \p n_rows and \p n_cols. */
-  explicit SparseMatrix(const size_t n_rows, const size_t n_cols)
-    : rows(n_rows), cols(n_cols), m_data(n_rows), m_indices(n_rows)
-  {}
-
-  /** Construct a sparsity pattern. */
-  SparseMatrix(const std::vector<std::vector<size_t>>& pattern);
-
-  /** Copy constructor. */
+  /// Copy constructor.
   SparseMatrix(const SparseMatrix& other)
     : rows(other.rows), cols(other.cols),
-      m_data(other.m_data), m_indices(other.m_indices)
+      colnums(other.colnums), values(other.values)
   {}
 
-  /** Move constructor. */
+  /// Move constructor.
   SparseMatrix(SparseMatrix&& other)
     : rows(other.rows), cols(other.cols),
-      m_data(std::move(other.m_data)),
-      m_indices(std::move(other.m_indices))
+      colnums(std::move(other.colnums)),
+      values(std::move(other.values))
   {}
 
-  /** Copy assignment operator. */
-  SparseMatrix& operator=(const SparseMatrix& other);
+  /**
+   * Construct a sparse matrix with \p n_rows and \p n_cols with
+   * \p default_row_length nonzero entries per row.
+   */
+  explicit
+  SparseMatrix(const size_type n_rows,
+               const size_type n_cols,
+               const size_type default_row_length)
+      : rows(n_rows), cols(n_cols),
+        colnums(n_rows, std::vector<size_type>(default_row_length)),
+        values(n_rows, std::vector<value_type>(default_row_length))
+  {}
 
-  /** Move assignment operator. */
-  SparseMatrix& operator=(SparseMatrix&& other);
+  /**
+   * Construct a square sparse matrix with dimension \p n with
+   * \p default_row_length nonzero entries per row.
+   */
+  explicit
+  SparseMatrix(const size_type n,
+               const size_type default_row_length)
+      : SparseMatrix(n, n, default_row_length)
+  {}
 
-public:
-  /** \name Accessors */
-  /** @{ */
+  /**
+   * Construct a sparse matrix from a sparsity pattern. In this context, a
+   * sparsity pattern is defined by a list of lists. Each inner list stores
+   * the nonzero column indices for a given row.
+   */
+  SparseMatrix(std::vector<std::vector<size_type>> sparsity_pattern)
+      : rows(sparsity_pattern.size()), colnums(sparsity_pattern),
+        values(sparsity_pattern.size())
+  {
+    cols = 0;
+    for (size_type i = 0; i < rows; ++i)
+    {
+      // Sort column indices and allocate data
+      std::sort(colnums[i].begin(), colnums[i].end());
+      values[i].resize(colnums[i].size());
 
-  /** Read access for the element at row \p i and column \p j. */
-  value_type operator()(const size_t i, const size_t j) const;
+      // Set number of columns
+      for (const auto& col : colnums[i])
+        cols = (col > cols) ? col : cols;
+    }
+  }
 
-  /** Read/write access for the element at row \p i and column \p j. */
-  value_type& operator()(const size_t i, const size_t j);
+  /// Construct from a dense matrix.
+  SparseMatrix(const Matrix<number>& other)
+    : rows(other.n_rows()), cols(other.n_cols()),
+      colnums(other.n_rows()), values(other.n_rows())
+  {
+    for (size_type i = 0; i < rows; ++i)
+      for (size_type j = 0; j < cols; ++j)
+        if (other[i][j] != 0.0)
+        {
+          colnums[i].push_back(j);
+          values[i].push_back(other[i][j]);
+        }
+  }
 
-  /** @} */
-  /** \name Modifiers */
-  /** @{ */
+  /// Assignment operator.
+  SparseMatrix&
+  operator=(const SparseMatrix& other)
+  {
+    rows    = other.rows;
+    cols    = other.cols;
+    colnums = other.colnums;
+    values  = other.values;
+    return *this;
+  }
 
-  /** Clear all data from the sparse matrix. */
-  void clear();
+  /// Assignment with a full matrix.
+  SparseMatrix&
+  operator=(const Matrix<value_type>& other)
+  {
+    colnums.clear();
+    values.clear();
 
-  /** Set the element at row \p i and column \p j to \p value. */
-  void set(const size_t i, const size_t j, const value_type value);
+    rows = other.n_rows();
+    cols = other.n_cols();
+    colnums.resize(rows);
+    values.resize(rows);
+    for (size_type i = 0; i < rows; ++i)
+      for (size_type j = 0; j < cols; ++j)
+        if (other[i][j] != 0.0)
+        {
+          colnums[i].push_back(j);
+          values[i].push_back(other[i][j]);
+        }
+    return *this;
+  }
 
-  /** Set a list of elements. See \ref set.*/
-  void set(const std::vector<size_t>& row_indices,
-           const std::vector<size_t>& col_indices,
-           const std::vector<value_type>& values);
+  /// Assignment with a scalar value.
+  SparseMatrix&
+  operator=(const value_type value)
+  {
+    Assert(!empty(), "Cannot set an empty matrix to a scalar.");
+    for (auto elem : *this)
+      elem.value = value;
+  }
 
+  /// Equality comparison operator.
+  bool
+  operator==(const SparseMatrix& other) const
+  {
+    return (rows    == other.rows &&
+            cols    == other.cols &&
+            colnums == other.colnums &&
+            values  == other.values);
+  }
 
-  /** @} */
+  /// Inequality comparison operator.
+  bool
+  operator!=(const SparseMatrix& other) const
+  { return !(*this == other); }
+
   /** \name Information */
-  /** @{ */
+  // @{
 
-  /** Return the number of rows the sparse matrix represents. */
-  size_t n_rows() const { return rows; }
+  /// Return the number of rows.
+  size_type
+  n_rows() const
+  { return rows; }
 
-  /** Return the number of columns the sparse matrix represents. */
-  size_t n_cols() const { return cols; }
+  /// Return the number of columns.
+  size_type
+  n_cols() const
+  { return cols; }
 
-  /** Return the total number of elements in the sparse matrix. */
-  size_t size() const { return rows * cols; }
+  /// Return the number of nonzero elements.
+  size_type
+  nnz() const
+  {
+    size_type count = 0;
+    for (size_type i = 0; i < rows; ++i)
+      count += row_length(i);
+    return count;
+  }
 
-  /** Return the number of nonzero elements in the sparse matrix. */
-  size_t n_nonzero_elements() const;
+  /// Return the number of nonzero entries in row \p i.
+  size_type
+  row_length(const size_type i) const
+  {
+    Assert(i < rows, "Out of range error.");
+    return colnums[i].size();
+  }
 
-  /** @} */
+  /// Return whether the SparseMatrix is empty.
+  bool
+  empty() const
+  {
+    return (rows == 0 && cols == 0 &&
+            colnums.empty() && values.empty());
+  }
+
+  // @}
+  /** \name Iterators */
+  // @{
+
+  struct entry
+  {
+    const size_type& row, column;
+    value_type& value;
+
+    entry(const size_type& i,
+          const size_type& j,
+          value_type& val) :
+      row(i), column(j), value(val) {}
+  };
+
+
+  class iterator
+  {
+  private:
+    using ConstColumnIterator = std::vector<size_type>::const_iterator;
+    using ValueIterator = typename std::vector<value_type>::iterator;
+
+  private:
+    SparseMatrix*       sparse_matrix_ptr;
+    size_type           current_row;
+//    size_type           current_index;
+    ConstColumnIterator col_ptr;
+    ValueIterator       val_ptr;
+
+    void
+    advance()
+    {
+      // Increment along the current row
+      ++col_ptr; ++val_ptr;
+
+      // If at the end of a row, handle it
+      if (col_ptr == sparse_matrix_ptr->colnums[current_row].end())
+      {
+        // Increment the row to the next non-empty row.
+        ++current_row;
+        while (current_row < sparse_matrix_ptr->rows &&
+               sparse_matrix_ptr->colnums.empty())
+          ++current_row;
+
+        /* Set the pointers to the next row, for valid rows, or to the invalid
+         * iterator, if at the end of the matrix. */
+        if (current_row < sparse_matrix_ptr->rows)
+          *this = sparse_matrix_ptr->begin(current_row);
+        else
+          *this = sparse_matrix_ptr->end();
+      }
+    }
+
+  public:
+    iterator(SparseMatrix* sparse_matrix,
+             const size_type row) :
+      sparse_matrix_ptr(sparse_matrix),
+      current_row(row),
+      col_ptr(sparse_matrix_ptr->colnums[current_row].begin()),
+      val_ptr(sparse_matrix_ptr->values[current_row].begin()) {}
+
+    iterator(SparseMatrix* sparse_matrix) :
+      sparse_matrix_ptr(sparse_matrix),
+      current_row(-1), col_ptr(), val_ptr() {}
+
+    iterator&
+    operator++()
+    { advance(); return *this; }
+
+    iterator
+    operator++(int)
+    { auto it = *this; advance(); return *this; }
+
+    entry
+    operator*()
+    { return {current_row, *col_ptr, *val_ptr}; }
+
+    bool
+    operator==(const iterator& other) const
+    {
+      return (sparse_matrix_ptr == other.sparse_matrix_ptr &&
+              current_row == other.current_row &&
+              col_ptr == other.col_ptr &&
+              val_ptr == other.val_ptr);
+    }
+
+    bool
+    operator!=(const iterator& other) const
+    { return !(*this == other); }
+  };
+
+
+  /// Mutable iterator to the first row of the SparseMatrix.
+  iterator
+  begin()
+  { return (!empty()) ? begin(0) : end();  }
+
+  /// Mutable iterator to the end of the SparseMatrix.
+  iterator
+  end()
+  { return {this}; }
+
+  /// Mutable iterator to the start of row \p i.
+  iterator
+  begin(const size_type i)
+  {
+    Assert(i < rows, "Out of range error.");
+    return {this, i};
+  }
+
+  /// Mutable iterator to the start of end \p i.
+  iterator
+  end(const size_type i)
+  {
+    Assert(i < rows, "Out of range error.");
+    if (i + 1 == rows) return end();
+    else return begin(i + 1);
+  }
+
+
+  struct const_entry
+  {
+    const size_type& row, column;
+    const value_type& value;
+
+    const_entry(const size_type& i,
+                const size_type& j,
+                const value_type& val) :
+        row(i), column(j), value(val) {}
+  };
+
+
+  class const_iterator
+  {
+  private:
+    using ConstColumnIterator = std::vector<size_type>::const_iterator;
+    using ConstValueIterator = typename std::vector<value_type>::const_iterator;
+
+  private:
+    const SparseMatrix*  sparse_matrix_ptr;
+    size_type            current_row;
+    ConstColumnIterator  col_ptr;
+    ConstValueIterator   val_ptr;
+
+    void
+    advance()
+    {
+      // Increment along the current row
+      ++col_ptr; ++val_ptr;
+
+      // If at the end of a row, handle it
+      if (col_ptr == sparse_matrix_ptr->colnums[current_row].end())
+      {
+        // Increment the row to the next non-empty row.
+        ++current_row;
+        while (current_row < sparse_matrix_ptr->rows &&
+               sparse_matrix_ptr->colnums.empty())
+          ++current_row;
+
+        /* Set the pointers to the next row, for valid rows, or to the invalid
+         * iterator, if at the end of the matrix. */
+        if (current_row < sparse_matrix_ptr->rows)
+          *this = sparse_matrix_ptr->begin(current_row);
+        else
+          *this = sparse_matrix_ptr->end();
+      }
+    }
+
+  public:
+    const_iterator(const SparseMatrix* sparse_matrix,
+                   const size_type row) :
+        sparse_matrix_ptr(sparse_matrix),
+        current_row(row),
+        col_ptr(sparse_matrix_ptr->colnums[current_row].begin()),
+        val_ptr(sparse_matrix_ptr->values[current_row].begin()) {}
+
+    const_iterator(const SparseMatrix* sparse_matrix) :
+      sparse_matrix_ptr(sparse_matrix),
+      current_row(-1), col_ptr(), val_ptr() {}
+
+    const_iterator&
+    operator++()
+    { advance(); return *this; }
+
+    const_iterator
+    operator++(int)
+    { auto it = *this; advance(); return *this; }
+
+    const_entry
+    operator*()
+    { return {current_row, *col_ptr, *val_ptr}; }
+
+    bool
+    operator==(const const_iterator& other) const
+    {
+      return (sparse_matrix_ptr == other.sparse_matrix_ptr &&
+              current_row == other.current_row &&
+              col_ptr == other.col_ptr &&
+              val_ptr == other.val_ptr);
+    }
+
+    bool
+    operator!=(const const_iterator& other) const
+    { return !(*this == other); }
+  };
+
+
+  /// Constant iterator to the first row of the SparseMatrix.
+  const_iterator
+  begin() const
+  { return (!empty()) ? begin(0) : end();  }
+
+  /// Constant iterator to the end of the SparseMatrix.
+  const_iterator
+  end() const
+  { return {this}; }
+
+  /// Constant iterator to the first entry of row \p i.
+  const_iterator
+  begin(const size_type i) const
+  {
+    Assert(i < rows, "Out of range error.");
+    return {this, i};
+  }
+
+  /// Constant iterator to the end of row \p i.
+  const_iterator
+  end(const size_type i) const
+  {
+    Assert(i < rows, "Out of range error.");
+    if (i + 1 == rows) return end();
+    else return begin(i + 1);
+  }
+
+
+  class row
+  {
+  private:
+    SparseMatrix* sparse_matrix_ptr;
+    const size_type row_num;
+
+  public:
+    row(SparseMatrix* sparse_matrix,
+        const size_type i) :
+      sparse_matrix_ptr(sparse_matrix), row_num(i) {}
+
+    iterator
+    begin()
+    { return sparse_matrix_ptr->begin(row_num); }
+
+    iterator
+    end()
+    { return sparse_matrix_ptr->end(row_num); }
+  };
+
+
+  /// Convenience function for mutable range-based for loops over row \p i.
+  row
+  row_iterator(const size_type i)
+  { return {this, i}; }
+
+
+  class const_row
+  {
+  private:
+    const SparseMatrix* sparse_matrix_ptr;
+    const size_type row_num;
+
+  public:
+    const_row(const SparseMatrix* sparse_matrix,
+        const size_type i) :
+        sparse_matrix_ptr(sparse_matrix), row_num(i) {}
+
+    const_iterator
+    begin()
+    { return sparse_matrix_ptr->begin(row_num); }
+
+    const_iterator
+    end()
+    { return sparse_matrix_ptr->end(row_num); }
+  };
+
+
+  /// Convenience function for constant range-based for loops over row \p i.
+  const_row
+  const_row_iterator(const size_type i)
+  { return {this, i}; }
+
+  // @}
+  /** \name Accessors */
+  // @{
+
+  /// Return the column index for nonzero entry \p jr of row \p i.
+  const size_type&
+  column(const size_type i, const size_type jr) const
+  {
+    Assert(i < rows, "Out of range error.");
+    Assert(jr < row_length(i), "Relative index exceeds row length.");
+    return colnums[i][jr];
+  }
+
+  /// Read/write access to nonzero entry \p jr of row \p i.
+  value_type&
+  value(const size_type i, const size_type jr)
+  {
+    Assert(i < rows, "Out of range error.");
+    Assert(jr < row_length(i), "Relative index exceeds row length.");
+    return values[i][jr];
+  }
+
+  /// Read access to nonzero entry \p jr of row \p i.
+  const value_type&
+  value(const size_type i, const size_type jr) const
+  {
+    Assert(i < rows, "Out of range error.");
+    Assert(jr < row_length(i), "Relative index exceeds row length.");
+    return values[i][jr];
+  }
+
+  /**
+   * Return a pointer to the element at index <tt>(i, j)</tt>.
+   * If no element exists null is returned.
+   */
+  value_type*
+  locate(const size_type i, const size_type j) override
+  {
+    Assert(i < rows && j < cols, "Out of range error.");
+    for (size_type jr = 0; jr < row_length(i); ++jr)
+      if (colnums[i][jr] == j)
+        return &values[i][jr];
+    return nullptr;
+  }
+
+  /**
+   * Return a constant pointer to the element at index \p(i, \p j). If no
+   * element exists, null is returned.
+   */
+  const value_type*
+  locate(const size_type i, const size_type j) const override
+  {
+    Assert(i < rows && j < cols, "Out of range error.");
+    for (uint64_t jr = 0; jr < row_length(i); ++jr)
+      if (colnums[i][jr] == j)
+        return &values[i][jr];
+    return nullptr;
+  }
+
+
+  /// Read/write access to element <tt>(i, j)</tt>.
+  value_type&
+  operator()(const size_type i, const size_type j) override
+  {
+    Assert(i < rows && j < cols, "Out of range error.");
+    value_type* value_ptr = locate(i, j);
+    Assert(value_ptr != nullptr, "Cannot access an uninitialized element.");
+    return *value_ptr;
+  }
+
+  /// Read access to element <tt>(i, j)</tt>.
+  const value_type&
+  operator()(const size_type i, const size_type j) const override
+  {
+    Assert(i < rows && j < cols, "Out of range error.");
+    const value_type* value_ptr = locate(i, j);
+    Assert(value_ptr != nullptr, "Cannot access an uninitialized element.");
+    return *value_ptr;
+  }
+
+  /**
+   * Return a pointer to the diagonal element of row \p i. If no diagonal
+   * element exists, null is returned.
+   */
+  value_type*
+  diagonal(const size_type i)
+  { return locate(i, i); }
+
+  /**
+   * Return a constant pointer to the diagonal element of row \p i. If no
+   * diagonal element exists, null is returned.
+   */
+  const value_type*
+  diagonal(const size_type i) const
+  { return locate(i, i); }
+
+  /**
+   * Return a vector of pointers to the diagonal elements of the SparseMatrix.
+   * If any particular diagonal is not present, its value is null.
+   */
+   std::vector<value_type*>
+   diagonal()
+  {
+     size_type min_dim = std::min(rows, cols);
+     std::vector<value_type*> diag(min_dim);
+     for (size_type i = 0; i < min_dim; ++i)
+       diag[i] = diagonal(i);
+     return diag;
+  }
+
+  /**
+   * Return a vector of constant pointers to the diagonal elements of the
+   * SparseMatrix. If any particular diagonal is not present, its value is null.
+   */
+  std::vector<const value_type*>
+  diagonal() const
+  {
+    size_type min_dim = std::min(rows, cols);
+    std::vector<value_type*> diag(min_dim);
+    for (size_type i = 0; i < min_dim; ++i)
+      diag[i] = diagonal(i);
+    return diag;
+  }
+
+  // @}
+  /** \name Modifiers */
+  // @{
+
+  /// Return the SparseMatrix to an uninitialized state.
+  void
+  clear()
+  {
+    rows = cols = 0;
+    colnums.clear();
+    values.clear();
+  }
+
+  /**
+   * Reinit the sparse matrix with \p n_rows and \p n_cols with
+   * \p default_row_length nonzero entries per row.
+   */
+  void
+  reinit(const size_type n_rows,
+         const size_type n_cols,
+         const size_type default_row_length)
+  {
+    clear();
+    rows = n_rows;
+    cols = n_cols;
+    colnums.resize(n_rows, std::vector<size_type>(default_row_length));
+    values.resize(n_rows, std::vector<value_type>(default_row_length));
+  }
+
+  /**
+   * Reinit the sparse matrix with dimension \p n with \p default_row_length
+   * nonzero entries per row.
+   */
+  void
+  reinit(const size_type n, const size_type default_row_length)
+  { reinit(n, n, default_row_length); }
+
+  /**
+   * Set element <tt>(i, j)</tt> to \p value. If the element is initialized,
+   * override the value. If it is not, initialize it.
+   */
+  void
+  set(const size_type i, const size_type j, const value_type value)
+  {
+    Assert(i < rows && j < cols, "Out of range error.");
+
+    /* If the row is empty or the column number is larger than all current
+     * entries on the row, add to the back of the row. */
+    if (colnums[i].size() == 0 or colnums[i].back() < j)
+    {
+      colnums[i].push_back(j);
+      values[i].push_back(value);
+      return;
+    }
+
+    // Find the index to insert the entry which maintains sorting.
+    auto it = std::lower_bound(colnums[i].begin(), colnums[i].end(), j);
+    uint64_t jr = it - colnums[i].begin();
+
+    // If this points to an existing column, override the value
+    if (*it == j)
+    {
+      values[i][jr] = value;
+      return;
+    }
+
+    // Insert the entries into the data structures maintaining sorting
+    colnums[i].insert(it, j);
+    values[i].insert(values[i].begin() + jr, value);
+  }
+
+  /**
+   * Add \p value to element <tt>(i, j)</tt>. If the element is not initialized,
+   * the <code> set(const size_type i, const size_type j) </code> is called.
+   */
+  void
+  add(const size_type i, const size_type j, const value_type value)
+  {
+    Assert(i < rows && j < cols, "Out of range error.");
+
+    // Locate the element
+    number* value_ptr = locate(i, j);
+
+    // Set if uninitialized, otherwise, add.
+    if (locate(i, j) == nullptr) set(i, j, value);
+    else *value_ptr += value;
+  }
+
+  /// Swap the elements of two rows.
+  void
+  swap_row(const size_type i, const size_type k)
+  {
+    Assert(i < rows && k < rows, "Out of range error.");
+    colnums[i].swap(colnums[k]);
+  }
+
+  /// Swap the elements of this SparseMatrix with another.
+  void
+  swap(SparseMatrix& other)
+  {
+    std::swap(rows, other.rows);
+    std::swap(cols, other.cols);
+    colnums.swap(other.colnums);
+    values.swap(other.values);
+  }
+
+  // @}
   /** \name Scalar Operations */
-  /** @{ */
+  // @{
 
-  /** Element-wise multiplication by a scalar. */
-  SparseMatrix operator*(const value_type value) const;
+  /// Element-wise negation in-place. */
+  SparseMatrix&
+  operator-()
+  {
+    for (auto elem : *this)
+      elem.value = -elem.value;
+    return *this;
+  }
 
-  /** Element-wise multiplication by a scalar in-place. */
-  SparseMatrix& operator*=(const value_type value);
+  /// Element-wise multiplication by a scalar in-place.
+  SparseMatrix&
+  operator*=(const value_type value)
+  {
+    for (auto elem : *this)
+      elem.value *= value;
+    return *this;
+  }
 
-  /** Element-wise division by a scalar. */
-  SparseMatrix operator/(const value_type value) const;
+  /// Element-wise multiplication by a scalar in-place.
+  SparseMatrix&
+  operator/=(const value_type value)
+  {
+    Assert(value != 0.0, "Zero division error.");
 
-  /** Element-wise division by a scalar in-place. */
-  SparseMatrix& operator/=(const value_type value);
+    for (auto elem : *this)
+      elem.value /= value;
+    return *this;
+  }
 
-  /** @} */
+  // @}
   /** \name Linear Algebra */
-  /** @{ */
+  // @{
 
-  /** Element-wise addition of two sparse matrices. */
-  SparseMatrix operator+(const SparseMatrix& other) const;
+  /**
+   * Add another SparseMatrix multiplied by a scalar to this in-place.
+   *
+   * This is computed via
+   * \f[ \boldsymbol{C} = \boldsymbol{A} + \alpha \boldsymbol{B} \\
+   *     c_{ik} = \sum_{i=0}^{n} \sum_{j=0}^{n} a_{ij} + \alpha b_{ij}.
+   * \f]
+   */
+  void
+  add(const SparseMatrix& B,
+      const value_type factor = 1.0)
+  {
+    Assert(colnums == B.colnums,
+           "Adding two different sparse matrices with different "
+           "sparsity patterns is not allowed.");
 
-  /** Element-wise addition of two sparse matrices in-place. */
-  SparseMatrix& operator+=(const SparseMatrix& other);
+    std::vector<value_type>* row_ptr = &values[0];
+    const std::vector<value_type>* matrix_row_ptr = &B.values[0];
+    const std::vector<value_type>* const end_row_ptr = row_ptr + rows;
 
-  /** Element-wise subtraction of two sparse matrices. */
-  SparseMatrix operator-(const SparseMatrix& other) const;
+    while (row_ptr != end_row_ptr)
+    {
+      value_type* val_ptr = &(*row_ptr)[0];
+      const value_type* matrix_ptr = &(*matrix_row_ptr)[0];
+      const value_type* const end_ptr = val_ptr + row_ptr->size();
 
-  /** Element-wise subtraction of two sparse matrices in-place. */
-  SparseMatrix& operator-=(const SparseMatrix& other);
+      while (val_ptr != end_ptr)
+        *val_ptr++ += factor * *matrix_ptr++;
+
+      row_ptr++; matrix_row_ptr++;
+    }
+  }
 
   /**
    * Compute a matrix-vector product.
+   *
    * This is computed via
    * \f[ \vec{y} = \boldsymbol{A} \vec{x} \\
    *     y_i = \sum_{j=1}^{n} a_{ij} x_j, \hspace{0.25cm} \forall i
    * \f]
    */
-  Vector<value_type> operator*(const Vector<value_type>& x) const;
+  void
+  vmult(const Vector<value_type>& x,
+        Vector<value_type>& y,
+        const bool adding = false) const
+  {
+    Assert(x.size() == cols, "Dimension mismatch error.");
+    Assert(y.size() == rows, "Dimension mismatch error.");
+
+    if (!adding) y = 0.0;
+    for (const auto elem : *this)
+      y[elem.row] += elem.value * x[elem.column];
+  }
+
+  /// See \ref vmult.
+  Vector<value_type>
+  vmult(const Vector<value_type>& x) const
+  {
+    Vector<value_type> y(rows);
+    vmult(x, y);
+    return y;
+  }
 
   /**
-   * Compute a matrix-matrix product.
+   * Compute a matrix-vector product and add to the destination vector.
+   *
    * This is computed via
-   * \f[ \boldsymbol{C} = \boldsymbol{A} \boldsymbol{B}
-   *     c_{ij} = \sum_{k=1}^{n} a_{ik} b_{kj}, \hspace{0.25cm} \forall i, j
+   * \f[ \vec{y} = \boldsymbol{A} \vec{x} \\
+   *     y_i = \sum_{j=1}^{n} a_{ij} x_j, \hspace{0.25cm} \forall i
    * \f]
    */
-   SparseMatrix operator*(const SparseMatrix& other) const;
+  void
+  vmult_add(const Vector<value_type>& x,
+            Vector<value_type>& y)
+  { vmult(x, y, true); }
 
-  /** @} */
+  /**
+   * Compute a transpose matrix-vector product.
+   *
+   * This is computed via
+   * \f[ \vec{y} = \boldsymbol{A}^T \vec{x} \\
+   *     y_i = \sum_{i=1}^{n} a_{ji} x_i, \hspace{0.25cm} \forall i
+   * \f]
+   */
+  void Tvmult(const Vector<value_type>& x,
+              Vector<value_type>& y,
+              const bool adding = false) const
+  {
+    Assert(x.size() == rows, "Dimension mismatch error.");
+    Assert(y.size() == cols, "Dimension mismatch error.");
+
+    if (!adding) y = 0.0;
+    for (const auto& elem : *this)
+      y[elem.column] += elem.value * x[elem.row];
+  }
+
+  /// See \ref Tvmult.
+  Vector<value_type>
+  Tvmult(const Vector<value_type>& x)
+  {
+    Vector<value_type> y(cols);
+    Tvmult(x, y);
+    return y;
+  }
+
+  /**
+   * Compute a transpose matrix-vector product and to the destination vector.
+   *
+   * This is computed via
+   * \f[ \vec{y} = \boldsymbol{A}^T \vec{x} \\
+   *     y_i = \sum_{i=1}^{n} a_{ji} x_i, \hspace{0.25cm} \forall i
+   * \f]
+   */
+  void Tvmult_add(const Vector<value_type>& x,
+                  Vector<value_type>& y)
+  { Tvmult(x, y, true); }
+
+  /// Compute a matrix-vector product. \see vmult
+  Vector<value_type>
+  operator*(const Vector<value_type>& x) const
+  {
+    Assert(cols == x.size(), "Dimension mismatch error.");
+
+    Vector<value_type> y(rows);
+    for (auto elem : *this)
+      y[elem.row] += elem.value * x[elem.column];
+    return y;
+  }
+
+  // @}
+  /** \name Printing Utilities */
+  // @{
+
+  /// Print the sparse matrix as triplets of nonzero entries.
+  void
+  print(std::ostream& os = std::cout) const
+  {
+    os.setf(std::ios::left, std::ios::adjustfield);
+
+    os.fill(' '); os.precision(6);
+    os << std::setw(8) << "Row"
+       << std::setw(8) << "Column"
+       << std::setw(10) << "Value" << std::endl;
+    os << std::setw(8) << "---"
+       << std::setw(8) << "------"
+       << std::setw(10) << "-----" << std::endl;
+
+    for (const auto elem : *this)
+//        os << std::setw(8)  << elem.row
+//           << std::setw(8)  << elem.column
+//           << std::setw(10) << elem.value << std::endl;
+      continue;
+  }
+
+  /// Print the sparse matrix as a normal matrix with zero fill ins.
+  void
+  print_formatted(std::ostream& os = std::cout,
+                  const bool scientific = false,
+                  const unsigned int precision = 3,
+                  const unsigned int width = 0) const
+  {
+    unsigned int w                   = width;
+    std::ios::fmtflags old_flags     = os.flags();
+    unsigned int       old_precision = os.precision(precision);
+
+    if (scientific)
+    {
+      os.setf(std::ios::scientific, std::ios::floatfield);
+      w = (!width)? precision + 7 : w;
+    }
+    else
+    {
+      os.setf(std::ios::fixed, std::ios::floatfield);
+      w = (!width)? precision + 4 : w;
+    }
+
+    // Loop over rows and columns and print element-wise
+    for (uint64_t i = 0; i < rows; ++i)
+    {
+      for (uint64_t j = 0; j < cols; ++j)
+      {
+        // Print the entry or a zero
+        const number* entry = locate(i, j);
+        os << std::setw(w) << ((!entry)? 0.0 : *entry);
+      }
+      os << std::endl;
+    }
+    os << std::endl;
+  }
+
+  // @}
 };
+
+
+template<typename number>
+class TransposeSparseMatrix : public SparseMatrixBase<number>
+{
+private:
+  SparseMatrix<number>& ref_sparse_matrix;
+
+public:
+  TransposeSparseMatrix(const TransposeSparseMatrix& other) :
+    ref_sparse_matrix(other.ref_sparse_matrix) {}
+
+  TransposeSparseMatrix(const SparseMatrix<number>& other) :
+    ref_sparse_matrix(other) {}
+
+  number&
+  operator()(const uint64_t i, const uint64_t j) override
+  { return ref_sparse_matrix(j, i); }
+
+  const number&
+  operator()(const uint64_t i, const uint64_t j) const override
+  { return ref_sparse_matrix(j, i); }
+
+  number*
+  locate(const uint64_t i, const uint64_t j) override
+  { return ref_sparse_matrix.locate(j, i); }
+
+  const number*
+  locate(const uint64_t i, const uint64_t j) const override
+  { return ref_sparse_matrix(j, i); }
+};
+
+
 
 /*-------------------- Inline Implementations --------------------*/
 
-template<typename value_type>
-inline SparseMatrix<value_type>::
-SparseMatrix<value_type>(const std::vector<std::vector<size_t>>& pattern)
-  : rows(pattern.size()), m_data(pattern.size()), m_indices(pattern)
+
+/** Element-wise multiplication by a scalar value. */
+template<typename number>
+inline SparseMatrix<number>
+operator*(const number value, const SparseMatrix<number>& A)
 {
-  cols = 0;
-  for (size_t i = 0; i < rows; ++i)
-  {
-    // Sort column indices for the row
-    std::stable_sort(m_indices[i].begin(), m_indices[i].end());
-
-    // Resize the data vector for the row
-    m_data[i].resize(m_indices[i].size(), 0.0);
-
-    // Check for largest column index
-    for (const auto& j : m_indices[i])
-      if (j > cols) cols = j;
-  }
+  return A * value;
 }
 
-
-
-template<typename value_type>
-inline SparseMatrix<value_type>&
-SparseMatrix<value_type>::operator=(const SparseMatrix<value_type>& other)
-{
-  rows = other.rows;
-  cols = other.cols;
-  m_data = other.m_data;
-  m_indices = other.m_indices;
-  return *this;
-}
-
-
-
-template<typename value_type>
-inline SparseMatrix<value_type>&
-SparseMatrix<value_type>::operator=(SparseMatrix<value_type>&& other)
-{
-  rows = other.rows;
-  cols = other.cols;
-  m_data = std::move(other.m_data);
-  m_indices = std::move(other.m_indices);
-  return *this;
-}
-
-
-
-template<typename value_type>
-inline value_type
-SparseMatrix<value_type>::operator()(const size_t i, const size_t j) const
-{
-  Assert(i < rows and j < cols, "Indices exceed the matrix dimensions.");
-
-  // If no entries on the row, return the default.
-  if (m_indices[i].empty())
-    return 0.0;
-
-  // Otherwise, look for the specified column in the row
-  const auto& colnums = m_indices[i];
-  auto rel_loc = std::find(colnums.begin(), colnums.end(), j);
-
-  // If the column is not in the row, return the default
-  if (rel_loc == colnums.end())
-    return 0.0;
-
-  // Otherwise, return the matrix element
-  size_t jr = rel_loc - colnums.begin();
-  return m_data[i][jr];
-}
-
-
-
-template<typename value_type>
-inline value_type&
-SparseMatrix<value_type>::operator()(const size_t i, const size_t j)
-{
-  Assert(i < rows and j < cols, "Indices exceed the matrix dimensions.");
-
-  // Check whether the row exists
-  const auto& colnums = m_indices[i];
-  Assert(not colnums.empty(), "Invalid access attempt.");
-
-  // Check whether the column exists on the row
-  auto rel_loc = std::lower_bound(colnums.begin(), colnums.end(), j);
-  Assert(rel_loc != colnums.end(), "Invalid access attempt.");
-
-  size_t jr = rel_loc - colnums.begin();
-  return m_data[i][jr];
-}
-
-
-
-template<typename value_type>
-inline void SparseMatrix<value_type>::clear()
-{
-  rows = 0; cols = 0;
-  m_data.clear(); m_indices.clear();
-}
-
-
-
-template<typename value_type>
-inline void
-SparseMatrix<value_type>::set(const size_t i, const size_t j,
-                              const value_type value)
-{
-  Assert(i < rows and j < cols, "Indices exceed the matrix dimensions.");
-
-  /* If the row is empty or the column number is larger than all current
-   * entries on the row, add to the back of the row. */
-  if (m_indices[i].size() == 0 or m_indices[i].back() < j)
-  {
-    m_indices[i].push_back(j);
-    m_data[i].push_back(value);
-    return;
-  }
-
-  // Find the index which maintains sorting.
-  auto it = std::lower_bound(m_indices[i].begin(),
-                             m_indices[i].end(), j);
-
-  // If this points to an existing column, add to it
-  if (*it == j)
-  {
-    size_t jr = it - m_indices[i].begin();
-    m_data[i][jr] += value;
-    return;
-  }
-
-  // Otherwise, insert into its sorted location
-  m_indices[i].insert(it, j);
-  m_data[i].insert(it, j);
-}
-
-
-
-template<typename value_type>
-inline void
-SparseMatrix<value_type>::set(const std::vector<size_t>& row_indices,
-                              const std::vector<size_t>& col_indices,
-                              const std::vector<value_type>& values)
-{
-  Assert(row_indices.size() == col_indices.size() and
-         row_indices.size() == values.size(),
-         "Invalid inputs.");
-  for (size_t i = 0; i < row_indices.size(); ++i)
-    this->set(row_indices[i], col_indices[i], values[i]);
-}
-
-
-
-template<typename value_type>
-inline size_t
-SparseMatrix<value_type>::n_nonzero_elements() const
-{
-  size_t count = 0;
-  for (const auto& row : m_indices)
-    count += row.size();
-  return count;
-}
-
-
-
-template<typename value_type>
-inline SparseMatrix<value_type>
-SparseMatrix<value_type>::operator*(const value_type value) const
-{
-  SparseMatrix m(*this);
-  for (auto& row : m)
-    for (auto& elem : row)
-      elem *= value;
-  return m;
-}
-
-
-
-template<typename value_type>
-inline SparseMatrix<value_type>&
-SparseMatrix<value_type>::operator*=(const value_type value)
-{
-  for (auto& row : m_data)
-    for (auto& elem : row)
-      elem *= value;
-  return *this;
-}
-
-
-
-template<typename value_type>
-inline SparseMatrix<value_type>
-SparseMatrix<value_type>::operator/(const value_type value) const
-{
-  Assert(value != 0.0, "Zero division error.");
-
-  SparseMatrix m(*this);
-  for (auto& row : m)
-    for (auto& elem : row)
-      elem /= value;
-  return m;
-}
-
-
-
-template<typename value_type>
-inline SparseMatrix<value_type>&
-SparseMatrix<value_type>::operator/=(const value_type value)
-{
-  Assert(value != 0.0, "Zero division error.");
-
-  for (auto& row : m_data)
-    for (auto& elem : row)
-      elem /= value;
-  return *this;
-}
-
-
-
-template<typename value_type>
-inline SparseMatrix<value_type>
-SparseMatrix<value_type>::
-operator+(const SparseMatrix<value_type>& other) const
-{
-  Assert(rows == other.n_rows() and
-         cols == other.n_cols(),
-         "Mismatched size error.");
-
-  SparseMatrix m(*this);
-  for (size_t i = 0; i < rows; ++i)
-    for (size_t j = 0; j < other.m_indices[i].size(); ++j)
-      m.set(i, other.m_indices[i][j], other.m_data[i][j]);
-  return m;
-}
-
-
-
-template<typename value_type>
-inline SparseMatrix<value_type>&
-SparseMatrix<value_type>::operator+=(const SparseMatrix<value_type>& other)
-{
-  Assert(rows == other.n_rows() and
-         cols == other.n_cols(),
-         "Mismatched size error.");
-
-  for (size_t i = 0; i < rows; ++i)
-    for (size_t j = 0; j < other.m_indices[i].size(); ++j)
-      this->set(i, other.m_indices[i][j], other.m_data[i][j]);
-  return *this;
-}
-
-
-
-template<typename value_type>
-inline SparseMatrix<value_type>
-SparseMatrix<value_type>::
-operator-(const SparseMatrix<value_type>& other) const
-{
-  Assert(rows == other.n_rows() and
-         cols == other.n_cols(),
-         "Mismatched size error.");
-
-  SparseMatrix m(*this);
-  for (size_t i = 0; i < rows; ++i)
-    for (size_t j = 0; j < other.m_indices[i].size(); ++j)
-      m.set(i, other.m_indices[i][j], -other.m_data[i][j]);
-  return m;
-}
-
-
-
-template<typename value_type>
-inline SparseMatrix<value_type>&
-SparseMatrix<value_type>::operator-=(const SparseMatrix<value_type>& other)
-{
-  Assert(rows == other.n_rows() and
-         cols == other.n_cols(),
-         "Mismatched size error.");
-
-  for (size_t i = 0; i < rows; ++i)
-    for (size_t j = 0; j < other.m_indices[i].size(); ++j)
-      this->set(i, other.m_indices[i][j], -other.m_data[i][j]);
-  return *this;
-}
-
-
-
-template<typename value_type>
-inline Vector<value_type>
-SparseMatrix<value_type>::operator*(const Vector<value_type>& x) const
-{
-  Assert(this->n_cols() == x.size(), "Mismatched size error.");
-
-  Vector<value_type> y(x.size());
-  for (size_t i = 0; i < m_indices.size(); ++i)
-    for (size_t j = 0; j < m_indices[i].size(); ++j)
-      y[i] += m_data[i][j] * x[m_indices[i][j]];
-}
-
-
-
-template<typename value_type>
-inline SparseMatrix<value_type>
-SparseMatrix<value_type>::operator*(const SparseMatrix<value_type>& other) const
-{
-  Assert(cols == other.n_rows(), "Mismatched size error.");
-
-  SparseMatrix m(rows, other.n_cols());
-  for (size_t i = 0; i < rows; ++i)
-  {
-    // Loop over relative column indices for row i of this
-    for (size_t jr = 0; jr < m_indices[i].size(); ++jr)
-    {
-      size_t j = m_indices[i][jr];
-      value_type a_ij = m_data[i][jr];
-
-      // Loop over relative column indices of row j of other
-      for (size_t kr = 0; kr < other.m_indices[j].size(); ++kr)
-      {
-        // Compute c_{ik} += a_{ij} * b_{jk}
-        size_t k = other.m_indices[j][kr];
-        value_type c_ik += a_ij * other.m_data[j][kr];
-        m.set(i, k, c_ik);
-      }
-    }
-  }
-}
 
 }
 #endif //SPARSE_MATRIX_H

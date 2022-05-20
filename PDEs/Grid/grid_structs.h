@@ -1,9 +1,10 @@
 #ifndef GRID_STRUCTS_H
 #define GRID_STRUCTS_H
 
-#include <string>
 #include <vector>
 #include <memory>
+#include <cinttypes>
+
 
 namespace grid
 {
@@ -37,7 +38,7 @@ create_1d_mesh(const std::vector<double>& vertices,
 
 std::shared_ptr<Mesh>
 create_1d_mesh(const std::vector<double>& zone_edges,
-               const std::vector<size_t>& zone_subdivisions,
+               const std::vector<uint64_t>& zone_subdivisions,
                const std::vector<int>& material_ids,
                const CoordinateSystem coordinate_system =
                    CoordinateSystem::CARTESIAN,

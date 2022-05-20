@@ -11,8 +11,8 @@
 void neutron_diffusion::SteadyStateSolver_FV::
 assemble_matrix(Groupset& groupset)
 {
-  math::Matrix<double>& A = groupset.matrix;
-  A *= 0.0;
+  math::Matrix<double> A(groupset.matrix.n_rows(),
+                         groupset.matrix.n_cols(), 0.0);
 
   // Get groupset range
   const auto n_gsg = groupset.groups.size();
@@ -37,7 +37,10 @@ assemble_matrix(Groupset& groupset)
       {
         //==================== Scattering term
         for (size_t gp = gs_i; gp <= gs_f; ++gp)
-          A[i + g][i + gp] -= xs->transfer_matrices[0][g][gp] * volume;
+        {
+          double value = xs->transfer_matrices[0][g][gp] * volume;
+          A[i + g][i + gp] -= value;
+        }
 
         //==================== Fission term
         if (xs->is_fissile)
@@ -47,7 +50,10 @@ assemble_matrix(Groupset& groupset)
           {
             const double chi = xs->chi[g];
             for (size_t gp = gs_i; gp <= gs_f; ++gp)
-              A[i + g][i + gp] -= chi * xs->nu_sigma_f[gp] * volume;
+            {
+              double value = chi * xs->nu_sigma_f[gp] * volume;
+              A[i + g][i + gp] -= value;
+            }
           }
 
           //========== Prompt + delayed fission
@@ -55,16 +61,21 @@ assemble_matrix(Groupset& groupset)
           {
             const double chi_p = xs->chi_prompt[g];
             for (size_t gp = gs_i; gp <= gs_f; ++gp)
-              A[i + g][i + gp] -= chi_p * xs->nu_prompt_sigma_f[gp] * volume;
+            {
+              double value = chi_p * xs->nu_prompt_sigma_f[gp] * volume;
+              A[i + g][i + gp] -= value;
+            }
 
             for (size_t j = 0; j < xs->n_precursors; ++j)
             {
               const double chi_d = xs->chi_delayed[g][j];
               const double gamma = xs->precursor_yield[j];
               for (size_t gp = gs_i; gp <= gs_f; ++gp)
-                A[i + g][i + gp] -= chi_d * gamma *
-                                    xs->nu_delayed_sigma_f[gp] *
-                                    volume;
+              {
+                double value =
+                    chi_d * gamma * xs->nu_delayed_sigma_f[gp] * volume;
+                A[i + g][i + gp] -= value;
+              }
             }//for precursors
           }
         }//if fissile
@@ -96,8 +107,9 @@ assemble_matrix(Groupset& groupset)
           const double D_nbr = nbr_xs->diffusion_coeff[g];
           const double D_eff = 1.0 / (w/D + (1.0 - w)/D_nbr);
 
-          A[i + g][i + g] += D_eff / d_pn * face.area;
-          A[i + g][j + g] -= D_eff / d_pn * face.area;
+          double value = D_eff / d_pn * face.area;
+          A[i + g][i + g] += value;
+          A[i + g][j + g] -= value;
         }
       }//if interior face
 
@@ -115,7 +127,8 @@ assemble_matrix(Groupset& groupset)
           for (size_t g = gs_i; g <= gs_f; ++g)
           {
             const double D = xs->diffusion_coeff[g];
-            A[i + g][i + g] += D / d_pf * face.area;
+            double value = D / d_pf * face.area;
+            A[i + g][i + g] += value;
           }
         }
 
@@ -130,12 +143,15 @@ assemble_matrix(Groupset& groupset)
             const auto& bndry = boundaries[bndry_id][g];
             const auto bc = std::static_pointer_cast<RobinBoundary>(bndry);
             const double D = xs->diffusion_coeff[g];
-            A[i + g][i + g] += bc->a*D/(bc->b*D + bc->a*d_pf) * face.area;
+            double value = bc->a*D/(bc->b*D + bc->a*d_pf) * face.area;
+            A[i + g][i + g] += value;
           }
         }
       }//if boundary face
     }//for face
   }//for cell
+
+  groupset.matrix = A;
 }
 
 //######################################################################
@@ -252,50 +268,6 @@ set_source(Groupset& groupset, math::Vector<double>& b,
       }
 
     }//for group
-
-    //============================== Cross-group coupling
-    if (solution_technique == SolutionTechnique::GROUPSET_WISE)
-    {
-      for (size_t g = gs_i; g <= gs_f; ++g)
-      {
-        //==================== Scattering term
-        for (size_t gp = g_i; gp <= g_f; ++gp)
-          b[i + g] += xs->transfer_matrices[0][g][gp] *
-                      phi[uk_map + gp] * volume;
-
-        //==================== Fission term
-        if (xs->is_fissile)
-        {
-          //========== Total fission
-          if (not use_precursors)
-          {
-            const double chi = xs->chi[g];
-            for (size_t gp = g_i; gp <= g_f; ++gp)
-              b[i + g] += chi * xs->nu_sigma_f[gp] *
-                          phi[uk_map + gp] * volume;
-          }
-
-          //========== Prompt + delayed fission
-          else
-          {
-            const double chi_p = xs->chi_prompt[g];
-            for (size_t gp = g_i; gp <= g_f; ++gp)
-              b[i + g] += chi_p * xs->nu_prompt_sigma_f[gp] *
-                          phi[uk_map + gp] * volume;
-
-            for (size_t j = 0; j < xs->n_precursors; ++j)
-            {
-              const double chi_d = xs->chi_delayed[g][j];
-              const double gamma = xs->precursor_yield[j];
-              for (size_t gp = g_i; gp <= g_f; ++gp)
-                b[i + g] += chi_d * gamma *
-                            xs->nu_delayed_sigma_f[gp] *
-                            phi[uk_map + gp] * volume;
-            }
-          }
-        }//if fissile
-      }//for group
-    }//if groupset-wise solver
 
     //================================================== Loop over faces
     for (const auto& face : cell->faces)

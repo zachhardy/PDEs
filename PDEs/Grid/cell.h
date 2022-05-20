@@ -2,9 +2,11 @@
 #define CELL_H
 
 #include "grid_structs.h"
-#include "Grid/face.h"
+#include "face.h"
 
 #include <vector>
+#include <cinttypes>
+
 
 namespace grid
 {
@@ -47,13 +49,13 @@ class Cell
 {
 public:
   const CellType type;
-  size_t id;
+  uint64_t id;
   int material_id = -1;
 
   Centroid  centroid;
   double volume = 0.0;
 
-  std::vector<size_t> vertex_ids;
+  std::vector<uint64_t> vertex_ids;
   std::vector<Face> faces;
 
 public:

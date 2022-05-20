@@ -1,7 +1,14 @@
-#include "math.h"
-#include "matrix.h"
+#ifndef GAUSSIAN_ELIMINATION_H
+#define GAUSSIAN_ELIMINATION_H
+
+#include "../../matrix.h"
 #include "vector.h"
 
+#include <cinttypes>
+
+
+namespace math
+{
 
 /**
  * Solve a system using Gaussian elimination.
@@ -19,27 +26,27 @@
  * \return The solution \f$ \vec{x} \f$ of
  *         \f$ \boldsymbol{A} \vec{x} = \vec{b} \f$.
  */
-template<typename value_type>
-math::Vector<value_type>
-math::gaussian_elimination(Matrix<value_type>& A,
-                           Vector<value_type>& b,
-                           const bool pivot)
+template<typename number>
+Vector<number>
+gaussian_elimination(Matrix<number>& A,
+                     Vector<number>& b,
+                     const bool pivot)
 {
-  Assert(A.n_rows() == A.n_cols(), "Invalid matrix dimensions. "
-                                   "The matrix must be square.");
-  Assert(b.size() == A.n_rows(), "Mismatched size error.");
+  Assert(A.n_rows() == A.n_cols(),
+         "Square matrices are required for Gaussian elimination.");
+  Assert(b.size() == A.n_rows(), "Dimension mismatch error.");
 
-  size_t n = b.size();
+  uint64_t n = b.size();
 
   //======================================== Row-echelon factorization
   // Go through the columns of the matrix
-  for (size_t j = 0; j < n; ++j)
+  for (uint64_t j = 0; j < n; ++j)
   {
     /* Find the row index for the largest magnitude entry in this column.
      * This is only done for sub-diagonal elements. */
-    value_type max = 0.0;
-    size_t argmax = j;
-    for (size_t i = j; i < n; ++i)
+    number max = 0.0;
+    uint64_t argmax = j;
+    for (uint64_t i = j; i < n; ++i)
     {
       if (std::fabs(A[i][j]) > max)
       {
@@ -65,20 +72,20 @@ math::gaussian_elimination(Matrix<value_type>& A,
     /* Perform row-wise operations such that all sub-diagonal values are zero.
      * This is done by subtracting the current row times the ratio of the
      * sub-diagonal and the current row's leading value. */
-    for (size_t i = j + 1; i < n; ++i)
+    for (uint64_t i = j + 1; i < n; ++i)
     {
-      value_type factor = A[i][j] / A[j][j];
-      for (size_t k = j; k < n; ++k)
+      number factor = A[i][j] / A[j][j];
+      for (uint64_t k = j; k < n; ++k)
         A[i][k] -= A[j][k] * factor;
       b[i] -= b[j] * factor;
     }
   }
 
   //======================================== Back substitution solve
-  Vector<value_type> x(n, 0.0);
+  Vector<number> x(n, 0.0);
   for (int i = n - 1; i >= 0; --i)
   {
-    value_type value = b[i];
+    number value = b[i];
     for (int j = i + 1; j < n; ++j)
       value -= A[i][j] * x[j];
     x[i] = value / A[i][i];
@@ -86,8 +93,5 @@ math::gaussian_elimination(Matrix<value_type>& A,
   return x;
 }
 
-template
-math::Vector<double>
-math::gaussian_elimination(Matrix<double>& A,
-                           Vector<double>& b,
-                           const bool pivot);
+}
+#endif //GAUSSIAN_ELIMINATION_H

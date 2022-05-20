@@ -57,7 +57,7 @@ void physics::CrossSections::read_cross_section(
     std::vector<double>& destination,
     std::ifstream& file,
     std::istringstream& line_stream,
-    size_t& line_number)
+    uint64_t& line_number)
 {
   std::string line;
 
@@ -66,7 +66,7 @@ void physics::CrossSections::read_cross_section(
   ++line_number;
 
   //========== Go through entries
-  size_t g = 0;
+  uint64_t g = 0;
   int group; double value;
   while (line != keyword + "_END")
   {
@@ -112,7 +112,7 @@ void physics::CrossSections::read_transfer_matrices(
     std::vector<TransferMatrix>& destination,
     std::ifstream& file,
     std::istringstream& line_stream,
-    size_t& line_number)
+    uint64_t& line_number)
 {
   std::string word, line;
 
@@ -170,7 +170,7 @@ void physics::CrossSections::read_precursor_property(
     std::vector<double>& destination,
     std::ifstream& file,
     std::istringstream& line_stream,
-    size_t& line_number)
+    uint64_t& line_number)
 {
   std::string line;
 
@@ -179,7 +179,7 @@ void physics::CrossSections::read_precursor_property(
   ++line_number;
 
   //========== Go through entries
-  size_t j = 0;
+  uint64_t j = 0;
   int precursor_num; double value;
   while (line != keyword + "_END")
   {
@@ -226,7 +226,7 @@ void physics::CrossSections::read_delayed_spectra(
     EmmissionSpectra& destination,
     std::ifstream& file,
     std::istringstream& line_stream,
-    size_t& line_number)
+    uint64_t& line_number)
 {
   std::string word, line;
 

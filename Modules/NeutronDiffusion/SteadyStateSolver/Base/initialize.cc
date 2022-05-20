@@ -1,7 +1,7 @@
 #include "steadystate_solver.h"
 
-#include "lu.h"
-#include "cholesky.h"
+#include "LinearSolvers/Direct/lu.h"
+#include "LinearSolvers/Direct/cholesky.h"
 
 #include <set>
 
@@ -16,65 +16,43 @@ void neutron_diffusion::SteadyStateSolver::initialize()
 {
   std::cout << "Initializing solver...\n";
 
+  // If the full system is being solved, only use one groupset.
   if (solution_technique == SolutionTechnique::FULL_SYSTEM)
   {
     std::cout << "Solution technique set to full system.\n";
 
     groupsets.clear();
     groupsets.emplace_back(0);
-    for (const size_t group : groups)
+    for (const uint64_t group : groups)
       groupsets[0].groups.emplace_back(group);
   }
 
+  //================================================== Initialize objects
   input_checks();
   initialize_discretization();
   initialize_materials();
   initialize_boundaries();
 
-  // Initialize system storage
-  size_t n_nodes = discretization->n_nodes();
+  //================================================== Initialize data storage
+  uint64_t n_nodes = discretization->n_nodes();
 
   phi.resize(n_groups * n_nodes, 0.0);
   phi_ell.resize(phi.size(), 0.0);
-
   precursors.resize(max_precursors_per_material * n_nodes, 0.0);
 
-  // Initialize groupsets
+  //================================================== Initialize groupsets
   for (auto& groupset : groupsets)
   {
-    const size_t n_gsg = groupset.groups.size();
-    groupset.matrix.resize(n_gsg * n_nodes, 0.0);
+    const uint64_t n_gsg = groupset.groups.size();
+    groupset.matrix.reinit(n_gsg * n_nodes, n_gsg * n_nodes);
     groupset.rhs.resize(n_gsg * n_nodes, 0.0);
-
-    //============================== Initialize linear solver
-    switch (groupset.linear_solver_type)
-    {
-      case LinearSolverType::LU:
-      {
-        auto ls = std::make_shared<math::LU<double>>(groupset.matrix);
-        groupset.linear_solver = ls;
-        break;
-      }
-
-      case LinearSolverType::CHOLESKY:
-      {
-        std::cout << "CHOLESKY\n";
-        auto ls = std::make_shared<math::Cholesky<double>>(groupset.matrix);
-        groupset.linear_solver = ls;
-        break;
-      }
-
-      default:
-      {
-        std::stringstream err;
-        err << solver_string << __FUNCTION__ << ": "
-            << "Unrecognized linear solver method.";
-        throw std::runtime_error(err.str());
-      }
-    }//switch linear solver type
   }//for groupset
 
+  for (auto& gs : groupsets)
+    assemble_matrix(gs);
+
   std::cout << "Done initializing solver.\n";
+
 }
 
 //######################################################################
@@ -94,7 +72,7 @@ void neutron_diffusion::SteadyStateSolver::input_checks()
   }
 
   // Check that the groupsets contain all groups, no duplicates
-  std::set<size_t> groupset_groups;
+  std::set<uint64_t> groupset_groups;
   for (const auto& groupset : groupsets)
   {
     // Groupsets must have groups
@@ -121,7 +99,7 @@ void neutron_diffusion::SteadyStateSolver::input_checks()
     }
   }
 
-  std::set<size_t> groups_set(groups.begin(), groups.end());
+  std::set<uint64_t> groups_set(groups.begin(), groups.end());
   if (groupset_groups != groups_set)
   {
     std::stringstream err;

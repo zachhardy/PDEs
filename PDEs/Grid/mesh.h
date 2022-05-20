@@ -6,6 +6,8 @@
 
 #include <vector>
 #include <memory>
+#include <cinttypes>
+
 
 namespace grid
 {
@@ -23,16 +25,16 @@ namespace grid
 class Mesh
 {
 public:
-  const unsigned int dim;
+  const uint64_t dim;
   const CoordinateSystem coord_sys;
 
   std::vector<Vertex> vertices;
   std::vector<std::shared_ptr<Cell>> cells;
-  std::vector<size_t> boundary_cell_ids;
+  std::vector<uint64_t> boundary_cell_ids;
 
 public:
   /// Default constructor.
-  Mesh(const unsigned int dimension, const CoordinateSystem coordinate_system)
+  Mesh(const uint64_t dimension, const CoordinateSystem coordinate_system)
       : coord_sys(coordinate_system), dim(dimension)
   {}
 
