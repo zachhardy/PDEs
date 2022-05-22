@@ -1,157 +1,147 @@
 #ifndef VECTOR_H
 #define VECTOR_H
 
-#include "exceptions.h"
-
-#include <cmath>
 #include <vector>
-#include <algorithm>
-#include <numeric>
 #include <cinttypes>
+#include <cmath>
 
 #include <iostream>
-#include <iomanip>
 #include <sstream>
+#include <iomanip>
+
+#include "macros.h"
 
 
-namespace math
+namespace pdes::Math
 {
 
-/** A class representing a general vector. */
-template<typename number>
-struct Vector
+class Vector
 {
 public:
-  using value_type      = number;
-  using size_type       = uint64_t;
-
-  using pointer         = value_type*;
-  using const_pointer   = const value_type*;
-  using reference       = value_type&;
-  using const_reference = const value_type&;
-
-  using iterator        = value_type*;
-  using const_iterator  = const value_type*;
+  using value_type = double;
 
 private:
-  std::vector<value_type> values;
+  std::vector<value_type> elements;
 
 public:
-  /// Default constructor.
-  Vector()
-    : values(0)
-  {}
+  /**
+   * Default constructor.
+   */
+  Vector() = default;
 
-  /// Copy constructor.
-  Vector(const Vector& other)
-    : values(other.values)
-  {}
-
-  /// Move constructor.
-  Vector(Vector&& other)
-    : values(std::move(other.values))
-  {}
-
-  /// Construct a Vector with \p n uninitialized elements.
-  explicit Vector(const uint64_t n)
-    : values(n)
-  {}
-
-  /// Construct a Vector with \p n elements set to \p value.
+  /**
+   * Construct a vector with \p n uninitialized elements.
+   */
   explicit
-  Vector(const uint64_t n, const value_type value)
-    : values(n, value) {}
+  Vector(const size_t n) : elements(n) {}
 
-  /// Copy constructor using an STL vector.
-  Vector(const std::vector<value_type>& other)
-    : values(other) {}
+  /**
+   * Construct a vector with \p n elements set to \p value.
+   */
+  explicit
+  Vector(const size_t n, const value_type value) :
+    elements(n, value)
+  {}
 
-  /// Move construction using an STL vector.
-  Vector(std::vector<value_type>&& other)
-    : values(other) {}
+  /**
+   * Copy constructor from an STL vector.
+   */
+  Vector(const std::vector<value_type>& other) : elements(other) {}
 
-  /// Construct using an initializer list.
-  Vector(std::initializer_list<value_type> list)
-    : values(list) {}
+  /**
+   * Move constructor from an STL vector.
+   */
+  Vector(std::vector<value_type>&& other) :
+    elements(other)
+  {}
 
-  /// Copy assignment.
-  Vector&
-  operator=(const Vector& other)
-  {
-    values = other.values;
-    return *this;
-  }
+  /**
+   * Construct from an initializer list.
+   */
+  Vector(const std::initializer_list<value_type> list) :
+    elements(list)
+  {}
 
-  /// Move assignment.
-  Vector&
-  operator=(Vector&& other)
-  {
-    values = std::move(other.values);
-    return *this;
-  }
-
-  /** Copy assignment from an STL vector. */
+  /**
+   * Copy assignment from an STL vector.
+   */
   Vector&
   operator=(const std::vector<value_type>& other)
   {
-    values = other;
+    elements = other;
     return *this;
   }
 
-  /// Move assignment from an STL vector.
+  /**
+   * Move assignment from an STL vector.
+   */
   Vector&
   operator=(std::vector<value_type>&& other)
   {
-    values = other;
+    elements = other;
     return *this;
   }
 
-  /// Copy assigment using an initializer list.
+  /**
+   * Copy assignment from an initializer list.
+   */
   Vector&
-  operator=(std::initializer_list<value_type> list)
+  operator=(const std::initializer_list<value_type> list)
   {
-    values = list;
+    elements = list;
     return *this;
   }
 
-  /// Assign a value to the vector.
+  /**
+   * Assign a value to all elements of the vector.
+   */
   Vector&
   operator=(const value_type value)
   {
-    for (auto& elem : values)
-      elem = value;
+    for (auto& el : elements)
+      el = value;
     return *this;
   }
 
-  /// Equality comparison operator.
+  /**
+   * Test the equality of two vectors.
+   */
   bool
-  operator==(const Vector& other)
-  { return values == other.values; }
+  operator==(const Vector& y) const
+  { return (elements == y.elements); }
 
-  /// Inequality comparison operator.
+  /**
+   * Test the inequality of two vectors.
+   */
   bool
-  operator!=(const Vector& other)
-  { return values != other.values; }
+  operator!=(const Vector& y) const
+  { return (elements != y.elements); }
 
-  /** \name Information */
+  /** \name Characteristics */
   // @{
 
-  /// Return the number of elements in the Vector.
-  size_type
+  /**
+   * Return the number of elements in the vector.
+   */
+  size_t
   size() const
-  { return values.size(); }
+  { return elements.size(); }
 
-  /// Return whether the Vector is empty.
+  /**
+   * Return whether the vector is empty.
+   */
   bool
   empty() const
-  { return values.empty(); }
+  { return elements.empty(); }
 
-  /// Return whether the Vector is uniformly zero.
+  /**
+   * Return whether the vector is uniformly zero.
+   */
   bool
   all_zero() const
   {
-    for (const auto& entry : values)
-      if (entry != 0.0) return false;
+    for (const auto& el : elements)
+      if (el != 0.0) return false;
     return true;
   }
 
@@ -159,373 +149,398 @@ public:
   /** \name Iterators */
   // @{
 
-  /// Mutable iterator to the start of the Vector.
-  iterator
+  /**
+   * Mutable iterator to the first element of the vector.
+   */
+  std::vector<value_type>::iterator
   begin()
-  { return values.begin(); }
+  { return elements.begin(); }
 
-  /// Constant iterator to the start of the Vector.
-  const_iterator
-  begin() const
-  { return values.begin(); }
-
-  /// Mutable iterator to the end of the Vector.
-  iterator
+  /**
+   * Mutable iterator to the end of the vector.
+   */
+  std::vector<value_type>::iterator
   end()
-  { return values.end(); }
+  { return elements.end(); }
 
-  /// Constant iterator to the end of the Vector.
-  const_iterator
+  /**
+   * Constant iterator to the start of the vector.
+   */
+  std::vector<value_type>::const_iterator
+  begin() const
+  { return elements.begin(); }
+
+  /**
+   * Constant iterator to the end of the vector.
+   */
+  std::vector<value_type>::const_iterator
   end() const
-  { return values.end(); }
+  { return elements.end(); }
+
+  // @}
+  /** \name Accessors */
+  // @{
+
+  /**
+   * Read and write access for element \p i.
+   */
+  value_type&
+  operator[](const size_t i)
+  { return elements[i]; }
+
+  /**
+   * Read access for element \p i.
+   */
+  const value_type&
+  operator[](const size_t i) const
+  { return elements[i]; }
+
+  /**
+   * Read and write access for element \p i.
+   */
+  value_type&
+  operator()(const size_t i)
+  { return elements[i]; }
+
+  /**
+   * Read access for element \p i.
+   */
+  const value_type&
+  operator()(const size_t i) const
+  { return elements[i]; }
+
+  /**
+   * Read and write access for element \p i with bounds checking.
+   */
+  value_type&
+  at(const size_t i)
+  { return elements.at(i); }
+
+  /**
+   * Read access for element \p i with bounds checking
+   */
+  const value_type&
+  at(const size_t i) const
+  { return elements.at(i); }
+
+  /**
+   * Read and write access for the first element of the vector.
+   */
+  value_type&
+  front()
+  { return elements.front(); }
+
+  /**
+   * Read access for the first element of the vector.
+   */
+  const value_type&
+  front() const
+  { return elements.front(); }
+
+  /**
+   * Read and write access for the last element of the vector.
+   */
+  value_type&
+  back()
+  { return elements.back(); }
+
+  /**
+   * Read access for the last element of the vector.
+   */
+  const value_type&
+  back() const
+  { return elements.back(); }
+
+  /**
+   * Mutable pointer to the underlying data.
+   */
+  value_type*
+  data()
+  { return elements.data(); }
+
+  /**
+   * Constant pointer to the underlying data.
+   */
+  const value_type*
+  data() const
+  { return elements.data(); }
 
   // @}
   /** \name Modifiers */
   // @{
 
-  /// Return the Vector to an uninitialized state.
+  /**
+   * Return the vector to an uninitialized state.
+   */
   void
   clear()
-  { values.clear(); }
+  { elements.clear(); }
 
-  /// Insert a new element to the back of the Vector.
+  /**
+   * Insert a new element at the back of the vector.
+   */
   void
   push_back(const value_type value)
-  { values.push_back(value); }
+  { elements.push_back(value); }
 
-  /// Move a new element to the back of the Vector.
-  void
-  push_back(value_type&& value)
-  { values.emplace_back(value); }
-
-  /// Remove the last element from the Vector.
+  /**
+   * Remove the last element from the vector.
+   */
   void
   pop_back()
-  { values.pop_back(); }
+  { elements.pop_back(); }
 
-  /// Resize the Vector to \p n elements. New elements remain uninitialized.
+  /**
+   * Resize the vector to \p n elements. New elements remain uninitialized.
+   */
   void
-  resize(const size_type n)
-  { values.resize(n); }
+  resize(const size_t n)
+  { elements.resize(n); }
 
-
-  /// Resize the Vector to \p n elements, setting new elements to \p value.
+  /**
+   * Resize the vector to \p n elements with new elements set to \p value.
+   */
   void
-  resize(const size_type n, const value_type value)
-  { values.resize(n, value); }
+  resize(const size_t n, const value_type value)
+  { elements.resize(n, value); }
 
-  /// Swap the elements of this Vector and another.
+  /**
+   * Swap the elements with another vector.
+   */
   void
-  swap(Vector& other)
-  { values.swap(other.values); }
-
-  // @}
-  /** \name Access Operators */
-  // @{
-
-  /// Read/write access for element \p i.
-  reference
-  operator[](const uint64_t i)
-  { return values[i]; }
-
-  /// Read only access for element \p i.
-  const_reference
-  operator[](const uint64_t i) const
-  { return values[i]; }
-
-  /// Read/write access for element \p i with bounds checking.
-  reference
-  at(const uint64_t i)
-  { return values.at(i); }
-
-  /// Read only access for element \p i with bounds checking.
-  const_reference
-  at(const uint64_t i) const
-  { return values.at(i); }
-
-  /// Read/write access for the first element.
-  reference
-  front()
-  { return values.front(); }
-
-  /// Read only access for the first element.
-  const_reference
-  front() const
-  { return values.front(); }
-
-  /// Read/write access for the last element.
-  reference
-  back()
-  { return values.back(); }
-
-  /// Read only access for the last element.
-  const_reference
-  back() const
-  { return values.back(); }
-
-  /// Read/write access to the underlying data.
-  pointer
-  data()
-  { return values.data(); }
-
-  /// Read only access to the underlying data.
-  const_pointer
-  data() const
-  { return values.data(); }
+  swap(Vector& y)
+  { elements.swap(y.elements); }
 
   // @}
   /** \name Scalar Operations */
   // @{
 
-  /// Element-wise negation in-place.
+  /**
+   * Negate all elements of the vector. This is computed via
+   * \f$ \vec{x} = -\vec{x} = -x_i, ~ \forall i \f$.
+   */
   Vector&
   operator-()
   {
-    for (auto& elem : values)
-      elem -= elem;
+    for (auto& el : elements)
+      el = -el;
     return *this;
-  }
-
-  /// Element-wise negation.
-  Vector
-  operator-() const
-  {
-    Vector y = values;
-    return -y;
-  }
-
-  /// Element-wise multiplication by a scalar in-place.
-  Vector&
-  operator*=(const value_type value)
-  {
-    for (auto& elem : values)
-      elem *= value;
-    return *this;
-  }
-
-  /// Element-wise multiplication by a scalar.
-  Vector
-  operator*(const value_type value) const
-  {
-    Vector y = values;
-    y *= value;
-    return y;
-  }
-
-  /// Element-wise division by a scalar in-place.
-  Vector&
-  operator/=(const value_type value)
-  {
-    Assert(value != 0.0, "Zero division error.");
-    for (auto& elem : values)
-      elem /= value;
-    return *this;
-  }
-
-  /// Element-wise division by a scalar.
-  Vector
-  operator/(const value_type value) const
-  {
-    Vector y = values;
-    y /= value;
-    return y;
-  }
-
-  // @}
-  /** \name Vector-Vector Operations */
-  // @{
-
-  /// Element-wise addition of two vectors in-place.
-  Vector&
-  operator+=(const Vector& y)
-  {
-    Assert(y.size() == values.size(), "Dimension mismatch error.");
-    for (uint64_t i = 0; i < values.size(); ++i)
-      values[i] += y[i];
-    return *this;
-  }
-
-  /// Element-wise addition of two vectors.
-  Vector
-  operator+(const Vector& y) const
-  {
-    Vector z = values;
-    z += y;
-    return z;
-  }
-
-  /// Element-wise subtraction of two vectors in-place.
-  Vector&
-  operator-=(const Vector& y)
-  {
-    Assert(y.size() == values.size(), "Dimension mismatch error.");
-    for (uint64_t i = 0; i < values.size(); ++i)
-      values[i] -= y[i];
-    return *this;
-  }
-
-  /// Element-wise subtraction of two vectors.
-  Vector
-  operator-(const Vector& y) const
-  {
-    Vector z = values;
-    z -= y;
-    return z;
-  }
-
-  /// Element-wise multiplication of two vectors in-place.
-  Vector&
-  operator*=(const Vector& y)
-  {
-    Assert(y.size() == values.size(), "Dimension mismatch error.");
-    for (uint64_t i = 0; i < values.size(); ++i)
-      values[i] *= y[i];
-    return *this;
-  }
-
-  /// Element-wise multiplication of two vectors.
-  Vector operator*(const Vector& y) const
-  {
-    Vector z = values;
-    z *= y;
-    return z;
-  }
-
-  /// Element-wise division of two vectors in-place.
-  Vector&
-  operator/=(const Vector& y)
-  {
-    Assert(y.size() == values.size(), "Dimension mismatch error.");
-    Assert(not y.all_zero(), "Zero division error.");
-    for (uint64_t i = 0; i < values.size(); ++i)
-      values[i] /= y[i];
-    return *this;
-  }
-
-  /// Element-wise division of two vectors. */
-  Vector
-  operator/(const Vector& y) const
-  {
-    Vector z = values;
-    z /= y;
-    return z;
   }
 
   /**
-   * Return the dot product between this and another vector.
-   * \f$ c = \vec{x} \cdot \vec{y} = \sum_i x_i y_i .\f$
+   * Return the negated vector.
+   * \see Vector::operator-()
+   */
+  Vector
+  operator-() const
+  { return -Vector(elements); }
+
+  /**
+   * Multiply the elements of the vector by a scalar.
+   * This is computed via
+   * \f$ \vec{x} = \alpha \vec{x} = \alpha x_i, ~ \forall i \f$.
+   */
+  Vector&
+  operator*=(const value_type factor)
+  {
+    for (auto& el : elements)
+      el *= factor;
+    return *this;
+  }
+
+  /**
+   * Divide the elements of the vector by a scalar.
+   * This is computed via
+   * \f$ \vec{x} = \frac{\vec{x}}{\alpha}
+   *             = \frac{x_i}{\alpha}, ~ \forall i
+   * \f$.
+   */
+  Vector&
+  operator/=(const value_type factor)
+  {
+    Assert(factor != 0.0, "Zero division error.");
+    for (auto& el : elements)
+      el /= factor;
+    return *this;
+  }
+
+  // @}
+  /** \name Linear Algebra Operations */
+  // @{
+
+  /**
+   * Add another vector. This is computed via
+   * \f$ \vec{x} = \vec{x} + \vec{y} = x_i + y_i, ~ \forall i \f$.
+   */
+  Vector&
+  operator+=(const Vector& y)
+  {
+    Assert(size() == y.size(), "Dimension mismatch error.");
+    for (size_t i = 0; i < size(); ++i)
+      elements[i] += y.elements[i];
+    return *this;
+  }
+
+  /**
+   * Subtract another vector. This is computed via
+   * \f$ \vec{x} = \vec{x} - \vec{y} = x_i - y_i, ~ \forall i \f$.
+   */
+  Vector&
+  operator-=(const Vector& y)
+  {
+    Assert(size() == y.size(), "Dimension mismatch error.");
+    for (size_t i = 0; i < size(); ++i)
+      elements[i] -= y.elements[i];
+    return *this;
+  }
+
+  /**
+   * Return the dot product with another vector. This is computed via
+   * \f$ \vec{x} \cdot \vec{y} = \sum_i x_i y_i \f$.
    */
   value_type
   dot(const Vector& y) const
   {
-    Assert(y.size() == values.size(), "Dimension mismatch error.");
-    value_type c = 0.0;
-    for (uint64_t i = 0; i < values.size(); ++i)
-      c += values[i] * y[i];
+    Assert(size() == y.size(), "Dimension mismatch error.");
+    double c = 0.0;
+    for (size_t i = 0; i < size(); ++i)
+      c += elements[i] * y.elements[i];
     return c;
   }
 
   // @}
-  /** \name  Norms */
+  /** \name Vector-Norms */
   // @{
 
   /**
-   * Compute the \f$ \ell_\infty \f$-norm.
-   * \f$ ||\vec{x}||_{\ell_\infty} = \max_i |x_i| \f$
+   * Compute the \f$ \ell_\infty \f$-norm. This is computed via
+   * \f$ || \vec{x} ||_{\ell_\infty} = \max_i |x_i| \f$.
    */
   value_type
   linf_norm() const
   {
-    value_type norm = 0.0;
-    for (const auto& elem : values)
-      if (std::fabs(elem) > norm)
-        norm = std::fabs(elem);
+    double norm = 0.0;
+    for (const auto& el : elements)
+      if (std::fabs(el) > norm)
+        norm = std::fabs(el);
     return norm;
   }
 
   /**
-   * Compute the \f$ \ell_1 \f$-norm.
-   * \f$ ||\vec{x}||_{\ell_1} = \sum_i |x_i| \f$
+   * Compute the \f$ \ell_1 \f$-norm. This is computed via
+   * \f$ || \vec{x} ||_{\ell_1} = \sum_i |x_i| \f$.
    */
   value_type
   l1_norm() const
   {
-    value_type norm = 0.0;
-    for (const auto& elem : values)
-      norm += std::fabs(elem);
+    double norm = 0.0;
+    for (const auto& el : elements)
+      norm += std::fabs(el);
     return norm;
   }
 
   /**
-   * Compute the \f$ \ell_2 \f$-norm.
-   * \f$ ||\vec{x}||_{\ell_2} = \sqrt{ \sum_i |x_i|^2 } \f$
+   * Compute the \f$ \ell_2 \f$-norm. This is computed via
+   * \f$ || \vec{x} ||_{\ell_2} = \sqrt{ \sum_i |x_i|^2 } \f$.
    */
   value_type
   l2_norm() const
   {
-    value_type norm = 0.0;
-    for (const auto& elem : values)
-      norm += std::fabs(elem * elem);
+    double norm = 0.0;
+    for (const auto& el : elements)
+      norm += std::fabs(el) * std::fabs(el);
     return std::sqrt(norm);
   }
 
   /**
-   * Compute the \f$ \ell_{\ell_p} \f$-norm.
-   * \f$ ||\vec{x}||_{\ell_p} = \left( \sum_i |x_i|^p \right)^{1/p} \f$
+   * Compute the \f$ \ell_p \f$-norm. This is computed via
+   * \f$ || \vec{x} ||_{\ell_p} = \left( \sum_i |x_i|^p \right)^{1/p} \f$.
    */
   value_type
   lp_norm(const value_type p) const
   {
-    value_type norm = 0.0;
-    for (const auto& elem : values)
-      norm += std::pow(std::fabs(elem), p);
+    double norm = 0.0;
+    for (const auto& el : elements)
+      norm += std::pow(std::fabs(el), p);
     return std::pow(norm, 1.0/p);
   }
 
   // @}
-  /** \name Vector Operations */
+  /** \name Miscellaneous Operations */
   // @{
 
   /**
-   * Normalize this vector to unit length in-place.
-   * \f$ \hat{x} = \frac{\vec{x}}{||\vec{x}||_{\ell_2}} \f$
-   *
-   * \note If the vector is uniformly zero, nothing is done.
+   * Normalize the vector to unit-length. This is computed via
+   * \f$ \vec{x} = \hat{x} = \frac{\vec{x}}{|| \vec{x} ||_{\ell_2}} \f$.
    */
   Vector&
   normalize()
   {
-    value_type norm = l2_norm();
-    return (norm == 0.0)? *this : this->operator/=(norm);
+    double norm = l2_norm();
+    return *this /= (norm != 0.0) ? norm : 1.0;
   }
 
   /**
-   * Return the unit-length direction vector.
-   * \f$ \hat{x} = \frac{\vec{x}}{||\vec{x}||_{\ell_2} \f$
-   *
-   * \note If the vector is uniformly zero, nothing is done.
+   * Return the unit-length vector.
+   * \see Vector::normalize
    */
   Vector
-  direction() const
-  { return Vector(values).normalize(); }
+  unit() const
+  { return Vector(elements).normalize(); }
 
-  /// Element-wise absolute value in-place.
+  /**
+   * Take the absolute value of all the elements. This is computed via
+   * \f$ \vec{x} = | \vec{x} | = |x_i|, ~ \forall i \f$.
+   */
   Vector&
   fabs()
   {
-    for (auto& elem : values)
-      elem = std::fabs(elem);
+    for (auto& el : elements)
+      el = std::fabs(el);
     return *this;
   }
 
-  /// Element-wise absolute value.
+  /**
+   * Return the absolute value of the vector.
+   * \see Vector::fabs
+   */
   Vector
   fabs() const
-  { return Vector<number>(values).fabs(); }
+  { return Vector(elements).fabs(); }
 
   // @}
+  /** \name Print Utilities */
+  // @{
 
-  /// Print the vector.
+  /**
+   * Return the vector as a string.
+   *
+   * \param scientific A flag for using scientific notation.
+   * \param precision The precision to use when printing elements.
+   * \param width The width between elements.
+   *
+   * \see Vector::print
+   */
+  std::string
+  str(const bool scientific = false,
+      const unsigned int precision = 3,
+      const unsigned int width = 0) const
+  {
+    std::stringstream ss;
+    print(ss, scientific, precision, width);
+    return ss.str();
+  }
+
+  /**
+   * Print the vector to an output stream.
+   *
+   * \param os The output stream to print the vector in.
+   * \param scientific A flag for using scientific notation.
+   * \param precision The precision to use when printing elements.
+   * \param width The width between elements.
+   *
+   * \see Vector::str
+   */
   void
   print(std::ostream& os = std::cout,
         const bool scientific = false,
@@ -539,34 +554,100 @@ public:
     if (scientific)
     {
       os.setf(std::ios::scientific, std::ios::floatfield);
-      w = (!width)? precision + 7 : w;
+      w = (!width) ? precision + 7 : w;
     }
     else
     {
       os.setf(std::ios::fixed, std::ios::floatfield);
-      w = (!width)? precision + 4 : w;
+      w = (!width) ? precision + 4 : w;
     }
 
     os << "[";
-    for (uint64_t i = 0; i < size() - 1; ++i)
-      os << std::setw(w) << values[i];
-    os << std::setw(w) << values.back() << "]" << std::endl;
+    for (size_t i = 0; i < size() - 1; ++i)
+      os << std::setw(w) << elements[i];
+    os << std::setw(w) << elements.back() << "]\n";
+
+    os.flags(old_flags);
+    os.precision(old_precision);
   }
+
+  // @}
+
 };
 
+/*-------------------- Method Declarations --------------------*/
 
-/*-------------------- Inline Implementations --------------------*/
+/**
+ * Multiply each element of the vector by a scalar value.
+ * \see Vector::operator*=
+ */
+inline Vector
+operator*(const Vector& x, const double factor)
+{ return Vector(x) *= factor; }
 
+/**
+ * Multiply each element of the vector by a scalar value.
+ * \see Vector::operator*=
+ */
+inline Vector
+operator*(const double factor, const Vector& x)
+{ return Vector(x) *= factor; }
 
-/** Element-wise multiplication by a scalar. */
-template<typename number>
-inline Vector<number>
-operator*(const number value,
-          const Vector<number>& x)
-{
-  return x * value;
-}
+/**
+ * Divide each element of the vector by a scalar value.
+ * \see Vector::operator/=
+ */
+inline Vector
+operator/(const Vector& x, const double factor)
+{ return Vector(x) /= factor; }
 
+/**
+ * Add two vectors together.
+ * \see Vector::operator+=
+ */
+inline Vector
+operator+(const Vector& x, const Vector& y)
+{ return Vector(x) += y; }
+
+/**
+ * Subtract two vectors.
+ * \see Vector::operator-=
+ */
+inline Vector
+operator-(const Vector& x, const Vector& y)
+{ return Vector(x) -= y; }
+
+/**
+ * Return the dot product of two vectors.
+ * \see Vector::dot
+ */
+inline double
+dot(const Vector& x, const Vector& y)
+{ return x.dot(y); }
+
+/**
+ * Return the absolute value of a vector.
+ * \see Vector::fabs
+ */
+inline Vector
+fabs(const Vector& x)
+{ return x.fabs(); }
+
+/**
+ * Return the unit-length vector.
+ * \see Vector::unit
+ */
+inline Vector
+unit(const Vector& x)
+{ return x.unit(); }
+
+/**
+ * Insert the vector into an output stream.
+ * \see Vector::str Vector::print
+ */
+inline std::ostream&
+operator<<(std::ostream& os, const Vector& x)
+{ return os << x.str(); }
 
 }
 #endif //VECTOR_H

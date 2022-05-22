@@ -7,7 +7,7 @@
 #include <cinttypes>
 
 
-namespace math
+namespace pdes::Math
 {
 
 /**
@@ -26,10 +26,8 @@ namespace math
  * \return The solution \f$ \vec{x} \f$ of
  *         \f$ \boldsymbol{A} \vec{x} = \vec{b} \f$.
  */
-template<typename number>
-Vector<number>
-gaussian_elimination(Matrix<number>& A,
-                     Vector<number>& b,
+Vector
+gaussian_elimination(Matrix& A, Vector& b,
                      const bool pivot)
 {
   Assert(A.n_rows() == A.n_cols(),

@@ -1,42 +1,33 @@
 #include "cross_sections.h"
+#include "macros.h"
 
 #include <iostream>
 #include <sstream>
+#include <cmath>
 #include <numeric>
 
-/**
- * \brief Compute \f$ \sigma_s \f$ from the zeroth scattering moment.
- *
- * Compute the group-wise scattering cross sections from the zeroth transfer
- * matrices. This is defined as the sum of all transfers from a fixed group to
- * any other. Mathematically, this is given by
- * \f[ \sigma_{s,g} = \sum_{g^\prime} \sigma_{0, g \rightarrow g^\prime} ,\f]
- * which is obtained via column-wise sums.
- */
-void physics::CrossSections::compute_scattering_from_transfers()
+using namespace pdes;
+
+void
+Physics::CrossSections::compute_scattering_from_transfers()
 {
   sigma_s.assign(n_groups, 0.0);
   if (transfer_matrices.empty())
     return;
 
-  // A group's scattering cross section is defined as the sum of the
-  // transfer cross sections from a fixed group to all  other groups. In the
-  // transfer matrices, the rows contain the destination groups and columns
-  // the origin group. Due to this, computing sigma_s necessitates a column-
-  // wise sum.
-  for (uint64_t gp = 0; gp < n_groups; ++gp)
+  /* A group's scattering cross section is defined as the sum of the
+   * transfer cross sections from a fixed group to all  other groups. In the
+   * transfer matrices, the rows contain the destination groups and columns
+   * the origin group. Due to this, computing sigma_s necessitates a column-
+   * wise sum. */
+  for (size_t gp = 0; gp < n_groups; ++gp)
   {
-    for (uint64_t g = 0; g < n_groups; ++g)
+    for (size_t g = 0; g < n_groups; ++g)
     {
-      if (transfer_matrices[0][g][gp] < 0.0)
-      {
-        std::stringstream err;
-        err << "CrossSections::" << __FUNCTION__ << ": "
-            << "Negative transfer cross section encountered for "
-            << "starting group " << gp << " and destination group"
-            << g << "." ;
-        throw std::runtime_error(err.str());
-      }
+      Assert(transfer_matrices[0][g][gp] >= 0.0,
+             "Negative group-to-group transfer cross-section encountered "
+             "in incident group " + std::to_string(gp) + " and destination " +
+             "group " + std::to_string(g) ".");
       sigma_s[gp] += transfer_matrices[0][g][gp];
     }
   }
@@ -44,101 +35,52 @@ void physics::CrossSections::compute_scattering_from_transfers()
 
 
 //######################################################################
-/**
- * \brief Enforce the relationship \f$ \sigma_t = \sigma_a + \sigma_s \f$.
- *
- * If the absorption cross section was not specified, then compute it
- * via \f$ \sigma_a = \sigma_t - \sigma_s , \f$ where \f$ \sigma_s \f$ is
- * obtained from the transfer matrix. Otherwise, modify \f$ \sigma_t \f$ using
- * the provided absorption cross section and scattering cross section obtained
- * from the transfer matrix. If both \f$ \sigma_t \f$ and \f$ \sigma_a \f$ are
- * provided and they do not agree with the transfer matrix, the \f$ \sigma_a \f$
- * values are taken as true.
- */
-void physics::CrossSections::reconcile_cross_sections()
+
+void
+Physics::CrossSections::reconcile_cross_sections()
 {
 
   // Determine whether sigma_a was specified
   double sum = std::accumulate(sigma_a.begin(), sigma_a.end(), 0.0);
   bool specified_sigma_a = (sum > 1.0e-12);
 
-  // Compute aborption xs from transfer matrix, if not specified
+  /* Compute absorption xs from transfer matrix, if not specified. Otherwise,
+   * recompute the total cross-section from the specified scattering and
+   * absorption. */
   if (not specified_sigma_a)
   {
-    for (uint64_t g = 0; g < n_groups; ++g)
+    for (size_t g = 0; g < n_groups; ++g)
     {
-      // Ensure positivity
-      if (sigma_t[g] < 0.0)
-      {
-        std::stringstream err;
-        err << "CrossSections::" << __FUNCTION__ << ": "
-            << "Negative total cross section encountered in "
-            << "group " << g << "." ;
-        throw std::runtime_error(err.str());
-      }
-
-      // Ensure physically realistic setup
-      if (sigma_t[g] < sigma_s[g])
-      {
-        std::stringstream err;
-        err << "CrossSections::" << __FUNCTION__ << ": "
-            << "Scattering cross section is larger than total for "
-            << "group " << g << "." ;
-        throw std::runtime_error(err.str());
-      }
-
+      Assert(sigma_t[g] >= 0.0,
+             "Negative total cross-section encountered in group " +
+             std::to_string(g) + ".");
+      Assert(sigma_t[g] >= sigma_s[g],
+             "A scattering cross-section which exceeds the total cross-section "
+             "was encountered in group " + std::to_string(g) + ".");
       sigma_a[g] = sigma_t[g] - sigma_s[g];
     }
   }
-
-  // Otherwise, recompute the total xs from absorption and scattering
   else
   {
-    for (uint64_t g = 0; g < n_groups; ++g)
+    for (size_t g = 0; g < n_groups; ++g)
     {
-      // Ensure positivity
-      if (sigma_a[g] < 0.0)
-      {
-        std::stringstream err;
-        err << "CrossSections::" << __FUNCTION__ << ": "
-            << "Negative absorption cross section encountered in "
-            << "group " << g << "." ;
-        throw std::runtime_error(err.str());
-      }
-
+      Assert(sigma_a[g] >= 0.0,
+             "Negative absorption cross-section encountered in group " +
+             std::to_string(g));
       sigma_t[g] = sigma_a[g] + sigma_s[g];
     }
   }
 
   // Compute the removal cross sections
-  for (uint64_t g = 0; g < n_groups; ++g)
+  for (size_t g = 0; g < n_groups; ++g)
     sigma_r[g] = sigma_t[g] - transfer_matrices[0][g][g];
 }
 
 
 //######################################################################
-/**
- * \brief Validate and process fission related properties.
- *
- * This routine does a number of things.
- * 1. If the cross sections are not fissile but delayed neutron precursor
- *    properties were specified, they are cleared.
- * 2. If fissile and delayed neutron precursor properties were specified, checks
- *    for prompt and delayed \f$ \nu \f$ and \f$ \chi \f$ are performed and
- *    fission/emmission spectra as well as precursor yields \f$ \gamma \f$ are
- *    normalized to unity. Lastly, the total \f$ \nu \f$ and \f$ \chi \f$
- *    quantities are computed from their prompt and delayed counterparts.
- *    The total neutrons per fission is computed via
- *    \f$ \nu = \nu_p + \nu_d \f$ and the total spectra via
- *    \f[ \chi = (1 - \beta) \chi_p + \beta \sum_j \gamma_j \chi_{d_j}
-   *           = \frac{\nu_p}{\nu} \chi_p +
-   *             \frac{\nu_d}{\nu} \sum_j \gamma_j \chi_{d,j}.
-   * \f]
- * 3. If fissile and no delayed neutron precursor properties were specified,
- *    checks for total \f$ \nu \f$ and \f$ \chi \f$ are performed and the
- *    fission spectrum is normalized to unity.
- */
-void physics::CrossSections::reconcile_fission_properties()
+
+void
+Physics::CrossSections::reconcile_fission_properties()
 {
   // Check whether the material is fissile
   double sum_sigma_f = std::accumulate(sigma_f.begin(), sigma_f.end(), 0.0);
@@ -161,130 +103,90 @@ void physics::CrossSections::reconcile_fission_properties()
   if (is_fissile)
   {
     // Check for negative cross sections
-    for (uint64_t g = 0; g < n_groups; ++g)
+    for (size_t g = 0; g < n_groups; ++g)
     {
-      if (sigma_f[g] < 0.0)
-      {
-        std::stringstream err;
-        err << "CrossSections::" << __FUNCTION__ << ": "
-            << "Negative fisson cross section encountered in "
-            << "group " << g << "." ;
-        throw std::runtime_error(err.str());
-      }
+      Assert(sigma_f[g] < 0.0,
+             "Negative fission cross section encountered in group " +
+             std::to_string(g) + ".");
     }
 
     // Determine which terms are present
     std::pair<bool, bool> has_total(false, false);
     std::pair<bool, bool> has_prompt(false, false);
     std::pair<bool, bool> has_delayed(false, false);
-    for (uint64_t g = 0; g < n_groups; ++g)
+    for (size_t g = 0; g < n_groups; ++g)
     {
+      // Total fission properties
       if (not has_total.first and nu[g] > 0.0)
         has_total.first = true;
       if (not has_total.second and chi[g] > 0.0)
         has_total.second = true;
 
+      // Prompt fission properties
       if (not has_prompt.first and nu_prompt[g] > 0.0)
         has_prompt.first = true;
       if (not has_prompt.second and chi_prompt[g] > 0.0)
         has_prompt.second = true;
 
+      // Delayed fission properties
       if (not has_delayed.first and nu_delayed[g] > 0.0)
         has_delayed.first = true;
     }
 
-    // Check for prompt/delayed problems
+    // Check for prompt/delayed quantities
     if (n_precursors > 0)
     {
-      // Ensure prompt/delayed quantities are provided
-      if (not has_prompt.first or
-          not has_prompt.second or
-          not has_delayed.first)
-      {
-        std::stringstream err;
-        err << "CrossSections::" << __FUNCTION__ << ": "
-            << "Prompt and delayed fission terms must be supplied for  "
-            << "problems with delayed neutron precursors.";
-        throw std::runtime_error(err.str());
-      }
+      Assert(has_prompt.first && has_prompt.second && has_delayed.first,
+             "Prompt and delayed fission terms not supplied for a "
+             "problem with delayed neutron precursors.");
 
-      // Ensure positivity
-      for (uint64_t g = 0; g < n_groups; ++g)
+      // Ensure positive terms
+      for (size_t g = 0; g < n_groups; ++g)
       {
-        if (nu_prompt[g] < 0.0 or nu_delayed[g] < 0.0)
-        {
-          std::stringstream err;
-          err << "CrossSections::" << __FUNCTION__ << ": "
-              << "Negative nu prompt or nu delayed value encountered in "
-              << "group " << g << "." ;
-          throw std::runtime_error(err.str());
-        }
-        if (chi_prompt[g] < 0.0)
-        {
-          std::stringstream err;
-          err << "CrossSections::" << __FUNCTION__ << ": "
-              << "Negative prompt fission spectrum value encountered in "
-              << "group " << g << "." ;
-          throw std::runtime_error(err.str());
-        }
+        Assert(nu_prompt[g] >= 0.0 && nu_delayed[g] >= 0.0,
+               "Negative prompt or delayed nu encountered in group " +
+               std::to_string(g) + ".");
+        Assert(chi_prompt[g] >= 0.0,
+               "Negative prompt fission spectrum value encountered in "
+               "group " + std::to_string(g) + ".");
       }
 
       // Check precursor properties
-      for (uint64_t j = 0; j < n_precursors; ++j)
+      for (size_t j = 0; j < n_precursors; ++j)
       {
-        if (precursor_lambda[j] < 1.0e-12)
-        {
-          std::stringstream err;
-          err << "CrossSections::" << __FUNCTION__ << ": "
-              << "Decay constants must be non-zero.\n"
-              << "Issue with precursor species " << j << ".";
-          throw std::runtime_error(err.str());
-        }
-        if (precursor_yield[j] < 1.0e-12)
-        {
-          std::stringstream err;
-          err << "CrossSections::" << __FUNCTION__  << ": "
-              << "Yields must be non-zero.\n"
-              << "Issue with precursor species " << j << ".";
-          throw std::runtime_error(err.str());
-        }
+        Assert(precursor_lambda[j] > 0.0,
+               "Zero or negative decay constance encountered in precursor "
+               "species " + std::to_string(j) + ".");
+        Assert(precursor_yield[j] > 0.0,
+               "Zero or negative precursor yield encountered in precursor "
+               "species " _ std::to_string(j) + ".");
       }
 
       // Check delayed spectra
-      for (uint64_t j = 0; j < n_precursors; ++j)
+      for (size_t j = 0; j < n_precursors; ++j)
       {
         // Ensure positivity
-        for (uint64_t g = 0; g < n_groups; ++g)
+        for (size_t g = 0; g < n_groups; ++g)
         {
-          if (chi_delayed[g][j] < 0.0)
-          {
-            std::stringstream err;
-            err << "CrossSections::" << __FUNCTION__ << ": "
-                << "Negative delayed emmission spectrum value encountered in "
-                << "group " << g << " for precursor species " << j << "." ;
-            throw std::runtime_error(err.str());
-          }
+          Assert(chi_delayed[g][j] >= 0.0,
+                 "Negative delayed emmission spectrum value encountered "
+                 "in group " + std::to_string(g) + " for precursor species " +
+                 std::tostring(j) + ".");
         }
 
         // Compute spectra sum
         double sum = 0.0;
-        for (uint64_t g = 0; g < n_groups; ++g)
+        for (size_t g = 0; g < n_groups; ++g)
           sum += chi_delayed[g][j];
-
-        if (sum < 1.0e-12)
-        {
-          std::stringstream err;
-          err << "CrossSections::" << __FUNCTION__ << ": "
-              << "Emmission spectra must be non-zero.\n"
-              << "Issue encountered with precursor species " << j << ".";
-          throw std::runtime_error(err.str());
-        }
+        Assert(sum > 0.0, "Zero emission spectra encountered for precursor "
+                          "species " + std::to_string(j) + ".");
       }
       has_delayed.second = true;
 
       // Normalize prompt spectra
       double prompt_sum = std::accumulate(chi_prompt.begin(),
                                           chi_prompt.end(), 0.0);
+
       if (std::abs(prompt_sum - 1.0) > 1.0e-12)
       {
         std::stringstream warn;
@@ -292,14 +194,15 @@ void physics::CrossSections::reconcile_fission_properties()
               << "Normalizing prompt fission spectrum to unity.";
         std::cout << warn.str() << std::endl;
 
-        for (auto& v : chi_prompt) v /= prompt_sum;
+        for (auto& v : chi_prompt)
+          v /= prompt_sum;
       }
 
       // Normalize delayed spectra
-      for (uint64_t j = 0; j < n_precursors; ++j)
+      for (size_t j = 0; j < n_precursors; ++j)
       {
         double sum = 0.0;
-        for (uint64_t g = 0; g < n_groups; ++g)
+        for (size_t g = 0; g < n_groups; ++g)
           sum += chi_delayed[g][j];
 
         if (std::abs(sum - 1.0) > 1.0e-12)
@@ -310,7 +213,7 @@ void physics::CrossSections::reconcile_fission_properties()
                 << "for precursor species " << j << ".";
           std::cout << warn.str() << std::endl;
 
-          for (uint64_t g = 0; g < n_groups; ++g)
+          for (size_t g = 0; g < n_groups; ++g)
             chi_delayed[g][j] /= sum;
         }
       }
@@ -325,11 +228,12 @@ void physics::CrossSections::reconcile_fission_properties()
               << "Normalizing precursor yields to unity.";
         std::cout << warn.str() << std::endl;
 
-        for (auto& v : precursor_yield) v /= yield_sum;
+        for (auto& v : precursor_yield)
+          v /= yield_sum;
       }
 
       // Compute total quantities
-      for (uint64_t g = 0; g < n_groups; ++g)
+      for (size_t g = 0; g < n_groups; ++g)
       {
         nu[g] = nu_prompt[g] + nu_delayed[g];
 
@@ -340,25 +244,17 @@ void physics::CrossSections::reconcile_fission_properties()
         // species j.
         double beta = nu_delayed[g] / nu[g];
         chi[g] = (1.0 - beta) * chi_prompt[g];
-        for (uint64_t j = 0; j < n_precursors; ++j)
+        for (size_t j = 0; j < n_precursors; ++j)
           chi[g] = beta * precursor_yield[j] * chi_delayed[g][j];
       }
       has_total.first = true;
       has_total.second= true;
     }//if has_precursors
-
-    // Handle problems w/out precursors
     else
     {
-      // Ensure the total quantities are provided
-      if (not has_total.first or not has_total.second)
-      {
-        std::stringstream err;
-        err << "CrossSections::" << __FUNCTION__ << ": "
-            << "Total fission terms were not found nor computed from "
-            << "prompt and delayed fission terms.";
-        throw std::runtime_error(err.str());
-      }
+      Assert(has_total.first && has_total.second,
+             "Total fission terms were not found nor could they be computed "
+             "from prompt and delayed quantities.");
 
       // Normalize fission spectrum
       double sum = std::accumulate(chi.begin(), chi.end(), 0.0);
@@ -369,12 +265,13 @@ void physics::CrossSections::reconcile_fission_properties()
               << "Normalizing total fission spectrum to unity.";
         std::cout << warn.str() << std::endl;
 
-        for (auto& v : chi) v /= sum;
+        for (auto& v : chi)
+          v /= sum;
       }
     }
 
     // Compute nu_sigma_f terms
-    for (uint64_t g = 0; g < n_groups; ++g)
+    for (size_t g = 0; g < n_groups; ++g)
     {
       nu_sigma_f[g] = nu[g] * sigma_f[g];
       nu_prompt_sigma_f[g] = nu_prompt[g] * sigma_f[g];
@@ -383,18 +280,12 @@ void physics::CrossSections::reconcile_fission_properties()
   }//if fissile
 }
 
-
 //######################################################################
-/**
- * \brief Compute the macroscopic cross sections.
- *
- * Compute the macroscopic cross sections via \f$ \Sigma_x = \rho \sigma_x \f$.
- * If the \p diffusion_coeff was unspecified, it is computed via its standard
- * defintion, given by \f$ D = \frac{1}{3 \Sigma_t} \f$.
- */
-void physics::CrossSections::compute_macroscopic_cross_sections()
+
+void
+Physics::CrossSections::compute_macroscopic_cross_sections()
 {
-  for (uint64_t g = 0; g < n_groups; ++g)
+  for (size_t g = 0; g < n_groups; ++g)
   {
     sigma_t[g] *= density;
     sigma_a[g] *= density;
@@ -407,9 +298,9 @@ void physics::CrossSections::compute_macroscopic_cross_sections()
     nu_delayed_sigma_f[g] *= density;
   }
 
-  for (uint64_t m = 0; m <= scattering_order; ++m)
-    for (uint64_t g = 0; g < n_groups; ++g)
-      for (uint64_t gp = 0; gp < n_groups; ++gp)
+  for (size_t m = 0; m <= scattering_order; ++m)
+    for (size_t g = 0; g < n_groups; ++g)
+      for (size_t gp = 0; gp < n_groups; ++gp)
         transfer_matrices[m][g][gp] *= density;
 
   // Compute diffusion coefficient if unspecified
@@ -417,7 +308,7 @@ void physics::CrossSections::compute_macroscopic_cross_sections()
                                diffusion_coeff.end(), 0.0);
   if (sum < 1.0e-12)
   {
-    for (uint64_t g = 0; g < n_groups; ++g)
+    for (size_t g = 0; g < n_groups; ++g)
       diffusion_coeff[g] = 1.0 / (3.0 * sigma_t[g]);
   }
 }

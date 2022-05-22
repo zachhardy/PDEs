@@ -1,30 +1,38 @@
 #ifndef CELL_H
 #define CELL_H
 
-#include "grid_structs.h"
+#include "point.h"
 #include "face.h"
 
 #include <vector>
 #include <cinttypes>
 
 
-namespace grid
+namespace pdes::Grid
 {
 
+/**
+ * Available cell types.
+ */
 enum class CellType
 {
-  SLAB = 1,     ///< 1D Cartesian geometry.
-  ANNULUS = 2,  ///< 1D cylindrical geometry.
-  SHELL = 3     ///< 1D spherical geometry.
+  SLAB    = 0,  ///< 1D Cartesian geometry.
+  ANNULUS = 1,  ///< 1D cylindrical geometry.
+  SHELL   = 2   ///< 1D spherical geometry.
 };
 
-std::string cell_type_name(const CellType cell_type);
+
+/**
+ * Return the cell type as a string.
+ */
+std::string
+cell_type_str(const CellType cell_type);
 
 
 //######################################################################
 
 /**
- * \brief A class representing a cell on a Mesh.
+ * A class representing a cell on a Mesh.
  *
  * A Cell is defined as a <tt>dim</tt>-dimensional object bound by
  * <tt>dim - 1</tt>-dimensional Face objects. The Cell type largely depends on
@@ -49,27 +57,31 @@ class Cell
 {
 public:
   const CellType type;
-  uint64_t id;
+  size_t id;
   int material_id = -1;
 
   Centroid  centroid;
   double volume = 0.0;
 
-  std::vector<uint64_t> vertex_ids;
+  std::vector<size_t> vertex_ids;
   std::vector<Face> faces;
 
 public:
-  explicit Cell(const CellType cell_type)
-    : type(cell_type)
-  {}
+  /**
+   * Construct an empty cell of the specified type.
+   */
+  explicit
+  Cell(const CellType cell_type) : type(cell_type) {}
 
-  Cell(const Cell& other);
-  Cell(Cell&& other);
-  Cell& operator=(const Cell& other);
-
-public:
-  std::string to_string() const;
+  /**
+   * Return the cell as a string.
+   */
+  std::string
+  str() const;
 };
+
+std::ostream&
+operator<<(std::ostream& os, const Cell& cell);
 
 }
 #endif //CELL_H

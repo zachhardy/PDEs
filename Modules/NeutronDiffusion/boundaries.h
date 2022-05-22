@@ -5,7 +5,7 @@
 #include <vector>
 
 
-namespace neutron_diffusion
+namespace NeutronDiffusion
 {
 
 /// Types of diffusion boundary conditions.

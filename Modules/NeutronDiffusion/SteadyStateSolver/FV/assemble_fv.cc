@@ -1,18 +1,21 @@
 #include "steadystate_solver_fv.h"
 
+
+using namespace pdes;
+
 /**
-* \brief Assemble the matrix for the specified \p groupset.
+* Assemble the matrix for the specified \p groupset.
  *
  * If solving the full system, this routine assembles the full multigroup
  * operator for the groupset, including off-diagonal scattering and fission
  * coupling terms. Otherwise, this routine assembles the within-group system
  * for the groups within the groupset.
 */
-void neutron_diffusion::SteadyStateSolver_FV::
+void NeutronDiffusion::SteadyStateSolver_FV::
 assemble_matrix(Groupset& groupset)
 {
-  math::Matrix<double> A(groupset.matrix.n_rows(),
-                         groupset.matrix.n_cols(), 0.0);
+  Math::Matrix A(groupset.matrix.n_rows(),
+                 groupset.matrix.n_cols(), 0.0);
 
   // Get groupset range
   const auto n_gsg = groupset.groups.size();
@@ -22,9 +25,9 @@ assemble_matrix(Groupset& groupset)
   //================================================== Loop over cells
   for (const auto& cell : mesh->cells)
   {
-    const double volume = cell->volume;
-    const auto& xs = material_xs[matid_to_xs_map[cell->material_id]];
-    const size_t i = cell->id * n_gsg;
+    const double volume = cell.volume;
+    const auto& xs = material_xs[matid_to_xs_map[cell.material_id]];
+    const size_t i = cell.id * n_gsg;
 
     //==================== Total interaction terms
     for (size_t g = gs_i; g <= gs_f; ++g)
@@ -83,21 +86,21 @@ assemble_matrix(Groupset& groupset)
     }//if full system
 
     //================================================== Loop over faces
-    for (const auto& face : cell->faces)
+    for (const auto& face : cell.faces)
     {
       //============================== Interior faces
       if (face.has_neighbor)
       {
         // Get neighbor info
         const auto& nbr_cell = mesh->cells[face.neighbor_id];
-        const size_t j = nbr_cell->id * n_gsg;
+        const size_t j = nbr_cell.id * n_gsg;
 
-        const int nbr_xs_id = matid_to_xs_map[nbr_cell->material_id];
+        const int nbr_xs_id = matid_to_xs_map[nbr_cell.material_id];
         const auto& nbr_xs = material_xs[nbr_xs_id];
 
         // Geometric quantities
-        const double d_pf = cell->centroid.distance(face.centroid);
-        const double d_pn = cell->centroid.distance(nbr_cell->centroid);
+        const double d_pf = cell.centroid.distance(face.centroid);
+        const double d_pn = cell.centroid.distance(nbr_cell.centroid);
         const double w = d_pf / d_pn; // harmonic mean weighting factor
 
         //==================== Diffusion term
@@ -123,7 +126,7 @@ assemble_matrix(Groupset& groupset)
         if (bndry_type == BoundaryType::ZERO_FLUX or
             bndry_type == BoundaryType::DIRICHLET)
         {
-          const double d_pf = cell->centroid.distance(face.centroid);
+          const double d_pf = cell.centroid.distance(face.centroid);
           for (size_t g = gs_i; g <= gs_f; ++g)
           {
             const double D = xs->diffusion_coeff[g];
@@ -137,7 +140,7 @@ assemble_matrix(Groupset& groupset)
                  bndry_type == BoundaryType::MARSHAK or
                  bndry_type == BoundaryType::ROBIN)
         {
-          const double d_pf = cell->centroid.distance(face.centroid);
+          const double d_pf = cell.centroid.distance(face.centroid);
           for (size_t g = gs_i; g <= gs_f; ++g)
           {
             const auto& bndry = boundaries[bndry_id][g];
@@ -156,8 +159,8 @@ assemble_matrix(Groupset& groupset)
 
 //######################################################################
 
-void neutron_diffusion::SteadyStateSolver_FV::
-set_source(Groupset& groupset, math::Vector<double>& b,
+void NeutronDiffusion::SteadyStateSolver_FV::
+set_source(Groupset& groupset, Math::Vector& b,
            SourceFlags source_flags)
 {
   const bool apply_mat_src         = (source_flags & APPLY_MATERIAL_SOURCE);
@@ -177,14 +180,14 @@ set_source(Groupset& groupset, math::Vector<double>& b,
   //================================================== Loop over cells
   for (const auto& cell : mesh->cells)
   {
-    const double volume = cell->volume;
-    const auto& xs = material_xs[matid_to_xs_map[cell->material_id]];
+    const double volume = cell.volume;
+    const auto& xs = material_xs[matid_to_xs_map[cell.material_id]];
 
-    const size_t i = cell->id * n_gsg;
-    const size_t uk_map = cell->id * n_groups;
+    const size_t i = cell.id * n_gsg;
+    const size_t uk_map = cell.id * n_groups;
 
     //==================== Inhomogeneous source term
-    const int src_id = matid_to_src_map[cell->material_id];
+    const int src_id = matid_to_src_map[cell.material_id];
     if (src_id >= 0 and apply_mat_src)
     {
       const auto& src = material_src[src_id];
@@ -270,7 +273,7 @@ set_source(Groupset& groupset, math::Vector<double>& b,
     }//for group
 
     //================================================== Loop over faces
-    for (const auto& face : cell->faces)
+    for (const auto& face : cell.faces)
     {
       //============================== Boundary faces
       if (not face.neighbor_id)
@@ -281,7 +284,7 @@ set_source(Groupset& groupset, math::Vector<double>& b,
         //==================== Dirichlet boundary term
         if (bndry_type == BoundaryType::DIRICHLET)
         {
-          const double d_pf = cell->centroid.distance(face.centroid);
+          const double d_pf = cell.centroid.distance(face.centroid);
           for (size_t g = gs_i; g <= gs_f; ++g)
           {
             const auto& bndry = boundaries[bndry_id][g];
@@ -306,7 +309,7 @@ set_source(Groupset& groupset, math::Vector<double>& b,
         else if (bndry_type == BoundaryType::MARSHAK or
                  bndry_type == BoundaryType::ROBIN)
         {
-          const double d_pf = cell->centroid.distance(face.centroid);
+          const double d_pf = cell.centroid.distance(face.centroid);
           for (size_t g = gs_i; g <= gs_f; ++g)
           {
             const auto& bndry = boundaries[bndry_id][g];

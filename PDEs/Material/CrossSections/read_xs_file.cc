@@ -5,9 +5,14 @@
 #include <fstream>
 #include <numeric>
 
-/// Set the cross section data by reading a file.
-void physics::CrossSections::read_xs_file(const std::string& file_name,
-                                          const bool verbose)
+#include "macros.h"
+
+using namespace pdes;
+
+
+void
+Physics::CrossSections::read_xs_file(const std::string file_name,
+                                     const bool verbose)
 {
   std::cout << "Reading cross-section file \"" << file_name << "\"...\n";
 
@@ -17,13 +22,7 @@ void physics::CrossSections::read_xs_file(const std::string& file_name,
   // Open the file
   std::ifstream file;
   file.open(file_name);
-  if (!file.is_open()) {
-    std::stringstream err;
-    err << "CrossSections::" << __FUNCTION__ << ": "
-        << "Failed to open the cross section file \""
-        << file_name << "\".\n";
-    throw std::runtime_error(err.str());
-  }
+  Assert(file.is_open(), "Failed to open the .xs file.");
 
   // Book-Keeping
   bool found_groups = false;
@@ -31,7 +30,7 @@ void physics::CrossSections::read_xs_file(const std::string& file_name,
   bool found_inv_velocity = false;
 
   // Read the file
-  uint64_t line_number = 0;
+  size_t line_number = 0;
   std::string line, word;
   while (std::getline(file, line))
   {
@@ -65,42 +64,25 @@ void physics::CrossSections::read_xs_file(const std::string& file_name,
     }
     if (word == "SCATTERING_ORDER")
     {
+      Assert(found_groups, "NUM_GROUPS must be specified before "
+                           "SCATTERING_ORDER in the \".xs\" file.");
+
       line_stream >> scattering_order;
-      if (found_groups)
-      {
-        transfer_matrices.resize(scattering_order + 1);
-        for (uint64_t m = 0; m < transfer_matrices.size(); ++m)
-          transfer_matrices[m].resize(n_groups, std::vector<double>(n_groups));
-      }
-      else
-      {
-        std::stringstream err;
-        err << "CrossSections::" << __FUNCTION__ << ": "
-            << "NUM_GROUPS must be specified before SCATTERING_ORDER "
-            << "in the xs file.";
-        throw std::runtime_error(err.str());
-      }
+      transfer_matrices.resize(scattering_order + 1);
+      for (size_t m = 0; m < transfer_matrices.size(); ++m)
+        transfer_matrices[m].resize(n_groups, std::vector<double>(n_groups));
     }
     if (word == "NUM_PRECURSORS")
     {
+      Assert(found_groups, "NUM_GROUPS must be specified before "
+                           "NUM_PRECURSORS in the \".xs\" file.");
       line_stream >> n_precursors;
       precursor_lambda.assign(n_precursors, 0.0);
       precursor_yield.assign(n_precursors, 0.0);
 
-      if (found_groups)
-      {
-        chi_delayed.resize(n_groups);
-        for (uint64_t g = 0; g < n_groups; ++g)
-          chi_delayed[g].resize(n_precursors);
-      }
-      else
-      {
-        std::stringstream err;
-        err << "CrossSections::" << __FUNCTION__ << ": "
-            << "NUM_GROUPS must be specified before NUM_PRECURSORS "
-            << "in the xs file.";
-        throw std::runtime_error(err.str());
-      }
+      chi_delayed.resize(n_groups);
+      for (uint64_t g = 0; g < n_groups; ++g)
+        chi_delayed[g].resize(n_precursors);
     }
 
     // Parse basic cross sections
@@ -123,7 +105,7 @@ void physics::CrossSections::read_xs_file(const std::string& file_name,
     if (word == "CHI_PROMPT_BEGIN")
       read_cross_section("CHI_PROMPT", chi_prompt, f, ls, ln);
 
-    if (word == "VELOCITY_BEGIN" and not found_inv_velocity)
+    if (word == "VELOCITY_BEGIN" and !found_inv_velocity)
     {
       read_cross_section("VELOCITY", inv_velocity, f, ls, ln);
       found_velocity = true;
@@ -163,10 +145,10 @@ void physics::CrossSections::read_xs_file(const std::string& file_name,
   reconcile_fission_properties();
   compute_macroscopic_cross_sections();
 
-  std::cout << "Done reading cross sections.\n";
   if (verbose)
     std::cout << "Cross Sections Details:\n"
               << "\t# of Groups    : " << n_groups << "\n"
               << "\t# of Precursors: " << n_precursors << "\n"
               << "\tFissile?       : " << is_fissile << "\n";
-  }
+  std::cout << "Done reading cross sections.\n";
+}

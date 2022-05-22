@@ -1,13 +1,12 @@
 #ifndef SPATIAL_DISCRETIZATION_H
 #define SPATIAL_DISCRETIZATION_H
 
-#include "grid_structs.h"
 #include "mesh.h"
 
 #include <cinttypes>
 
 
-namespace math
+namespace pdes::Math
 {
 
 enum class DiscretizationMethod
@@ -32,40 +31,55 @@ enum class DiscretizationMethod
 class Discretization
 {
 public:
-  const std::shared_ptr<grid::Mesh> mesh;
+  const std::shared_ptr<Grid::Mesh> mesh;
   const DiscretizationMethod type;
 
 public:
   explicit
-  Discretization(const std::shared_ptr<grid::Mesh> reference_mesh,
+  Discretization(const std::shared_ptr<Grid::Mesh> reference_mesh,
                  const DiscretizationMethod discretization_type)
       : mesh(reference_mesh), type(discretization_type)
   {}
 
 public:
-  /// Get the number of nodes in the discretization.
-  virtual uint64_t n_nodes() const { return 0; }
-
-  /// Get the number of DoFs in the spatial discretization.
-  virtual uint64_t n_dofs(const uint64_t n_components) const { return 0; }
-
-  /// Get the number of nodes per cell.
-  virtual uint64_t nodes_per_cell() const { return 0; }
-
-  /// Get the number of DoFs per cell.
-  virtual uint64_t dofs_per_cell(const uint64_t n_components) const { return 0; }
-
-   /// Get the location of the nodes on a cell.
-  virtual std::vector<grid::Point> nodes(const grid::Cell& cell) const = 0;
+  /**
+   * Return the number of nodes in the discretization.
+   */
+  virtual size_t
+  n_nodes() const
+  { return 0; }
 
   /**
-   * Define the sparsity pattern.
-   *
-   * This routine defines the column indices of non-zero entries per row for a
-   * problem with the specified number of components. If the \p is_coupled flag
-   * is insert to \p true, it is assumed that all components are coupled to one
-   * another, otherwise, it is assumed that the system is uncoupled in all
-   * components.
+   * Return the number of degrees of freedom in the spatial discretization.
+   */
+  virtual size_t
+  n_dofs(const size_t n_components) const
+  { return 0; }
+
+  /**
+   * Return the number of nodes per cell.
+   */
+  virtual size_t
+  nodes_per_cell() const
+  { return 0; }
+
+  /**
+   * Return the number of degrees of freedom per cell.
+   */
+  virtual size_t
+  dofs_per_cell(const size_t n_components) const
+  { return 0; }
+
+   /// Get the location of the nodes on a cell.
+  virtual std::vector<Grid::Point>
+  nodes(const Grid::Cell& cell) const = 0;
+
+  /**
+   * Define the sparsity pattern. This routine defines the column indices of
+   * non-zero entries per row for a problem with the specified number of
+   * components. If the \p is_coupled flag is insert to \p true, it is assumed
+   * that all components are coupled to one another, otherwise, it is assumed
+   * that the system is uncoupled in all components.
    *
    * \param pattern The column indices per row to allocate for.
    * \param n_components The number of components in the solution.
@@ -73,8 +87,8 @@ public:
    *   solution components.
    */
   virtual void
-  make_sparsity_pattern(std::vector<std::vector<uint64_t>> pattern,
-                        const uint64_t n_components = 1,
+  make_sparsity_pattern(std::vector<std::vector<size_t>> pattern,
+                        const size_t n_components = 1,
                         const bool is_coupled = false) const = 0;
 };
 

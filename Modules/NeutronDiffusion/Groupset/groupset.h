@@ -10,22 +10,24 @@
 #include <cinttypes>
 
 
-namespace neutron_diffusion
+using namespace pdes;
+
+namespace NeutronDiffusion
 {
 
 class Groupset
 {
 public:
   int id;
-  std::vector<uint64_t> groups;
+  std::vector<size_t> groups;
 
   /*---------- Options ----------*/
-  uint64_t max_iterations = 100;
+  size_t max_iterations = 100;
   double tolerance = 1.0e-8;
 
   /*---------- System Storage ----------*/
-  math::SparseMatrix<double> matrix;
-  math::Vector<double> rhs;
+  Math::SparseMatrix matrix;
+  Math::Vector rhs;
 
   Groupset() : id(-1) {}
   explicit Groupset(int groupset_num) : id(groupset_num) {}

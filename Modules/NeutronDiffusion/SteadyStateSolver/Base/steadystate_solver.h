@@ -13,8 +13,10 @@
 #include "vector.h"
 #include "matrix.h"
 
+using namespace pdes;
 
-namespace neutron_diffusion
+
+namespace NeutronDiffusion
 {
 
 /// Algorithms to solve the multigroup diffusion problem.
@@ -53,14 +55,14 @@ protected:
   const std::string solver_string = "diffusion::SteadyStateSolver::";
 
 protected:
-  typedef grid::Mesh Mesh;
-  typedef math::DiscretizationMethod DiscretizationMethod;
-  typedef math::Discretization Discretization;
+  typedef Grid::Mesh Mesh;
+  typedef Math::DiscretizationMethod DiscretizationMethod;
+  typedef Math::Discretization Discretization;
 
-  typedef physics::Material Material;
-  typedef physics::MaterialPropertyType MaterialPropertyType;
-  typedef physics::CrossSections CrossSections;
-  typedef physics::IsotropicMultiGroupSource IsotropicMGSource;
+  typedef Physics::Material Material;
+  typedef Physics::MaterialPropertyType MaterialPropertyType;
+  typedef Physics::CrossSections CrossSections;
+  typedef Physics::IsotropicMultiGroupSource IsotropicMGSource;
 
   typedef std::vector<double> RobinBndryVals;
   typedef std::shared_ptr<Boundary> BndryPtr;
@@ -71,12 +73,12 @@ public:
   SolutionTechnique solution_technique = SolutionTechnique::GROUPSET_WISE;
 
   /*---------- General Information ----------*/
-  uint64_t n_groups = 0;
-  uint64_t n_precursors = 0;
+  size_t n_groups = 0;
+  size_t n_precursors = 0;
   bool use_precursors = false;
 
   /*---------- Groupsets and Groups ----------*/
-  std::vector<uint64_t> groups;
+  std::vector<size_t> groups;
   std::vector<Groupset> groupsets;
 
   /*---------- Spatial Grid Information ----------*/
@@ -112,7 +114,7 @@ public:
   /** A list containing a pair with the boundary type and index corresponding
    *  to the location of the boundary values within the boundary values vector.
    *  This is similar to the matid_to_xs_map attribute. */
-  std::vector<std::pair<BoundaryType, uint64_t>> boundary_info;
+  std::vector<std::pair<BoundaryType, size_t>> boundary_info;
 
   /** The multigroup boundary values. The outer index corresponds to the
    *  boundary index, the middle to the group, and the last to the boundary
@@ -130,22 +132,27 @@ protected:
 
 public:
   /*---------- Solutions ----------*/
-  math::Vector<double> phi;
-  math::Vector<double> phi_ell;
+  Math::Vector phi;
+  Math::Vector phi_ell;
 
-  math::Vector<double> precursors;
+  Math::Vector precursors;
 
 public:
-  void initialize();
-  void execute();
-  void solve_groupset(Groupset& groupset, SourceFlags source_flags);
+  void
+  initialize();
+
+  void
+  execute();
+
+  void
+  solve_groupset(Groupset& groupset, SourceFlags source_flags);
 
 protected:
   /** Virtual function for assembling a groupset matrix. */
   virtual void assemble_matrix(Groupset& groupset) = 0;
 
   /** Virtual function for setting a groupset source. */
-  virtual void set_source(Groupset& groupset, math::Vector<double>& b,
+  virtual void set_source(Groupset& groupset, Math::Vector& b,
                           SourceFlags source_flags) = 0;
 
 protected:
@@ -159,11 +166,13 @@ protected:
 
 protected:
   virtual void scoped_transfer(const Groupset& groupset,
-                               const math::Vector<double>& x,
-                               math::Vector<double>& destination) = 0;
+                               const Math::Vector& x,
+                               Math::Vector& destination) = 0;
+
   virtual void scoped_copy(const Groupset& groupset,
-                           const math::Vector<double>& x,
-                           math::Vector<double>& destination) = 0;
+                           const Math::Vector& x,
+                           Math::Vector& destination) = 0;
+
   virtual double compute_change(const Groupset& groupset) = 0;
 };
 

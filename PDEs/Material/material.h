@@ -5,12 +5,12 @@
 #include <vector>
 #include <memory>
 
-namespace physics
+namespace pdes::Physics
 {
 
-// Forward declaration
-class MaterialProperty;
-
+/**
+ * Available types of material properties.
+ */
 enum class MaterialPropertyType
 {
   SCALAR = 0,              ///< A scalar-valued property.
@@ -18,10 +18,39 @@ enum class MaterialPropertyType
   ISOTROPIC_MG_SOURCE = 2  ///< Isotropic neutron source.
 };
 
+
+/**
+ * Abstract base class for material properties.
+ */
+class MaterialProperty
+{
+public:
+  const MaterialPropertyType type;
+  const std::string name = "Generic Property";
+
+public:
+  /**
+   * Construct a material property of the specified type.
+   */
+  MaterialProperty(const MaterialPropertyType property_type) :
+      type(property_type)
+  {}
+
+  /**
+   * Construct a material property of the specified type
+   * with the specified name.
+   */
+  MaterialProperty(const MaterialPropertyType property_type,
+                   const std::string property_name) :
+      type(property_type), name(property_name)
+  {}
+};
+
+
 //######################################################################
 
 /**
- * \brief A class representing a material.
+ * A class representing a material.
  *
  * In order to support future multi-physics applications. A Material holds
  * a collection a MaterialProperty objects which hold derived objects that
@@ -34,112 +63,95 @@ public:
   std::vector<std::shared_ptr<MaterialProperty>> properties;
 
 public:
-  Material() = default;
+  /**
+   * Default constructor
+   */
+   Material() = default;
 
-  explicit Material(const std::string material_name)
-      : name(material_name)
-  {}
+  /**
+   * Construct a material with unique name.
+   */
+  explicit
+  Material(const std::string material_name) : name(material_name) {}
 };
 
 //######################################################################
 
-/// An abstract class for representing a material property.
-class MaterialProperty
-{
-public:
-  const MaterialPropertyType type;
-  const std::string name = "Generic Property";
-
-public:
-  explicit MaterialProperty(const MaterialPropertyType property_type)
-      : type(property_type)
-  {}
-
-  explicit MaterialProperty(const std::string property_name,
-                            const MaterialPropertyType property_type)
-      : name(property_name), type(property_type)
-  {}
-};
-
-//######################################################################
-
-/// A simple scalar material property.
+/**
+ * A simple scalar valued material property.
+ */
 class ScalarProperty : public MaterialProperty
 {
-public:
+private:
   double value = 1.0;
 
 public:
-  ScalarProperty()
-    : MaterialProperty(MaterialPropertyType::SCALAR)
+  /**
+   * Construct a scalar valued property with the default value of 1.
+   */
+  ScalarProperty() :
+      MaterialProperty(MaterialPropertyType::SCALAR)
   {}
 
-  explicit ScalarProperty(const std::string property_name)
-    : MaterialProperty(property_name, MaterialPropertyType::SCALAR)
+  /**
+   * Construct a scalar valued property with the default value of 1 with
+   * the specified name.
+   */
+  explicit
+  ScalarProperty(const std::string property_name) :
+      MaterialProperty(MaterialPropertyType::SCALAR, property_name)
   {}
 
-  explicit ScalarProperty(const double scalar_value)
-    : MaterialProperty(MaterialPropertyType::SCALAR), value(scalar_value)
+  /**
+   * Construct a scalar valued property with the specified value
+   */
+  ScalarProperty(const double scalar_value) :
+      MaterialProperty(MaterialPropertyType::SCALAR),
+      value(scalar_value)
   {}
 
-  explicit ScalarProperty(const std::string property_name,
-                          const double scalar_value)
-    : MaterialProperty(property_name, MaterialPropertyType::SCALAR),
+
+  /**
+   * Construct a scalar valued property with the specified name and value.
+   */
+  ScalarProperty(const double scalar_value,
+                 const std::string property_name) :
+      MaterialProperty(MaterialPropertyType::SCALAR),
       value(scalar_value)
   {}
 };
 
 //######################################################################
 
-/// An isotropic multigroup source for radiation transport problems.
+/**
+ * An isotropic multigroup source material property. This is meant to be used
+ * as a vector-valued property in multigroup radiation diffusion and transport
+ * simulations.
+ */
 class IsotropicMultiGroupSource : public MaterialProperty
 {
 public:
   std::vector<double> values;
 
 public:
-  IsotropicMultiGroupSource()
-    : MaterialProperty(MaterialPropertyType::ISOTROPIC_MG_SOURCE)
+  /**
+   * Construct a multigroup source from an STL vector.
+   */
+  IsotropicMultiGroupSource(const std::vector<double> src) :
+      MaterialProperty(MaterialPropertyType::ISOTROPIC_MG_SOURCE),
+      values(src)
   {}
 
-  IsotropicMultiGroupSource(const std::string property_name)
-    : MaterialProperty(property_name, MaterialPropertyType::ISOTROPIC_MG_SOURCE)
+  /**
+   * Construct a multigroup source with the specified name from an STL vector.
+   */
+  IsotropicMultiGroupSource(const std::vector<double> src,
+                            const std::string property_name) :
+      MaterialProperty(MaterialPropertyType::ISOTROPIC_MG_SOURCE,
+                       property_name),
+      values(src)
   {}
 
-  IsotropicMultiGroupSource(const std::vector<double>& mg_values)
-    : MaterialProperty(MaterialPropertyType::ISOTROPIC_MG_SOURCE),
-      values(mg_values)
-  {}
-
-  IsotropicMultiGroupSource(const std::string property_name,
-                            const std::vector<double>& mg_values)
-    : MaterialProperty(property_name, MaterialPropertyType::ISOTROPIC_MG_SOURCE),
-      values(mg_values)
-  {}
-
-  IsotropicMultiGroupSource(std::vector<double>&& mg_values)
-    : MaterialProperty(MaterialPropertyType::ISOTROPIC_MG_SOURCE),
-      values(mg_values)
-  {}
-
-  IsotropicMultiGroupSource(const std::string property_name,
-                            std::vector<double>&& mg_values)
-    : MaterialProperty(property_name,
-                       MaterialPropertyType::ISOTROPIC_MG_SOURCE),
-        values(mg_values)
-  {}
-
-  IsotropicMultiGroupSource(std::initializer_list<double>& mg_values)
-    : MaterialProperty(MaterialPropertyType::ISOTROPIC_MG_SOURCE),
-      values(mg_values)
-  {}
-
-  IsotropicMultiGroupSource(const std::string property_name,
-                            std::initializer_list<double>& mg_values)
-    : MaterialProperty(property_name,
-                       MaterialPropertyType::ISOTROPIC_MG_SOURCE),
-      values(mg_values)
-  {}
 };
 
 }
