@@ -7,8 +7,10 @@
 
 #include <fstream>
 
+using namespace pdes;
+
 /// Run the steady state multigroup diffusion simulation.
-void neutron_diffusion::SteadyStateSolver:: execute()
+void NeutronDiffusion::SteadyStateSolver:: execute()
 {
   std::cout << "Executing solver...\n";
 
@@ -32,7 +34,7 @@ void neutron_diffusion::SteadyStateSolver:: execute()
 //######################################################################
 
 /// Converge the system for the current groupset, lagging couplings from others.
-void neutron_diffusion::SteadyStateSolver::
+void NeutronDiffusion::SteadyStateSolver::
 solve_groupset(Groupset& groupset, SourceFlags source_flags)
 {
   std::cout << "\n***** Solving Groupset " << groupset.id << "\n\n";
@@ -40,11 +42,11 @@ solve_groupset(Groupset& groupset, SourceFlags source_flags)
   double change = 1.0;
   bool converged = false;
 
-  math::SparseCholesky<double> solver = groupset.matrix;
+  Math::SparseCholesky solver = groupset.matrix;
   solver.factorize();
 
   //======================================== Start iterations
-  for (uint64_t nit = 0; nit < groupset.max_iterations; ++nit)
+  for (size_t nit = 0; nit < groupset.max_iterations; ++nit)
   {
     // Compute the RHS and solve
     groupset.rhs *= 0.0;

@@ -3,7 +3,7 @@
 #include <set>
 
 /**
- * \brief Grab the appropriate material properties from the materials list.
+ * Grab the appropriate material properties from the materials list.
  *
  * This routine performs checks to ensure that the number of materials matches
  * the number of unique material identifiers on the mesh, that CrossSections
@@ -16,18 +16,18 @@
  * the number of precursors is the number of unique decay constants across all
  * materials.
  */
-void neutron_diffusion::SteadyStateSolver::initialize_materials()
+void NeutronDiffusion::SteadyStateSolver::initialize_materials()
 {
   std::cout << "Initializing materials...\n";
 
   // Determine the unique material IDs on the mesh
   std::set<int> unique_material_ids;
-  std::vector<uint64_t> invalid_cells;
+  std::vector<size_t> invalid_cells;
   for (const auto& cell : mesh->cells)
   {
-    unique_material_ids.insert(cell->material_id);
-    if (cell->material_id < 0)
-      invalid_cells.emplace_back(cell->id);
+    unique_material_ids.insert(cell.material_id);
+    if (cell.material_id < 0)
+      invalid_cells.emplace_back(cell.id);
   }
 
   // If all cells are invalid, set to zero
@@ -36,7 +36,7 @@ void neutron_diffusion::SteadyStateSolver::initialize_materials()
     unique_material_ids.clear();
     unique_material_ids.insert(0);
     for (auto& cell : mesh->cells)
-      cell->material_id = 0;
+      cell.material_id = 0;
   }
 
   // If only some cells have no material property, throw an error
@@ -53,7 +53,7 @@ void neutron_diffusion::SteadyStateSolver::initialize_materials()
   material_xs.clear();
   material_src.clear();
 
-  uint64_t n_materials = materials.size();
+  size_t n_materials = materials.size();
   matid_to_xs_map.assign(n_materials, -1);
   matid_to_src_map.assign(n_materials, -1);
 
@@ -129,7 +129,7 @@ void neutron_diffusion::SteadyStateSolver::initialize_materials()
     std::set<double> unique_decay_constants;
     for (const auto& xs : material_xs)
     {
-      for (uint64_t j = 0; j < xs->n_precursors; ++j)
+      for (size_t j = 0; j < xs->n_precursors; ++j)
         unique_decay_constants.insert(xs->precursor_lambda[j]);
 
       if (xs->n_precursors > max_precursors_per_material)

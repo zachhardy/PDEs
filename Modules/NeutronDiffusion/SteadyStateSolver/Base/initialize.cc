@@ -6,13 +6,13 @@
 #include <set>
 
 /**
- * \brief Initializer the solver.
+ * Initialize the solver.
  *
  * This routine ensures that the specified setup is valid. For example, the
  * mesh, groups, groupsets, materials, and boundaries are all checked and
  * relevant properties are initialized.
  */
-void neutron_diffusion::SteadyStateSolver::initialize()
+void NeutronDiffusion::SteadyStateSolver::initialize()
 {
   std::cout << "Initializing solver...\n";
 
@@ -23,7 +23,7 @@ void neutron_diffusion::SteadyStateSolver::initialize()
 
     groupsets.clear();
     groupsets.emplace_back(0);
-    for (const uint64_t group : groups)
+    for (const size_t group : groups)
       groupsets[0].groups.emplace_back(group);
   }
 
@@ -43,7 +43,7 @@ void neutron_diffusion::SteadyStateSolver::initialize()
   //================================================== Initialize groupsets
   for (auto& groupset : groupsets)
   {
-    const uint64_t n_gsg = groupset.groups.size();
+    const size_t n_gsg = groupset.groups.size();
     groupset.matrix.reinit(n_gsg * n_nodes, n_gsg * n_nodes);
     groupset.rhs.resize(n_gsg * n_nodes, 0.0);
   }//for groupset
@@ -58,7 +58,7 @@ void neutron_diffusion::SteadyStateSolver::initialize()
 //######################################################################
 
 /// Validate the general setup of the simulation.
-void neutron_diffusion::SteadyStateSolver::input_checks()
+void NeutronDiffusion::SteadyStateSolver::input_checks()
 {
   //================================================== Check the groups
   // Ensure groups and groupsets were added
