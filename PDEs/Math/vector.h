@@ -645,7 +645,7 @@ unit(const Vector& x)
  * Insert the vector into an output stream.
  * \see Vector::str Vector::print
  */
-std::ostream&
+inline std::ostream&
 operator<<(std::ostream& os, const Vector& x)
 { return os << x.str(); }
 

@@ -1,9 +1,8 @@
-#include "grid_structs.h"
+#include "mesh.h"
+#include "ortho_grids.h"
 
 #include "material.h"
 #include "CrossSections/cross_sections.h"
-
-#include "math.h"
 
 #include "NeutronDiffusion/Groupset/groupset.h"
 #include "NeutronDiffusion/SteadyStateSolver/FV/steadystate_solver_fv.h"
@@ -22,9 +21,10 @@
 int main(int argc, char** argv)
 {
   try{
-    using namespace grid;
-    using namespace math;
-    using namespace physics;
+    using namespace pdes;
+    using namespace Grid;
+    using namespace Math;
+    using namespace Physics;
     using namespace neutron_diffusion;
 
     //================================================== Create the mesh
@@ -70,8 +70,8 @@ int main(int argc, char** argv)
     solver.groupsets.emplace_back(groupset);
 
     // Define boundary conditions
-    solver.boundary_info.emplace_back(BoundaryType::ZERO_FLUX, -1);
-    solver.boundary_info.emplace_back(BoundaryType::ZERO_FLUX, -1);
+    solver.boundary_info.emplace_back(BoundaryType::REFLECTIVE, -1);
+    solver.boundary_info.emplace_back(BoundaryType::REFLECTIVE, -1);
 
     solver.solution_technique = SolutionTechnique::FULL_SYSTEM;
 
@@ -82,6 +82,8 @@ int main(int argc, char** argv)
 
     solver.initialize();
     solver.execute();
+
+    solver.phi.print();
 
     PetscFinalize();
   }

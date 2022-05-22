@@ -1,13 +1,12 @@
-#include "mesh.h"
+#include "ortho_grids.h"
 #include "macros.h"
 
 #include <numeric>
 
-
 using namespace pdes;
 
 
-Grid::Mesh
+std::shared_ptr<Grid::Mesh>
 Grid::create_1d_mesh(const std::vector<double> vertices,
                      const CoordinateSystem coordinate_system,
                      const bool verbose)
@@ -17,7 +16,7 @@ Grid::create_1d_mesh(const std::vector<double> vertices,
   Assert(!vertices.empty(), "No vertices provided.");
 
   // Create the Mesh
-  Mesh mesh(1, coordinate_system);
+  auto mesh = std::make_shared<Mesh>(1, coordinate_system);
 
   // Count the number of cells
   size_t n_cells = vertices.size() - 1;
@@ -29,14 +28,14 @@ Grid::create_1d_mesh(const std::vector<double> vertices,
     widths.push_back(vertices[v + 1] - vertices[v]);
 
   // Initialize the vertices
-  mesh.vertices.reserve(vertices.size());
-  mesh.vertices.emplace_back(0.0, 0.0, 0.0);
+  mesh->vertices.reserve(vertices.size());
+  mesh->vertices.emplace_back(0.0, 0.0, 0.0);
 
   // Compute the vertices, starting from 0.0
   double current_pos = 0.0;
   for (const auto& width : widths)
   {
-    mesh.vertices.emplace_back(0.0, 0.0, current_pos + width);
+    mesh->vertices.emplace_back(0.0, 0.0, current_pos + width);
     current_pos += width;
   }
 
@@ -68,7 +67,7 @@ Grid::create_1d_mesh(const std::vector<double> vertices,
     left_face.has_neighbor = (c > 0);
     left_face.neighbor_id = (c > 0)? c - 1 : 0;
     left_face.normal = Normal(0.0, 0.0, -1.0);
-    cell->faces.push_back(left_face);
+    cell.faces.push_back(left_face);
 
     // Define the right face info, add to cell
     right_face.vertex_ids = {c + 1};
@@ -78,30 +77,28 @@ Grid::create_1d_mesh(const std::vector<double> vertices,
     cell.faces.push_back(right_face);
 
     // Add cells to the mesh
-    mesh.cells.push_back(cell);
+    mesh->cells.push_back(cell);
   }
 
   // Define the boundary cells
-  mesh.boundary_cell_ids = {0, n_cells - 1};
+  mesh->boundary_cell_ids = {0, n_cells - 1};
 
   // Compute the cell and face geometric info
   mesh->compute_geometric_info();
 
   if (verbose)
     std::cout << "Mesh Details:\n"
-              << "\t# of Vertices: " << mesh.vertices.size() << "\n"
-              << "\t# of Cells:    " << mesh.cells.size() << "\n"
-              << "\t# of Lines:    " << mesh.cells.size() << "\n";
+              << "\t# of Vertices: " << mesh->vertices.size() << "\n"
+              << "\t# of Cells:    " << mesh->cells.size() << "\n"
+              << "\t# of Lines:    " << mesh->cells.size() << "\n";
   std::cout << "Done creating mesh.\n";
 
   return mesh;
 }
 
-
 //######################################################################
 
-
-Grid::Mesh
+std::shared_ptr<Grid::Mesh>
 Grid::create_1d_mesh(const std::vector<double> zone_edges,
                      const std::vector<size_t> zone_subdivisions,
                      const std::vector<int> material_ids,
@@ -121,15 +118,15 @@ Grid::create_1d_mesh(const std::vector<double> zone_edges,
          "There must the same number of zone subdivisions as material IDs.");
 
   // Create the mesh
-  Mesh mesh(1, coordinate_system);
+  auto mesh = std::make_shared<Mesh>(1, coordinate_system);
 
   // Count the number of cells
   size_t n_cells = std::accumulate(zone_subdivisions.begin(),
                                    zone_subdivisions.end(), 0);
 
   // Initialize the vertices
-  mesh.vertices.reserve(n_cells);
-  mesh.vertices.emplace_back(0.0, 0.0, zone_edges[0]);
+  mesh->vertices.reserve(n_cells);
+  mesh->vertices.emplace_back(0.0, 0.0, zone_edges[0]);
 
   // Define the vertices, loop over each zone, then the cells per zone
   double current_pos = 0.0;
@@ -142,7 +139,7 @@ Grid::create_1d_mesh(const std::vector<double> zone_edges,
 
     for (size_t c = 0; c < n_zone_cells; ++ c)
     {
-      mesh.vertices.emplace_back(0.0, 0.0, current_pos+cell_width);
+      mesh->vertices.emplace_back(0.0, 0.0, current_pos+cell_width);
       current_pos += cell_width;
     }
   }
@@ -189,16 +186,16 @@ Grid::create_1d_mesh(const std::vector<double> zone_edges,
       cell.faces.push_back(right_face);
 
       // Add the cell to the mesh
-      mesh.cells.emplace_back(cell);
+      mesh->cells.emplace_back(cell);
       ++count;
     }//for cell
   }//for zone
 
   // Define the boundary cells
-  mesh.boundary_cell_ids = {0, n_cells - 1};
+  mesh->boundary_cell_ids = {0, n_cells - 1};
 
   // Compute the cell and face geometric info
-  mesh.compute_geometric_info();
+  mesh->compute_geometric_info();
 
   if (verbose)
     std::cout << "Mesh Details:\n"

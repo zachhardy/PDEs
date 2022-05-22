@@ -31,8 +31,8 @@ Grid::Mesh::establish_connectivity()
   const uint64_t n_vertices = vertices.size();
   std::vector<std::set<uint64_t>> vertex_cell_map(n_vertices);
   for (const auto& cell : cells)
-    for (const auto& v_id : cell->vertex_ids)
-      vertex_cell_map.at(v_id).insert(cell->id);
+    for (const auto& v_id : cell.vertex_ids)
+      vertex_cell_map.at(v_id).insert(cell.id);
 
   // Establish connectivity by going through each face of each cell and
   // finding faces on neighboring cells (as defined by vertex_cell_map) which
@@ -42,7 +42,7 @@ Grid::Mesh::establish_connectivity()
   for (auto& cell : cells)
   {
     // Go through faces on cell
-    for (auto& face : cell->faces)
+    for (auto& face : cell.faces)
     {
       // If there is a neighbor, this face has already been encountered
       if (face.has_neighbor) continue;
@@ -55,7 +55,7 @@ Grid::Mesh::establish_connectivity()
       std::set<uint64_t> cells_to_search;
       for (const auto& v_id : face.vertex_ids)
         for (const auto& c_id : vertex_cell_map.at(v_id))
-          if (c_id != cell->id)
+          if (c_id != cell.id)
             cells_to_search.insert(c_id);
 
       // Search the neighbor cells for matching faces
@@ -64,7 +64,7 @@ Grid::Mesh::establish_connectivity()
         auto& adj_cell = cells.at(adj_c_id);
 
         // Go through neighbor cell faces
-        for (auto& adj_face : adj_cell->faces)
+        for (auto& adj_face : adj_cell.faces)
         {
           // If neighbor has already been set, it is not a neighbor
           if (adj_face.has_neighbor) continue;
@@ -80,7 +80,7 @@ Grid::Mesh::establish_connectivity()
             face.neighbor_id = adj_c_id;
             face.has_neighbor = true;
 
-            adj_face.neighbor_id = cell->id;
+            adj_face.neighbor_id = cell.id;
             adj_face.has_neighbor = true;
 
             goto found_neighbor;
@@ -105,27 +105,27 @@ Grid::Mesh::compute_geometric_info()
   for (auto& cell : cells)
   {
     // Compute cell centroid
-    cell->centroid *= 0.0;
-    for (auto& v_id : cell->vertex_ids)
-      cell->centroid += vertices[v_id];
-    cell->centroid /= static_cast<double>(cell->vertex_ids.size());
+    cell.centroid *= 0.0;
+    for (auto& v_id : cell.vertex_ids)
+      cell.centroid += vertices[v_id];
+    cell.centroid /= static_cast<double>(cell.vertex_ids.size());
 
     // Compute cell volume
-    if (cell->vertex_ids.size() == 2)
+    if (cell.vertex_ids.size() == 2)
     {
-      auto cell_type = cell->type;
-      auto& v1 = vertices[cell->vertex_ids[1]].z;
-      auto& v0 = vertices[cell->vertex_ids[0]].z;
+      auto cell_type = cell.type;
+      auto& v1 = vertices[cell.vertex_ids[1]].z;
+      auto& v0 = vertices[cell.vertex_ids[0]].z;
 
       // Compute vo
       switch (cell_type)
       {
         case CellType::SLAB:
-        { cell->volume = v1 - v0; break; }
+        { cell.volume = v1 - v0; break; }
         case CellType::ANNULUS:
-        { cell->volume = M_PI*(v1*v1 - v0*v0); break; }
+        { cell.volume = M_PI*(v1*v1 - v0*v0); break; }
         case CellType::SHELL:
-        { cell->volume = 4.0/3.0*M_PI*(v1*v1*v1 - v0*v0*v0); break; }
+        { cell.volume = 4.0/3.0*M_PI*(v1*v1*v1 - v0*v0*v0); break; }
       }
     }//if 1D
     else
@@ -137,7 +137,7 @@ Grid::Mesh::compute_geometric_info()
     }
 
     // Go through the cell's faces
-    for (auto& face : cell->faces)
+    for (auto& face : cell.faces)
     {
       // Compute face centroids
       face.centroid *= 0.0;

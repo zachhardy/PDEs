@@ -4,16 +4,14 @@
 #include "matrix.h"
 
 
-namespace math
+namespace pdes::Math
 {
 
 /** A class for an LU decomposition solver. */
-template<typename number = double>
-class LU : public Matrix<number>
+class LU : public Matrix
 {
 public:
-  using value_type = typename Matrix<number>::value_type;
-  using size_type = typename Matrix<number>::size_type;
+  using value_type = typename Matrix::value_type;
 
 private:
   bool factorized = false;
@@ -25,45 +23,40 @@ private:
    * pivoted row number. This is used to map the right-hand side vector to the
    * correct row when solving.
    */
-  std::vector<size_type> row_pivots;
+  std::vector<size_t> row_pivots;
 
 public:
-  /// Default constructor.
-  LU(const bool pivot = true)
-    : row_pivots(0) , pivoting(pivot),
-      Matrix<value_type>()
+  /**
+   * Default constructor.
+   */
+  LU(const bool pivot = true) :
+      row_pivots(0) , pivoting(pivot), Matrix()
   {}
 
-  /// Copy constructor.
-  LU(const LU& other)
-    : row_pivots(other.row_pivots), pivoting(other.pivoting),
-      Matrix<value_type>(other.values)
+  /**
+   * Copy construction from a matrix.
+   */
+  LU(const Matrix& other, const bool pivot = true) :
+      row_pivots(other.n_rows()), pivoting(pivot), Matrix(other)
   {}
 
-  /// Move constructor.
-  LU(LU&& other)
-    : row_pivots(std::move(other.row_pivots)), pivoting(other.pivoting),
-      Matrix<value_type>(std::move(other.values))
+  /**
+   * Move construction from a matrix.
+   */
+  LU(Matrix&& other, const bool pivot = true) :
+      row_pivots(other.n_rows()), pivoting(pivot), Matrix(other)
   {}
 
-  /// Copy from a Matrix.
-  LU(const Matrix<value_type>& other, const bool pivot = true)
-    : row_pivots(other.n_rows()), pivoting(pivot),
-      Matrix<value_type>(other)
-  {}
-
-  /// Move from a Matrix.
-  LU(Matrix<value_type>&& other, const bool pivot = true)
-    : row_pivots(other.n_rows()), pivoting(pivot),
-      Matrix<value_type>(other)
-  {}
-
-  /// Set the pivoting flag.
+  /**
+   * Set the pivoting flag.
+   */
   void
   pivot(const bool pivot)
   { pivoting = pivot; }
 
-  /// Get the pivoting flag.
+  /**
+   * Return the pivoting flag.
+   */
   bool
   pivot() const
   { return pivoting; }
@@ -86,14 +79,14 @@ public:
   void
   factorize()
   {
-    size_type n = this->n_rows();
+    size_t n = n_rows();
 
     // Initialize the pivot mappings such that each row maps to itself
-    for (size_type i = 0; i < n; ++i)
+    for (size_t i = 0; i < n; ++i)
       row_pivots[i] = i;
 
     //======================================== Apply Doolittle algorithm
-    for (size_type j = 0; j < n; ++j)
+    for (size_t j = 0; j < n; ++j)
     {
       std::cout << "Starting column " << j << ":\n";
 
@@ -103,9 +96,9 @@ public:
 
         /* Find the row containing the largest magnitude entry for column j.
          * This is only done for the sub-diagonal elements. */
-        size_type argmax = j;
+        size_t argmax = j;
         value_type max = std::fabs(a_jj);
-        for (size_type k = j + 1; k < n; ++k)
+        for (size_t k = j + 1; k < n; ++k)
         {
           const value_type a_kj = (*this)(k, j);
           if (std::fabs(a_kj) > max)
@@ -127,12 +120,12 @@ public:
                     << " with row " << argmax << ".\n";
 
           std::swap(row_pivots[j], row_pivots[argmax]);
-          this->swap_row(j, argmax);
+          swap_row(j, argmax);
         }
       }//if pivoting
 
       // Compute the elements of the LU decomposition
-      for (size_type i = j + 1; i < n; ++i)
+      for (size_t i = j + 1; i < n; ++i)
       {
         value_type& a_ij = (*this)(i, j);
 
@@ -142,8 +135,8 @@ public:
 
         /* Upper triangular components. This represents the row-echelon form of
          * the original matrix. */
-        const value_type* a_jk = &this->values[j][j + 1];
-        for (size_type k = j + 1; k < n; ++k)
+        const value_type* a_jk = &coeffs[j][j + 1];
+        for (size_t k = j + 1; k < n; ++k)
           (*this)(i, k) -= a_ij * *a_jk++;
       }
     }
@@ -169,39 +162,39 @@ public:
   *          \f$ \boldsymbol{A} \vec{x} = \vec{b} \f$.
   */
   void
-  solve(const Vector<number>& b, Vector<number>& x)
+  solve(const Vector& b, Vector& x)
   {
-    Assert(b.size() == this->n_rows(), "Dimension mismatch error.");
-    Assert(x.size() == this->n_cols(), "Dimension mismatch error.");
+    Assert(b.size() == n_rows(), "Dimension mismatch error.");
+    Assert(x.size() == n_cols(), "Dimension mismatch error.");
     if (!factorized)
       factorize();
 
     //================================================== Forward solve
-    size_type n = this->n_rows();
-    for (size_type i = 0; i < n; ++i)
+    size_t n = n_rows();
+    for (size_t i = 0; i < n; ++i)
     {
       value_type value = b[row_pivots[i]];
-      const value_type* a_ij = this->values[i].data();
-      for (size_type j = 0; j < i; ++j)
+      const value_type* a_ij = data(i);
+      for (size_t j = 0; j < i; ++j)
         value -= *a_ij++ * x[j];
       x[i] = value;
     }
 
     //================================================== Backward solve
-    for (size_type i = n - 1; i != -1; --i)
+    for (size_t i = n - 1; i != -1; --i)
     {
       value_type value = x[i];
-      const value_type* a_ij = &this->values[i][i + 1];
-      for (size_type j = i + 1; j < n; ++j)
+      const value_type* a_ij = &coeffs[i][i + 1];
+      for (size_t j = i + 1; j < n; ++j)
         value -= *a_ij++ * x[j];
       x[i] = value / (*this)(i, i);
     }
   }
 
-  Vector<number>
-  solve(const Vector<number>& b)
+  Vector
+  solve(const Vector& b)
   {
-    Vector<value_type> x(this->n_rows(), 0.0);
+    Vector x(n_rows(), 0.0);
     solve(b, x);
     return x;
   }

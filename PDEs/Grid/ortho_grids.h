@@ -4,9 +4,10 @@
 #include "mesh.h"
 #include "point.h"
 
-using namespace pdes::Grid;
-using CoordSys = CoordinateSystem;
+namespace pdes::Grid
+{
 
+using CoordSys = CoordinateSystem;
 
 /**
  * Create a 1D mesh from a list of vertices.
@@ -15,7 +16,7 @@ using CoordSys = CoordinateSystem;
  * \param coordinate_system The coordinate system type. The default is
  *                          Cartesian coordinates.
  */
-Mesh
+std::shared_ptr<Mesh>
 create_1d_mesh(const std::vector<double> vertices,
                const CoordSys coordinate_system = CoordSys::CARTESIAN,
                const bool verbose = false);
@@ -34,11 +35,12 @@ create_1d_mesh(const std::vector<double> vertices,
  * \param coordinate_system The coordinate system type. The default is
  *                          Cartesian coordinates.
  */
-Mesh
+std::shared_ptr<Mesh>
 create_1d_mesh(const std::vector<double> zone_edges,
                const std::vector<size_t> zone_subdivisions,
                const std::vector<int> material_ids,
                const CoordSys coordinate_system = CoordSys::CARTESIAN,
                const bool verbose = false);
 
+}
 #endif //GRID_STRUCTS_H

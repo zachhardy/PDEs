@@ -18,10 +18,15 @@ class Matrix
 public:
   using value_type = double;
 
-private:
+protected:
   std::vector<Vector> coeffs;
 
 public:
+  /**
+   * Default constructor.
+   */
+  Matrix() = default;
+
   /**
    * Construct a matrix with \p n_rows and \p n_cols.
    */
@@ -39,6 +44,14 @@ public:
          const value_type value) :
     coeffs(n_rows, Vector(n_cols, value))
   {}
+
+  /**
+   * Copy construction with underlying data
+   */
+  Matrix(const std::vector<Vector>& other) : coeffs(other)
+  {
+    Assert(valid_dimensions(coeffs), "All rows must be the same length.")
+  }
 
   /**
    * Copy construction with nested STL vectors.
@@ -1008,6 +1021,16 @@ private:
       if (row.size() != m) return false;
     return true;
   }
+
+  static bool
+  valid_dimensions(const std::vector<Vector>& A)
+  {
+    size_t m = A.front().size();
+    for (const auto& row : A)
+      if (row.size() != m) return false;
+    return true;
+  }
+
 };
 
 /*-------------------- Methods -------------------- */

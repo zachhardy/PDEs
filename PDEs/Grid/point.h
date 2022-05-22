@@ -106,14 +106,14 @@ public:
   /**
    * Test the equality of two points.
    */
-  inline bool
+  bool
   operator==(const Point& q) const
   { return (x == q.x && y == q.y && z == q.z); }
 
   /**
    * Test the inequality of two points.
    */
-  inline bool
+  bool
   operator!=(const Point& q) const
   { return (x != q.x || y != q.y || z != q.z); }
 
@@ -436,7 +436,7 @@ operator+(const Point& p, const Point& q)
  * Subtract two points.
  * \see Point::operator-=
  */
-Point
+inline Point
 operator-(const Point& p, const Point& q)
 { return Point(p) -= q; }
 
@@ -476,14 +476,14 @@ fabs(const Point& p)
  * Return the direction, or unit length, point vector.
  * \see Point::direction
  */
-Point
+inline Point
 direction(const Point& p)
 { return p.direction(); }
 
 /**
  * Insert the string into an output stream.
  */
-std::ostream&
+inline std::ostream&
 operator<<(std::ostream& os, const Point& p)
 { return os << p.str(); }
 

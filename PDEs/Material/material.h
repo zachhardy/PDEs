@@ -63,6 +63,10 @@ public:
   std::vector<std::shared_ptr<MaterialProperty>> properties;
 
 public:
+  /**
+   * Default constructor
+   */
+   Material() = default;
 
   /**
    * Construct a material with unique name.
