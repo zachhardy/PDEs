@@ -1,22 +1,27 @@
 #include "mesh.h"
 #include "cell.h"
+#include "macros.h"
 
 #include <set>
 
-/**
- * \brief Establish the relationships between cells and their neighbors.
- *
- * Connectivity is established by
- * 1. For each Vertex, determine which Cell objects the Vertex belongs to.
- * 2. For each Face of each Cell, compare vertex ids to those of adjacent cells
- *    as defined by the step 1.
- * 3. If vertex ids match, set the neighbor properties.
- *
- * \note This routine may be quite expensive. Only use this when connectivity
- *       cannot be established a-priori. Generally, this routine should only be
- *       utilized for unstructured meshes.
- */
-void grid::Mesh::establish_connectivity()
+using namespace pdes;
+
+std::string
+Grid::coordinate_system_str(const CoordinateSystem coord_sys)
+{
+  switch (coord_sys)
+  {
+    case CoordinateSystem::CARTESIAN:   return "CARTESIAN";
+    case CoordinateSystem::CYLINDRICAL: return "CYLINDRICAL";
+    case CoordinateSystem::SPHERICAL:   return "SPHERICAL";
+    default:                            return "UNDEFINED";
+  }
+}
+
+//######################################################################
+
+void
+Grid::Mesh::establish_connectivity()
 {
   std::cout << "Establishing cell connectivity...\n";
 
@@ -91,8 +96,8 @@ void grid::Mesh::establish_connectivity()
 
 //######################################################################
 
-/// Compute the geometric properties of the cells and faces.
-void  grid::Mesh::compute_geometric_info()
+void
+Grid::Mesh::compute_geometric_info()
 {
   std::cout << "Computing geometric information on cells and faces...\n";
 
