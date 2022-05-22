@@ -25,7 +25,7 @@ int main(int argc, char** argv)
     using namespace Grid;
     using namespace Math;
     using namespace Physics;
-    using namespace neutron_diffusion;
+    using namespace NeutronDiffusion;
 
     //================================================== Create the mesh
     size_t n_cells = 20;
