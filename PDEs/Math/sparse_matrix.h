@@ -547,7 +547,7 @@ public:
    * \see SparseMatrix::row_iterator
    */
   const_row
-  const_row_iterator(const size_t i)
+  const_row_iterator(const size_t i) const
   { return {this, i}; }
 
   // @}
