@@ -52,14 +52,14 @@ public:
 /**
  * A class representing a material.
  *
- * In order to support future multi-physics applications. A Material holds
+ * In order to support future multi-physics applications. A Physics holds
  * a collection a MaterialProperty objects which hold derived objects that
  * describe properties that are necessary for a particular type of physics.
  */
 class Material
 {
 public:
-  const std::string name = "Generic Material";
+  const std::string name = "Generic Physics";
   std::vector<std::shared_ptr<MaterialProperty>> properties;
 
 public:
