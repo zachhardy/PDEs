@@ -4,6 +4,14 @@
 #include "material.h"
 #include "CrossSections/cross_sections.h"
 
+#include "matrix.h"
+#include "Math/LinearSolvers/Direct/gaussian_elimination.h"
+#include "LinearSolvers/Direct/lu.h"
+#include "LinearSolvers/Direct/cholesky.h"
+#include "LinearSolvers/Direct/sparse_lu.h"
+#include "LinearSolvers/Direct/sparse_cholesky.h"
+
+
 #include "NeutronDiffusion/Groupset/groupset.h"
 #include "NeutronDiffusion/SteadyStateSolver/FV/steadystate_solver_fv.h"
 
@@ -70,8 +78,8 @@ int main(int argc, char** argv)
     solver.groupsets.emplace_back(groupset);
 
     // Define boundary conditions
-    solver.boundary_info.emplace_back(BoundaryType::REFLECTIVE, -1);
-    solver.boundary_info.emplace_back(BoundaryType::REFLECTIVE, -1);
+    solver.boundary_info.emplace_back(BoundaryType::ZERO_FLUX, -1);
+    solver.boundary_info.emplace_back(BoundaryType::ZERO_FLUX, -1);
 
     solver.solution_technique = SolutionTechnique::FULL_SYSTEM;
 
