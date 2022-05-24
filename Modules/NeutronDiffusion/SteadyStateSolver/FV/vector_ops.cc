@@ -1,5 +1,7 @@
 #include "steadystate_solver_fv.h"
 
+#include <cmath>
+
 /**
  * Transfer a groupset vector to a full multigroup vector.
  *

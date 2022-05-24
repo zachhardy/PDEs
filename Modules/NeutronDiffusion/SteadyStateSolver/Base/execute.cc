@@ -5,6 +5,7 @@
 #include "LinearSolvers/Direct/sparse_lu.h"
 #include "LinearSolvers/Direct/sparse_cholesky.h"
 
+#include <iomanip>
 #include <fstream>
 
 using namespace pdes;
