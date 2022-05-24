@@ -1,7 +1,21 @@
+#include "mesh.h"
 #include "cell.h"
 #include "face.h"
 
 using namespace pdes;
+
+std::string
+Grid::coordinate_system_str(const CoordinateSystem coord_sys)
+{
+  switch (coord_sys)
+  {
+    case CoordinateSystem::CARTESIAN:   return "CARTESIAN";
+    case CoordinateSystem::CYLINDRICAL: return "CYLINDRICAL";
+    case CoordinateSystem::SPHERICAL:   return "SPHERICAL";
+    default:                            return "UNDEFINED";
+  }
+}
+
 
 std::string
 Grid::cell_type_str(const CellType cell_type)
@@ -41,11 +55,6 @@ Grid::Cell::str() const
 }
 
 
-std::ostream&
-Grid::operator<<(std::ostream& os, const Cell& cell)
-{ return os << cell.str(); }
-
-
 std::string
 Grid::Face::str() const
 {
@@ -63,6 +72,11 @@ Grid::Face::str() const
 
   return ss.str();
 }
+
+
+std::ostream&
+Grid::operator<<(std::ostream& os, const Cell& cell)
+{ return os << cell.str(); }
 
 
 std::ostream&
