@@ -34,12 +34,11 @@ public:
   value_type y; ///< The y-coordinate
   value_type z; ///< The z-coordinate
 
-public:
   /**
    * Construct a point at the origin <tt>(0, 0, 0)</tt>.
    */
-  Point() :
-      x(0.0), y(0.0), z(0.0)
+  Point()
+    : x(0.0), y(0.0), z(0.0)
   {}
 
   /**
@@ -47,8 +46,8 @@ public:
    * \param a The x-coordinate.
    */
   explicit
-  Point(const value_type a) :
-      x(a), y(0.0), z(0.0)
+  Point(const value_type a)
+    : x(a), y(0.0), z(0.0)
   {}
 
   /**
@@ -58,8 +57,8 @@ public:
    */
   explicit
   Point(const value_type a,
-        const value_type b) :
-      x(a), y(b), z(0.0)
+        const value_type b)
+    : x(a), y(b), z(0.0)
   {}
 
   /**
@@ -71,8 +70,8 @@ public:
   explicit
   Point(const value_type a,
         const value_type b,
-        const value_type c) :
-      x(a), y(b), z(c)
+        const value_type c)
+    : x(a), y(b), z(c)
   {}
 
   /**
@@ -97,7 +96,7 @@ public:
   static Point
   unit_vector(const size_t axis)
   {
-    Assert(axis < 3, "Invalid dimension provided.");
+    Assert(axis <= 2, "Invalid dimension provided.");
     if (axis == 0) return Point(1.0, 0.0, 0.0);
     else if (axis == 1) return Point(0.0, 1.0, 0.0);
     else return Point(0.0, 0.0, 1.0);
@@ -129,7 +128,7 @@ public:
   value_type&
   operator[](const size_t i)
   {
-    Assert(i < 3, "Invalid dimension provided.");
+    Assert(i <= 2, "Out of range error.");
     if (i == 0) return x;
     else if (i == 1) return y;
     else return z;
@@ -142,12 +141,11 @@ public:
   const value_type&
   operator[](const size_t i) const
   {
-    Assert(i < 3, "Invalid dimension provided.");
+    Assert(i <= 2, "Out of range error.");
     if (i == 0) return x;
     else if (i == 1) return y;
     else return z;
   }
-
 
   /**
    * Read and write access to element \p i of the point.
@@ -164,7 +162,6 @@ public:
   const value_type&
   operator()(const size_t i) const
   { return (*this)[i]; }
-
 
   // @}
   /** \name Characteristics */
@@ -239,6 +236,7 @@ public:
   operator/=(const value_type factor)
   {
     Assert(factor != 0.0, "Zero division error.");
+
     x /= factor;
     y /= factor;
     z /= factor;
@@ -281,7 +279,7 @@ public:
    */
   value_type
   dot(const Point& q) const
-  { return x * q.x + y * q.y * z * q.z; }
+  { return x * q.x + y * q.y + z * q.z; }
 
   /**
    * Return the cross product between this and another point. This computes
@@ -289,7 +287,7 @@ public:
    *       = (p_y q_z - p_z q_y, p_z q_x - p_x q_z, p_x q_y - p_y q_x)
    * \f$.
    */
-  inline Point
+  Point
   cross(const Point& q) const
   {
     return Point(y * q.z - z * q.y,
@@ -343,7 +341,7 @@ public:
    * Return a point containing the absolute value of each element of the point.
    * \see Point::fabs()
    */
-  inline Point
+  Point
   fabs() const
   { return Point(x, y, z).fabs(); }
 
@@ -357,8 +355,7 @@ public:
   normalize()
   {
     double len = length();
-    *this /= (len != 0.0)? len : 1.0;
-    return *this;
+    return *this /= (len != 0.0)? len : 1.0;
   }
 
   /**
@@ -384,7 +381,6 @@ public:
     ss << "Point(" << x << " " << y << " " << z << ")\n";
     return ss.str();
   }
-
 
   /**
    * Print the point to the standard output.
@@ -422,7 +418,6 @@ operator*(const double factor, const Point& p)
 inline Point
 operator/(const Point& p, const double factor)
 { return Point(p) /= factor; }
-
 
 /**
  * Add two points together.
