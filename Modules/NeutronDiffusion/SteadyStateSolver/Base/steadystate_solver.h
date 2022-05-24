@@ -85,7 +85,7 @@ public:
   std::shared_ptr<Mesh> mesh;
   std::shared_ptr<Discretization> discretization;
 
-  /*---------- Material Information ----------*/
+  /*---------- Physics Information ----------*/
 public:
   std::vector<std::shared_ptr<Material>> materials;
   std::vector<std::shared_ptr<CrossSections>> material_xs;

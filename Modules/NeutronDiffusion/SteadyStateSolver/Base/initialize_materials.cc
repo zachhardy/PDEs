@@ -7,7 +7,7 @@
  *
  * This routine performs checks to ensure that the number of materials matches
  * the number of unique material identifiers on the mesh, that CrossSections
- * objects exist on each Material::properties list, and that the group
+ * objects exist on each Physics::properties list, and that the group
  * structures among the CrossSections and IsotropicMultiGroupSource objects are
  * compatible with the specified group structure. This routine also defines
  * a mapping between unique material IDs and the corresponding property's
