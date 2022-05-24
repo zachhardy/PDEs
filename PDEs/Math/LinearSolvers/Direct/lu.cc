@@ -60,6 +60,7 @@ LU::factorize()
     }//if pivoting
 
     const value_type* a_j = data(j); // accessor for row j
+    const value_type a_jj = a_j[j]; // diagonal element for row j
 
     // Compute the elements of the LU decomposition.
     for (size_t i = j + 1; i < n; ++i)
@@ -69,11 +70,12 @@ LU::factorize()
 
       /* Lower triangular components. This represents the row operations
        * performed to attain the upper-triangular, row-echelon matrix. */
-      a_ij /= a_j[j];
+      a_ij /= a_jj;
+
+      a_i += j + 1; // increment to the correct element
 
       /* Upper triangular components. This represents the row-echelon form of
        * the original matrix. */
-      a_i += j + 1; // increment to the correct element
       for (size_t k = j + 1; k < n; ++k)
         *a_i++ -= a_ij * a_j[k];
     }
