@@ -2,12 +2,7 @@
 #define POINT_H
 
 #include <iostream>
-#include <sstream>
-
-#include <cmath>
-#include <cinttypes>
-
-#include "macros.h"
+#include <cstddef>
 
 namespace pdes::Grid
 {
@@ -34,21 +29,18 @@ public:
   value_type y; ///< The y-coordinate
   value_type z; ///< The z-coordinate
 
+public:
   /**
    * Construct a point at the origin <tt>(0, 0, 0)</tt>.
    */
-  Point()
-    : x(0.0), y(0.0), z(0.0)
-  {}
+  Point();
 
   /**
    * Construct a 1D point <tt>(a, 0, 0)</tt>.
    * \param a The x-coordinate.
    */
   explicit
-  Point(const value_type a)
-    : x(a), y(0.0), z(0.0)
-  {}
+  Point(const value_type a);
 
   /**
    * Construct a 2D point <tt>(a, b, 0)</tt>.
@@ -57,9 +49,7 @@ public:
    */
   explicit
   Point(const value_type a,
-        const value_type b)
-    : x(a), y(b), z(0.0)
-  {}
+        const value_type b);
 
   /**
    * Construct a 3D point <tt>(a, b, c)</tt>.
@@ -70,22 +60,14 @@ public:
   explicit
   Point(const value_type a,
         const value_type b,
-        const value_type c)
-    : x(a), y(b), z(c)
-  {}
+        const value_type c);
 
   /**
    * Set all elements of the point to a single scalar value.
    * \param value The value to set each element to.
    */
   Point&
-  operator=(const double value)
-  {
-    x = value;
-    y = value;
-    z = value;
-    return *this;
-  }
+  operator=(const double value);
 
   /**
    * Static method to construct a unit vector in the specified dimension.
@@ -94,27 +76,19 @@ public:
    * \throw Out of range when <tt>i > 2</tt>.
    */
   static Point
-  unit_vector(const size_t axis)
-  {
-    Assert(axis <= 2, "Invalid dimension provided.");
-    if (axis == 0) return Point(1.0, 0.0, 0.0);
-    else if (axis == 1) return Point(0.0, 1.0, 0.0);
-    else return Point(0.0, 0.0, 1.0);
-  }
+  unit_vector(const size_t axis);
 
   /**
    * Test the equality of two points.
    */
   bool
-  operator==(const Point& q) const
-  { return (x == q.x && y == q.y && z == q.z); }
+  operator==(const Point& q) const;
 
   /**
    * Test the inequality of two points.
    */
   bool
-  operator!=(const Point& q) const
-  { return (x != q.x || y != q.y || z != q.z); }
+  operator!=(const Point& q) const;
 
   /** \name Accessors */
   // @{
@@ -126,42 +100,29 @@ public:
    * \throw Out of range when <tt>i > 2</tt>.
    */
   value_type&
-  operator[](const size_t i)
-  {
-    Assert(i <= 2, "Out of range error.");
-    if (i == 0) return x;
-    else if (i == 1) return y;
-    else return z;
-  }
+  operator[](const size_t i);
 
   /**
    * Read access to element \p i of the point.
    * \see Point::operator[](const size_t i)
    */
   const value_type&
-  operator[](const size_t i) const
-  {
-    Assert(i <= 2, "Out of range error.");
-    if (i == 0) return x;
-    else if (i == 1) return y;
-    else return z;
-  }
+  operator[](const size_t i) const;
+
 
   /**
    * Read and write access to element \p i of the point.
    * \see Point::operator[](const size_t i)
    */
   value_type&
-  operator()(const size_t i)
-  { return (*this)[i]; }
+  operator()(const size_t i);
 
   /**
    * Read access to element \p i of the point.
    * \see Point::operator[](const size_t i) const
    */
   const value_type&
-  operator()(const size_t i) const
-  { return (*this)[i]; }
+  operator()(const size_t i) const;
 
   // @}
   /** \name Characteristics */
@@ -174,8 +135,7 @@ public:
    * \see Point::length_squared
    */
   value_type
-  length() const
-  { return std::sqrt(length_squared()); }
+  length() const;
 
   /**
    * Return the length squared of the point vector. This is equivalent to
@@ -184,8 +144,7 @@ public:
    * \see Point::length
    */
   value_type
-  length_squared() const
-  { return x*x + y*y + z*z; }
+  length_squared() const;
 
   // @}
   /** \name Scalar Operations */
@@ -196,21 +155,14 @@ public:
    * \f$ p = -p = (-x, -y, -z) \f$.
    */
   Point&
-  operator-()
-  {
-    x = -x;
-    y = -y;
-    z = -z;
-    return *this;
-  }
+  operator-();
 
   /**
    * Return the negated point.
    * \see operator-()
    */
   Point
-  operator-() const
-  { return Point(-x, -y, -z); }
+  operator-() const;
 
 
   /**
@@ -218,13 +170,7 @@ public:
    * \f$ p = \alpha p = (\alpha x, \alpha y, \alpha z) \f$.
    */
   Point&
-  operator*=(const value_type factor)
-  {
-    x *= factor;
-    y *= factor;
-    z *= factor;
-    return *this;
-  }
+  operator*=(const value_type factor);
 
   /**
    * Divide each element in the point by \p factor. This computes
@@ -233,15 +179,7 @@ public:
    * \f$.
    */
   Point&
-  operator/=(const value_type factor)
-  {
-    Assert(factor != 0.0, "Zero division error.");
-
-    x /= factor;
-    y /= factor;
-    z /= factor;
-    return *this;
-  }
+  operator/=(const value_type factor);
 
   // @}
   /** \name Point Operations */
@@ -252,34 +190,21 @@ public:
    * \f$ p = p + q = (p_x + q_x, p_y + q_y, p_z + q_z) \f$.
    */
   Point&
-  operator+=(const Point& q)
-  {
-    x += q.x;
-    y += q.y;
-    z += q.z;
-    return *this;
-  }
+  operator+=(const Point& q);
 
   /**
    * Subtract another point. This computes
    * \f$ p = p - q = (p_x - q_x, p_y - q_y, p_z - q_z) \f$.
    */
   Point&
-  operator-=(const Point& q)
-  {
-    x -= q.x;
-    y -= q.y;
-    z -= q.z;
-    return *this;
-  }
+  operator-=(const Point& q);
 
   /**
    * Return the dot product between this and another point. This computes
    * \f$ c = p_x q_x + p_y q_y + p_z q_z \f$.
    */
   value_type
-  dot(const Point& q) const
-  { return x * q.x + y * q.y + z * q.z; }
+  dot(const Point& q) const;
 
   /**
    * Return the cross product between this and another point. This computes
@@ -288,12 +213,7 @@ public:
    * \f$.
    */
   Point
-  cross(const Point& q) const
-  {
-    return Point(y * q.z - z * q.y,
-                 z * q.x - x * q.z,
-                 x * q.y - y * q.x);
-  }
+  cross(const Point& q) const;
 
   /**
    * Return the Eulicdean distance between this point and another.
@@ -304,8 +224,7 @@ public:
    * \see Point::distance_squared
    */
   value_type
-  distance(const Point& q) const
-  { return std::sqrt(distance_squared(q)); }
+  distance(const Point& q) const;
 
   /**
    * Return the squared Eulicdean distance between this point and another.
@@ -316,34 +235,21 @@ public:
    * \see Point::distance
    */
   double
-  distance_squared(const Point& q) const
-  {
-    double dx = x - q.x;
-    double dy = y - q.y;
-    double dz = z - q.z;
-    return dx*dx + dy*dy + dz*dz;
-  }
+  distance_squared(const Point& q) const;
 
   /**
    * Take the absolute value of each element of the point. This computes
    * \f$ p = | p | = (|x|, |y|, |z|) \f$.
    */
   Point&
-  fabs()
-  {
-    x = std::fabs(x);
-    y = std::fabs(y);
-    z = std::fabs(z);
-    return *this;
-  }
+  fabs();
 
   /**
    * Return a point containing the absolute value of each element of the point.
    * \see Point::fabs()
    */
   Point
-  fabs() const
-  { return Point(x, y, z).fabs(); }
+  fabs() const;
 
   /**
    * Normalize the point to its length. If the point is uniformly zero, nothing
@@ -352,11 +258,7 @@ public:
    * \see Point::length Point::direction
    */
   Point&
-  normalize()
-  {
-    double len = length();
-    return *this /= (len != 0.0)? len : 1.0;
-  }
+  normalize();
 
   /**
    * Return the direction, or unit-length, vector for this point. This computes
@@ -364,8 +266,7 @@ public:
    * \see Point::length Point::normalize
    */
   Point
-  direction() const
-  { return Point(x, y, z).normalize(); }
+  direction() const;
 
   // @}
   /** \name Print Utilities */
@@ -375,19 +276,13 @@ public:
    * Return the point represented as a string.
    */
   std::string
-  str() const
-  {
-    std::stringstream ss;
-    ss << "Point(" << x << " " << y << " " << z << ")\n";
-    return ss.str();
-  }
+  str() const;
 
   /**
    * Print the point to the standard output.
    */
   void
-  print(std::ostream& os = std::cout) const
-  { os << str(); }
+  print(std::ostream& os = std::cout) const;
 
   // @}
 
@@ -399,88 +294,78 @@ public:
  * Multiply each element of a point by a scalar value.
  * \see Point::operator*=
  */
-inline Point
-operator*(const Point& p, const double factor)
-{ return Point(p) *= factor; }
+Point
+operator*(const Point& p, const double factor);
 
 /**
  * Multiply each element of a point by a scalar value.
  * \see Point::operator*=
  */
-inline Point
-operator*(const double factor, const Point& p)
-{ return Point(p) *= factor; }
+Point
+operator*(const double factor, const Point& p);
 
 /**
  * Divide each element of a point by a scalar value.
  * \see Point::operator/=
  */
-inline Point
-operator/(const Point& p, const double factor)
-{ return Point(p) /= factor; }
+Point
+operator/(const Point& p, const double factor);
+
 
 /**
  * Add two points together.
  * \see Point::operator+=
  */
-inline Point
-operator+(const Point& p, const Point& q)
-{ return Point(p) += q; }
+Point
+operator+(const Point& p, const Point& q);
 
 /**
  * Subtract two points.
  * \see Point::operator-=
  */
-inline Point
-operator-(const Point& p, const Point& q)
-{ return Point(p) -= q; }
+Point
+operator-(const Point& p, const Point& q);
 
 /**
  * Return the dot product of two points.
  * \see Point::dot
  */
-inline double
-dot(const Point& p, const Point& q)
-{ return p.dot(q); }
+double
+dot(const Point& p, const Point& q);
 
 /**
  * Return the cross product of two points.
  * \see Point::cross
  */
-inline Point
-cross(const Point& p, const Point& q)
-{ return p.cross(q); }
+Point
+cross(const Point& p, const Point& q);
 
 /**
  * Return the Euclidean distance between two points.
  * \see Point::distance
  */
-inline double
-distance(const Point& p, const Point& q)
-{ return p.distance(q); }
+double
+distance(const Point& p, const Point& q);
 
 /**
  * Return the absolute value of a point.
  * \see Point::fabs
  */
-inline Point
-fabs(const Point& p)
-{ return p.fabs(); }
+Point
+fabs(const Point& p);
 
 /**
  * Return the direction, or unit length, point vector.
  * \see Point::direction
  */
-inline Point
-direction(const Point& p)
-{ return p.direction(); }
+Point
+direction(const Point& p);
 
 /**
  * Insert the string into an output stream.
  */
-inline std::ostream&
-operator<<(std::ostream& os, const Point& p)
-{ return os << p.str(); }
+std::ostream&
+operator<<(std::ostream& os, const Point& p);
 
 /*-------------------- Useful Aliases --------------------*/
 
