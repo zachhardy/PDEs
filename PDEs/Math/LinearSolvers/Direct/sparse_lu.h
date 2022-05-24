@@ -14,7 +14,10 @@ template<typename number>
 class SparseLU : public SparseMatrix
 {
 public:
-  using value_type = typename SparseMatrix::value_type;
+  using value_type = SparseMatrix::value_type;
+
+  using entry = SparseMatrix::iterator::entry;
+  using const_entry = SparseMatrix::const_iterator::const_entry;
 
 private:
   bool factorized = false;
@@ -136,9 +139,9 @@ public:
 
           /* Upper triangular components. This represents the row-echelon form
            * of the original matrix. Her*/
-          for (const auto entry : const_row_iterator(j))
-            if (entry.column > j)
-              add(i, entry.column, -(*a_ij) * entry.value);
+          for (const_entry el: const_row_iterator(j))
+            if (el.column > j)
+              add(i, el.column, -(*a_ij) * el.value);
         }//if a_ij exists
       }//for rows > j
     }//for j
@@ -146,12 +149,11 @@ public:
   }
 
   void
-  solve(const Vector& b, Vector& x)
+  solve(const Vector& b, Vector& x) const
   {
+    Assert(factorized, "The matrix must be factorized before solve is called.");
     Assert(b.size() == n_rows(), "Dimension mismatch error.");
     Assert(x.size() == n_cols(), "Dimension mismatch error.");
-    if (!factorized)
-      factorize();
 
     //================================================== Forward solve
     size_t n = n_rows();
@@ -159,9 +161,9 @@ public:
     for (size_t i = 0; i < n; ++i)
     {
       value_type value = b[row_pivots[i]];
-      for (const auto elem : const_row_iterator(i))
-        if (elem.column < i)
-          value -= elem.value * x[elem.column];
+      for (const_entry el: const_row_iterator(i))
+        if (el.column < i)
+          value -= el.value * x[el.column];
       x[i] = value;
     }
 
@@ -169,21 +171,20 @@ public:
     for (size_t i = n - 1; i != -1; --i)
     {
       value_type value = x[i];
-      for (const auto elem : const_row_iterator(i))
-        if (elem.column > i)
-          value -= elem.value * x[elem.column];
+      for (const_entry el : const_row_iterator(i))
+        if (el.column > i)
+          value -= el.value * x[el.column];
       x[i] = value / *diagonal(i);
     }
   }
 
   Vector
-  solve(const Vector& b)
+  solve(const Vector& b) const
   {
     Vector x(n_cols());
     solve(b, x);
     return x;
   }
-
 };
 
 }

@@ -72,12 +72,11 @@ public:
    *         \f$ \boldsymbol{A} \vec{x} = \vec{b} \f$.
    */
   void
-  solve(const Vector& b, Vector& x)
+  solve(const Vector& b, Vector& x) const
   {
+    Assert(factorized, "Matrix must be factorized before solving.");
     Assert(b.size() == n_rows(), "Dimension mismatch error.");
     Assert(x.size() == n_cols(), "Dimension mismatch error.");
-    if (!factorized)
-      factorize();
 
     //================================================== Forward solve
     size_t n = n_rows();
@@ -101,7 +100,7 @@ public:
   }
 
   Vector
-  solve(const Vector& b)
+  solve(const Vector& b) const
   {
     Vector x(n_cols());
     solve(b, x);
