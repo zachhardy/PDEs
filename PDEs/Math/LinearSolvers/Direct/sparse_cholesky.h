@@ -3,18 +3,16 @@
 
 #include "sparse_matrix.h"
 
+#include <cmath>
+
 namespace pdes::Math
 {
 
 /** A class for a Choleky decomposition solver. */
-template<typename number = double>
 class SparseCholesky : public SparseMatrix
 {
 public:
   using value_type = typename SparseMatrix::value_type;
-
-  using entry = typename SparseMatrix::iterator::entry;
-  using const_entry = typename SparseMatrix::const_iterator::const_entry;
 
 private:
   bool factorized = false;
@@ -23,12 +21,11 @@ public:
   /**
    * Copy construction from a sparse matrix.
    */
-  SparseCholesky(const SparseMatrix& other) : SparseMatrix(other) {}
-
+  SparseCholesky(const SparseMatrix& other);
   /**
    * Move construction from a sparse matrix.
    */
-  SparseCholesky(SparseMatrix&& other) : SparseMatrix(std::move(other)) {}
+  SparseCholesky(SparseMatrix&& other);
 
   /**
    * Perform a Cholesky factorization on the matrix \f$ \boldsymbol{A} \f$.
@@ -41,39 +38,7 @@ public:
    *    The user is responsible for ensuring the matrix fits this criteria.
    */
   void
-  factorize()
-  {
-    size_t n = n_rows();
-    for (size_t j = 0; j < n; ++j)
-    {
-      value_type* d = locate(j, j);
-      Assert(d && *d != 0.0, "Singular matrix error.");
-
-      // Set the diagonal
-      value_type sum = 0.0;
-      for (const_entry elem : const_row_iterator(j))
-        if (elem.column < j)
-          sum += elem.value * elem.value;
-      *d = std::sqrt(*d - sum);
-
-      // Set the off-diagonals
-      for (size_t i = j + 1; i < n; ++i)
-      {
-        sum = 0.0;
-        for (const_entry a_ik : const_row_iterator(i))
-          if (a_ik.column < j)
-            for (const_entry a_jk : const_row_iterator(j))
-              if (a_jk.column == a_ik.column)
-                sum += a_ik.value * a_jk.value;
-
-        value_type* a_ij = locate(i, j);
-        value_type value = (a_ij) ? (*a_ij - sum) / *d : -sum/ *d;
-        if (std::fabs(value) != 0.0)
-          set(i, j, value);
-      }
-    }
-    factorized = true;
-  }
+  factorize();
 
   /**
    * Solve the Cholesky factored linear system.
@@ -87,41 +52,10 @@ public:
    *         \f$ \boldsymbol{A} \vec{x} = \vec{b} \f$.
    */
   void
-  solve(const Vector& b, Vector& x) const
-  {
-    Assert(factorized, "Matrix must be factorized before solving.");
-    Assert(b.size() == n_rows(), "Dimension mismatch error.");
-    Assert(x.size() == n_cols(), "Dimension mismatch error.");
-
-    //================================================== Forward solve
-    size_t n = n_rows();
-    Vector y(n);
-    for (size_t i = 0; i < n; ++i)
-    {
-      value_type value = b[i];
-      for (const_entry el : const_row_iterator(i))
-        if (el.column < i)
-          value -= el.value * x[el.column];
-      x[i] = value / (*this)(i, i);
-    }
-
-    //================================================== Backward solve
-    for (size_t i = n - 1; i != -1; --i)
-    {
-      x[i] /= *diagonal(i);
-      for (const_entry a_ij : const_row_iterator(i))
-        if (a_ij.column < i)
-          x[a_ij.column] -= a_ij.value * x[i];
-    }
-  }
+  solve(const Vector& b, Vector& x) const;
 
   Vector
-  solve(const Vector& b) const
-  {
-    Vector x(n_cols());
-    solve(b, x);
-    return x;
-  }
+  solve(const Vector& b) const;
 };
 
 }

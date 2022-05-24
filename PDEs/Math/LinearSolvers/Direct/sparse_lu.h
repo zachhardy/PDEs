@@ -10,18 +10,15 @@ namespace pdes::Math
 /**
  * A class for a sparse LU decomposition solver.
  */
-template<typename number>
 class SparseLU : public SparseMatrix
 {
 public:
   using value_type = SparseMatrix::value_type;
 
-  using entry = SparseMatrix::iterator::entry;
-  using const_entry = SparseMatrix::const_iterator::const_entry;
 
 private:
   bool factorized = false;
-  bool pivoting = true;
+  bool pivot_flag = true;
 
   /**
    * The pivot mapping vector.
@@ -33,39 +30,14 @@ private:
 
 public:
   /**
-   * Default constructor.
-   */
-  SparseLU(const bool pivot = true) :
-      row_pivots(0), pivoting(pivot), SparseMatrix()
-  {}
-
-  /**
    * Copy construction from a sparse matrix.
    */
-  SparseLU(const SparseMatrix& other, const bool pivot = true) :
-      row_pivots(other.n_rows()), pivoting(pivot), SparseMatrix(other)
-  {}
+  SparseLU(const SparseMatrix& other, const bool pivot = true);
 
   /**
    * Move construction from a sparse matrix.
    */
-  SparseLU(SparseMatrix&& other, const bool pivot = true) :
-      row_pivots(other.n_rows()), pivoting(pivot), SparseMatrix(other)
-  {}
-
-  /**
-   * Set the pivoting flag.
-   */
-  void
-  pivot(const bool pivot)
-  { pivoting = pivot; }
-
-  /**
-   * Return the pivoting flag.
-   */
-  bool
-  pivot() const
-  { return pivoting; }
+  SparseLU(SparseMatrix&& other, const bool pivot = true);
 
   /**
    * Factor the matrix \f$ \boldsymbol{A} \f$ into an upper and lower triangular
@@ -83,108 +55,13 @@ public:
    * contains the row operations used to form upper triangular system.
    */
   void
-  factorize()
-  {
-    size_t n = n_rows();
-
-    // Initialize the pivot mappings such that each row maps to itself
-    for (size_t i = 0; i < n; ++i)
-      row_pivots[i] = i;
-
-    //======================================== Apply Doolittle algorithm
-    for (size_t j = 0; j < n; ++j)
-    {
-      if (pivoting)
-      {
-        const value_type* a_jj = diagonal(j);
-
-        /* Find the row containing the largest magnitude entry for column i.
-         * This is only done for the sub-diagonal elements. */
-        size_t argmax = j;
-        value_type max = std::fabs((a_jj) ? *a_jj : 0.0);
-        for (size_t k = j + 1; k < n; ++k)
-        {
-          const value_type* a_kj = locate(k, j);
-          if (a_kj && *a_kj > max)
-          {
-            argmax = k;
-            max = std::fabs(*a_kj);
-          }
-        }
-
-        // If the sub-diagonal is uniformly zero throw error.
-        Assert(max != 0.0, "Singular matrix error.");
-
-        /* Swap the current row and the row containing the largest magnitude
-         * entry corresponding for the current column. This is done to improve
-         * the numerical stability of the algorithm. */
-        if (argmax != j)
-        {
-          std::swap(row_pivots[j], row_pivots[argmax]);
-          swap_row(j, argmax);
-        }
-      }//if pivot
-
-      // Compute the elements of the LU decomposition
-      for (size_t i = j + 1; i < n; ++i)
-      {
-        value_type* a_ij = locate(i, j);
-
-        if (a_ij && *a_ij != 0.0)
-        {
-          /* Lower triangular components. This represents the row operations
-           * performed to attain the upper-triangular, row-echelon matrix. */
-          *a_ij /= *diagonal(j);
-
-
-          /* Upper triangular components. This represents the row-echelon form
-           * of the original matrix. Her*/
-          for (const_entry el: const_row_iterator(j))
-            if (el.column > j)
-              add(i, el.column, -(*a_ij) * el.value);
-        }//if a_ij exists
-      }//for rows > j
-    }//for j
-    factorized = true;
-  }
+  factorize();
 
   void
-  solve(const Vector& b, Vector& x) const
-  {
-    Assert(factorized, "The matrix must be factorized before solve is called.");
-    Assert(b.size() == n_rows(), "Dimension mismatch error.");
-    Assert(x.size() == n_cols(), "Dimension mismatch error.");
-
-    //================================================== Forward solve
-    size_t n = n_rows();
-    b.print();
-    for (size_t i = 0; i < n; ++i)
-    {
-      value_type value = b[row_pivots[i]];
-      for (const_entry el: const_row_iterator(i))
-        if (el.column < i)
-          value -= el.value * x[el.column];
-      x[i] = value;
-    }
-
-    //================================================== Backward solve
-    for (size_t i = n - 1; i != -1; --i)
-    {
-      value_type value = x[i];
-      for (const_entry el : const_row_iterator(i))
-        if (el.column > i)
-          value -= el.value * x[el.column];
-      x[i] = value / *diagonal(i);
-    }
-  }
+  solve(const Vector& b, Vector& x) const;
 
   Vector
-  solve(const Vector& b) const
-  {
-    Vector x(n_cols());
-    solve(b, x);
-    return x;
-  }
+  solve(const Vector& b) const;
 };
 
 }

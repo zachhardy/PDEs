@@ -3,7 +3,7 @@
 
 #include <cmath>
 #include <algorithm>
-
+#include <iomanip>
 
 using namespace pdes::Math;
 
@@ -715,13 +715,18 @@ SparseMatrix::print(std::ostream& os,
     os.setf(std::ios::fixed, std::ios::floatfield);
 
   os.setf(std::ios::left, std::ios::adjustfield);
-  os.width(w);
 
-  os << "Row" << "Column" << "Value" << std::endl;
-  os << "---" << "------" << "-----" << std::endl;
+  os << std::setw(w) << "Row"
+     << std::setw(w) << "Column"
+     << std::setw(w) << "Value" << std::endl;
+  os << std::setw(w) << "---"
+      << std::setw(w) << "------"
+      << std::setw(w) << "-----" << std::endl;
 
   for (const auto elem : *this)
-    os << elem.row << elem.column << elem.value << std::endl;
+    os << std::setw(w) << elem.row
+       << std::setw(w) << elem.column
+       << std::setw(w)<< elem.value << std::endl;
 
   os.flags(old_flags);
   os.precision(old_precision);
@@ -749,7 +754,6 @@ SparseMatrix::print_formatted(std::ostream& os,
     os.setf(std::ios::fixed, std::ios::floatfield);
     w = (!width)? precision + 4 : w;
   }
-  os.width(w);
 
   // Loop over rows and columns and print element-wise
   for (size_t i = 0; i < rows; ++i)
@@ -758,7 +762,7 @@ SparseMatrix::print_formatted(std::ostream& os,
     {
       // Print the entry or a zero
       const double* entry = locate(i, j);
-      os << ((!entry)? 0.0 : *entry);
+      os << std::setw(w) << ((!entry)? 0.0 : *entry);
     }
     os << std::endl;
   }

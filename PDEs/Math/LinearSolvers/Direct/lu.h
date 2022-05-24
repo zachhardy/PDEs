@@ -15,7 +15,7 @@ public:
 
 private:
   bool factorized = false;
-  bool pivoting = true;
+  bool pivot_flag = true;
 
   /**
    * The pivot mapping vector.
@@ -27,39 +27,14 @@ private:
 
 public:
   /**
-   * Default constructor.
-   */
-  LU(const bool pivot = true) :
-      row_pivots(0) , pivoting(pivot), Matrix()
-  {}
-
-  /**
    * Copy construction from a matrix.
    */
-  LU(const Matrix& other, const bool pivot = true) :
-      row_pivots(other.n_rows()), pivoting(pivot), Matrix(other)
-  {}
+  LU(const Matrix& other, const bool pivot = true);
 
   /**
    * Move construction from a matrix.
    */
-  LU(Matrix&& other, const bool pivot = true) :
-      row_pivots(other.n_rows()), pivoting(pivot), Matrix(other)
-  {}
-
-  /**
-   * Set the pivoting flag.
-   */
-  void
-  pivot(const bool pivot)
-  { pivoting = pivot; }
-
-  /**
-   * Return the pivoting flag.
-   */
-  bool
-  pivot() const
-  { return pivoting; }
+  LU(Matrix&& other, const bool pivot = true);
 
   /**
    * Factor the matrix \f$ \boldsymbol{A} \f$ into an upper and lower triangular
@@ -77,71 +52,7 @@ public:
    * contains the row operations used to form upper triangular system.
    */
   void
-  factorize()
-  {
-    size_t n = n_rows();
-
-    // Initialize the pivot mappings such that each row maps to itself
-    for (size_t i = 0; i < n; ++i)
-      row_pivots[i] = i;
-
-    //======================================== Apply Doolittle algorithm
-    for (size_t j = 0; j < n; ++j)
-    {
-      std::cout << "Starting column " << j << ":\n";
-
-      if (pivoting)
-      {
-        const value_type a_jj = (*this)(j, j);
-
-        /* Find the row containing the largest magnitude entry for column j.
-         * This is only done for the sub-diagonal elements. */
-        size_t argmax = j;
-        value_type max = std::fabs(a_jj);
-        for (size_t k = j + 1; k < n; ++k)
-        {
-          const value_type a_kj = (*this)(k, j);
-          if (std::fabs(a_kj) > max)
-          {
-            argmax = k;
-            max = std::fabs(a_kj);
-          }
-        }
-
-        // If the sub-diagonal is uniformly zero, throw error
-        Assert(max != 0.0, "Singular matrix error.");
-
-        /* Swap the current row and the row containing the largest magnitude
-         * entry corresponding for the current column. This is done to improve
-         * the numerical stability of the algorithm. */
-        if (argmax != j)
-        {
-          std::cout << "Swapping row " << j
-                    << " with row " << argmax << ".\n";
-
-          std::swap(row_pivots[j], row_pivots[argmax]);
-          swap_row(j, argmax);
-        }
-      }//if pivoting
-
-      // Compute the elements of the LU decomposition
-      for (size_t i = j + 1; i < n; ++i)
-      {
-        value_type& a_ij = (*this)(i, j);
-
-        /* Lower triangular components. This represents the row operations
-         * performed to attain the upper-triangular, row-echelon matrix. */
-        a_ij /= (*this)(j, j);
-
-        /* Upper triangular components. This represents the row-echelon form of
-         * the original matrix. */
-        const value_type* a_jk = &coeffs[j][j + 1];
-        for (size_t k = j + 1; k < n; ++k)
-          (*this)(i, k) -= a_ij * *a_jk++;
-      }
-    }
-    factorized = true;
-  }
+  factorize();
 
   /**
   * Solve an LU factored linear system.
@@ -162,41 +73,10 @@ public:
   *          \f$ \boldsymbol{A} \vec{x} = \vec{b} \f$.
   */
   void
-  solve(const Vector& b, Vector& x) const
-  {
-    Assert(factorized, "Matrix must be factorized before solving.");
-    Assert(b.size() == n_rows(), "Dimension mismatch error.");
-    Assert(x.size() == n_cols(), "Dimension mismatch error.");
-
-    //================================================== Forward solve
-    size_t n = n_rows();
-    for (size_t i = 0; i < n; ++i)
-    {
-      value_type value = b[row_pivots[i]];
-      const value_type* a_ij = data(i);
-      for (size_t j = 0; j < i; ++j)
-        value -= *a_ij++ * x[j];
-      x[i] = value;
-    }
-
-    //================================================== Backward solve
-    for (size_t i = n - 1; i != -1; --i)
-    {
-      value_type value = x[i];
-      const value_type* a_ij = &coeffs[i][i + 1];
-      for (size_t j = i + 1; j < n; ++j)
-        value -= *a_ij++ * x[j];
-      x[i] = value / (*this)(i, i);
-    }
-  }
+  solve(const Vector& b, Vector& x) const;
 
   Vector
-  solve(const Vector& b) const
-  {
-    Vector x(n_rows(), 0.0);
-    solve(b, x);
-    return x;
-  }
+  solve(const Vector& b) const;
 };
 
 }
