@@ -15,7 +15,10 @@
 namespace pdes::Math
 {
 
-
+/**
+ * Implementation of a list of lists sparse matrix for linear algebra
+ * operations.
+ */
 class SparseMatrix
 {
 public:
@@ -39,8 +42,8 @@ public:
   /**
    * Default contructor.
    */
-  SparseMatrix() :
-      rows(0), cols(0), colnums(), coeffs()
+  SparseMatrix()
+    : rows(0), cols(0), colnums(), coeffs()
   {}
 
   /**
@@ -51,9 +54,9 @@ public:
   SparseMatrix(const size_t n_rows,
                const size_t n_cols,
                const size_t default_row_length)
-      : rows(n_rows), cols(n_cols),
-        colnums(n_rows, std::vector<size_t>(default_row_length)),
-        coeffs(n_rows, std::vector<value_type>(default_row_length))
+    : rows(n_rows), cols(n_cols),
+      colnums(n_rows, std::vector<size_t>(default_row_length)),
+      coeffs(n_rows, std::vector<value_type>(default_row_length))
   {}
 
   /**
@@ -63,7 +66,7 @@ public:
   explicit
   SparseMatrix(const size_t n,
                const size_t default_row_length)
-      : SparseMatrix(n, n, default_row_length)
+    : SparseMatrix(n, n, default_row_length)
   {}
 
   /**
@@ -72,8 +75,8 @@ public:
    * the nonzero column indices for a given row.
    */
   SparseMatrix(std::vector<std::vector<size_t>> sparsity_pattern)
-      : rows(sparsity_pattern.size()), colnums(sparsity_pattern),
-        coeffs(sparsity_pattern.size())
+    : rows(sparsity_pattern.size()), colnums(sparsity_pattern),
+      coeffs(sparsity_pattern.size())
   {
     cols = 0;
     for (size_t i = 0; i < rows; ++i)
@@ -214,22 +217,6 @@ public:
   // @{
 
   /**
-   * A struct defining a mutable entry in the sparse matrix. This acts as a
-   * triplet containing a row, column, and value.
-   */
-  struct entry
-  {
-    const size_t& row, column;
-    value_type& value;
-
-    entry(const size_t& i,
-          const size_t& j,
-          value_type& val) :
-      row(i), column(j), value(val) {}
-  };
-
-
-  /**
    * A custom mutable iterator over the sparse matrix entries. This iterator
    * essentially marches through each entry by storing iterators to the column
    * indices and values. Each increment advances each iterator and when the
@@ -243,7 +230,6 @@ public:
     using ConstColumnIterator = std::vector<size_t>::const_iterator;
     using CoeffIterator = std::vector<value_type>::iterator;
 
-  private:
     SparseMatrix*       sparse_matrix_ptr;
     size_t              current_row;
     ConstColumnIterator col_ptr;
@@ -274,6 +260,24 @@ public:
     }
 
   public:
+
+    /**
+     * A struct defining a mutable entry in the sparse matrix. This acts as a
+     * triplet containing a row, column, and value.
+     */
+    struct entry
+    {
+      const size_t& row;
+      const size_t& column;
+      value_type& value;
+
+      entry(const size_t& i,
+            const size_t& j,
+            value_type& val)
+          : row(i), column(j), value(val)
+      {}
+    };
+
     iterator(SparseMatrix* sparse_matrix,
              const size_t row) :
         sparse_matrix_ptr(sparse_matrix),
@@ -309,6 +313,29 @@ public:
     bool
     operator!=(const iterator& other) const
     { return !(*this == other); }
+  };
+
+  /**
+   * A struct defining a mutable row of the sparse matrix. This is used as
+   * an interface to define range-based iterators over a particular row.
+   */
+  class row
+  {
+  private:
+    SparseMatrix* sparse_matrix_ptr;
+    const size_t row_num;
+
+  public:
+    row(SparseMatrix* sparse_matrix, const size_t i) :
+        sparse_matrix_ptr(sparse_matrix), row_num(i) {}
+
+    iterator
+    begin()
+    { return sparse_matrix_ptr->begin(row_num); }
+
+    iterator
+    end()
+    { return sparse_matrix_ptr->end(row_num); }
   };
 
 
@@ -348,19 +375,13 @@ public:
   }
 
   /**
-   * A struct defining a constant entry in the sparse matrix.
-   * \see SparseMatrix::entry
+   * A convenience function which allows for mutable range-based iteration
+   * over the specified row \p i.
+   * \see SparseMatrix::const_row_iterator
    */
-  struct const_entry
-  {
-    const size_t& row, column;
-    const value_type& value;
-
-    const_entry(const size_t& i,
-                const size_t& j,
-                const value_type& val) :
-        row(i), column(j), value(val) {}
-  };
+  row
+  row_iterator(const size_t i)
+  { return {this, i}; }
 
 
   /**
@@ -369,13 +390,31 @@ public:
    */
   class const_iterator
   {
+  public:
+
+    /**
+     * A struct defining a constant entry in the sparse matrix.
+     * \see SparseMatrix::entry
+     */
+    struct const_entry
+    {
+      const size_t& row;
+      const size_t& column;
+      const value_type& value;
+
+      const_entry(const size_t& i,
+                  const size_t& j,
+                  const value_type& val)
+        : row(i), column(j), value(val)
+      {}
+    };
+
   private:
     using ConstColumnIterator = std::vector<size_t>::const_iterator;
     using ConstCoeffIterator = std::vector<value_type>::const_iterator;
 
-  private:
     const SparseMatrix*  sparse_matrix_ptr;
-    size_t            current_row;
+    size_t               current_row;
     ConstColumnIterator  col_ptr;
     ConstCoeffIterator   val_ptr;
 
@@ -443,6 +482,31 @@ public:
 
 
   /**
+   * A struct defining a mutable row of the sparse matrix.
+   * \see SparseMatrix::row
+   */
+  class const_row
+  {
+  private:
+    const SparseMatrix* sparse_matrix_ptr;
+    const size_t row_num;
+
+  public:
+    const_row(const SparseMatrix* sparse_matrix,
+              const size_t i) :
+        sparse_matrix_ptr(sparse_matrix), row_num(i) {}
+
+    const_iterator
+    begin()
+    { return sparse_matrix_ptr->begin(row_num); }
+
+    const_iterator
+    end()
+    { return sparse_matrix_ptr->end(row_num); }
+  };
+
+
+  /**
    * Return a constant iterator to the start of the sparse matrix.
    */
   const_iterator
@@ -477,65 +541,6 @@ public:
     else return begin(i + 1);
   }
 
-
-  /**
-   * A struct defining a mutable row of the sparse matrix. This is used as
-   * an interface to define range-based iterators over a particular row.
-   */
-  class row
-  {
-  private:
-    SparseMatrix* sparse_matrix_ptr;
-    const size_t row_num;
-
-  public:
-    row(SparseMatrix* sparse_matrix, const size_t i) :
-      sparse_matrix_ptr(sparse_matrix), row_num(i) {}
-
-    iterator
-    begin()
-    { return sparse_matrix_ptr->begin(row_num); }
-
-    iterator
-    end()
-    { return sparse_matrix_ptr->end(row_num); }
-  };
-
-
-  /**
-   * A convenience function which allows for mutable range-based iteration
-   * over the specified row \p i.
-   * \see SparseMatrix::const_row_iterator
-   */
-  row
-  row_iterator(const size_t i)
-  { return {this, i}; }
-
-  /**
-   * A struct defining a mutable row of the sparse matrix.
-   * \see SparseMatrix::row
-   */
-  class const_row
-  {
-  private:
-    const SparseMatrix* sparse_matrix_ptr;
-    const size_t row_num;
-
-  public:
-    const_row(const SparseMatrix* sparse_matrix,
-        const size_t i) :
-        sparse_matrix_ptr(sparse_matrix), row_num(i) {}
-
-    const_iterator
-    begin()
-    { return sparse_matrix_ptr->begin(row_num); }
-
-    const_iterator
-    end()
-    { return sparse_matrix_ptr->end(row_num); }
-  };
-
-
   /**
    * A convenience function which allows for constant range-based iteration
    * over the specified row \p i.
@@ -559,7 +564,6 @@ public:
     Assert(jr < row_length(i), "Relative index exceeds row length.");
     return colnums[i][jr];
   }
-
 
   /**
    * Read and write access to the element located at relative position \p jr
@@ -611,7 +615,6 @@ public:
         return &coeffs[i][jr];
     return nullptr;
   }
-
 
   /**
    * Read and write access to element <tt>(i, j)</tt>.
@@ -807,8 +810,8 @@ public:
   SparseMatrix&
   operator-()
   {
-    for (entry elem : *this)
-      elem.value = -elem.value;
+    for (iterator::entry el : *this)
+      el.value = -el.value;
     return *this;
   }
 
@@ -822,8 +825,8 @@ public:
   SparseMatrix&
   operator*=(const value_type factor)
   {
-    for (entry elem : *this)
-      elem.value *= factor;
+    for (iterator::entry el : *this)
+      el.value *= factor;
     return *this;
   }
 
@@ -839,8 +842,8 @@ public:
   {
     Assert(factor != 0.0, "Zero division error.");
 
-    for (entry elem : *this)
-      elem.value /= factor;
+    for (iterator::entry el : *this)
+      el.value /= factor;
     return *this;
   }
 
@@ -876,7 +879,6 @@ public:
 
       while (val_ptr != end_ptr)
         *val_ptr++ += factor * *matrix_ptr++;
-
       row_ptr++; matrix_row_ptr++;
     }
   }
@@ -895,8 +897,8 @@ public:
     Assert(y.size() == rows, "Dimension mismatch error.");
 
     if (!adding) y = 0.0;
-    for (const const_entry elem : *this)
-      y[elem.row] += elem.value * x[elem.column];
+    for (const_iterator::const_entry el : *this)
+      y[el.row] += el.value * x[el.column];
   }
 
   /**
@@ -935,8 +937,8 @@ public:
     Assert(y.size() == cols, "Dimension mismatch error.");
 
     if (!adding) y = 0.0;
-    for (const const_entry elem : *this)
-      y[elem.column] += elem.value * x[elem.row];
+    for (const_iterator::const_entry el : *this)
+      y[el.column] += el.value * x[el.row];
   }
 
   /**
@@ -972,16 +974,6 @@ public:
   // @}
   /** \name Printing Utilities */
   // @{
-
-  std::string
-  str(const bool scientific = false,
-      const unsigned int precision = 3,
-      const unsigned int width = 0) const
-  {
-    std::stringstream ss;
-    print_formatted(ss, scientific, precision, width);
-    return ss.str();
-  }
 
   /**
    *  Print the sparse matrix as triplets of nonzero entries.
@@ -1062,6 +1054,23 @@ public:
 
     os.flags(old_flags);
     os.precision(old_precision);
+  }
+
+  /**
+   * Return the sparse matrix as a string.
+   *
+   * \param scientific A flag for scientific notation.
+   * \param precision The precision to display to sparse matrix elements.
+   * \param width The spacing between entries.
+   */
+  std::string
+  str(const bool scientific = false,
+      const unsigned int precision = 3,
+      const unsigned int width = 0) const
+  {
+    std::stringstream ss;
+    print_formatted(ss, scientific, precision, width);
+    return ss.str();
   }
 
   // @}

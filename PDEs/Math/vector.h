@@ -15,19 +15,22 @@
 namespace pdes::Math
 {
 
+/**
+ * Implementation of a vector for linear algebra operations.
+ */
 class Vector
 {
 public:
   using value_type = double;
 
-private:
+protected:
   std::vector<value_type> elements;
 
 public:
   /**
    * Default constructor.
    */
-  Vector() = default;
+  Vector() : elements(0) {};
 
   /**
    * Construct a vector with \p n uninitialized elements.
@@ -39,28 +42,30 @@ public:
    * Construct a vector with \p n elements set to \p value.
    */
   explicit
-  Vector(const size_t n, const value_type value) :
-    elements(n, value)
+  Vector(const size_t n, const value_type value)
+    : elements(n, value)
   {}
 
   /**
    * Copy constructor from an STL vector.
    */
-  Vector(const std::vector<value_type>& other) : elements(other) {}
+  Vector(const std::vector<value_type>& other)
+    : elements(other)
+  {}
 
   /**
    * Move constructor from an STL vector.
    */
-  Vector(std::vector<value_type>&& other) :
-    elements(other)
+  Vector(std::vector<value_type>&& other)
+    : elements(other)
   {}
 
   /**
    * Construct from an initializer list.
    */
-  Vector(const std::initializer_list<value_type> list) :
-    elements(list)
-  {}
+  Vector(const std::initializer_list<value_type> list)
+    : elements(list)
+    {}
 
   /**
    * Copy assignment from an STL vector.

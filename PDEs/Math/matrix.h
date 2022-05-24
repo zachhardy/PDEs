@@ -13,6 +13,9 @@
 namespace pdes::Math
 {
 
+/**
+ * Implementation of a dense matrix for linear algebra operations.
+ */
 class Matrix
 {
 public:
