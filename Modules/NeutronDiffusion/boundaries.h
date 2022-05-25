@@ -25,11 +25,17 @@ enum class BoundaryType
 /** Abstract base class for diffusion boundaries. */
 class Boundary
 {
-public:
-  const BoundaryType type;
+private:
+  const BoundaryType bndry_type;
 
 public:
-  explicit Boundary(BoundaryType boundary_type) : type(boundary_type) {}
+  /** Default constructor. */
+  explicit
+  Boundary(BoundaryType type) : bndry_type(type) {}
+
+  /** Get the boundary type. */
+  BoundaryType
+  type() const;
 };
 
 //######################################################################
@@ -42,11 +48,11 @@ public:
 
 public:
   /** Construct a zero flux boundary. */
-  DirichletBoundary() : Boundary(BoundaryType::DIRICHLET) {}
+  DirichletBoundary();
 
-  explicit DirichletBoundary(double boundary_value)
-    : Boundary(BoundaryType::DIRICHLET), value(boundary_value)
-  {}
+  /** Construct a general Dirichlet boundary. */
+  explicit
+   DirichletBoundary(const double value);
 };
 
 //######################################################################
@@ -59,10 +65,12 @@ public:
 
 public:
   /** Construct a reflective boundary. */
-  NeumannBoundary() : Boundary(BoundaryType::NEUMANN) {}
+  NeumannBoundary();
 
-  explicit NeumannBoundary(double boundary_value)
-    : Boundary(BoundaryType::NEUMANN), value(boundary_value)
+  /** Construct a general Neumann boundary. */
+  explicit
+  NeumannBoundary(const double value)
+    : Boundary(BoundaryType::NEUMANN), value(value)
   {}
 };
 
@@ -78,16 +86,15 @@ public:
 
 public:
   /** Contruct a vacuum boundary. */
-  RobinBoundary() : Boundary(BoundaryType::ROBIN) {}
+  RobinBoundary();
 
   /** Construct a Marshak boundary from an incident partial current. */
-  explicit RobinBoundary(double j_inc)
-    : Boundary(BoundaryType::ROBIN), f(j_inc)
-  {}
+  explicit
+  RobinBoundary(const double j_inc);
 
-  explicit RobinBoundary(double a_value, double b_value, double f_value)
-      : Boundary(BoundaryType::ROBIN), a(a_value), b(b_value), f(f_value)
-  {}
+  /** Construct a general Robin boundary. */
+  explicit
+  RobinBoundary(const double a,  const double b, const double f);
 };
 
 }
