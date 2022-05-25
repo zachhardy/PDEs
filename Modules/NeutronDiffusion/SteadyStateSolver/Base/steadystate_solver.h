@@ -21,9 +21,7 @@ using namespace Grid;
 namespace NeutronDiffusion
 {
 
-/**
- * Algorithms to solve the multigroup diffusion problem.
- */
+/** Algorithms to solve the multigroup diffusion problem. */
 enum class SolutionTechnique
 {
   FULL_SYSTEM = 0,   ///< Solve the full multigroup system.
@@ -42,9 +40,7 @@ enum class LinearSolverType
 
 //######################################################################
 
-/**
- * Bitwise source flags.
- */
+/** Bitwise source flags. */
 enum SourceFlags : int
 {
   NO_FLAGS = 0,
@@ -64,9 +60,7 @@ inline SourceFlags operator|(const SourceFlags f1,
 
 //######################################################################
 
-/**
- * A steady state solver for multigroup neutron diffusion applications.
- */
+/** A steady state solver for multigroup neutron diffusion applications. */
 class SteadyStateSolver
 {
 protected:
