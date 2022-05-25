@@ -27,18 +27,6 @@ protected:
   void
   set_source(Groupset& groupset, Vector& b,
              SourceFlags source_flags) override;
-
-protected:
-  void
-  scoped_transfer(const Groupset& groupset,
-                  const Vector& x, Vector& dst) override;
-
-  void
-  scoped_copy(const Groupset& groupset,
-              const Vector& x, Vector& dst) override;
-
-  double
-  compute_change(const Groupset& groupset) override;
 };
 
 }
