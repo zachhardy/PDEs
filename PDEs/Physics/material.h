@@ -24,26 +24,24 @@ enum class MaterialPropertyType
  */
 class MaterialProperty
 {
-public:
-  const MaterialPropertyType type;
-  const std::string name = "Generic Property";
+private:
+  const MaterialPropertyType property_type;
+  const std::string property_name = "Generic Property";
 
 public:
-  /**
-   * Construct a material property of the specified type.
-   */
-  MaterialProperty(const MaterialPropertyType property_type) :
-      type(property_type)
-  {}
+  /** Construct a material property of the specified type. */
+  MaterialProperty(const MaterialPropertyType type);
 
-  /**
-   * Construct a material property of the specified type
-   * with the specified name.
-   */
-  MaterialProperty(const MaterialPropertyType property_type,
-                   const std::string property_name) :
-      type(property_type), name(property_name)
-  {}
+  /** Construct a named material property of the specified type. */
+  MaterialProperty(const MaterialPropertyType type, const std::string name);
+
+  /** Get the material property type. */
+  MaterialPropertyType
+  type() const;
+
+  /** Get the material property name. */
+  std::string
+  name() const;
 };
 
 
@@ -58,67 +56,47 @@ public:
  */
 class Material
 {
+private:
+  const std::string material_name = "Generic Material";
+
 public:
-  const std::string name = "Generic Physics";
   std::vector<std::shared_ptr<MaterialProperty>> properties;
 
 public:
-  /**
-   * Default constructor
-   */
+  /** Default constructor. */
    Material() = default;
 
-  /**
-   * Construct a material with unique name.
-   */
+  /** Construct a material with unique name. */
   explicit
-  Material(const std::string material_name) : name(material_name) {}
+  Material(const std::string name);
+
+  /** Return the material name. */
+  std::string
+  name() const;
 };
 
 //######################################################################
 
-/**
- * A simple scalar valued material property.
- */
+/** A simple scalar valued material property. */
 class ScalarProperty : public MaterialProperty
 {
-private:
+public:
   double value = 1.0;
 
 public:
-  /**
-   * Construct a scalar valued property with the default value of 1.
-   */
-  ScalarProperty() :
-      MaterialProperty(MaterialPropertyType::SCALAR)
-  {}
+  /** Construct a scalar valued property with the default value of 1. */
+  ScalarProperty();
 
-  /**
-   * Construct a scalar valued property with the default value of 1 with
-   * the specified name.
-   */
+  /** Construct a named scalar valued property with the default value of 1. */
   explicit
-  ScalarProperty(const std::string property_name) :
-      MaterialProperty(MaterialPropertyType::SCALAR, property_name)
-  {}
+  ScalarProperty(const std::string name);
 
-  /**
-   * Construct a scalar valued property with the specified value
-   */
-  ScalarProperty(const double scalar_value) :
-      MaterialProperty(MaterialPropertyType::SCALAR),
-      value(scalar_value)
-  {}
+  /** Construct a scalar valued property with the specified value. */
+  ScalarProperty(const double value);
 
-
-  /**
-   * Construct a scalar valued property with the specified name and value.
-   */
-  ScalarProperty(const double scalar_value,
-                 const std::string property_name) :
-      MaterialProperty(MaterialPropertyType::SCALAR),
-      value(scalar_value)
-  {}
+  /** Construct a scalar valued property with the specified name and value. */
+  ScalarProperty(const double value,
+                 const std::string name);
 };
 
 //######################################################################
@@ -134,23 +112,12 @@ public:
   std::vector<double> values;
 
 public:
-  /**
-   * Construct a multigroup source from an STL vector.
-   */
-  IsotropicMultiGroupSource(const std::vector<double> src) :
-      MaterialProperty(MaterialPropertyType::ISOTROPIC_MG_SOURCE),
-      values(src)
-  {}
+  /** Construct a multigroup source from an STL vector. */
+  IsotropicMultiGroupSource(const std::vector<double> src);
 
-  /**
-   * Construct a multigroup source with the specified name from an STL vector.
-   */
+  /** Construct a named multigroup source from an STL vector. */
   IsotropicMultiGroupSource(const std::vector<double> src,
-                            const std::string property_name) :
-      MaterialProperty(MaterialPropertyType::ISOTROPIC_MG_SOURCE,
-                       property_name),
-      values(src)
-  {}
+                            const std::string name);
 
 };
 
