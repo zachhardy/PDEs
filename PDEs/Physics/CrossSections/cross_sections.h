@@ -70,7 +70,7 @@ public:
       MaterialProperty(MaterialPropertyType::CROSS_SECTIONS, property_name)
   {}
 
-public:
+
   /**
    * Reset the cross-sections to an uninitialized state.
    */

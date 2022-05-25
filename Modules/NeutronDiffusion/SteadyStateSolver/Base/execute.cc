@@ -15,7 +15,7 @@ using namespace Math;
 
 
 void
-NeutronDiffusion::SteadyStateSolver:: execute()
+NeutronDiffusion::SteadyStateSolver::execute()
 {
   std::cout << "Executing solver...\n";
 
@@ -23,21 +23,24 @@ NeutronDiffusion::SteadyStateSolver:: execute()
   for (auto& gs : groupsets)
    assemble_matrix(gs);
 
-  SourceFlags source_flags = APPLY_MATERIAL_SOURCE;
-  if (solution_technique == SolutionTechnique::GROUPSET_WISE)
-    source_flags = source_flags | APPLY_WGS_SCATTER_SOURCE |
-                   APPLY_AGS_SCATTER_SOURCE | APPLY_WGS_FISSION_SOURCE |
-                   APPLY_AGS_FISSION_SOURCE;
 
   //======================================== Solve
   if (solution_technique == SolutionTechnique::FULL_SYSTEM)
   {
-    solve_full_system(source_flags);
+    solve_full_system(APPLY_MATERIAL_SOURCE);
     return;
   }
+  else
+  {
+    SourceFlags source_flags =
+        APPLY_MATERIAL_SOURCE |
+        APPLY_WGS_SCATTER_SOURCE | APPLY_WGS_FISSION_SOURCE |
+        APPLY_AGS_SCATTER_SOURCE | APPLY_AGS_FISSION_SOURCE;
 
-  for (auto& groupset : groupsets)
-    solve_groupset(groupset, source_flags);
+    for (auto& groupset : groupsets)
+      solve_groupset(groupset, source_flags);
+
+  }
 
 
   std::cout << "\nDone executing solver.\n";
@@ -56,11 +59,6 @@ solve_groupset(Groupset& groupset, SourceFlags source_flags)
   SparseMatrix& A = groupset.matrix;
   Vector& b = groupset.rhs;
 
-  Vector init_b = b;
-  set_source(groupset, init_b, APPLY_MATERIAL_SOURCE |
-                               APPLY_AGS_SCATTER_SOURCE |
-                               APPLY_AGS_FISSION_SOURCE);
-
   GaussSeidelSolver solver;
   Vector x(b.size(), 0.0);
 
@@ -72,10 +70,7 @@ solve_groupset(Groupset& groupset, SourceFlags source_flags)
   for (nit = 0; nit < groupset.max_iterations; ++nit)
   {
     // Compute the RHS and solve
-    b = init_b;
-    set_source(groupset, b,
-               APPLY_WGS_SCATTER_SOURCE |
-               APPLY_WGS_SCATTER_SOURCE);
+    set_source(groupset, b, source_flags);
     solver.solve(A, b, x);
 
     // Convergence check, finalize iteration
@@ -97,9 +92,7 @@ solve_groupset(Groupset& groupset, SourceFlags source_flags)
   }
 }
 
-
 //###########################################################################
-
 
 void
 NeutronDiffusion::SteadyStateSolver::

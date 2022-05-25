@@ -6,7 +6,9 @@
 namespace pdes::Math
 {
 
-/** A class for a Choleky decomposition solver. */
+/**
+ * A class for a Choleky decomposition solver.
+ */
 class Cholesky : public Matrix
 {
 public:

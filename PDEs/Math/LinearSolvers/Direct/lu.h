@@ -7,7 +7,9 @@
 namespace pdes::Math
 {
 
-/** A class for an LU decomposition solver. */
+/**
+ * A class for an LU decomposition solver.
+ */
 class LU : public Matrix
 {
 public:
@@ -26,17 +28,25 @@ private:
   std::vector<size_t> row_pivots;
 
 public:
-  /** Copy construction from a matrix. */
+  /**
+   * Copy construction from a matrix.
+   */
   LU(const Matrix& other, const bool pivot = true);
 
-  /** Move construction from a matrix. */
+  /**
+   * Move construction from a matrix.
+   */
   LU(Matrix&& other, const bool pivot = true);
 
-  /** Set the pivot option. */
+  /**
+   * Set the pivot option.
+   */
   void
   pivot(const bool flag);
 
-  /** Get the pivot option. */
+  /**
+   * Get the pivot option.
+   */
   bool
   pivot() const;
 

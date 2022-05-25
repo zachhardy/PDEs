@@ -20,162 +20,254 @@ protected:
   std::vector<value_type> elements;
 
 public:
-  /** Default constructor. */
+
+  //================================================== Constructors
+
+  /**
+   * Default constructor.
+   */
   Vector() = default;
 
-  /** Construct a vector with \p n uninitialized elements. */
+  /**
+   * Construct a vector with \p n uninitialized elements.
+   */
   explicit
   Vector(const size_t n);
 
-  /** Construct a vector with \p n elements set to \p value. */
+  /**
+   * Construct a vector with \p n elements set to \p value.
+   */
   explicit
   Vector(const size_t n, const value_type value);
 
-  /** Copy constructor from an STL vector. */
+  /**
+   * Copy constructor from an STL vector.
+   */
   Vector(const std::vector<value_type>& other);
 
-  /** Move constructor from an STL vector. */
+  /**
+   * Move constructor from an STL vector.
+   */
   Vector(std::vector<value_type>&& other);
 
-  /** Construct from an initializer list. */
+  /**
+   * Construct from an initializer list.
+   */
   Vector(const std::initializer_list<value_type> list);
 
-  /** Copy assignment from an STL vector. */
+  //================================================== Assignment
+
+  /**
+   * Copy assignment from an STL vector.
+   */
   Vector&
   operator=(const std::vector<value_type>& other);
 
-  /** Move assignment from an STL vector. */
+  /**
+   * Move assignment from an STL vector.
+   */
   Vector&
   operator=(std::vector<value_type>&& other);
 
-  /** Copy assignment from an initializer list. */
+  /**
+   * Copy assignment from an initializer list.
+   */
   Vector&
   operator=(const std::initializer_list<value_type> list);
 
-  /** Assign a value to all elements of the vector. */
+  /**
+   * Assign a value to all elements of the vector.
+   */
   Vector&
   operator=(const value_type value);
 
-  /** Test the equality of two vectors. */
+  //================================================== Comparison
+
+  /**
+   * Test the equality of two vectors.
+   */
   bool
   operator==(const Vector& y) const;
 
-  /** Test the inequality of two vectors. */
+  /**
+   * Test the inequality of two vectors.
+   */
   bool
   operator!=(const Vector& y) const;
+
+  //================================================== Characteristics
 
   /** \name Characteristics */
   // @{
 
-  /** Return the number of elements in the vector. */
+  /**
+   * Return the number of elements in the vector.
+   */
   size_t
   size() const;
 
-  /** Return whether the vector is empty. */
+  /**
+   * Return whether the vector is empty.
+   */
   bool
   empty() const;
 
-  /** Return whether the vector is uniformly zero. */
+  /**
+   * Return whether the vector is uniformly zero.
+   */
   bool
   all_zero() const;
 
   // @}
+
+  //================================================== Iterators
+
   /** \name Iterators */
   // @{
 
-  /** Mutable iterator to the first element of the vector. */
+  /**
+   * Mutable iterator to the first element of the vector.
+   */
   std::vector<value_type>::iterator
   begin();
 
-  /** Mutable iterator to the end of the vector. */
+  /**
+   * Mutable iterator to the end of the vector.
+   */
   std::vector<value_type>::iterator
   end();
 
-  /** Constant iterator to the start of the vector. */
+  /**
+   * Constant iterator to the start of the vector.
+   */
   std::vector<value_type>::const_iterator
   begin() const;
 
-  /** Constant iterator to the end of the vector. */
+  /**
+   * Constant iterator to the end of the vector.
+   */
   std::vector<value_type>::const_iterator
   end() const;
 
   // @}
+
+  //================================================== Accessors
+
   /** \name Accessors */
   // @{
 
-  /** Read and write access for element \p i. */
+  /**
+   * Read and write access for element \p i.
+   */
   value_type&
   operator[](const size_t i);
 
-  /** Read access for element \p i. */
+  /**
+   * Read access for element \p i.
+   */
   const value_type&
   operator[](const size_t i) const;
 
-  /** Read and write access for element \p i. */
+  /**
+   * Read and write access for element \p i.
+   */
   value_type&
   operator()(const size_t i);
 
-  /** Read access for element \p i. */
+  /**
+   * Read access for element \p i.
+   */
   const value_type&
   operator()(const size_t i) const;
 
-  /** Read and write access for element \p i with bounds checking. */
+  /**
+   * Read and write access for element \p i with bounds checking.
+   */
   value_type&
   at(const size_t i);
 
-  /** Read access for element \p i with bounds checking. */
+  /**
+   * Read access for element \p i with bounds checking.
+   */
   const value_type&
   at(const size_t i) const;
 
-  /** Read and write access for the first element of the vector. */
+  /**
+   * Read and write access for the first element of the vector.
+   */
   value_type&
   front();
 
-  /** Read access for the first element of the vector. */
+  /**
+   * Read access for the first element of the vector.
+   */
   const value_type&
   front() const;
 
-  /** Read and write access for the last element of the vector. */
+  /**
+   * Read and write access for the last element of the vector.
+   */
   value_type&
   back();
 
-  /** Read access for the last element of the vector. */
+  /**
+   * Read access for the last element of the vector.
+   */
   const value_type&
   back() const;
 
-  /** Mutable pointer to the underlying data. */
+  /**
+   * Mutable pointer to the underlying data.
+   */
   value_type*
   data();
 
-  /** Constant pointer to the underlying data. */
+  /**
+   * Constant pointer to the underlying data.
+   */
   const value_type*
   data() const;
 
   // @}
+
+  //================================================== Modifiers
+
   /** \name Modifiers */
   // @{
 
-  /** Return the vector to an uninitialized state. */
+  /**
+   * Return the vector to an uninitialized state.
+   */
   void
   clear();
 
-  /** Insert a new element at the back of the vector. */
+  /**
+   * Insert a new element at the back of the vector.
+   */
   void
   push_back(const value_type value);
 
-  /** Remove the last element from the vector. */
+  /**
+   * Remove the last element from the vector.
+   */
   void
   pop_back();
 
-  /** Resize the vector to \p n elements. New elements remain uninitialized. */
+  /**
+   * Resize the vector to \p n elements. New elements remain uninitialized.
+   */
   void
   resize(const size_t n);
 
-  /** Resize the vector to \p n elements with new elements set to \p value. */
+  /**
+   * Resize the vector to \p n elements with new elements set to \p value.
+   */
   void
   resize(const size_t n, const value_type value);
 
-  /** Swap the elements with another vector. */
+  /**
+   * Swap the elements with another vector.
+   */
   void
   swap(Vector& y);
 
@@ -208,6 +300,9 @@ public:
   fabs() const;
 
   // @}
+
+  //================================================== Scalar Operations
+
   /** \name Scalar Operations */
   // @{
 
@@ -244,7 +339,10 @@ public:
   operator/=(const value_type factor);
 
   // @}
-  /** \name Linear Algebra Operations */
+
+  //================================================== Linear Algebra
+
+  /** \name Linear Algebra */
   // @{
 
   /**
@@ -269,7 +367,10 @@ public:
   dot(const Vector& y) const;
 
   // @}
-  /** \name Vector-Norms */
+
+  //================================================== Vector Norms
+
+  /** \name Vector Norms */
   // @{
 
   /**
@@ -301,6 +402,9 @@ public:
   lp_norm(const value_type p) const;
 
   // @}
+
+  //================================================== Print Utilities
+
   /** \name Print Utilities */
   // @{
 
@@ -338,7 +442,7 @@ public:
 
 };
 
-/*-------------------- Method Declarations --------------------*/
+//================================================== Methods
 
 /**
  * Multiply each element of the vector by a scalar value.

@@ -12,7 +12,9 @@
 namespace pdes::Grid
 {
 
-/** Available coordinate system types. */
+/**
+ * Available coordinate system types.
+ */
 enum class CoordinateSystem
 {
   CARTESIAN   = 0,  ///< \f$(x, y, z)\f$ coordinates.
@@ -20,7 +22,9 @@ enum class CoordinateSystem
   SPHERICAL   = 2   ///< \f$(r, \varphi, \theta)\f$ coordinates.
 };
 
-/** Return the coordinate system type as a string. */
+/**
+ * Return the coordinate system type as a string.
+ */
 std::string
 coordinate_system_str(const CoordinateSystem coord_sys);
 
@@ -77,7 +81,9 @@ public:
   compute_geometric_info();
 
 
-  /** Compute the geometric properties of the cells and faces. */
+  /**
+   * Compute the geometric properties of the cells and faces.
+   */
   void establish_connectivity();
 };
 

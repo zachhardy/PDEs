@@ -299,6 +299,31 @@ const_iterator(const SparseMatrix* sparse_matrix) :
 {}
 
 
+void
+SparseMatrix::const_iterator::advance()
+{
+  // Increment along the current row
+  ++col_ptr; ++coeff_ptr;
+
+  // If at the end of a row, handle it
+  if (col_ptr == sparse_matrix_ptr->colnums[current_row].end())
+  {
+    // Increment the row to the next non-empty row.
+    ++current_row;
+    while (current_row < sparse_matrix_ptr->rows &&
+           sparse_matrix_ptr->colnums.empty())
+      ++current_row;
+
+    /* Set the pointers to the next row, for valid rows, or to the invalid
+     * iterator, if at the end of the matrix. */
+    if (current_row < sparse_matrix_ptr->rows)
+      *this = sparse_matrix_ptr->begin(current_row);
+    else
+      *this = sparse_matrix_ptr->end();
+  }
+}
+
+
 SparseMatrix::const_row::
 const_row(const SparseMatrix* sparse_matrix, const size_t i) :
   sparse_matrix_ptr(sparse_matrix), row_num(i)

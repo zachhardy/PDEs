@@ -29,17 +29,25 @@ private:
   const std::string property_name = "Generic Property";
 
 public:
-  /** Construct a material property of the specified type. */
+  /**
+   * Construct a material property of the specified type.
+   */
   MaterialProperty(const MaterialPropertyType type);
 
-  /** Construct a named material property of the specified type. */
+  /**
+   * Construct a named material property of the specified type.
+   */
   MaterialProperty(const MaterialPropertyType type, const std::string name);
 
-  /** Get the material property type. */
+  /**
+   * Get the material property type.
+   */
   MaterialPropertyType
   type() const;
 
-  /** Get the material property name. */
+  /**
+   * Get the material property name.
+   */
   std::string
   name() const;
 };
@@ -63,38 +71,54 @@ public:
   std::vector<std::shared_ptr<MaterialProperty>> properties;
 
 public:
-  /** Default constructor. */
+  /**
+   * Default constructor.
+   */
    Material() = default;
 
-  /** Construct a material with unique name. */
+  /**
+   * Construct a material with unique name.
+   */
   explicit
   Material(const std::string name);
 
-  /** Return the material name. */
+  /**
+   * Return the material name.
+   */
   std::string
   name() const;
 };
 
 //######################################################################
 
-/** A simple scalar valued material property. */
+/**
+ * A simple scalar valued material property.
+ */
 class ScalarProperty : public MaterialProperty
 {
 public:
   double value = 1.0;
 
 public:
-  /** Construct a scalar valued property with the default value of 1. */
+  /**
+   * Construct a scalar valued property with the default value of 1.
+   */
   ScalarProperty();
 
-  /** Construct a named scalar valued property with the default value of 1. */
+  /**
+   * Construct a named scalar valued property with the default value of 1.
+   */
   explicit
   ScalarProperty(const std::string name);
 
-  /** Construct a scalar valued property with the specified value. */
+  /**
+   * Construct a scalar valued property with the specified value.
+   */
   ScalarProperty(const double value);
 
-  /** Construct a scalar valued property with the specified name and value. */
+  /**
+   * Construct a scalar valued property with the specified name and value.
+   */
   ScalarProperty(const double value,
                  const std::string name);
 };
@@ -112,10 +136,14 @@ public:
   std::vector<double> values;
 
 public:
-  /** Construct a multigroup source from an STL vector. */
+  /**
+   * Construct a multigroup source from an STL vector.
+   */
   IsotropicMultiGroupSource(const std::vector<double> src);
 
-  /** Construct a named multigroup source from an STL vector. */
+  /**
+   * Construct a named multigroup source from an STL vector.
+   */
   IsotropicMultiGroupSource(const std::vector<double> src,
                             const std::string name);
 

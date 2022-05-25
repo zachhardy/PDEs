@@ -25,14 +25,23 @@ private:
   size_t rows;  ///< The number of rows.
   size_t cols;  ///< The number of columns.
 
-  /** Row-wise nonzero column indices. */
+  /**
+   * Row-wise nonzero column indices.
+   */
   std::vector<std::vector<size_t>> colnums;
 
-  /** Row-wise nonzero data entries. */
+  /**
+   * Row-wise nonzero data entries.
+   */
   std::vector<std::vector<value_type>> coeffs;
 
 public:
-  /** Default contructor. */
+
+  //================================================== Constructors
+
+  /**
+   * Default contructor.
+   */
   SparseMatrix();
 
   /**
@@ -60,10 +69,16 @@ public:
   SparseMatrix(SparsityPattern sparsity_pattern);
 
 
-  /** Copy construction from a dense matrix. */
+  /**
+   * Copy construction from a dense matrix.
+   */
   SparseMatrix(const Matrix& other);
 
-  /**  Assignment with a dense matrix. */
+  //================================================== Assignment
+
+  /**
+   * Assignment with a dense matrix.
+   */
   SparseMatrix&
   operator=(const Matrix& other);
 
@@ -74,38 +89,59 @@ public:
   SparseMatrix&
   operator=(const value_type value);
 
-  /** Test the equality of two sparse matrices. */
+  //================================================== Comparison
+
+  /**
+   * Test the equality of two sparse matrices.
+   */
   bool
   operator==(const SparseMatrix& other) const;
 
-  /** Test the inequality of two sparse matrices. */
+  /**
+   * Test the inequality of two sparse matrices.
+   */
   bool
   operator!=(const SparseMatrix& other) const;
+
+  //================================================== Characteristics
 
   /** \name Characteristics */
   // @{
 
-  /** Return the number of rows. */
+  /**
+   * Return the number of rows.
+   */
   size_t
   n_rows() const;
 
-  /** Return the number of columns. */
+  /**
+   * Return the number of columns.
+   */
   size_t
   n_cols() const;
 
-  /** Return the number of non-zero entries. */
+  /**
+   * Return the number of non-zero entries.
+   */
   size_t
   nnz() const;
 
-  /** Return the length of row \p i. */
+  /**
+   * Return the length of row \p i.
+   */
   size_t
   row_length(const size_t i) const;
 
-  /** Return whether the sparse matrix is empty. */
+  /**
+   * Return whether the sparse matrix is empty.
+   */
   bool
   empty() const;
 
   // @}
+
+  //================================================== Iterators
+
   /** \name Iterators */
   // @{
 
@@ -129,8 +165,8 @@ public:
     ConstColumnIterator col_ptr;
     CoeffIterator       coeff_ptr;
 
-    /** A convenience function to advance the iterator. */
-    void advance();
+    void
+    advance();
 
   public:
     /**
@@ -179,19 +215,27 @@ public:
   };
 
 
-  /** Return a mutable iterator to the first row of the sparse matrix. */
+  /**
+   * Return a mutable iterator to the first row of the sparse matrix.
+   */
   iterator
   begin();
 
-  /** Return a mutable iterator to the end of the sparse matrix. */
+  /**
+   * Return a mutable iterator to the end of the sparse matrix.
+   */
   iterator
   end();
 
-  /** Return a mutable iterator to the start of row \p i. */
+  /**
+   * Return a mutable iterator to the start of row \p i.
+   */
   iterator
   begin(const size_t i);
 
-  /** Return a mutable iterator to the end of row \p i. */
+  /**
+   * Return a mutable iterator to the end of row \p i.
+   */
   iterator
   end(const size_t i);
 
@@ -220,29 +264,8 @@ public:
     ConstColumnIterator  col_ptr;
     ConstCoeffIterator   coeff_ptr;
 
-    /** A concenience function to advance the iterator. */
-    void advance()
-    {
-      // Increment along the current row
-      ++col_ptr; ++coeff_ptr;
-
-      // If at the end of a row, handle it
-      if (col_ptr == sparse_matrix_ptr->colnums[current_row].end())
-      {
-        // Increment the row to the next non-empty row.
-        ++current_row;
-        while (current_row < sparse_matrix_ptr->rows &&
-               sparse_matrix_ptr->colnums.empty())
-          ++current_row;
-
-        /* Set the pointers to the next row, for valid rows, or to the invalid
-         * iterator, if at the end of the matrix. */
-        if (current_row < sparse_matrix_ptr->rows)
-          *this = sparse_matrix_ptr->begin(current_row);
-        else
-          *this = sparse_matrix_ptr->end();
-      }
-    }
+    void
+    advance();
 
   public:
     /**
@@ -290,19 +313,28 @@ public:
     const_iterator end();
   };
 
-  /** Return a constant iterator to the start of the sparse matrix. */
+
+  /**
+   * Return a constant iterator to the start of the sparse matrix.
+   */
   const_iterator
   begin() const;
 
-  /** Return a constant iterator to the end of the sparse matrix. */
+  /**
+   * Return a constant iterator to the end of the sparse matrix.
+   */
   const_iterator
   end() const;
 
-  /** Return a constant iterator to the start of row \p i. */
+  /**
+   * Return a constant iterator to the start of row \p i.
+   */
   const_iterator
   begin(const size_t i) const;
 
-  /** Return a constant iterator to the end of row \p i. */
+  /**
+   * Return a constant iterator to the end of row \p i.
+   */
   const_iterator
   end(const size_t i) const;
 
@@ -315,10 +347,15 @@ public:
   const_row_iterator(const size_t i) const;
 
   // @}
+
+  //================================================== Accessors
+
   /** \name Accessors */
   // @{
 
-  /** Return the column index located at relative position \p jr of row \p i. */
+  /**
+   * Return the column index located at relative position \p jr of row \p i.
+   */
   const size_t&
   column(const size_t i, const size_t jr) const;
 
@@ -395,6 +432,9 @@ public:
   diagonal() const;
 
   // @}
+
+  //================================================== Modifiers
+
   /** \name Modifiers */
   // @{
 
@@ -447,6 +487,9 @@ public:
   swap(SparseMatrix& other);
 
   // @}
+
+  //================================================== Scalar Operations
+
   /** \name Scalar Operations */
   // @{
 
@@ -485,6 +528,9 @@ public:
   operator/=(const value_type factor);
 
   // @}
+
+  //================================================== Linear Algebra
+
   /** \name Linear Algebra */
   // @{
 
@@ -578,7 +624,10 @@ public:
   operator*(const Vector& x) const;
 
   // @}
-  /** \name Printing Utilities */
+
+  //================================================== Print Utilities
+
+  /** \name Print Utilities */
   // @{
 
   /**
@@ -621,7 +670,7 @@ public:
   // @}
 };
 
-/*-------------------- Inline Implementations --------------------*/
+//================================================== Methods
 
 /**
  * Multiply a sparse matrix by a scalar factor.

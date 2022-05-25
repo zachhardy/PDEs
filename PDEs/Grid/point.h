@@ -19,9 +19,6 @@ namespace pdes::Grid
 class Point
 {
 public:
-  /**
-   * Access to the underlying value type.
-  */
   using value_type = double;
 
 public:
@@ -31,26 +28,33 @@ public:
 
 public:
 
+  //================================================== Constructors
+
+  /**
+   * Construct a point at the origin <tt>(0, 0, 0)</tt>.
+   */
   Point();
 
-  /** Construct a 1D point <tt>(a, 0, 0)</tt>. */
+  /**
+   * Construct a 1D point <tt>(a, 0, 0)</tt>.
+   */
   explicit
   Point(const value_type a);
 
-  /** Construct a 2D point <tt>(a, b, 0)</tt>. */
+  /**
+   * Construct a 2D point <tt>(a, b, 0)</tt>.
+   */
   explicit
   Point(const value_type a,
         const value_type b);
 
-  /** Construct a 3D point <tt>(a, b, c)</tt>. */
+  /**
+   * Construct a 3D point <tt>(a, b, c)</tt>.
+   */
   explicit
   Point(const value_type a,
         const value_type b,
         const value_type c);
-
-  /** Set all elements of the point to a scalar value. */
-  Point&
-  operator=(const double value);
 
   /**
    * Static method to construct a unit vector in the specified dimension.
@@ -62,13 +66,29 @@ public:
   static Point
   unit_vector(const size_t axis);
 
-  /** Test the equality of two points. */
+  //================================================== Assignment
+
+  /**
+   * Set all elements of the point to a scalar value.
+   */
+  Point&
+  operator=(const double value);
+
+  //================================================== Comparison
+
+  /**
+   * Test the equality of two points.
+   */
   bool
   operator==(const Point& q) const;
 
-  /** Test the inequality of two points. */
+  /**
+   * Test the inequality of two points.
+   */
   bool
   operator!=(const Point& q) const;
+
+  //================================================== Accessors
 
   /** \name Accessors */
   // @{
@@ -106,6 +126,9 @@ public:
   operator()(const size_t i) const;
 
   // @}
+
+  //================================================== Characteristics
+
   /** \name Characteristics */
   // @{
 
@@ -130,6 +153,9 @@ public:
   length_squared() const;
 
   // @}
+
+  //================================================== Scalar Operations
+
   /** \name Scalar Operations */
   //@{
 
@@ -165,6 +191,9 @@ public:
   operator/=(const value_type factor);
 
   // @}
+
+  //================================================== Point Operations
+
   /** \name Point Operations */
   // @{
 
@@ -257,6 +286,9 @@ public:
   direction() const;
 
   // @}
+
+  //================================================== Print Utilities
+
   /** \name Print Utilities */
   // @{
 
@@ -272,7 +304,7 @@ public:
 
 };
 
-/*-------------------- Method Declarations --------------------*/
+//================================================== Methods
 
 /**
  * Multiply each element of a point by a scalar value.
@@ -352,7 +384,7 @@ direction(const Point& p);
 std::ostream&
 operator<<(std::ostream& os, const Point& p);
 
-/*-------------------- Useful Aliases --------------------*/
+//================================================== Useful Aliases
 
 using Vertex = Point;
 using Node = Point;

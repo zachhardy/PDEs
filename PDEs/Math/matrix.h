@@ -26,244 +26,372 @@ protected:
   std::vector<Vector> coeffs;
 
 public:
-  /** Default constructor. */
+
+  //================================================== Constructors
+
+  /**
+   * Default constructor. */
   Matrix() = default;
 
-  /** Construct a matrix with \p n_rows and \p n_cols. */
+  /**
+   * Construct a matrix with \p n_rows and \p n_cols. */
   explicit
   Matrix(const size_t n_rows, const size_t n_cols);
 
-  /** Construct a Matrix with \p n_rows and \p n_cols set to \p value. */
+  /**
+   * Construct a Matrix with \p n_rows and \p n_cols set to \p value. */
   explicit
   Matrix(const size_t n_rows,
          const size_t n_cols,
          const value_type value);
 
-  /** Copy construction with nested STL vectors. */
+  /**
+   * Copy construction with nested STL vectors.
+   */
   Matrix(const STLMatrix& other);
 
-  /** Move construction from nested STL vectors. */
+  /**
+   * Move construction from nested STL vectors.
+   */
   Matrix(STLMatrix&& other);
 
-  /** Construction from nested initializer lists. */
+  /**
+   * Construction from nested initializer lists.
+   */
   Matrix(const InitializerMatrix list);
 
-  /** Copy assignment from nested STL vectors. */
+  //================================================== Assignment
+
+  /**
+   * Copy assignment from nested STL vectors.
+   */
   Matrix&
   operator=(const STLMatrix& other);
 
-  /** Move assignment from nested STL vectors. */
+  /**
+   * Move assignment from nested STL vectors.
+   */
   Matrix&
   operator=(STLMatrix&& other);
 
-  /** Assignment to a scalar value. */
+  /**
+   * Assignment to a scalar value.
+   */
   Matrix&
   operator=(const value_type value);
 
-  /** Test the equality of two matrices. */
+  //================================================== Comparison
+
+  /**
+   * Test the equality of two matrices.
+   */
   bool
   operator==(const Matrix& other) const;
 
-  /** Test the inequality of two matrics. */
+  /**
+   * Test the inequality of two matrics.
+   */
   bool
   operator!=(const Matrix& other) const;
+
+  //================================================== Characteristics
 
   /** \name Characteristics */
   // @{
 
-  /** Return the number of rows in the matrix. */
+  /**
+   * Return the number of rows in the matrix.
+   */
   size_t
   n_rows() const;
 
-  /** Return the number of columns in the matrix. */
+  /**
+   * Return the number of columns in the matrix.
+   */
   size_t 
   n_cols() const;
 
-  /** Return the number of elements in the matrix. */
+  /**
+   * Return the number of elements in the matrix.
+   */
   size_t
   size() const;
 
-  /** Return the number of non-zero elements in the matrix. */
+  /**
+   * Return the number of non-zero elements in the matrix.
+   */
   size_t
   nnz() const;
 
-  /** Return whether the matrix is empty. */
+  /**
+   * Return whether the matrix is empty.
+   */
   bool
   empty() const;
 
-  /** Return whether the matrix is uniformly zero. */
+  /**
+   * Return whether the matrix is uniformly zero.
+   */
   bool
   all_zero() const;
 
   // @}
+
+  //================================================== Iterators
+
   /** \name Iterators */
   // @{
 
-  /** Mutable iterator to the start of the matrix. */
+  /**
+   * Mutable iterator to the start of the matrix.
+   */
   std::vector<Vector>::iterator
   begin();
 
-  /**  Mutable iterator to the end of the matrix. */
+  /**
+   * Mutable iterator to the end of the matrix.
+   */
    std::vector<Vector>::iterator
    end();
 
-  /** Constant iterator to the start of the matrix. */
+  /**
+   * Constant iterator to the start of the matrix.
+   */
   std::vector<Vector>::const_iterator
   begin() const;
 
-  /** Constant iterator to the end of the matrix. */
+  /**
+   * Constant iterator to the end of the matrix.
+   */
   std::vector<Vector>::const_iterator
   end() const;
 
-  /** Mutable iterator to the start of row \p i of the matrix. */
+  /**
+   * Mutable iterator to the start of row \p i of the matrix.
+   */
   std::vector<value_type>::iterator
   begin(const size_t i);
 
-  /** Mutable iterator to the end of row \p i of the matrix. */
+  /**
+   * Mutable iterator to the end of row \p i of the matrix.
+   */
   std::vector<double>::iterator
   end(const size_t i);
 
-  /**  Constant iterator to the start of row \p i of the matrix. */
+  /**
+   * Constant iterator to the start of row \p i of the matrix.
+   */
   std::vector<double>::const_iterator
   begin(const size_t i) const;
 
-  /** Constant iterator to the end of row \p i of the matrix. */
+  /**
+   * Constant iterator to the end of row \p i of the matrix.
+   */
   std::vector<double>::const_iterator
   end(const size_t i) const;
 
   // @}
+
+  //================================================== Accessors
+
   /** \name Accessors */
   // @{
 
-  /** Read and write access for row \p i of the matrix. */
+  /**
+   * Read and write access for row \p i of the matrix.
+   */
   Vector&
   operator[](const size_t i);
 
-  /** Read access for row \p i of the matrix. */
+  /**
+   * Read access for row \p i of the matrix.
+   */
   const Vector&
   operator[](const size_t i) const;
 
-  /** Read and write access for row \p i of the matrix. */
+  /**
+   * Read and write access for row \p i of the matrix.
+   */
   Vector&
   operator()(const size_t i);
 
-  /** Read access for row \p i of the matrix. */
+  /**
+   * Read access for row \p i of the matrix.
+   */
   const Vector&
   operator()(const size_t i) const;
 
-  /** Read and write access for row \p i of the matrix with bounds checking. */
+  /**
+   * Read and write access for row \p i of the matrix with bounds checking.
+   */
   Vector&
   at(const size_t i);
 
-  /** Read access for row \p i of the matrix with bounds checking. */
+  /**
+   * Read access for row \p i of the matrix with bounds checking.
+   */
   const Vector&
   at(const size_t i) const;
 
-  /** Read and write access for element <tt>(i, j)</tt>. */
+  /**
+   * Read and write access for element <tt>(i, j)</tt>.
+   */
   value_type&
   operator()(const size_t i, const size_t j);
 
-  /** Read and write access for element <tt>(i, j)</tt>. */
+  /**
+   * Read and write access for element <tt>(i, j)</tt>.
+   */
   const value_type&
   operator()(const size_t i, const size_t j) const;
 
-  /** Read and write access for element <tt>(i, j)</tt> with bounds checking. */
+  /**
+   * Read and write access for element <tt>(i, j)</tt> with bounds checking.
+   */
   value_type&
   at(const size_t i, const size_t j);
 
-  /** Read and write access for element <tt>(i, j)</tt> with bounds checking. */
+  /**
+   * Read and write access for element <tt>(i, j)</tt> with bounds checking.
+   */
   const value_type&
   at(const size_t i, const size_t j) const;
 
-  /** Read and write access to the <tt>i</tt>'th diagonal element. */
+  /**
+   * Read and write access to the <tt>i</tt>'th diagonal element.
+   */
    value_type&
    diagonal(const size_t i);
 
-  /** Read access to the <tt>i</tt>'th diagonal element.  */
+  /**
+   * Read access to the <tt>i</tt>'th diagonal element.
+   */
   const value_type&
   diagonal(const size_t i) const;
 
-  /** Return the diagonal of the matrix. */
+  /**
+   * Return the diagonal of the matrix.
+   */
   Vector
   diagonal() const;
 
-  /** Return a mutable pointer to the underlying matrix data. */
+  /**
+   * Return a mutable pointer to the underlying matrix data.
+   */
   Vector*
   data();
 
-  /** Return a constant pointer to the underlying matrix data. */
+  /**
+   * Return a constant pointer to the underlying matrix data.
+   */
   const Vector*
   data() const;
 
-  /** Return a pointer to the underlying data for row \p i of the matrix. */
+  /**
+   * Return a pointer to the underlying data for row \p i of the matrix.
+   */
   value_type*
   data(const size_t i);
 
-  /** Return a pointer to the underlying data for row \p i of the matrix. */
+  /**
+   * Return a pointer to the underlying data for row \p i of the matrix.
+   */
   const value_type*
   data(const size_t i) const;
 
   // @}
+
+  //================================================== Modifiers
+
   /** \name Modifiers */
   // @{
 
-  /** Return the matrix to its uninitialized state. */
+  /**
+   * Return the matrix to its uninitialized state.
+   */
   void
   clear();
 
-  /** Remove the last row from the matrix. */
+  /**
+   * Remove the last row from the matrix.
+   */
   void
   pop_back();
 
-  /** Add a row to the back of the matrix. */
+  /**
+   * Add a row to the back of the matrix.
+   */
   void
   push_back(const Vector& row);
 
-  /** Move a row to the back of the matrix. */
+  /**
+   * Move a row to the back of the matrix.
+   */
   void
   push_back(Vector&& row);
 
-  /** Resize the matrix to \p n_rows and \p n_cols. */
+  /**
+   * Resize the matrix to \p n_rows and \p n_cols.
+   */
   void
   resize(const size_t n_rows, const size_t n_cols);
 
-  /** Resize to \p n_rows and \p n_cols, setting new elements to \p value.  */
+  /**
+   * Resize to \p n_rows and \p n_cols, setting new elements to \p value.
+   */
   void
   resize(const size_t n_rows,
          const size_t n_cols,
          const value_type value);
 
-  /** Alias to \ref resize. */
+  /**
+   * Alias to \ref resize.
+   */
   void
   reinit(const size_t n_rows, const size_t n_cols);
 
-  /** Alias to \ref resize. */
+  /**
+   * Alias to \ref resize.
+   */
   void
   reinit(const size_t n_rows,
          const size_t n_cols,
          const value_type value);
 
-  /** Swap two rows of the matrix. */
+  /**
+   * Swap two rows of the matrix.
+   */
   void
   swap_row(const size_t i, const size_t k);
 
-  /** Swap two columns of the matrix. */
+  /**
+   * Swap two columns of the matrix.
+   */
   void
   swap_column(const size_t j, const size_t k);
 
-  /** Swap the contents of this matrix with another. */
+  /**
+   * Swap the contents of this matrix with another.
+   */
   void
   swap(Matrix& other);
 
-  /** Set the diagonal of the matrix with a vector. */
+  /**
+   * Set the diagonal of the matrix with a vector.
+   */
   void
   set_diagonal(const Vector& diag);
 
-  /** Set the diagonal of the matrix with a fixed scalar value. */
+  /**
+   * Set the diagonal of the matrix with a fixed scalar value.
+   */
   void
   set_diagonal(const value_type value);
 
   // @}
+
+  //================================================== Scalar Operations
+
   /** \name Scalar Operations */
   // @{
 
@@ -302,6 +430,9 @@ public:
   operator/=(const value_type value);
 
   //@}
+
+  //================================================== Linear Algebra
+
   /** \name Linear Algebra */
   // @{
 
@@ -478,7 +609,10 @@ public:
   transpose() const;
 
   // @}
-  /** \name Printing Utilities */
+
+  //================================================== Print Utilities
+
+  /** \name Print Utilities */
   // @{
 
   /**
@@ -515,7 +649,7 @@ private:
 
 };
 
-/*-------------------- Methods -------------------- */
+//================================================== Methods
 
 /**
  * Add two matrices together.

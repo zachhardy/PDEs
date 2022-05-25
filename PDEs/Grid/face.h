@@ -39,12 +39,16 @@ public:
   Centroid centroid;
   double area = 0.0;
 
-  /** Return the face as a string. */
+  /**
+   * Return the face as a string.
+   */
   std::string
   str() const;
 };
 
-/** Insert a face into an output stream. */
+/**
+ * Insert a face into an output stream.
+ */
 std::ostream&
 operator<<(std::ostream&, const Face& face);
 
