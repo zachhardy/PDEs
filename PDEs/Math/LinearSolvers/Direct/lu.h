@@ -26,15 +26,19 @@ private:
   std::vector<size_t> row_pivots;
 
 public:
-  /**
-   * Copy construction from a matrix.
-   */
+  /** Copy construction from a matrix. */
   LU(const Matrix& other, const bool pivot = true);
 
-  /**
-   * Move construction from a matrix.
-   */
+  /** Move construction from a matrix. */
   LU(Matrix&& other, const bool pivot = true);
+
+  /** Set the pivot option. */
+  void
+  pivot(const bool flag);
+
+  /** Get the pivot option. */
+  bool
+  pivot() const;
 
   /**
    * Factor the matrix \f$ \boldsymbol{A} \f$ into an upper and lower triangular

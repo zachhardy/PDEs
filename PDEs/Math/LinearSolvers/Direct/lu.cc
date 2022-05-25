@@ -16,6 +16,17 @@ LU::LU(Matrix&& other, const bool pivot)
   : row_pivots(other.n_rows()), pivot_flag(pivot), Matrix(other)
 {}
 
+//################################################## Properties
+
+void
+LU::pivot(const bool flag)
+{ pivot_flag = flag; }
+
+
+bool
+LU::pivot() const
+{ return pivot_flag; }
+
 //################################################## Methods
 
 void

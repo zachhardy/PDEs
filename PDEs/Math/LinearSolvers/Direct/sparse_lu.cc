@@ -18,6 +18,17 @@ SparseLU::SparseLU(SparseMatrix&& other, const bool pivot)
     SparseMatrix(other)
 {}
 
+//################################################## Properties
+
+void
+SparseLU::pivot(const bool flag)
+{ pivot_flag = flag; }
+
+
+bool
+SparseLU::pivot() const
+{ return pivot_flag; }
+
 //################################################## Methods
 
 void

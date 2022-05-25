@@ -35,6 +35,14 @@ public:
   /** Move construction from a sparse matrix. */
   SparseLU(SparseMatrix&& other, const bool pivot = true);
 
+  /** Set the pivot option. */
+  void
+  pivot(const bool flag);
+
+  /** Return the pivot option. */
+  bool
+  pivot() const;
+
   /**
    * Factor the matrix \f$ \boldsymbol{A} \f$ into an upper and lower triangular
    * form in-place.
