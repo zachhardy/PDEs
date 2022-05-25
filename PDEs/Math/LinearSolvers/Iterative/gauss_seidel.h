@@ -1,15 +1,13 @@
-#ifndef JACOBI_H
-#define JACOBI_H
+#ifndef GAUSS_SEIDEL_H
+#define GAUSS_SEIDEL_H
 
 #include "sparse_matrix.h"
 #include "vector.h"
 
-#include <cstddef>
-
 namespace pdes::Math
 {
 
-class JacobiSolver
+class GaussSeidelSolver
 {
 private:
   double tol = 1.0e-8;
@@ -19,21 +17,19 @@ public:
   /**
    * Default constructor.
    */
-  JacobiSolver() = default;
+  GaussSeidelSolver() = default;
 
   /**
    * Constructor with specified iteration controls.
    */
-  JacobiSolver(const double tolerance,
-               const size_t max_iterations);
+  GaussSeidelSolver(const double tolerance,
+                    const size_t max_iterations);
 
-  /**
-   * Solve the system using Jacobi iterations.
-   */
   void
   solve(const SparseMatrix& A, const Vector& b, Vector& x);
-
 };
+
 }
 
-#endif //JACOBI_H
+
+#endif //GAUSS_SEIDEL_H

@@ -2,14 +2,8 @@
 
 #include <cmath>
 
-/**
- * Transfer a groupset vector to a full multigroup vector.
- *
- * \param groupset The groupset the vector \p x corresponds to.
- * \param x The groupset vector to be transferred.
- * \param destination The destination full multigroup vector.
- */
-void NeutronDiffusion::SteadyStateSolver_FV::
+void
+NeutronDiffusion::SteadyStateSolver_FV::
 scoped_transfer(const Groupset& groupset, const Math::Vector& x,
                 Math::Vector& destination)
 {
@@ -26,15 +20,10 @@ scoped_transfer(const Groupset& groupset, const Math::Vector& x,
   }
 }
 
-/**
- * Copy the elements corresponding to the specified groupset from one full
- *  multigroup vector to another.
- *
- * \param groupset The groupset being copied.
- * \param x The vector to be copied from.
- * \param destination The vector copied into.
- */
-void NeutronDiffusion::SteadyStateSolver_FV::
+//######################################################################
+
+void
+NeutronDiffusion::SteadyStateSolver_FV::
 scoped_copy(const Groupset& groupset, const Math::Vector& x,
             Math::Vector& destination)
 {
@@ -49,13 +38,10 @@ scoped_copy(const Groupset& groupset, const Math::Vector& x,
   }
 }
 
-/**
- * Return the \f$\ell_2\f$-norm between the last two iterates of the
- * multigroup flux elements that belong to the specified groupset.
- *
- * \param groupset The groupset to compute the change for.
- */
-double NeutronDiffusion::SteadyStateSolver_FV::
+//######################################################################
+
+double
+NeutronDiffusion::SteadyStateSolver_FV::
 compute_change(const Groupset& groupset)
 {
   const auto gs_i = groupset.groups.front();

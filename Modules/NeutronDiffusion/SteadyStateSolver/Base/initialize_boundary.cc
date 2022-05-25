@@ -1,31 +1,21 @@
 #include "steadystate_solver.h"
 
 
-/// Create a boundary condition for each boundary and each group.
 void NeutronDiffusion::SteadyStateSolver::initialize_boundaries()
 {
   std::cout << "Initializing simulation boundaries...\n";
 
   //============================== Check number of boundaries
-  if (mesh->dim == 1 and boundary_info.size() != 2)
-  {
-    std::stringstream err;
-    err << solver_string << __FUNCTION__ << ": "
-        << "1D problems must have 2 boundary conditions";
-    throw std::runtime_error(err.str());
-  }
+  if (mesh->dim == 1)
+    Assert(boundary_info.size() == 2,
+           "1D problems must have 2 boundary conditions.");
 
   //============================== Check specified boundary values
   for (const auto& bndry_vals : boundary_values)
   {
-    if (bndry_vals.size() != n_groups)
-    {
-      std::stringstream err;
-      err << solver_string << __FUNCTION__ << ": "
-          << "Specified boundary values must have as many entries as "
-          << "groups in the simulation.";
-      throw std::runtime_error(err.str());
-    }
+    Assert(bndry_vals.size() == n_groups,
+           "Specified boundary values must have as many entries as groups "
+           "in the simulation.");
   }
 
   //================================================== Loop over boundaries
@@ -64,15 +54,9 @@ void NeutronDiffusion::SteadyStateSolver::initialize_boundaries()
         case BoundaryType::ROBIN:
         {
           const auto& bval = boundary_values[boundary.second][g];
-
-          if (bval.size() != 3)
-          {
-            std::stringstream err;
-            err << solver_string << __FUNCTION__ << ": "
-                << "Fully specified Robin boundaries must have 3 values for "
-                << "each group.";
-            throw std::runtime_error(err.str());
-          }
+          Assert(bval.size() == 3,
+                 "Fully specified Robin boundaries must have 3 values for "
+                 "each group.");
 
           bc = std::make_shared<RobinBoundary>(bval[0], bval[1], bval[2]);
           break;
