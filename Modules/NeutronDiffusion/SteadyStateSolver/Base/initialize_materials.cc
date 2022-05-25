@@ -30,7 +30,7 @@ NeutronDiffusion::SteadyStateSolver::initialize_materials()
       cell.material_id = 0;
   }
 
-  // Clear the current materials
+  //============================== Clear the current materials
   material_xs.clear();
   material_src.clear();
 
@@ -38,17 +38,17 @@ NeutronDiffusion::SteadyStateSolver::initialize_materials()
   matid_to_xs_map.assign(n_materials, -1);
   matid_to_src_map.assign(n_materials, -1);
 
-  //================================================== Loop over materials
+  //============================== Loop over materials
   for (const int& material_id : unique_material_ids)
   {
     auto material = materials[material_id];
 
-    //================================================== Loop over properties
+    //============================== Loop over properties
     bool found_xs = false;
     for (const auto& property : material->properties)
     {
       //============================== Parse cross sections
-      if (property->type == MaterialPropertyType::CROSS_SECTIONS)
+      if (property->type() == MaterialPropertyType::CROSS_SECTIONS)
       {
         auto xs = std::static_pointer_cast<CrossSections>(property);
         Assert(xs->n_groups >= groups.size(),
@@ -59,10 +59,10 @@ NeutronDiffusion::SteadyStateSolver::initialize_materials()
         material_xs.emplace_back(xs);
         matid_to_xs_map[material_id] = material_xs.size() - 1;
         found_xs = true;
-      }//if CrossSections
+      }
 
       //============================== Parse multigroup sources
-      else if (property->type == MaterialPropertyType::ISOTROPIC_MG_SOURCE)
+      else if (property->type() == MaterialPropertyType::ISOTROPIC_MG_SOURCE)
       {
         auto src = std::static_pointer_cast<IsotropicMGSource>(property);
         Assert(src->values.size() >= groups.size(),
@@ -72,7 +72,7 @@ NeutronDiffusion::SteadyStateSolver::initialize_materials()
 
         material_src.emplace_back(src);
         matid_to_src_map[material_id] = material_src.size() - 1;
-      }//if IsotropicMultiGroupSource
+      }
     }//for properties
 
     Assert(found_xs, "Cross sections not found on a provided material.");
