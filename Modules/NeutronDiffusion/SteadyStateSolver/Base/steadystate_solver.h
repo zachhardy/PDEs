@@ -77,25 +77,29 @@ protected:
 
 public:
 
-  /*---------- Options ----------*/
+  /*-------------------- Options --------------------*/
+
   SolutionTechnique solution_technique = SolutionTechnique::GROUPSET_WISE;
   LinearSolverType linear_solver_type = LinearSolverType::SPARSE_LU;
 
-  /*---------- General Information ----------*/
+  /*-------------------- General Information --------------------*/
+
   size_t n_groups = 0;
   size_t n_precursors = 0;
   bool use_precursors = false;
 
-  /*---------- Groupsets and Groups ----------*/
+  /*-------------------- Groupsets and Groups --------------------*/
+
   std::vector<size_t> groups;
   std::vector<Groupset> groupsets;
 
-  /*---------- Spatial Grid Information ----------*/
+  /*-------------------- Spatial Grid Information --------------------*/
+
   std::shared_ptr<Mesh> mesh;
   std::shared_ptr<Discretization> discretization;
 
-  /*---------- Physics Information ----------*/
-public:
+  /*-------------------- Physics Information --------------------*/
+
   std::vector<std::shared_ptr<Material>> materials;
   std::vector<std::shared_ptr<CrossSections>> material_xs;
   std::vector<std::shared_ptr<IsotropicMGSource>> material_src;
@@ -123,8 +127,10 @@ protected:
    */
   std::vector<int> matid_to_src_map;
 
-  /*---------- Boundary Information ----------*/
 public:
+
+  /*-------------------- Boundary Information --------------------*/
+
   /**
    * A list containing a pair with the boundary type and index corresponding
    * to the location of the boundary values within the boundary values vector.
@@ -142,6 +148,7 @@ public:
   std::vector<std::vector<std::vector<double>>> boundary_values;
 
 protected:
+
   /**
    * The multigroup boundary conditions. This is a vector of vectors of
    * pointers to Boundary objects. The outer indexing corresponds to the
@@ -151,13 +158,17 @@ protected:
   std::vector<std::vector<BndryPtr>> boundaries;
 
 public:
-  /*---------- Solutions ----------*/
+
+  /*-------------------- Solutions --------------------*/
+
   Vector phi;
   Vector phi_ell;
 
   Vector precursors;
 
 public:
+
+  /*-------------------- Public Facing Routines --------------------*/
 
   /**
    * Initialize the solver. This routine ensures that the specified setup is
@@ -172,6 +183,10 @@ public:
   execute();
 
 protected:
+  /*-------------------- Solve Routines --------------------*/
+
+  /** \name Solve Routines */
+  // @{
 
   /**
    * Solve the system for a single groupset. This routine iteratively converges
@@ -189,8 +204,12 @@ protected:
   void
   solve_full_system(SourceFlags source_flags);
 
+  // @}
 
-protected:
+  /*-------------------- Assembly Routines --------------------*/
+
+  /** \name Assembly Routines */
+  // @{
 
   /**
    * Assemble the matrix for the specified \p groupset.
@@ -220,7 +239,12 @@ protected:
   set_source(Groupset& groupset, Vector& b,
              SourceFlags source_flags) = 0;
 
-protected:
+  //@}
+
+  /*-------------------- Initialization Routines --------------------*/
+
+  /** \name Initialization Routines */
+  // @{
 
   /** Validate the general setup of the simulation. */
   void
@@ -241,6 +265,13 @@ protected:
   /** Initialize the spatial discretization for the solver. */
   virtual
   void initialize_discretization() = 0;
+
+  // @}
+
+  /*-------------------- Vector Operations --------------------*/
+
+  /** \name Vector Operations */
+  // @{
 
   /**
    * Transfer a groupset vector to a full multigroup vector.
@@ -273,6 +304,8 @@ protected:
    */
   double
   compute_change(const Groupset& groupset);
+
+  // @}
 };
 
 }
