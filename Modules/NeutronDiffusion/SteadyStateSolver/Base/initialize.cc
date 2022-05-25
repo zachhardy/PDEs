@@ -5,13 +5,6 @@
 
 #include <set>
 
-/**
- * Initialize the solver.
- *
- * This routine ensures that the specified setup is valid. For example, the
- * mesh, groups, groupsets, materials, and boundaries are all checked and
- * relevant properties are initialized.
- */
 void NeutronDiffusion::SteadyStateSolver::initialize()
 {
   std::cout << "Initializing solver...\n";
@@ -57,72 +50,38 @@ void NeutronDiffusion::SteadyStateSolver::initialize()
 
 //######################################################################
 
-/// Validate the general setup of the simulation.
+
 void NeutronDiffusion::SteadyStateSolver::input_checks()
 {
   //================================================== Check the groups
   // Ensure groups and groupsets were added
-  if (groups.empty() or groupsets.empty())
-  {
-    std::stringstream err;
-    err << solver_string << __FUNCTION__ << ": "
-        << "Groups and groupsets must be added to the solver "
-        << "before initialization.";
-    throw std::runtime_error(err.str());
-  }
+  Assert(!groups.empty(), "Groups must be added to the solver.");
+  Assert(!groupsets.empty(), "Groupsets must be added to the solver.");
 
   // Check that the groupsets contain all groups, no duplicates
-  std::set<uint64_t> groupset_groups;
+  std::set<size_t> groupset_groups;
   for (const auto& groupset : groupsets)
   {
-    // Groupsets must have groups
-    if (groupset.groups.empty())
-    {
-      std::stringstream err;
-      err << solver_string << __FUNCTION__ << ": "
-          << "No groups added to groupset " << groupset.id << ".";
-      throw std::runtime_error(err.str());
-    }
+    Assert(!groupset.groups.empty(),
+           "Groups must be added to each groupset.");
 
     // Collect all groupset groups
     for (const auto& group : groupset.groups)
     {
-      // No duplicate groups are allowed
-      if (groupset_groups.find(group) != groupset_groups.end())
-      {
-        std::stringstream err;
-        err << solver_string << __FUNCTION__ << ": "
-            << "Duplicate group found in groupset " << groupset.id << ".";
-        throw std::runtime_error(err.str());
-      }
+      Assert(groupset_groups.find(group) == groupset_groups.end(),
+             "Duplicate group found.");
+
       groupset_groups.insert(group);
     }
   }
 
-  std::set<uint64_t> groups_set(groups.begin(), groups.end());
-  if (groupset_groups != groups_set)
-  {
-    std::stringstream err;
-    err << solver_string << __FUNCTION__ << ": "
-        << "The groupsets must contain all specified groups.";
-    throw std::runtime_error(err.str());
-  }
+  std::set<size_t> groups_set(groups.begin(), groups.end());
+  Assert(groupset_groups == groups_set,
+         "The groupsets must contain all specified groups.");
 
   //================================================== Check the mesh
-  if (mesh == nullptr)
-  {
-    std::stringstream err;
-    err << solver_string << __FUNCTION__ << ": "
-        << "No mesh attached to the solver.";
-    throw std::runtime_error(err.str());
-  }
-  if (mesh->dim > 1)
-  {
-    std::stringstream err;
-    err << solver_string << __FUNCTION__ << ": "
-        << "Only 1D problems have been implemented.";
-    throw std::runtime_error(err.str());
-  }
+  Assert(mesh != nullptr, "No mesh found.");
+  Assert(mesh->dim == 1, "Only 1D problems are implemented.");
 }
 
 

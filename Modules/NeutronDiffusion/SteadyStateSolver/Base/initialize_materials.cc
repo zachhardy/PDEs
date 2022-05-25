@@ -2,20 +2,7 @@
 
 #include <set>
 
-/**
- * Grab the appropriate material properties from the materials list.
- *
- * This routine performs checks to ensure that the number of materials matches
- * the number of unique material identifiers on the mesh, that CrossSections
- * objects exist on each Physics::properties list, and that the group
- * structures among the CrossSections and IsotropicMultiGroupSource objects are
- * compatible with the specified group structure. This routine also defines
- * a mapping between unique material IDs and the corresponding property's
- * location in the associated list. Lastly, the number of groups and precursors
- * are set. The number of groups is simply the size of the \p groups vector and
- * the number of precursors is the number of unique decay constants across all
- * materials.
- */
+
 void NeutronDiffusion::SteadyStateSolver::initialize_materials()
 {
   std::cout << "Initializing materials...\n";
@@ -29,6 +16,9 @@ void NeutronDiffusion::SteadyStateSolver::initialize_materials()
     if (cell.material_id < 0)
       invalid_cells.emplace_back(cell.id);
   }
+  Assert(invalid_cells.size() == 0 ||
+         invalid_cells.size() == mesh->cells.size(),
+         "Cell's with invalid or unset material IDs encounterd.");
 
   // If all cells are invalid, set to zero
   if (invalid_cells.size() == mesh->cells.size())
@@ -37,16 +27,6 @@ void NeutronDiffusion::SteadyStateSolver::initialize_materials()
     unique_material_ids.insert(0);
     for (auto& cell : mesh->cells)
       cell.material_id = 0;
-  }
-
-  // If only some cells have no material property, throw an error
-  else if (invalid_cells.size() > 0)
-  {
-    std::stringstream err;
-    err << solver_string << __FUNCTION__ << ": "
-        << invalid_cells.size() << " cells with invalid or unset material IDs "
-        << "were encountered.";
-    throw std::runtime_error(err.str());
   }
 
   // Clear the current materials
@@ -70,17 +50,10 @@ void NeutronDiffusion::SteadyStateSolver::initialize_materials()
       if (property->type == MaterialPropertyType::CROSS_SECTIONS)
       {
         auto xs = std::static_pointer_cast<CrossSections>(property);
-
-        if (xs->n_groups < groups.size())
-        {
-          std::stringstream err;
-          err << solver_string << __FUNCTION__ << ": "
-              << "Cross sections encountered with fewer groups ("
-              << xs->n_groups << ") than the simulation (" << groups.size()
-              << "). All cross sections must have at least as many groups as "
-              << "the simulation.";
-          throw std::runtime_error(err.str());
-        }
+        Assert(xs->n_groups >= groups.size(),
+               "Cross sections with fewer groups than the simulation "
+               "encountered.\nAll cross sections must have at least as many "
+               "groups as the simulation.");
 
         material_xs.emplace_back(xs);
         matid_to_xs_map[material_id] = material_xs.size() - 1;
@@ -91,31 +64,17 @@ void NeutronDiffusion::SteadyStateSolver::initialize_materials()
       else if (property->type == MaterialPropertyType::ISOTROPIC_MG_SOURCE)
       {
         auto src = std::static_pointer_cast<IsotropicMGSource>(property);
-
-        if (src->values.size() < groups.size())
-        {
-          std::stringstream err;
-          err << solver_string << __FUNCTION__ << ": "
-              << "Multigtoup source encountered with fewer groups ("
-              << src->values.size() << ") than the simulation ("
-              << groups.size() << "). All sources must have at least as many "
-              << "groups as the simulation.";
-          throw std::runtime_error(err.str());
-        }
+        Assert(src->values.size() >= groups.size(),
+               "Multigroup source encountered with fewer groups than the "
+               "simulation.\nAll sources must have at least as many groups "
+               "as the simulation.");
 
         material_src.emplace_back(src);
         matid_to_src_map[material_id] = material_src.size() - 1;
       }//if IsotropicMultiGroupSource
     }//for properties
 
-    // Make sure cross sections were found
-    if (not found_xs)
-    {
-      std::stringstream err;
-      err << solver_string << __FUNCTION__ << ": "
-          << "Cross sections not found on material " << material_id << ".";
-      throw std::runtime_error(err.str());
-    }
+    Assert(found_xs, "Cross sections not found on a provided material.");
   }//for materials
 
   // Define the number of groups
