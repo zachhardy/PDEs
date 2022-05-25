@@ -20,7 +20,7 @@ DirichletBoundary::DirichletBoundary()
 
 
 DirichletBoundary::DirichletBoundary(const double value)
-  : DirichletBoundary(), value(value)
+  : Boundary(BoundaryType::DIRICHLET), value(value)
 {}
 
 //######################################################################

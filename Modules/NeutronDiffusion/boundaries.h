@@ -31,7 +31,7 @@ private:
 public:
   /** Default constructor. */
   explicit
-  Boundary(BoundaryType type) : bndry_type(type) {}
+  Boundary(BoundaryType type);
 
   /** Get the boundary type. */
   BoundaryType
@@ -69,9 +69,7 @@ public:
 
   /** Construct a general Neumann boundary. */
   explicit
-  NeumannBoundary(const double value)
-    : Boundary(BoundaryType::NEUMANN), value(value)
-  {}
+  NeumannBoundary(const double value);
 };
 
 //######################################################################
