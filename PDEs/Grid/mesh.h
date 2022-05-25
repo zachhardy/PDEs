@@ -6,15 +6,13 @@
 
 #include <vector>
 #include <memory>
-#include <cinttypes>
+#include <cstddef>
 
 
 namespace pdes::Grid
 {
 
-/**
- * Available coordinate system types.
- */
+/** Available coordinate system types. */
 enum class CoordinateSystem
 {
   CARTESIAN   = 0,  ///< \f$(x, y, z)\f$ coordinates.
@@ -22,9 +20,7 @@ enum class CoordinateSystem
   SPHERICAL   = 2   ///< \f$(r, \varphi, \theta)\f$ coordinates.
 };
 
-/**
- * Return the coordinate system type as a string.
- */
+/** Return the coordinate system type as a string. */
 std::string
 coordinate_system_str(const CoordinateSystem coord_sys);
 
@@ -53,14 +49,14 @@ public:
 
 public:
   /**
-   * Construct a
+   * Construct a mesh with the specified dimension and coordinate system.
+   *
    * \param dimension The spatial dimension of the mesh.
    * \param coordinate_system The coordinate system of the mesh.
    */
   explicit
-  Mesh(const size_t dimension, const CoordinateSystem coordinate_system) :
-      dim(dimension), coord_sys(coordinate_system)
-  {}
+  Mesh(const size_t dimension,
+       const CoordinateSystem coordinate_system);
 
 public:
 
@@ -81,9 +77,7 @@ public:
   compute_geometric_info();
 
 
-  /**
-   * Compute the geometric properties of the cells and faces.
-   */
+  /** Compute the geometric properties of the cells and faces. */
   void establish_connectivity();
 };
 

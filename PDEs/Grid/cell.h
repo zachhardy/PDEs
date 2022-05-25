@@ -5,7 +5,7 @@
 #include "face.h"
 
 #include <vector>
-#include <cinttypes>
+#include <cstddef>
 
 
 namespace pdes::Grid
@@ -67,19 +67,16 @@ public:
   std::vector<Face> faces;
 
 public:
-  /**
-   * Construct an empty cell of the specified type.
-   */
+  /** Construct an empty cell of the specified type. */
   explicit
-  Cell(const CellType cell_type) : type(cell_type) {}
+  Cell(const CellType cell_type);
 
-  /**
-   * Return the cell as a string.
-   */
+  /** Return the cell as a string. */
   std::string
   str() const;
 };
 
+/** Insert a cell into an output stream. */
 std::ostream&
 operator<<(std::ostream& os, const Cell& cell);
 

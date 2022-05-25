@@ -2,10 +2,13 @@
 #include "cell.h"
 #include "face.h"
 
-using namespace pdes;
+#include <iostream>
+#include <sstream>
+
+using namespace pdes::Grid;
 
 std::string
-Grid::coordinate_system_str(const CoordinateSystem coord_sys)
+coordinate_system_str(const CoordinateSystem coord_sys)
 {
   switch (coord_sys)
   {
@@ -18,7 +21,7 @@ Grid::coordinate_system_str(const CoordinateSystem coord_sys)
 
 
 std::string
-Grid::cell_type_str(const CellType cell_type)
+cell_type_str(const CellType cell_type)
 {
   switch (cell_type)
   {
@@ -30,8 +33,13 @@ Grid::cell_type_str(const CellType cell_type)
 }
 
 
+Cell::Cell(const CellType cell_type)
+  : type(cell_type)
+{}
+
+
 std::string
-Grid::Cell::str() const
+Cell::str() const
 {
   std::stringstream ss;
   ss << "***** Cell " << id << " *****\n";
@@ -56,7 +64,7 @@ Grid::Cell::str() const
 
 
 std::string
-Grid::Face::str() const
+Face::str() const
 {
   std::stringstream ss;
   size_t v = 0;

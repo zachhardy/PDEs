@@ -30,47 +30,31 @@ public:
   value_type z; ///< The z-coordinate
 
 public:
-  /**
-   * Construct a point at the origin <tt>(0, 0, 0)</tt>.
-   */
+
   Point();
 
-  /**
-   * Construct a 1D point <tt>(a, 0, 0)</tt>.
-   * \param a The x-coordinate.
-   */
+  /** Construct a 1D point <tt>(a, 0, 0)</tt>. */
   explicit
   Point(const value_type a);
 
-  /**
-   * Construct a 2D point <tt>(a, b, 0)</tt>.
-   * \param a The x-coordinate.
-   * \param b The y-coordinate.
-   */
+  /** Construct a 2D point <tt>(a, b, 0)</tt>. */
   explicit
   Point(const value_type a,
         const value_type b);
 
-  /**
-   * Construct a 3D point <tt>(a, b, c)</tt>.
-   * \param a The x-coordinate.
-   * \param b The y-coordinate.
-   * \param c The z-coordinate.
-   */
+  /** Construct a 3D point <tt>(a, b, c)</tt>. */
   explicit
   Point(const value_type a,
         const value_type b,
         const value_type c);
 
-  /**
-   * Set all elements of the point to a single scalar value.
-   * \param value The value to set each element to.
-   */
+  /** Set all elements of the point to a scalar value. */
   Point&
   operator=(const double value);
 
   /**
    * Static method to construct a unit vector in the specified dimension.
+   *
    * \param axis The axis to construct the unit vector for. 0 corresponds to
    *    the x-direction, 1 to the y-direction, and 2 to the z-direction.
    * \throw Out of range when <tt>i > 2</tt>.
@@ -78,15 +62,11 @@ public:
   static Point
   unit_vector(const size_t axis);
 
-  /**
-   * Test the equality of two points.
-   */
+  /** Test the equality of two points. */
   bool
   operator==(const Point& q) const;
 
-  /**
-   * Test the inequality of two points.
-   */
+  /** Test the inequality of two points. */
   bool
   operator!=(const Point& q) const;
 
@@ -95,6 +75,7 @@ public:
 
   /**
    * Read and write access for element \p i of the point.
+   *
    * \param i The coordinate to access. 0 corresponds to the x-coordinate, 1 to
    *    the y-coordinate, and 2 to the z-coordinate.
    * \throw Out of range when <tt>i > 2</tt>.
@@ -129,9 +110,10 @@ public:
   // @{
 
   /**
-   * Return the length of the point vector. This is equivalent to returning the
-   * Euclidean distance to the origin, computed via
+   * Return the length of the point vector. This is equivalent to returning
+   * the Euclidean distance to the origin, computed via
    * \f$ d = || p ||_{\ell_2} = \sqrt{ x^2 + y^2 + z^2 | \f$.
+   *
    * \see Point::length_squared
    */
   value_type
@@ -139,8 +121,9 @@ public:
 
   /**
    * Return the length squared of the point vector. This is equivalent to
-   * returning the squared Euclidean distance to the origin, computed via
+   * returning the squared Euclidean distance to the origin, given by
    * \f$ d^2 = || p ||^2_{\ell_2} = x^2 + y^2 + z^2 \f$.
+   *
    * \see Point::length
    */
   value_type
@@ -151,7 +134,7 @@ public:
   //@{
 
   /**
-   * Negate each element in the point. This computes
+   * Negate each element in the point. This is computed via
    * \f$ p = -p = (-x, -y, -z) \f$.
    */
   Point&
@@ -207,7 +190,8 @@ public:
   dot(const Point& q) const;
 
   /**
-   * Return the cross product between this and another point. This computes
+   * Return the cross product between this and another point.
+   * This computes
    * \f$ r = p \times q
    *       = (p_y q_z - p_z q_y, p_z q_x - p_x q_z, p_x q_y - p_y q_x)
    * \f$.
@@ -221,17 +205,19 @@ public:
    * \f$ d = || p - q ||_{\ell_2}
    *       = \sqrt{ (p_x - q_x)^2 + (p_y - q_y)^2 + (p_z - q_z)^2 }
    * \f$.
+   *
    * \see Point::distance_squared
    */
   value_type
   distance(const Point& q) const;
 
   /**
-   * Return the squared Eulicdean distance between this point and another.
+   * Return the squared Euclidean distance between this point and another.
    * This computes
    * \f$ d = || p - q ||^2_{\ell_2}
    *       = (p_x - q_x)^2 + (p_y - q_y)^2 + (p_z - q_z)^2
    * \f$.
+   *
    * \see Point::distance
    */
   double
@@ -253,8 +239,9 @@ public:
 
   /**
    * Normalize the point to its length. If the point is uniformly zero, nothing
-   * is done and the original point is returned. This computs
+   * is done and the original point is returned. This computes
    * \f$ p = \frac{p}{||p||_{\ell_2}} \f$.
+   *
    * \see Point::length Point::direction
    */
   Point&
@@ -263,6 +250,7 @@ public:
   /**
    * Return the direction, or unit-length, vector for this point. This computes
    * \f$ \hat{p} = \frac{p}{|| p ||_{\ell_2}} \f$.
+   *
    * \see Point::length Point::normalize
    */
   Point
@@ -272,15 +260,11 @@ public:
   /** \name Print Utilities */
   // @{
 
-  /**
-   * Return the point represented as a string.
-   */
+  /** Return the point represented as a string. */
   std::string
   str() const;
 
-  /**
-   * Print the point to the standard output.
-   */
+  /** Print the point to the standard output. */
   void
   print(std::ostream& os = std::cout) const;
 
@@ -363,6 +347,7 @@ direction(const Point& p);
 
 /**
  * Insert the string into an output stream.
+ * \see Point::print Print::str
  */
 std::ostream&
 operator<<(std::ostream& os, const Point& p);

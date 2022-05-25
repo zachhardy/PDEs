@@ -3,11 +3,12 @@
 #include "macros.h"
 
 #include <set>
+#include <cmath>
 
-using namespace pdes;
+using namespace pdes::Grid;
 
 std::string
-Grid::coordinate_system_str(const CoordinateSystem coord_sys)
+coordinate_system_str(const CoordinateSystem coord_sys)
 {
   switch (coord_sys)
   {
@@ -20,39 +21,42 @@ Grid::coordinate_system_str(const CoordinateSystem coord_sys)
 
 //######################################################################
 
+Mesh::Mesh(const size_t dimension,
+                 const CoordinateSystem coordinate_system)
+  : dim(dimension), coord_sys(coordinate_system)
+{}
+
 void
-Grid::Mesh::establish_connectivity()
+Mesh::establish_connectivity()
 {
   std::cout << "Establishing cell connectivity...\n";
 
-  // Determine the cells which contain a specific vertex. This is done using a
-  // list where each element represents a vertex and its value contains a set
-  // which holds the unique cell ids in which the vertex is found.
-  const uint64_t n_vertices = vertices.size();
-  std::vector<std::set<uint64_t>> vertex_cell_map(n_vertices);
+  /* Determine the cells which contain a specific vertex. This is done using a
+   * list where each element represents a vertex and its value contains a set
+   * which holds the unique cell ids in which the vertex is found. */
+  const size_t n_vertices = vertices.size();
+  std::vector<std::set<size_t>> vertex_cell_map(n_vertices);
   for (const auto& cell : cells)
     for (const auto& v_id : cell.vertex_ids)
       vertex_cell_map.at(v_id).insert(cell.id);
 
-  // Establish connectivity by going through each face of each cell and
-  // finding faces on neighboring cells (as defined by vertex_cell_map) which
-  // share vertex ids.
-
-  // Go through cells
+  /* Establish connectivity by going through each face of each cell and
+   * finding faces on neighboring cells (as defined by vertex_cell_map) which
+   * share vertex ids. */
   for (auto& cell : cells)
   {
-    // Go through faces on cell
     for (auto& face : cell.faces)
     {
-      // If there is a neighbor, this face has already been encountered
+      /* If there is a neighbor, this face has already been
+       * encountered, continue to the next. */
       if (face.has_neighbor) continue;
 
-      // Get the vertex ids for this face for comparison
-      const std::set<uint64_t> v_ids(face.vertex_ids.begin(),
+      // Get the vertex ids for this face
+      const std::set<size_t> v_ids(face.vertex_ids.begin(),
                                    face.vertex_ids.end());
 
       // Use the vertex_cell_map to find neighbor cells
-      std::set<uint64_t> cells_to_search;
+      std::set<size_t> cells_to_search;
       for (const auto& v_id : face.vertex_ids)
         for (const auto& c_id : vertex_cell_map.at(v_id))
           if (c_id != cell.id)
@@ -70,11 +74,11 @@ Grid::Mesh::establish_connectivity()
           if (adj_face.has_neighbor) continue;
 
           // Get the adjacent face vertex ids
-          const std::set<uint64_t> adj_v_ids(adj_face.vertex_ids.begin(),
+          const std::set<size_t> adj_v_ids(adj_face.vertex_ids.begin(),
                                            adj_face.vertex_ids.end());
 
-          // If this face and the adjacent face share vertex ids, they
-          // are the same. Define neighbor properties.
+          /* If this face and the adjacent face share vertex ids, they
+           * are the same. Define neighbor properties. */
           if (v_ids == adj_v_ids)
           {
             face.neighbor_id = adj_c_id;
@@ -87,7 +91,9 @@ Grid::Mesh::establish_connectivity()
           }
         }//for adjacent face
       }//for adjacent cells
+
       found_neighbor:;
+
     }//for face
   }//for cell
 
@@ -97,27 +103,28 @@ Grid::Mesh::establish_connectivity()
 //######################################################################
 
 void
-Grid::Mesh::compute_geometric_info()
+Mesh::compute_geometric_info()
 {
   std::cout << "Computing geometric information on cells and faces...\n";
 
-  // Go through each cell
+  Assert(dim == 1, "Only 1D meshes are implemented.");
+
+  //======================================== Loop over cells
   for (auto& cell : cells)
   {
-    // Compute cell centroid
+    //==================== Compute cell centroid
     cell.centroid *= 0.0;
     for (auto& v_id : cell.vertex_ids)
       cell.centroid += vertices[v_id];
     cell.centroid /= static_cast<double>(cell.vertex_ids.size());
 
-    // Compute cell volume
+    //==================== Compute cell volume
     if (cell.vertex_ids.size() == 2)
     {
       auto cell_type = cell.type;
       auto& v1 = vertices[cell.vertex_ids[1]].z;
       auto& v0 = vertices[cell.vertex_ids[0]].z;
-
-      // Compute vo
+      
       switch (cell_type)
       {
         case CellType::SLAB:
@@ -128,24 +135,17 @@ Grid::Mesh::compute_geometric_info()
         { cell.volume = 4.0/3.0*M_PI*(v1*v1*v1 - v0*v0*v0); break; }
       }
     }//if 1D
-    else
-    {
-      std::stringstream err;
-      err << "Mesh::" << __FUNCTION__ << ": "
-          << "Only 1D cell volume routines are implemented.";
-      throw std::runtime_error(err.str());
-    }
 
-    // Go through the cell's faces
+    //=================================== Loop over faces
     for (auto& face : cell.faces)
     {
-      // Compute face centroids
+      //==================== Compute face centroids
       face.centroid *= 0.0;
       for (auto& v_id : face.vertex_ids)
         face.centroid += vertices[v_id];
       face.centroid /= static_cast<double>(face.vertex_ids.size());
 
-      // Compute face area
+      //==================== Compute face area
       if (face.vertex_ids.size() == 1)
       {
         const auto& v = vertices[face.vertex_ids[0]].z;
@@ -160,13 +160,6 @@ Grid::Mesh::compute_geometric_info()
           { face.area = 4.0*M_PI * v*v; break; }
         }
       }// if 1D
-      else
-      {
-        std::stringstream err;
-        err << "Mesh::" << __FUNCTION__ << ": "
-            << "Only 1D face area routines are implemented.";
-        throw std::runtime_error(err.str());
-      }
     }//for faces
   }//for cell
 }
