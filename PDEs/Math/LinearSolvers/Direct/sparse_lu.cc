@@ -97,7 +97,6 @@ SparseLU::solve(const Vector& b, Vector& x) const
   size_t n = n_rows();
 
   //================================================== Forward solve
-  b.print();
   for (size_t i = 0; i < n; ++i)
   {
     value_type value = b[row_pivots[i]];
