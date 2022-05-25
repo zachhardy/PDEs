@@ -5,7 +5,7 @@
 void
 NeutronDiffusion::SteadyStateSolver_FV::
 scoped_transfer(const Groupset& groupset, const Math::Vector& x,
-                Math::Vector& destination)
+                Math::Vector& dst)
 {
   const auto gs_i = groupset.groups.front();
   const auto gs_f = groupset.groups.back();
@@ -16,7 +16,7 @@ scoped_transfer(const Groupset& groupset, const Math::Vector& x,
     const size_t gs_uk_map = cell.id * n_gsg;
     const size_t full_uk_map = cell.id * n_groups;
     for (size_t g = gs_i; g <= gs_f; ++g)
-      destination[full_uk_map + g] = x[gs_uk_map + g];
+      dst[full_uk_map + g] = x[gs_uk_map + g];
   }
 }
 
@@ -25,7 +25,7 @@ scoped_transfer(const Groupset& groupset, const Math::Vector& x,
 void
 NeutronDiffusion::SteadyStateSolver_FV::
 scoped_copy(const Groupset& groupset, const Math::Vector& x,
-            Math::Vector& destination)
+            Math::Vector& dst)
 {
   const auto gs_i = groupset.groups.front();
   const auto gs_f = groupset.groups.back();
@@ -34,7 +34,7 @@ scoped_copy(const Groupset& groupset, const Math::Vector& x,
   {
     const size_t uk_map = cell.id * n_groups;
     for (size_t g = gs_i; g <= gs_f; ++g)
-      destination[uk_map + g] = x[uk_map + g];
+      dst[uk_map + g] = x[uk_map + g];
   }
 }
 

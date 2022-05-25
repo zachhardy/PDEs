@@ -1,7 +1,8 @@
 #include "steadystate_solver_fv.h"
 
 
-void NeutronDiffusion::SteadyStateSolver_FV::
+void
+NeutronDiffusion::SteadyStateSolver_FV::
 set_source(Groupset& groupset, Math::Vector& b,
            SourceFlags source_flags)
 {
@@ -28,7 +29,7 @@ set_source(Groupset& groupset, Math::Vector& b,
     const size_t i = cell.id * n_gsg;
     const size_t uk_map = cell.id * n_groups;
 
-    //==================== Inhomogeneous source term
+    //======================================== Inhomogeneous source term
     const int src_id = matid_to_src_map[cell.material_id];
     if (src_id >= 0 and apply_mat_src)
     {
@@ -39,79 +40,85 @@ set_source(Groupset& groupset, Math::Vector& b,
 
     for (size_t g = gs_i; g <= gs_f; ++g)
     {
-      //============================== Within groupset scattering term
+      //======================================== Scattering terms
       if (apply_wgs_scatter_src)
         for (size_t gp = gs_i; g <= gs_f; ++g)
           b[i + g] += xs->transfer_matrices[0][g][gp] *
                       phi[uk_map + gp] * volume;
 
-      //============================== Across groupset scattering term
       if (apply_ags_scatter_src)
         for (size_t gp = g_i; gp <= g_f; ++gp)
-          if (gp < gs_i or gp > gs_f)
+          if (gp < gs_i || gp > gs_f)
             b[i + g] += xs->transfer_matrices[0][g][gp] *
                         phi[uk_map + gp] * volume;
 
-      //============================== Within groupset fission term
-      if (xs->is_fissile and apply_wgs_fission_src)
+      //======================================== Fission terms
+      if (xs->is_fissile &&
+          apply_wgs_fission_src ||
+          apply_ags_fission_src)
       {
+        //======================================== Total fission
         if (not use_precursors)
         {
           const double chi = xs->chi[g];
-          for (size_t gp = gs_i; gp <= gs_f; ++gp)
-            b[i + g] += chi * xs->nu_sigma_f[gp] *
-                        phi[uk_map + gp] * volume;
-        }
-        else
-        {
-          const double chi_p = xs->chi_prompt[g];
-          for (size_t gp = gs_i; gp <= gs_f; ++gp)
-            b[i + g] += chi_p * xs->nu_prompt_sigma_f[gp] *
-                        phi[uk_map + gp] * volume;
 
-          for (size_t j = 0; j < xs->n_precursors; ++j)
-          {
-            const double chi_d = xs->chi_delayed[g][j];
-            const double gamma = xs->precursor_yield[j];
-            for (size_t gp = gs_i; gp < gs_f; ++gp)
-              b[i + g] += chi_d * gamma *
-                          xs->nu_delayed_sigma_f[gp] *
-                          phi[uk_map + gp] * volume;
-          }
-        }
-      }
-
-      if (xs->is_fissile and apply_wgs_fission_src)
-      {
-        if (not use_precursors)
-        {
-          const double chi = xs->chi[g];
-          for (size_t gp = g_i; gp <= g_f; ++gp)
-            if (gp < gs_i or gp > gs_f)
+          if (apply_wgs_fission_src)
+            for (size_t gp = gs_i; gp <= gs_f; ++gp)
               b[i + g] += chi * xs->nu_sigma_f[gp] *
                           phi[uk_map + gp] * volume;
+
+          if (apply_ags_fission_src)
+            for (size_t gp = g_i; gp <= g_f; ++gp)
+              if (gp < gs_i || gp > gs_f)
+                b[i + g] += chi * xs->nu_sigma_f[gp] *
+                            phi[uk_map + gp] * volume;
+
         }
+
+        //======================================== Prompt + delayed fission
         else
         {
+          //========== Prompt
           const double chi_p = xs->chi_prompt[g];
-          for (size_t gp = gs_i; gp <= gs_f; ++gp)
-            if (gp < gs_i or gp > gs_f)
+
+          if (apply_wgs_fission_src)
+            for (size_t gp = gs_i; gp <= gs_f; ++gp)
               b[i + g] += chi_p * xs->nu_prompt_sigma_f[gp] *
                           phi[uk_map + gp] * volume;
 
-          for (size_t j = 0; j < xs->n_precursors; ++j)
-          {
-            const double chi_d = xs->chi_delayed[g][j];
-            const double gamma = xs->precursor_yield[j];
-            for (size_t gp = gs_i; gp < gs_f; ++gp)
-              if (gp < gs_i or gp > gs_f)
+          if (apply_ags_fission_src)
+            for (size_t gp = gs_i; gp <= g_f; ++gp)
+              if (gp < gs_i || gp > gs_f)
+                b[i + g] += chi_p * xs->nu_prompt_sigma_f[gp] *
+                            phi[uk_map + gp] * volume;
+
+          //========== Delayed
+          if (apply_wgs_fission_src)
+            for (size_t j = 0; j < xs->n_precursors; ++j)
+            {
+              const double chi_d = xs->chi_delayed[g][j];
+              const double gamma = xs->precursor_yield[j];
+
+              for (size_t gp = gs_i; gp <= gs_f; ++gp)
                 b[i + g] += chi_d * gamma *
                             xs->nu_delayed_sigma_f[gp] *
                             phi[uk_map + gp] * volume;
-          }
-        }
-      }
+            }
 
+          if (apply_ags_fission_src)
+            for (size_t j = 0; j < xs->n_precursors; ++j)
+            {
+              const double chi_d = xs->chi_delayed[g][j];
+              const double gamma = xs->precursor_yield[j];
+
+              for (size_t gp = g_i; gp <= g_f; ++gp)
+                if (gp < gs_i || gp > gs_f)
+                  b[i + g] += chi_d * gamma *
+                              xs->nu_delayed_sigma_f[gp] *
+                              phi[uk_map + gp] * volume;
+            }
+        }
+      }//if fissile
     }//for group
 
     //================================================== Loop over faces

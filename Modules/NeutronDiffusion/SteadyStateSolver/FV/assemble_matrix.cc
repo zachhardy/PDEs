@@ -4,15 +4,9 @@
 using namespace pdes;
 using namespace Math;
 
-/**
-* Assemble the matrix for the specified \p groupset.
- *
- * If solving the full system, this routine assembles the full multigroup
- * operator for the groupset, including off-diagonal scattering and fission
- * coupling terms. Otherwise, this routine assembles the within-group system
- * for the groups within the groupset.
-*/
-void NeutronDiffusion::SteadyStateSolver_FV::
+
+void
+NeutronDiffusion::SteadyStateSolver_FV::
 assemble_matrix(Groupset& groupset)
 {
   Matrix A(groupset.matrix.n_rows(),
@@ -54,32 +48,26 @@ assemble_matrix(Groupset& groupset)
           {
             const double chi = xs->chi[g];
             for (size_t gp = gs_i; gp <= gs_f; ++gp)
-            {
-              double value = chi * xs->nu_sigma_f[gp] * volume;
-              A[i + g][i + gp] -= value;
-            }
+              A[i + g][i + gp] -= chi * xs->nu_sigma_f[gp] * volume;
           }
 
           //========== Prompt + delayed fission
           else
           {
+            //========== Prompt
             const double chi_p = xs->chi_prompt[g];
             for (size_t gp = gs_i; gp <= gs_f; ++gp)
-            {
-              double value = chi_p * xs->nu_prompt_sigma_f[gp] * volume;
-              A[i + g][i + gp] -= value;
-            }
+              A[i + g][i + gp] -=
+                  chi_p * xs->nu_prompt_sigma_f[gp] * volume;
 
+            //========== Delayed
             for (size_t j = 0; j < xs->n_precursors; ++j)
             {
               const double chi_d = xs->chi_delayed[g][j];
               const double gamma = xs->precursor_yield[j];
               for (size_t gp = gs_i; gp <= gs_f; ++gp)
-              {
-                double value =
-                    chi_d * gamma * xs->nu_delayed_sigma_f[gp] * volume;
-                A[i + g][i + gp] -= value;
-              }
+                A[i + g][i + gp] -=
+                    chi_d * gamma * xs->nu_delayed_sigma_f[gp] * volume;;
             }//for precursors
           }
         }//if fissile
@@ -111,7 +99,7 @@ assemble_matrix(Groupset& groupset)
           const double D_nbr = nbr_xs->diffusion_coeff[g];
           const double D_eff = 1.0 / (w/D + (1.0 - w)/D_nbr);
 
-          double value = D_eff / d_pn * face.area;
+          const double value = D_eff / d_pn * face.area;
           A[i + g][i + g] += value;
           A[i + g][j + g] -= value;
         }
@@ -131,8 +119,7 @@ assemble_matrix(Groupset& groupset)
           for (size_t g = gs_i; g <= gs_f; ++g)
           {
             const double D = xs->diffusion_coeff[g];
-            double value = D / d_pf * face.area;
-            A[i + g][i + g] += value;
+            A[i + g][i + g] += D/d_pf * face.area;
           }
         }
 
@@ -147,8 +134,7 @@ assemble_matrix(Groupset& groupset)
             const auto& bndry = boundaries[bndry_id][g];
             const auto bc = std::static_pointer_cast<RobinBoundary>(bndry);
             const double D = xs->diffusion_coeff[g];
-            double value = bc->a*D/(bc->b*D + bc->a*d_pf) * face.area;
-            A[i + g][i + g] += value;
+            A[i + g][i + g] += bc->a*D/(bc->b*D + bc->a*d_pf) * face.area;
           }
         }
       }//if boundary face

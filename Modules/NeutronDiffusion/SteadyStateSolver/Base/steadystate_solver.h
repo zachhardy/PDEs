@@ -166,21 +166,14 @@ public:
 public:
 
   /**
-   * Initialize the solver.
-   *
-   * This routine ensures that the specified setup is valid. For example, the
-   * mesh, groups, groupsets, materials, and boundaries are all checked and
-   * relevant properties are initialized.
+   * Initialize the solver. This routine ensures that the specified setup is
+   * valid. For example, the mesh, groups, groupsets, materials, and
+   * boundaries are all checked and relevant properties are initialized.
    */
-  void
-  initialize();
+  void initialize();
 
-
-  /**
-   * Run the steady state multigroup diffusion simulation.
-   */
-  void
-  execute();
+  /** Run the steady state multigroup diffusion simulation. */
+  void execute();
 
 protected:
 
@@ -189,82 +182,100 @@ protected:
    * the scattering and fission term. In this particular case, matrices will
    * uniformly be SPD.
    */
-  void
-  solve_groupset(Groupset& groupset,
-                 SourceFlags source_flags);
+  void solve_groupset(Groupset& groupset,
+                      SourceFlags source_flags);
 
   /**
    * Solve the full multigroup system. This routine uses a direct solver to
    * solve the <tt>often</tt> asymmetric system.
    */
-  void
-  solve_full_system(SourceFlags source_flags);
+  void solve_full_system(SourceFlags source_flags);
 
 
 protected:
   /**
-   * Virtual function for assembling a groupset matrix.
+   * Assemble the matrix for the specified \p groupset.
+   *
+   * If solving the full system, this routine assembles the full multigroup
+   * operator for the groupset, including off-diagonal scattering and fission
+   * coupling terms. Otherwise, this routine assembles the within-group system
+   * for the groups within the groupset.
+   *
+   * \param groupset The groupset to construct the matrix for.
    */
-  virtual void assemble_matrix(Groupset& groupset) = 0;
+  virtual void
+  assemble_matrix(Groupset& groupset) = 0;
 
   /**
-   * Virtual function for setting a groupset source.
+   * Set the right-hand side source vector for the specified groupset.
+   *
+   * The available source flags include the material source, across groupset
+   * scattering and fission terms, and within groupset scattering and fission
+   * terms.
+   *
+   * \param groupset The groupset to construct the source for.
+   * \param b The destination vector for the source term.
+   * \param source_flags The terms to assemble into the destination vector.
    */
-  virtual void set_source(Groupset& groupset, Vector& b,
-                          SourceFlags source_flags) = 0;
+  virtual void
+  set_source(Groupset& groupset, Vector& b,
+             SourceFlags source_flags) = 0;
 
 protected:
-  /**
-   * Validate the general setup of the simulation.
-   */
+
+  /** Validate the general setup of the simulation. */
   void input_checks();
 
   /**
- * Grab the appropriate material properties from the materials list.
- *
- * This routine performs checks to ensure that the number of materials matches
- * the number of unique material identifiers on the mesh, that CrossSections
- * objects exist on each Physics::properties list, and that the group
- * structures among the CrossSections and IsotropicMultiGroupSource objects are
- * compatible with the specified group structure. This routine also defines
- * a mapping between unique material IDs and the corresponding property's
- * location in the associated list. Lastly, the number of groups and precursors
- * are set. The number of groups is simply the size of the \p groups vector and
- * the number of precursors is the number of unique decay constants across all
- * materials.
- */
+   * Grab the appropriate material properties from the materials list.
+   *
+   * This routine performs checks to ensure that the number of materials matches
+   * the number of unique material identifiers on the mesh, that CrossSections
+   * objects exist on each Physics::properties list, and that the group
+   * structures among the CrossSections and IsotropicMultiGroupSource objects are
+   * compatible with the specified group structure. This routine also defines
+   * a mapping between unique material IDs and the corresponding property's
+   * location in the associated list. Lastly, the number of groups and precursors
+   * are set. The number of groups is simply the size of the \p groups vector and
+   * the number of precursors is the number of unique decay constants across all
+   * materials.
+   */
   void initialize_materials();
 
-
-  /**
-   * Create a boundary condition for each boundary and each group.
-   */
+  /** Create a boundary condition for each boundary and each group. */
   void initialize_boundaries();
 
-  /**
-   * Virtual function for creating a discretization.
-   */
+  /** Initialize the spatial discretization for the solver. */
   virtual void initialize_discretization() = 0;
 
 protected:
   /**
    * Transfer a groupset vector to a full multigroup vector.
+   *
+   * \param groupset The groupset the vector belongs to.
+   * \param x The groupset vector to be transferred.
+   * \param dst The destination multigroup vector.
    */
   virtual void scoped_transfer(const Groupset& groupset,
-                               const Vector& x,
-                               Vector& destination) = 0;
+                               const Vector& x, Vector& dst) = 0;
 
   /**
    * Copy the elements corresponding to the specified groupset from one full
-   *  multigroup vector to another.
+   * multigroup vector to another.
+   *
+   * \param groupset The groupset to copy data from.
+   * \param x The multigroup vector to be copied.
+   * \param dst The destination multigroup vector.
    */
   virtual void scoped_copy(const Groupset& groupset,
                            const Vector& x,
-                           Vector& destination) = 0;
+                           Vector& dst) = 0;
 
   /**
    * Return the \f$\ell_2\f$-norm between the last two iterates of the
    * multigroup flux vectors for elements belonging to the specified groupset.
+   *
+   * \param groupset The groupset to compute the change within.
    */
   virtual double compute_change(const Groupset& groupset) = 0;
 };

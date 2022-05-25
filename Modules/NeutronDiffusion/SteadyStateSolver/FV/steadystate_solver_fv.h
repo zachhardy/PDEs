@@ -4,37 +4,41 @@
 #include "NeutronDiffusion/SteadyStateSolver/Base/steadystate_solver.h"
 #include "Math/Discretization/FiniteVolume/fv.h"
 
+using namespace pdes::Math;
+
+
 namespace NeutronDiffusion
 {
 
 class SteadyStateSolver_FV : public SteadyStateSolver
 {
 private:
-  std::shared_ptr<Math::FiniteVolume> fv;
+  std::shared_ptr<FiniteVolume> fv;
 
 protected:
-  void initialize_discretization() override
-  {
-    fv = std::make_shared<Math::FiniteVolume>(mesh);
-    discretization = std::static_pointer_cast<Discretization>(fv);
-  }
+
+  void
+  initialize_discretization() override;
 
 protected:
-  void assemble_matrix(Groupset& groupset) override;
+  void
+  assemble_matrix(Groupset& groupset) override;
 
-  void set_source(Groupset& groupset, Math::Vector& b,
-                  SourceFlags source_flags) override;
+  void
+  set_source(Groupset& groupset, Vector& b,
+             SourceFlags source_flags) override;
 
 protected:
-  void scoped_transfer(const Groupset& groupset,
-                       const Math::Vector& x,
-                       Math::Vector& destination) override;
+  void
+  scoped_transfer(const Groupset& groupset,
+                       const Vector& x, Vector& dst) override;
 
-  void scoped_copy(const Groupset& groupset,
-                   const Math::Vector& x,
-                   Math::Vector& destination) override;
+  void
+  scoped_copy(const Groupset& groupset,
+                   const Vector& x, Vector& dst) override;
 
-  double compute_change(const Groupset& groupset) override;
+  double
+  compute_change(const Groupset& groupset) override;
 };
 
 }

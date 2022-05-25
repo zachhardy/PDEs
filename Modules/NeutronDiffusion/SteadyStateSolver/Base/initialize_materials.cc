@@ -3,7 +3,8 @@
 #include <set>
 
 
-void NeutronDiffusion::SteadyStateSolver::initialize_materials()
+void
+NeutronDiffusion::SteadyStateSolver::initialize_materials()
 {
   std::cout << "Initializing materials...\n";
 

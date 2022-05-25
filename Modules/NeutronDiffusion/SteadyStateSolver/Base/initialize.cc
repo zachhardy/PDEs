@@ -5,7 +5,8 @@
 
 #include <set>
 
-void NeutronDiffusion::SteadyStateSolver::initialize()
+void
+NeutronDiffusion::SteadyStateSolver::initialize()
 {
   std::cout << "Initializing solver...\n";
 
@@ -50,8 +51,8 @@ void NeutronDiffusion::SteadyStateSolver::initialize()
 
 //######################################################################
 
-
-void NeutronDiffusion::SteadyStateSolver::input_checks()
+void
+NeutronDiffusion::SteadyStateSolver::input_checks()
 {
   //================================================== Check the groups
   // Ensure groups and groupsets were added

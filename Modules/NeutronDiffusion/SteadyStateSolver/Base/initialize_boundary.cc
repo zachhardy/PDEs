@@ -1,7 +1,8 @@
 #include "steadystate_solver.h"
 
-
-void NeutronDiffusion::SteadyStateSolver::initialize_boundaries()
+void
+NeutronDiffusion::SteadyStateSolver::
+initialize_boundaries()
 {
   std::cout << "Initializing simulation boundaries...\n";
 

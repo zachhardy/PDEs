@@ -30,14 +30,19 @@ NeutronDiffusion::SteadyStateSolver:: execute()
                    APPLY_AGS_FISSION_SOURCE;
 
   //======================================== Solve
-  if (solution_technique == SolutionTechnique::GROUPSET_WISE)
-    for (auto& groupset : groupsets)
-      solve_groupset(groupset, source_flags);
-  else
+  if (solution_technique == SolutionTechnique::FULL_SYSTEM)
+  {
     solve_full_system(source_flags);
+    return;
+  }
+
+  for (auto& groupset : groupsets)
+    solve_groupset(groupset, source_flags);
+
 
   std::cout << "\nDone executing solver.\n";
 }
+
 
 //######################################################################
 
@@ -48,36 +53,43 @@ solve_groupset(Groupset& groupset, SourceFlags source_flags)
 {
   std::cout << "\n***** Solving Groupset " << groupset.id << "\n\n";
 
-  double change;
-  size_t k;
-  bool converged = false;
-
   SparseMatrix& A = groupset.matrix;
   Vector& b = groupset.rhs;
 
+  Vector init_b = b;
+  set_source(groupset, init_b, APPLY_MATERIAL_SOURCE |
+                               APPLY_AGS_SCATTER_SOURCE |
+                               APPLY_AGS_FISSION_SOURCE);
+
   GaussSeidelSolver solver;
-  Vector x(b.size());
+  Vector x(b.size(), 0.0);
+
+  size_t nit;
+  double diff;
+  bool converged = false;
 
   //======================================== Start iterations
-  for (k = 0; k < groupset.max_iterations; ++k)
+  for (nit = 0; nit < groupset.max_iterations; ++nit)
   {
     // Compute the RHS and solve
-    b = 0.0;
-    set_source(groupset, b, source_flags);
+    b = init_b;
+    set_source(groupset, b,
+               APPLY_WGS_SCATTER_SOURCE |
+               APPLY_WGS_SCATTER_SOURCE);
     solver.solve(A, b, x);
 
     // Convergence check, finalize iteration
     scoped_transfer(groupset, x, phi);
-    change = compute_change(groupset);
+    diff = compute_change(groupset);
     scoped_copy(groupset, phi, phi_ell);
 
-    if (change < groupset.tolerance)
+    if (diff < groupset.tolerance)
       converged = true;
 
     // Print iteration information
     std::stringstream iter_info;
-    iter_info << "Iteration: " << std::setw(3) << k << " "
-              << "Change: " << change;
+    iter_info << "Iteration: " << std::setw(3) << nit << " "
+              << "Change: " << diff;
     if (converged) iter_info << " CONVERGED";
     std::cout << iter_info.str() << "\n";
 
@@ -85,7 +97,9 @@ solve_groupset(Groupset& groupset, SourceFlags source_flags)
   }
 }
 
+
 //###########################################################################
+
 
 void
 NeutronDiffusion::SteadyStateSolver::
