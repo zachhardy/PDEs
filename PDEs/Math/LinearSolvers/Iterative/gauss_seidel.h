@@ -3,12 +3,16 @@
 
 #include "sparse_matrix.h"
 #include "vector.h"
+#include "linear_solver.h"
 
 namespace pdes::Math
 {
 
 class GaussSeidelSolver
 {
+public:
+  static const LinearSolverType type = LinearSolverType::ITERATIVE;
+
 private:
   double tol;
   size_t maxiter;

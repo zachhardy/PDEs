@@ -2,6 +2,7 @@
 #define SPARSE_LU_H
 
 #include "sparse_matrix.h"
+#include "linear_solver.h"
 
 
 namespace pdes::Math
@@ -14,6 +15,7 @@ class SparseLU : public SparseMatrix
 {
 public:
   using value_type = SparseMatrix::value_type;
+  static const LinearSolverType type = LinearSolverType::DIRECT;
 
 
 private:
@@ -29,23 +31,30 @@ private:
   std::vector<size_t> row_pivots;
 
 public:
-  /** Copy construction from a sparse matrix. */
+  /**
+   * Copy construction from a sparse matrix.
+   */
   SparseLU(const SparseMatrix& other, const bool pivot = true);
 
-  /** Move construction from a sparse matrix. */
+  /**
+   * Move construction from a sparse matrix.
+   */
   SparseLU(SparseMatrix&& other, const bool pivot = true);
 
-  /** Set the pivot option. */
+  /**
+   * Set the pivot option.
+   */
   void
   pivot(const bool flag);
 
-  /** Return the pivot option. */
+  /**
+   * Return the pivot option.
+   */
   bool
   pivot() const;
 
   /**
-   * Factor the matrix \f$ \boldsymbol{A} \f$ into an upper and lower triangular
-   * form in-place.
+   * Factor the matrix \f$ \boldsymbol{A} \f$ in-place.
    *
    * \see LU::factorize
    */

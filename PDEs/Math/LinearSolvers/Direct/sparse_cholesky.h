@@ -2,26 +2,34 @@
 #define SPARSE_CHOLESKY_H
 
 #include "sparse_matrix.h"
+#include "linear_solver.h"
 
 #include <cmath>
 
 namespace pdes::Math
 {
 
-/** A class for a Choleky decomposition solver. */
+/**
+ * A class for a Choleky decomposition solver.
+ */
 class SparseCholesky : public SparseMatrix
 {
 public:
   using value_type = typename SparseMatrix::value_type;
+  static const LinearSolverType type = LinearSolverType::DIRECT;
 
 private:
   bool factorized = false;
 
 public:
-  /** Copy construction from a sparse matrix. */
+  /**
+   * Copy construction from a sparse matrix.
+   */
   SparseCholesky(const SparseMatrix& other);
 
-  /** Move construction from a sparse matrix. */
+  /**
+   * Move construction from a sparse matrix.
+   */
   SparseCholesky(SparseMatrix&& other);
 
   /**

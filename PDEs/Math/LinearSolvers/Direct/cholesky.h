@@ -2,6 +2,7 @@
 #define CHOLESKY_H
 
 #include "matrix.h"
+#include "linear_solver.h"
 
 namespace pdes::Math
 {
@@ -13,6 +14,7 @@ class Cholesky : public Matrix
 {
 public:
   using value_type = Matrix::value_type;
+  static const LinearSolverType type = LinearSolverType::DIRECT;
 
 private:
   bool factorized = false;

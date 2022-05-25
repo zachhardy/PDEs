@@ -3,6 +3,7 @@
 
 #include "sparse_matrix.h"
 #include "vector.h"
+#include "linear_solver.h"
 
 #include <cstddef>
 
@@ -11,13 +12,14 @@ namespace pdes::Math
 
 class JacobiSolver
 {
+public:
+  static const LinearSolverType type = LinearSolverType::DIRECT;
+
 private:
   double tol;
   size_t maxiter;
 
-
 public:
-
   /**
    * Constructor with specified iteration controls.
    */

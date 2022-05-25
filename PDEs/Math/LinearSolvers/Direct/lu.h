@@ -2,6 +2,7 @@
 #define LU_H
 
 #include "matrix.h"
+#include "linear_solver.h"
 
 
 namespace pdes::Math
@@ -14,6 +15,7 @@ class LU : public Matrix
 {
 public:
   using value_type = typename Matrix::value_type;
+  static const LinearSolverType type = LinearSolverType::DIRECT;
 
 private:
   bool factorized = false;
