@@ -69,12 +69,17 @@ public:
   * source term. This system can be solved using back substitution.
   *
   * \param b A vector of length \f$ n \f$.
+  * \param x The destination vector.
   * \param x The solution \f$ \vec{x} \f$ of
   *          \f$ \boldsymbol{A} \vec{x} = \vec{b} \f$.
   */
   void
   solve(const Vector& b, Vector& x) const;
 
+  /**
+   * Return the solution of the LU solve.
+   * \see LU::solve
+   */
   Vector
   solve(const Vector& b) const;
 };

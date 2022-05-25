@@ -14,17 +14,14 @@ private:
   size_t max_iter = 1000;
 
 public:
-  /**
-   * Default constructor.
-   */
+  /** Default constructor. */
   GaussSeidelSolver() = default;
 
-  /**
-   * Constructor with specified iteration controls.
-   */
+  /** Constructor with specified iteration controls. */
   GaussSeidelSolver(const double tolerance,
                     const size_t max_iterations);
 
+  /** Solve the system using the Gauss Seidel iterative method. */
   void
   solve(const SparseMatrix& A, const Vector& b, Vector& x);
 };

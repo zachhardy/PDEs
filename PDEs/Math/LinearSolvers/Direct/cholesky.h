@@ -47,12 +47,17 @@ public:
    * implementation detail.
    *
    * \param b A vector of length \f$ n \f$.
+   * \param x The destination vector.
    * \return The solution \f$ \vec{x} \f$ of
    *         \f$ \boldsymbol{A} \vec{x} = \vec{b} \f$.
    */
   void
   solve(const Vector& b, Vector& x) const;
 
+  /**
+   * Return the solution of the Cholesky solve.
+   * \see Cholesky::solve
+   */
   Vector
   solve(const Vector& b) const;
 };

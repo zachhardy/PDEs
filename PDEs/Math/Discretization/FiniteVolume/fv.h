@@ -26,9 +26,8 @@ public:   /*---------- Constructors, Destructors, and Assignment ----------*/
   /**
    * Default constructor.
    */
-  explicit FiniteVolume(std::shared_ptr<Grid::Mesh> reference_mesh)
-      : Discretization(reference_mesh, DiscretizationMethod::FINITE_VOLUME)
-  {}
+  explicit
+  FiniteVolume(std::shared_ptr<Grid::Mesh> reference_mesh);
 
 public: /*---------- Routines ----------*/
 
@@ -37,8 +36,7 @@ public: /*---------- Routines ----------*/
    * node per cell.
    */
   size_t
-  nodes_per_cell() const override
-  { return 1; }
+  nodes_per_cell() const override;
 
   /**
    * Return the number of DoFs per cell. This returns the number of nodes per
@@ -46,15 +44,13 @@ public: /*---------- Routines ----------*/
    * discretizations, this returns the number of solution components.
    * \see FiniteVolume::nodes_per_cell */
   size_t
-  dofs_per_cell(const size_t n_components) const override
-  { return n_components * nodes_per_cell(); }
+  dofs_per_cell(const size_t n_components) const override;
 
   /**
    * Return the number of nodes in the discretization. For FV discretizations,
    * this is equivalent to the number of cells. */
   size_t
-  n_nodes() const override
-  { return mesh->cells.size(); }
+  n_nodes() const override;
 
   /**
    * Return the number of DoFs in the discretization. This returns the number
@@ -63,15 +59,15 @@ public: /*---------- Routines ----------*/
    * solution components.
    * \see FiniteVolume::n_nodes
    */
-  size_t n_dofs(const size_t n_components) const override
-  { return n_components * n_nodes(); }
+  size_t
+  n_dofs(const size_t n_components) const override;
 
   /**
    * Return the location of the nodes on the specified Cell. For FV
    * discretizations, this returns the Cell centroid.
    */
-  std::vector<Grid::Point> nodes(const Grid::Cell& cell) const override
-  { return std::vector<Grid::Point>(1, cell.centroid); }
+  std::vector<Grid::Point>
+  nodes(const Grid::Cell& cell) const override;
 
   /**
    * Define the sparsity pattern. This routine defines the column indices of

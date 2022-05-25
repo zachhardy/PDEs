@@ -25,20 +25,14 @@ private:
   size_t rows;  ///< The number of rows.
   size_t cols;  ///< The number of columns.
 
-  /**
-   * The row-wise nonzero column indices.
-   */
+  /** Row-wise nonzero column indices. */
   std::vector<std::vector<size_t>> colnums;
 
-  /**
-   * The row-wise nonzero data entries.
-   */
+  /** Row-wise nonzero data entries. */
   std::vector<std::vector<value_type>> coeffs;
 
 public:
-  /**
-   * Default contructor.
-   */
+  /** Default contructor. */
   SparseMatrix();
 
   /**
@@ -66,14 +60,10 @@ public:
   SparseMatrix(SparsityPattern sparsity_pattern);
 
 
-  /**
-   * Copy construction from a dense matrix.
-   */
+  /** Copy construction from a dense matrix. */
   SparseMatrix(const Matrix& other);
 
-  /**
-   * Assignment with a dense matrix.
-   */
+  /**  Assignment with a dense matrix. */
   SparseMatrix&
   operator=(const Matrix& other);
 
@@ -84,50 +74,34 @@ public:
   SparseMatrix&
   operator=(const value_type value);
 
-  /**
-   * Test the equality of two sparse matrices.
-   */
+  /** Test the equality of two sparse matrices. */
   bool
   operator==(const SparseMatrix& other) const;
 
-  /**
-   * Test the inequality of two sparse matrices.
-   * \param other
-   * \return
-   */
+  /** Test the inequality of two sparse matrices. */
   bool
   operator!=(const SparseMatrix& other) const;
 
   /** \name Characteristics */
   // @{
 
-  /**
-   * Return the number of rows.
-   */
+  /** Return the number of rows. */
   size_t
   n_rows() const;
 
-  /**
-   * Return the number of columns.
-   */
+  /** Return the number of columns. */
   size_t
   n_cols() const;
 
-  /**
-   * Return the number of non-zero entries.
-   */
+  /** Return the number of non-zero entries. */
   size_t
   nnz() const;
 
-  /**
-   * Return the length of row \p i.
-   */
+  /** Return the length of row \p i. */
   size_t
   row_length(const size_t i) const;
 
-  /**
-   * Return whether the sparse matrix is empty.
-   */
+  /** Return whether the sparse matrix is empty. */
   bool
   empty() const;
 
@@ -155,8 +129,8 @@ public:
     ConstColumnIterator col_ptr;
     CoeffIterator       coeff_ptr;
 
-    void
-    advance();
+    /** A convenience function to advance the iterator. */
+    void advance();
 
   public:
     /**
@@ -177,20 +151,13 @@ public:
     iterator(SparseMatrix* sparse_matrix, const size_t row);
     iterator(SparseMatrix* sparse_matrix);
 
-    iterator&
-    operator++();
+    iterator& operator++();
+    iterator operator++(int);
 
-    iterator
-    operator++(int);
+    entry operator*();
 
-    entry
-    operator*();
-
-    bool
-    operator==(const iterator& other) const;
-
-    bool
-    operator!=(const iterator& other) const;
+    bool operator==(const iterator& other) const;
+    bool operator!=(const iterator& other) const;
   };
 
 
@@ -207,35 +174,24 @@ public:
   public:
     row(SparseMatrix* sparse_matrix, const size_t i);
 
-    iterator
-    begin();
-
-    iterator
-    end();
+    iterator begin();
+    iterator end();
   };
 
 
-  /**
-   * Return a mutable iterator to the first row of the sparse matrix.
-   */
+  /** Return a mutable iterator to the first row of the sparse matrix. */
   iterator
   begin();
 
-  /**
-   * Return a mutable iterator to the end of the sparse matrix.
-   */
+  /** Return a mutable iterator to the end of the sparse matrix. */
   iterator
   end();
 
-  /**
-   * Return a mutable iterator to the start of row \p i.
-   */
+  /** Return a mutable iterator to the start of row \p i. */
   iterator
   begin(const size_t i);
 
-  /**
-   * Return a mutable iterator to the end of row \p i.
-   */
+  /** Return a mutable iterator to the end of row \p i. */
   iterator
   end(const size_t i);
 
@@ -264,8 +220,8 @@ public:
     ConstColumnIterator  col_ptr;
     ConstCoeffIterator   coeff_ptr;
 
-    void
-    advance()
+    /** A concenience function to advance the iterator. */
+    void advance()
     {
       // Increment along the current row
       ++col_ptr; ++coeff_ptr;
@@ -307,20 +263,13 @@ public:
     const_iterator(const SparseMatrix* sparse_matrix, const size_t row);
     const_iterator(const SparseMatrix* sparse_matrix);
 
-    const_iterator&
-    operator++();
+    const_iterator& operator++();
+    const_iterator operator++(int);
 
-    const_iterator
-    operator++(int);
+    const_entry operator*();
 
-    const_entry
-    operator*();
-
-    bool
-    operator==(const const_iterator& other) const;
-
-    bool
-    operator!=(const const_iterator& other) const;
+    bool operator==(const const_iterator& other) const;
+    bool operator!=(const const_iterator& other) const;
   };
 
 
@@ -337,34 +286,23 @@ public:
   public:
     const_row(const SparseMatrix* sparse_matrix, const size_t i);
 
-    const_iterator
-    begin();
-
-    const_iterator
-    end();
+    const_iterator begin();
+    const_iterator end();
   };
 
-  /**
-   * Return a constant iterator to the start of the sparse matrix.
-   */
+  /** Return a constant iterator to the start of the sparse matrix. */
   const_iterator
   begin() const;
 
-  /**
-   * Return a constant iterator to the end of the sparse matrix.
-   */
+  /** Return a constant iterator to the end of the sparse matrix. */
   const_iterator
   end() const;
 
-  /**
-   * Return a constant iterator to the start of row \p i.
-   */
+  /** Return a constant iterator to the start of row \p i. */
   const_iterator
   begin(const size_t i) const;
 
-  /**
-   * Return a constant iterator to the end of row \p i.
-   */
+  /** Return a constant iterator to the end of row \p i. */
   const_iterator
   end(const size_t i) const;
 
@@ -380,9 +318,7 @@ public:
   /** \name Accessors */
   // @{
 
-  /**
-   * Return the column index located at relative position \p jr of row \p i.
-   */
+  /** Return the column index located at relative position \p jr of row \p i. */
   const size_t&
   column(const size_t i, const size_t jr) const;
 
@@ -419,7 +355,7 @@ public:
    * Read and write access to element <tt>(i, j)</tt>.
    * \throw If column \p j does not exist on row \p i.
    */
-  value_type&
+  value_type
   operator()(const size_t i, const size_t j);
 
   /**
@@ -561,8 +497,7 @@ public:
    * \f$.
    */
   void
-  add(const SparseMatrix& B,
-      const value_type factor = 1.0);
+  add(const SparseMatrix& B, const value_type factor = 1.0);
 
   /**
    * Add another sparse matrix.
@@ -614,8 +549,9 @@ public:
    *             = \sum_{i=1}^{n} a_{ji} x_i, ~ \forall i
    * \f$.
    */
-  void Tvmult(const Vector& x, Vector& y,
-              const bool adding = false) const;
+  void
+  Tvmult(const Vector& x, Vector& y,
+         const bool adding = false) const;
 
   /**
    * Return a transpose matrix-vector product.
@@ -631,7 +567,8 @@ public:
    *             = y_i + \sum_{i=1}^{n} a_{ji} x_i, ~ \forall i
    * \f]
    */
-  void Tvmult_add(const Vector& x, Vector& y) const;
+  void
+  Tvmult_add(const Vector& x, Vector& y) const;
 
   /**
    * Compute a matrix-vector product.

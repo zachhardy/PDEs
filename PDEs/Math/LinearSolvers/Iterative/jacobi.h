@@ -16,20 +16,14 @@ private:
   size_t max_iter = 1000;
 
 public:
-  /**
-   * Default constructor.
-   */
+  /** Default constructor. */
   JacobiSolver() = default;
 
-  /**
-   * Constructor with specified iteration controls.
-   */
+  /** Constructor with specified iteration controls. */
   JacobiSolver(const double tolerance,
                const size_t max_iterations);
 
-  /**
-   * Solve the system using Jacobi iterations.
-   */
+  /** Solve the system using the Jacobi iterative method. */
   void
   solve(const SparseMatrix& A, const Vector& b, Vector& x);
 

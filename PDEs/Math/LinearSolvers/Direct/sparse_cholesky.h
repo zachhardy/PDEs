@@ -18,13 +18,10 @@ private:
   bool factorized = false;
 
 public:
-  /**
-   * Copy construction from a sparse matrix.
-   */
+  /** Copy construction from a sparse matrix. */
   SparseCholesky(const SparseMatrix& other);
-  /**
-   * Move construction from a sparse matrix.
-   */
+
+  /** Move construction from a sparse matrix. */
   SparseCholesky(SparseMatrix&& other);
 
   /**
@@ -54,6 +51,10 @@ public:
   void
   solve(const Vector& b, Vector& x) const;
 
+  /**
+   * Return the solution to the Cholesky solve.
+   * \see SparseCholesky::solve Cholesky::solve
+   */
   Vector
   solve(const Vector& b) const;
 };
