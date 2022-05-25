@@ -19,29 +19,19 @@ NeutronDiffusion::SteadyStateSolver::execute()
 {
   std::cout << "Executing solver...\n";
 
-  // Initialize matrices
+  //======================================== Initialize matrices
   for (auto& gs : groupsets)
    assemble_matrix(gs);
 
-
   //======================================== Solve
   if (solution_technique == SolutionTechnique::FULL_SYSTEM)
-  {
     solve_full_system(APPLY_MATERIAL_SOURCE);
-    return;
-  }
   else
-  {
-    SourceFlags source_flags =
-        APPLY_MATERIAL_SOURCE |
-        APPLY_WGS_SCATTER_SOURCE | APPLY_WGS_FISSION_SOURCE |
-        APPLY_AGS_SCATTER_SOURCE | APPLY_AGS_FISSION_SOURCE;
-
     for (auto& groupset : groupsets)
-      solve_groupset(groupset, source_flags);
-
-  }
-
+      solve_groupset(groupset,
+                     APPLY_MATERIAL_SOURCE |
+                     APPLY_WGS_SCATTER_SOURCE | APPLY_AGS_SCATTER_SOURCE |
+                     APPLY_WGS_FISSION_SOURCE | APPLY_AGS_FISSION_SOURCE);
 
   std::cout << "\nDone executing solver.\n";
 }
