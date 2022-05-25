@@ -355,7 +355,7 @@ public:
    * Read and write access to element <tt>(i, j)</tt>.
    * \throw If column \p j does not exist on row \p i.
    */
-  value_type
+  value_type&
   operator()(const size_t i, const size_t j);
 
   /**
