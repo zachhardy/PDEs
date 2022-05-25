@@ -133,7 +133,7 @@ LU::solve(const Vector& b, Vector& x) const
 Vector
 LU::solve(const Vector& b) const
 {
-  Vector x(n_rows(), 0.0);
+  Vector x(n_cols(), 0.0);
   solve(b, x);
   return x;
 }
