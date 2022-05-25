@@ -8,7 +8,7 @@
 namespace NeutronDiffusion
 {
 
-/// Types of diffusion boundary conditions.
+/** Types of diffusion boundary conditions. */
 enum class BoundaryType
 {
   DIRICHLET   = 1,  ///< Dirichlet boundary.
@@ -22,7 +22,7 @@ enum class BoundaryType
 
 //######################################################################
 
-/// Abstract base class for diffusion boundaries.
+/** Abstract base class for diffusion boundaries. */
 class Boundary
 {
 public:
@@ -34,14 +34,14 @@ public:
 
 //######################################################################
 
-/// Dirichlet boundary given by \f$ u_b = f^d \f$.
+/** Dirichlet boundary given by \f$ u_b = f^d \f$. */
 class DirichletBoundary : public Boundary
 {
 public:
   double value = 0.0;
 
 public:
-  /// Construct a zero flux boundary.
+  /** Construct a zero flux boundary. */
   DirichletBoundary() : Boundary(BoundaryType::DIRICHLET) {}
 
   explicit DirichletBoundary(double boundary_value)
@@ -51,14 +51,14 @@ public:
 
 //######################################################################
 
-/// Neumann boundary given by \f$ \partial_{\hat{n}_b} u = f^n \f$.
+/** Neumann boundary given by \f$ \partial_{\hat{n}_b} u = f^n \f$. */
 class NeumannBoundary : public Boundary
 {
 public:
   double value = 0.0;
 
 public:
-  /// Construct a reflective boundary.
+  /** Construct a reflective boundary. */
   NeumannBoundary() : Boundary(BoundaryType::NEUMANN) {}
 
   explicit NeumannBoundary(double boundary_value)
@@ -68,7 +68,7 @@ public:
 
 //######################################################################
 
-/// Robin boundary given by \f$ a u_b + b \partial_{\hat{n}_b} u = f^r \f$.
+/** Robin boundary given by \f$ a u_b + b \partial_{\hat{n}_b} u = f^r \f$. */
 class RobinBoundary : public Boundary
 {
 public:
@@ -77,10 +77,10 @@ public:
     double f = 0.0;
 
 public:
-  /// Contruct a vacuum boundary.
+  /** Contruct a vacuum boundary. */
   RobinBoundary() : Boundary(BoundaryType::ROBIN) {}
 
-  /// Construct a Marshak boundary from an incident partial current.
+  /** Construct a Marshak boundary from an incident partial current. */
   explicit RobinBoundary(double j_inc)
     : Boundary(BoundaryType::ROBIN), f(j_inc)
   {}

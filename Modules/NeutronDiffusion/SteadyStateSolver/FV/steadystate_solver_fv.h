@@ -31,11 +31,11 @@ protected:
 protected:
   void
   scoped_transfer(const Groupset& groupset,
-                       const Vector& x, Vector& dst) override;
+                  const Vector& x, Vector& dst) override;
 
   void
   scoped_copy(const Groupset& groupset,
-                   const Vector& x, Vector& dst) override;
+              const Vector& x, Vector& dst) override;
 
   double
   compute_change(const Groupset& groupset) override;
