@@ -6,15 +6,16 @@
 
 using namespace pdes::Math;
 
-GaussSeidelSolver::GaussSeidelSolver(const double tolerance,
-                                     const size_t max_iterations)
-  : tol(tolerance), max_iter(max_iterations)
+GaussSeidelSolver::
+GaussSeidelSolver(const double tolerance,
+                  const size_t max_iterations)
+  : tol(tolerance), maxiter(max_iterations)
 {}
 
 
 void
 GaussSeidelSolver::solve(const SparseMatrix& A,
-                         const Vector& b, Vector& x)
+                         Vector& x, const Vector& b) const
 {
   Assert(A.n_rows() == A.n_cols(), "Only square matrices are allowed.")
   Assert(A.n_rows() == b.size(), "Dimension mismatch error.");
@@ -22,12 +23,9 @@ GaussSeidelSolver::solve(const SparseMatrix& A,
 
   size_t n = A.n_rows();
 
-  // Book-keeping parameters
-  bool converged = false;
-
-  // Iterate
-  double diff; size_t k;
-  for (k = 0; k < max_iter; ++k)
+  //======================================== Iteration loop
+  double diff; size_t nit; bool converged = false;
+  for (nit = 0; nit < maxiter; ++nit)
   {
     diff = 0.0;
 
@@ -44,9 +42,16 @@ GaussSeidelSolver::solve(const SparseMatrix& A,
     }
 
     if (diff < tol)
-    {
-      converged = true;
-      break;
-    }
+    { converged = true; break;}
   }
+  Assert(converged, "Gauss Seidel solver did not converge.");
+}
+
+
+Vector
+GaussSeidelSolver::solve(const SparseMatrix& A, const Vector& b) const
+{
+  Vector x(A.n_cols(), 0.0);
+  solve(A, x, b);
+  return x;
 }

@@ -12,26 +12,30 @@ namespace pdes::Math
 class JacobiSolver
 {
 private:
-  double tol = 1.0e-8;
-  size_t max_iter = 1000;
+  double tol;
+  size_t maxiter;
+
 
 public:
-  /**
-   * Default constructor.
-   */
-  JacobiSolver() = default;
 
   /**
    * Constructor with specified iteration controls.
    */
-  JacobiSolver(const double tolerance,
-               const size_t max_iterations);
+  JacobiSolver(const double tolerance = 1.0e-8,
+               const size_t max_iterations = 1000);
 
   /**
    * Solve the system using the Jacobi iterative method.
    */
   void
-  solve(const SparseMatrix& A, const Vector& b, Vector& x);
+  solve(const SparseMatrix& A, Vector& x, const Vector& b) const;
+
+  /**
+   * Return the solution of the Jacobi solve.
+   * \see Jacobi::solve
+   */
+  Vector
+  solve(const SparseMatrix& A, const Vector& b)const ;
 
 };
 }
