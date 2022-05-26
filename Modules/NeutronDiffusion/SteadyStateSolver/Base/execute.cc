@@ -49,19 +49,27 @@ solve_groupset(Groupset& groupset, SourceFlags source_flags)
   SparseMatrix& A = groupset.matrix;
   Vector& b = groupset.rhs;
 
-  GaussSeidelSolver solver(A);
-
-  size_t nit;
-  double diff;
-  bool converged = false;
+  std::shared_ptr<LinearSolverBase> solver;
+  switch (linear_solver_type)
+  {
+    case LinearSolverType::LU:
+      solver = std::make_shared<SparseLU>(A);
+    case LinearSolverType::CHOLESKY:
+      solver = std::make_shared<SparseCholesky>(A);
+    case LinearSolverType::JACOBI:
+      solver = std::make_shared<JacobiSolver>(A);
+    case LinearSolverType::GAUSS_SEIDEL:
+      solver = std::make_shared<GaussSeidelSolver>(A);
+  }
 
   //======================================== Start iterations
+  size_t nit; double diff; bool converged = false;
   for (nit = 0; nit < groupset.max_iterations; ++nit)
   {
     // Compute the RHS and solve
     b = 0.0;
     set_source(groupset, b, source_flags);
-    auto x = solver.solve(b);
+    auto x = solver->solve(b);
 
     // Convergence check, finalize iteration
     scoped_transfer(groupset, x, phi);
