@@ -49,7 +49,7 @@ solve_groupset(Groupset& groupset, SourceFlags source_flags)
   SparseMatrix& A = groupset.matrix;
   Vector& b = groupset.rhs;
 
-  SparseLU solver(A);
+  GaussSeidelSolver solver(A);
 
   size_t nit;
   double diff;
@@ -97,5 +97,5 @@ solve_full_system(SourceFlags source_flags)
 
   b = 0.0;
   set_source(groupsets.front(), b, source_flags);
-  lu.solve(b, phi);
+  phi = lu.solve(b);
 }

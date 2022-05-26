@@ -81,7 +81,7 @@ int main(int argc, char** argv)
     solver.boundary_info.emplace_back(BoundaryType::ZERO_FLUX, -1);
     solver.boundary_info.emplace_back(BoundaryType::ZERO_FLUX, -1);
 
-    solver.solution_technique = SolutionTechnique::FULL_SYSTEM;
+    solver.solution_technique = SolutionTechnique::GROUPSET_WISE;
 
 
     //================================================== Run the problem
