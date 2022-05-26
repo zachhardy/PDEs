@@ -60,7 +60,6 @@ factorize()
     }
   }
   factorized = true;
-  return *this;
 }
 
 
