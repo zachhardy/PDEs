@@ -4,24 +4,20 @@
 #include "NeutronDiffusion/boundaries.h"
 #include "NeutronDiffusion/Groupset/groupset.h"
 
-#include "Grid/mesh.h"
+#include "mesh.h"
 #include "Discretization/discretization.h"
+
+#include "vector.h"
+#include "LinearSolvers/linear_solver.h"
 
 #include "material.h"
 #include "CrossSections/cross_sections.h"
 
-#include "vector.h"
-#include "matrix.h"
-
-#include "Direct/sparse_lu.h"
-#include "Direct/sparse_cholesky.h"
-#include "Iterative/jacobi.h"
-#include "Iterative/gauss_seidel.h"
 
 
 using namespace pdes;
-using namespace Math;
-using namespace Grid;
+using namespace pdes::Grid;
+using namespace pdes::Math;
 
 
 namespace NeutronDiffusion
@@ -74,6 +70,8 @@ protected:
 
   typedef std::vector<double> RobinBndryVals;
   typedef std::shared_ptr<Boundary> BndryPtr;
+
+  typedef LinearSolver::LinearSolverType LinearSolverType;
 
 public:
 

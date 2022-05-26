@@ -13,7 +13,8 @@
 #include <fstream>
 
 using namespace pdes;
-using namespace Math;
+using namespace pdes::Math;
+using namespace pdes::Math::LinearSolver;
 
 
 void
@@ -59,9 +60,9 @@ solve_groupset(Groupset& groupset, SourceFlags source_flags)
     case LinearSolverType::CHOLESKY:
       solver = std::make_shared<SparseCholesky>(A);
     case LinearSolverType::JACOBI:
-      solver = std::make_shared<JacobiSolver>(A);
+      solver = std::make_shared<Jacobi>(A);
     case LinearSolverType::GAUSS_SEIDEL:
-      solver = std::make_shared<GaussSeidelSolver>(A);
+      solver = std::make_shared<GaussSeidel>(A);
     default:
       Assert(true, "Linear solver not implemented.");
   }
