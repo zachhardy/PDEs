@@ -13,6 +13,12 @@
 #include "vector.h"
 #include "matrix.h"
 
+#include "Direct/sparse_lu.h"
+#include "Direct/sparse_cholesky.h"
+#include "Iterative/jacobi.h"
+#include "Iterative/gauss_seidel.h"
+
+
 using namespace pdes;
 using namespace Math;
 using namespace Grid;
@@ -21,26 +27,21 @@ using namespace Grid;
 namespace NeutronDiffusion
 {
 
-/** Algorithms to solve the multigroup diffusion problem. */
+/**
+ * Algorithms to solve the multigroup diffusion problem.
+ */
 enum class SolutionTechnique
 {
   FULL_SYSTEM = 0,   ///< Solve the full multigroup system.
   GROUPSET_WISE = 1  ///< Iteratively solve by groupset.
 };
 
-//######################################################################
-
-enum class LinearSolverType
-{
-  SPARSE_LU = 0,
-  SPARSE_CHOLESKY = 1,
-  JACOBI = 2,
-  GAUSS_SEIDEL = 3
-};
 
 //######################################################################
 
-/** Bitwise source flags. */
+/**
+ * Bitwise source flags.
+ */
 enum SourceFlags : int
 {
   NO_FLAGS = 0,
@@ -60,12 +61,11 @@ inline SourceFlags operator|(const SourceFlags f1,
 
 //######################################################################
 
-/** A steady state solver for multigroup neutron diffusion applications. */
+/**
+ * A steady state solver for multigroup neutron diffusion applications.
+ */
 class SteadyStateSolver
 {
-protected:
-  const std::string solver_string = "diffusion::SteadyStateSolver::";
-
 protected:
   typedef Physics::Material Material;
   typedef Physics::MaterialPropertyType MaterialPropertyType;
@@ -77,16 +77,13 @@ protected:
 
 public:
 
-  /*-------------------- Options --------------------*/
-
-  SolutionTechnique solution_technique = SolutionTechnique::GROUPSET_WISE;
-  LinearSolverType linear_solver_type = LinearSolverType::SPARSE_LU;
-
   /*-------------------- General Information --------------------*/
 
   size_t n_groups = 0;
   size_t n_precursors = 0;
+
   bool use_precursors = false;
+  SolutionTechnique solution_technique = SolutionTechnique::GROUPSET_WISE;
 
   /*-------------------- Groupsets and Groups --------------------*/
 
@@ -163,7 +160,6 @@ public:
 
   Vector phi;
   Vector phi_ell;
-
   Vector precursors;
 
 public:
@@ -178,7 +174,9 @@ public:
   void
   initialize();
 
-  /** Run the steady state multigroup diffusion simulation. */
+  /**
+   * Run the steady state multigroup diffusion simulation.
+   */
   void
   execute();
 

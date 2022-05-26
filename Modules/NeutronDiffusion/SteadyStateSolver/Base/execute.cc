@@ -49,8 +49,7 @@ solve_groupset(Groupset& groupset, SourceFlags source_flags)
   SparseMatrix& A = groupset.matrix;
   Vector& b = groupset.rhs;
 
-  GaussSeidelSolver solver;
-  Vector x(b.size(), 0.0);
+  SparseLU solver(A);
 
   size_t nit;
   double diff;
@@ -60,8 +59,9 @@ solve_groupset(Groupset& groupset, SourceFlags source_flags)
   for (nit = 0; nit < groupset.max_iterations; ++nit)
   {
     // Compute the RHS and solve
+    b = 0.0;
     set_source(groupset, b, source_flags);
-    solver.solve(A, b, x);
+    auto x = solver.solve(b);
 
     // Convergence check, finalize iteration
     scoped_transfer(groupset, x, phi);
@@ -94,7 +94,6 @@ solve_full_system(SourceFlags source_flags)
   Vector& b = groupsets.front().rhs;
 
   SparseLU lu(A);
-  lu.factorize();
 
   b = 0.0;
   set_source(groupsets.front(), b, source_flags);
