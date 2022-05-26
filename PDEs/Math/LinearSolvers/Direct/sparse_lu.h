@@ -2,6 +2,7 @@
 #define SPARSE_LU_H
 
 #include "sparse_matrix.h"
+#include "linear_solver.h"
 
 
 namespace pdes::Math
@@ -10,13 +11,15 @@ namespace pdes::Math
 /**
  * A class for a sparse LU decomposition solver.
  */
-class SparseLU : public SparseMatrix
+class SparseLU : public LinearSolverBase
 {
 public:
   using value_type = SparseMatrix::value_type;
+  static const LinearSolverType type = LinearSolverType::DIRECT;
 
 
 private:
+  SparseMatrix& A;
   bool factorized = false;
   bool pivot_flag = true;
 
@@ -29,27 +32,29 @@ private:
   std::vector<size_t> row_pivots;
 
 public:
-  /** Copy construction from a sparse matrix. */
-  SparseLU(const SparseMatrix& other, const bool pivot = true);
+  /**
+   * Default constructor.
+   */
+  SparseLU(SparseMatrix& other, const bool pivot = true);
 
-  /** Move construction from a sparse matrix. */
-  SparseLU(SparseMatrix&& other, const bool pivot = true);
-
-  /** Set the pivot option. */
+  /**
+   * Set the pivot option.
+   */
   void
   pivot(const bool flag);
 
-  /** Return the pivot option. */
+  /**
+   * Return the pivot option.
+   */
   bool
   pivot() const;
 
   /**
-   * Factor the matrix \f$ \boldsymbol{A} \f$ into an upper and lower triangular
-   * form in-place.
+   * Factor the matrix \f$ \boldsymbol{A} \f$ in-place.
    *
    * \see LU::factorize
    */
-  void
+  SparseLU&
   factorize();
 
   /**
@@ -62,14 +67,14 @@ public:
    * \see LU::solve
    */
   void
-  solve(const Vector& b, Vector& x) const;
+  solve(const Vector& b, Vector& x) const override;
 
   /**
    * Return the solution of the LU solve.
    * \see SparseLU::solve LU::solve
    */
   Vector
-  solve(const Vector& b) const;
+  solve(const Vector& b) const override;
 };
 
 }

@@ -2,27 +2,32 @@
 #define SPARSE_CHOLESKY_H
 
 #include "sparse_matrix.h"
+#include "linear_solver.h"
 
 #include <cmath>
 
 namespace pdes::Math
 {
 
-/** A class for a Choleky decomposition solver. */
-class SparseCholesky : public SparseMatrix
+/**
+ * A class for a Choleky decomposition solver.
+ */
+class SparseCholesky : public LinearSolverBase
 {
 public:
   using value_type = typename SparseMatrix::value_type;
+  static const LinearSolverType type = LinearSolverType::DIRECT;
 
 private:
+  SparseMatrix& A;
   bool factorized = false;
 
 public:
-  /** Copy construction from a sparse matrix. */
-  SparseCholesky(const SparseMatrix& other);
+  /**
+   * Default constructor.
+   */
+  SparseCholesky(SparseMatrix& other);
 
-  /** Move construction from a sparse matrix. */
-  SparseCholesky(SparseMatrix&& other);
 
   /**
    * Perform a Cholesky factorization on the matrix \f$ \boldsymbol{A} \f$.
@@ -34,7 +39,7 @@ public:
    * \note Checks are not performed to ensure symetric positive definiteness. 
    *    The user is responsible for ensuring the matrix fits this criteria.
    */
-  void
+  SparseCholesky&
   factorize();
 
   /**
@@ -49,14 +54,14 @@ public:
    *         \f$ \boldsymbol{A} \vec{x} = \vec{b} \f$.
    */
   void
-  solve(const Vector& b, Vector& x) const;
+  solve(const Vector& b, Vector& x) const override;
 
   /**
    * Return the solution to the Cholesky solve.
    * \see SparseCholesky::solve Cholesky::solve
    */
   Vector
-  solve(const Vector& b) const;
+  solve(const Vector& b) const override;
 };
 
 }

@@ -486,6 +486,12 @@ public:
   void
   swap(SparseMatrix& other);
 
+  /**
+   * Eliminate zeros from the sparse matrix.
+   */
+  void
+  eliminate_zeros();
+
   // @}
 
   //================================================== Scalar Operations

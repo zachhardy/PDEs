@@ -2,6 +2,7 @@
 #define CHOLESKY_H
 
 #include "matrix.h"
+#include "linear_solver.h"
 
 namespace pdes::Math
 {
@@ -9,24 +10,21 @@ namespace pdes::Math
 /**
  * A class for a Choleky decomposition solver.
  */
-class Cholesky : public Matrix
+class Cholesky : public LinearSolverBase
 {
 public:
   using value_type = Matrix::value_type;
+  static const LinearSolverType type = LinearSolverType::DIRECT;
 
 private:
+  Matrix& A;
   bool factorized = false;
 
 public:
   /**
-   * Copy construction from a matrix.
+   * Default constructor.
    */
-  Cholesky(const Matrix& other);
-
-  /**
-   * Move construction from a matrix.
-   */
-  Cholesky(Matrix&& other);
+  Cholesky(Matrix& other);
 
   /**
    * Perform a Cholesky factorization on the matrix \f$ \boldsymbol{A} \f$.
@@ -38,7 +36,7 @@ public:
    * \note Checks are not performed to ensure symetric positive definiteness.
    *    The user is responsible for ensuring the matrix fits this criteria.
    */
-  void
+  Cholesky&
   factorize();
 
   /**
@@ -54,14 +52,14 @@ public:
    *         \f$ \boldsymbol{A} \vec{x} = \vec{b} \f$.
    */
   void
-  solve(const Vector& b, Vector& x) const;
+  solve(const Vector& b, Vector& x) const override;
 
   /**
    * Return the solution of the Cholesky solve.
    * \see Cholesky::solve
    */
   Vector
-  solve(const Vector& b) const;
+  solve(const Vector& b) const override;
 };
 
 }

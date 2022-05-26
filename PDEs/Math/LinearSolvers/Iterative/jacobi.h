@@ -3,39 +3,43 @@
 
 #include "sparse_matrix.h"
 #include "vector.h"
+#include "linear_solver.h"
 
 #include <cstddef>
 
 namespace pdes::Math
 {
 
-class JacobiSolver
+class JacobiSolver : public LinearSolverBase
 {
+public:
+  static const LinearSolverType type = LinearSolverType::DIRECT;
+
 private:
+  const SparseMatrix& A;
   double tol;
   size_t maxiter;
 
-
 public:
-
   /**
-   * Constructor with specified iteration controls.
+   * Default constructor.
    */
-  JacobiSolver(const double tolerance = 1.0e-8,
+  JacobiSolver(const SparseMatrix& A,
+               const double tolerance = 1.0e-8,
                const size_t max_iterations = 1000);
 
   /**
    * Solve the system using the Jacobi iterative method.
    */
   void
-  solve(const SparseMatrix& A, Vector& x, const Vector& b) const;
+  solve(const Vector& b, Vector& x) const override;
 
   /**
    * Return the solution of the Jacobi solve.
    * \see Jacobi::solve
    */
   Vector
-  solve(const SparseMatrix& A, const Vector& b)const ;
+  solve(const Vector& b) const override;
 
 };
 }

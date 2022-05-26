@@ -592,6 +592,38 @@ SparseMatrix::swap(SparseMatrix& other)
   coeffs.swap(other.coeffs);
 }
 
+
+void
+SparseMatrix::eliminate_zeros()
+{
+
+  for (size_t i = 0; i < rows; ++i)
+  {
+    std::vector<std::vector<size_t>::iterator> zero_colnums;
+    std::vector<std::vector<double>::iterator> zero_coeffs;
+
+    std::vector<size_t>::iterator col_ptr = colnums[i].begin();
+    std::vector<double>::iterator coeff_ptr = coeffs[i].begin();
+    std::vector<size_t>::iterator end_ptr = colnums[i].end();
+
+    while (col_ptr != end_ptr)
+    {
+      if (std::fabs(*coeff_ptr) < 1.0e-14)
+      {
+        zero_colnums.push_back(col_ptr);
+        zero_coeffs.push_back(coeff_ptr);
+      }
+      ++col_ptr; ++coeff_ptr;
+    }
+
+    for (size_t jr = 0; jr < zero_coeffs.size(); ++jr)
+    {
+      colnums[i].erase(zero_colnums[jr]);
+      coeffs[i].erase(zero_coeffs[jr]);
+    }
+  }
+}
+
 //################################################## Scalar Operations
 
 SparseMatrix&

@@ -2,6 +2,7 @@
 #define LU_H
 
 #include "matrix.h"
+#include "linear_solver.h"
 
 
 namespace pdes::Math
@@ -10,14 +11,16 @@ namespace pdes::Math
 /**
  * A class for an LU decomposition solver.
  */
-class LU : public Matrix
+class LU : public LinearSolverBase
 {
 public:
-  using value_type = typename Matrix::value_type;
+  using value_type = Matrix::value_type;
+  static const LinearSolverType type = LinearSolverType::DIRECT;
 
 private:
+  Matrix& A;
   bool factorized = false;
-  bool pivot_flag = true;
+  bool pivot_flag;
 
   /**
    * The pivot mapping vector.
@@ -29,14 +32,9 @@ private:
 
 public:
   /**
-   * Copy construction from a matrix.
+   * Default constructor.
    */
-  LU(const Matrix& other, const bool pivot = true);
-
-  /**
-   * Move construction from a matrix.
-   */
-  LU(Matrix&& other, const bool pivot = true);
+  LU(Matrix& other, const bool pivot = true);
 
   /**
    * Set the pivot option.
@@ -65,7 +63,7 @@ public:
    * is identical to the row-echelon form. The lower triangular matrix then
    * contains the row operations used to form upper triangular system.
    */
-  void
+  LU&
   factorize();
 
   /**
@@ -88,14 +86,14 @@ public:
   *          \f$ \boldsymbol{A} \vec{x} = \vec{b} \f$.
   */
   void
-  solve(const Vector& b, Vector& x) const;
+  solve(const Vector& b, Vector& x) const override;
 
   /**
    * Return the solution of the LU solve.
    * \see LU::solve
    */
   Vector
-  solve(const Vector& b) const;
+  solve(const Vector& b) const override;
 };
 
 }
