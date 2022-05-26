@@ -32,10 +32,10 @@ class LinearSolverBase
 {
 public:
   virtual void
-  solve(const Vector& b, Vector& x) const = 0;
+  solve(Vector& x, const Vector& b) const = 0;
 
-  virtual Vector
-  solve(const Vector& b) const = 0;
+  Vector
+  solve(const Vector& b) const;
 };
 
 }
