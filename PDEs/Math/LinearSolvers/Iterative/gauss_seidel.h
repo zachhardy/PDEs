@@ -2,6 +2,7 @@
 #define GAUSS_SEIDEL_H
 
 #include "LinearSolvers/linear_solver.h"
+#include "LinearSolvers/Iterative/sor.h"
 
 #include <cstddef>
 
@@ -10,14 +11,13 @@ namespace pdes::Math::LinearSolver
 
 /**
  * Implementation of the Gauss Seidel iterative method.
+ *
+ * \note This method corresponds to the SOR method where the relaxation
+ *       parameter \f$ \omega = 1.0 \f$. For this reason, implementations
+ *       are borrowed from the \ref SOR class.
  */
-class GaussSeidel : public LinearSolverBase
+class GaussSeidel : public SOR
 {
-private:
-  const SparseMatrix& A;
-  double tolerance;
-  size_t max_iterations;
-
 public:
 
   /**
@@ -26,15 +26,6 @@ public:
   GaussSeidel(const SparseMatrix& A,
               const double tolerance = 1.0e-8,
               const size_t max_iterations = 1000);
-
-  /**
-   * Solve the system using the Gauss Seidel iterative method.
-   */
-  void
-  solve(Vector& x, const Vector& b) const override;
-
-
-  using LinearSolverBase::solve;
 };
 
 }

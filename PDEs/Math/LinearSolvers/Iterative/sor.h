@@ -14,7 +14,7 @@ namespace pdes::Math::LinearSolver
  */
 class SOR : public LinearSolverBase
 {
-private:
+protected:
   const SparseMatrix& A;
   double tolerance;
   size_t max_iterations;
@@ -28,7 +28,7 @@ public:
   SOR(const SparseMatrix& A,
       const double tolerance = 1.0e-8,
       const size_t max_iteration = 1000,
-      const double omega = 0.5);
+      const double omega = 1.7);
 
   /**
    * Solve the system using the SOR iterative method.

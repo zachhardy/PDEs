@@ -18,10 +18,11 @@ namespace pdes::Math::LinearSolver
  */
 enum class LinearSolverType
 {
-  LU = 0,
-  CHOLESKY = 1,
-  JACOBI = 2,
-  GAUSS_SEIDEL = 3,
+  LU            = 0,
+  CHOLESKY      = 1,
+  JACOBI        = 2,
+  GAUSS_SEIDEL  = 3,
+  SOR           = 4
 };
 
 

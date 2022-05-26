@@ -18,7 +18,7 @@ SOR(const SparseMatrix& A,
   A(A), tolerance(tolerance),
   max_iterations(max_iterations), omega(omega)
 {
-  Assert(omega >= 0 && omega <= 1, "Invalid relaxation parameter.");
+  Assert(omega > 0 && omega < 2, "Invalid relaxation parameter.");
   Assert(A.n_rows() == A.n_cols(), "Square matrix required.");
   Assert(tolerance > 0.0, "Illegal negative tolerance specified.");
 }
@@ -42,12 +42,11 @@ solve(Vector& x, const Vector& b) const
     for (size_t i = 0; i < A.n_rows(); ++i)
     {
       //==================== Compute element-wise update
-      double a_ii = *A.diagonal(i);
-      double value = (1.0 - omega)*x[i]*a_ii + omega*b[i];
+      double factor = omega / *A.diagonal(i);
+      double value = (1.0 - omega) * x[i] + b[i] * factor;
       for (const auto el : A.const_row_iterator(i))
         if (el.column != i)
-          value -= el.value * x[el.column];
-      value /= a_ii;
+          value -= el.value * x[el.column] * factor;
 
       //==================== Increment difference
       diff += std::fabs(value - x[i]) / std::fabs(b[i]);
@@ -60,9 +59,9 @@ solve(Vector& x, const Vector& b) const
   }
 
   std::stringstream ss;
-  ss << "SOR Solver Status: "
-     << (converged? "CONVERGED,  " : "NOT CONVERGED,  ")
-     << (converged? "# Iterations: " : "Difference: ")
+  ss << "SOR Solver Status:\n"
+     << (converged? "  CONVERGED\n" : "  NOT CONVERGED\n")
+     << (converged? "  # Iterations: " : "  Difference: ")
      << (converged? nit : diff) << std::endl;
   std::cout << ss.str();
 }
