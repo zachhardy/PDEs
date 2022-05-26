@@ -61,7 +61,7 @@ solve(Vector& x, const Vector& b) const
   }
 
   std::stringstream ss;
-  ss << "\tJacobi Solver Status: "
+  ss << "Jacobi Solver Status: "
      << (converged? "CONVERGED,  " : "NOT CONVERGED,  ")
      << (converged? "# Iterations: " : "Difference: ")
      << (converged? nit : diff) << std::endl;

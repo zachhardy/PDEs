@@ -59,6 +59,9 @@ public:
    */
   void
   solve(Vector& x, const Vector& b) const override;
+
+
+  using LinearSolverBase::solve;
 };
 
 }

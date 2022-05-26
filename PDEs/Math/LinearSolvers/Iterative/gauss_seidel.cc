@@ -57,7 +57,7 @@ solve(Vector& x, const Vector& b) const
   }
 
   std::stringstream ss;
-  ss << "\tGauss-Seidel Solver Status: "
+  ss << "Gauss-Seidel Solver Status: "
      << (converged? "CONVERGED,  " : "NOT CONVERGED,  ")
      << (converged? "# Iterations: " : "Difference: ")
      << (converged? nit : diff) << std::endl;
