@@ -21,7 +21,7 @@ public:
   /**
    * Default constructor.
    */
-  Cholesky(Matrix& A, const bool verbose = false);
+  Cholesky(Matrix& A);
 
   /**
    * Perform a Cholesky factorization on the matrix \f$ \boldsymbol{A} \f$.

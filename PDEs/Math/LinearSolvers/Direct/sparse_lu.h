@@ -32,9 +32,7 @@ public:
   /**
    * Default constructor.
    */
-  SparseLU(SparseMatrix& A,
-           const bool pivot = true,
-           const bool verbose = false);
+  SparseLU(SparseMatrix& A, const bool pivot = true);
 
   /**
    * Set the pivot option.

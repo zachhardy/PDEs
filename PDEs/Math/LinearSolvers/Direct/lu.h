@@ -33,8 +33,7 @@ public:
   /**
    * Default constructor.
    */
-  LU(Matrix& A, const bool pivot = true,
-     const bool verbose = false);
+  LU(Matrix& A, const bool pivot = true);
 
   /**
    * Set the pivot option.
