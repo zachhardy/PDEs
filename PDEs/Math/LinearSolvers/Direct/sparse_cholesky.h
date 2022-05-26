@@ -16,7 +16,6 @@ class SparseCholesky : public LinearSolverBase
 {
 public:
   using value_type = typename SparseMatrix::value_type;
-  static const LinearSolverType type = LinearSolverType::DIRECT;
 
 private:
   SparseMatrix& A;

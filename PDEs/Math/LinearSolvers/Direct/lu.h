@@ -15,7 +15,6 @@ class LU : public LinearSolverBase
 {
 public:
   using value_type = Matrix::value_type;
-  static const LinearSolverType type = LinearSolverType::DIRECT;
 
 private:
   Matrix& A;

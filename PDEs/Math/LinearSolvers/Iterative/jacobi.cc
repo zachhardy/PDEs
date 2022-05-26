@@ -28,7 +28,7 @@ JacobiSolver::solve(const Vector& b, Vector& x) const
 
   //======================================== Iteration loop
   Vector x_ell = x;
-  double diff; size_t nit; bool converged = false;
+  value_type diff; size_t nit; bool converged = false;
   for (nit = 0; nit < maxiter; ++nit)
   {
     diff = 0.0;
@@ -37,7 +37,7 @@ JacobiSolver::solve(const Vector& b, Vector& x) const
     for (size_t i = 0; i < n; ++i)
     {
       //==================== Compute solution update
-      double value = b[i];
+      value_type value = b[i];
       for (const auto el : A.const_row_iterator(i))
         if (el.column != i)
           value -= el.value * x_ell[el.column];

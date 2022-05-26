@@ -13,7 +13,7 @@ namespace pdes::Math
 class JacobiSolver : public LinearSolverBase
 {
 public:
-  static const LinearSolverType type = LinearSolverType::DIRECT;
+  using value_type = SparseMatrix::value_type;
 
 private:
   const SparseMatrix& A;
@@ -25,7 +25,7 @@ public:
    * Default constructor.
    */
   JacobiSolver(const SparseMatrix& A,
-               const double tolerance = 1.0e-8,
+               const value_type tolerance = 1.0e-8,
                const size_t max_iterations = 1000);
 
   /**

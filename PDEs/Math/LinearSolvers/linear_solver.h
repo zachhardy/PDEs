@@ -8,13 +8,16 @@ namespace pdes::Math
 
 enum class LinearSolverType
 {
-  DIRECT = 0,
-  ITERATIVE = 1
+  LU = 0,
+  CHOLESKY = 1,
+  JACOBI = 2,
+  GAUSS_SEIDEL = 3,
 };
 
 
 class LinearSolverBase
 {
+public:
   virtual void
   solve(const Vector& b, Vector& x) const = 0;
 

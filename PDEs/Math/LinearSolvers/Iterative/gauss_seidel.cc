@@ -26,14 +26,14 @@ GaussSeidelSolver::solve(const Vector& b, Vector& x) const
   size_t n = A.n_rows();
 
   //======================================== Iteration loop
-  double diff; size_t nit; bool converged = false;
+  value_type diff; size_t nit; bool converged = false;
   for (nit = 0; nit < maxiter; ++nit)
   {
     diff = 0.0;
 
     for (size_t i = 0; i < n; ++i)
     {
-      double value = b[i];
+      value_type value = b[i];
       for (const auto el : A.const_row_iterator(i))
         if (el.column != i)
           value -= el.value * x[el.column];

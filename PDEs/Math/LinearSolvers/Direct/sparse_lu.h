@@ -15,7 +15,6 @@ class SparseLU : public LinearSolverBase
 {
 public:
   using value_type = SparseMatrix::value_type;
-  static const LinearSolverType type = LinearSolverType::DIRECT;
 
 
 private:
