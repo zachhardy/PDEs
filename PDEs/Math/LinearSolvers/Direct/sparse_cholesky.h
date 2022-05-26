@@ -21,7 +21,7 @@ public:
   /**
    * Default constructor.
    */
-  SparseCholesky(SparseMatrix& other);
+  SparseCholesky(SparseMatrix& A, const bool verbose = false);
 
 
   /**

@@ -16,7 +16,8 @@ Jacobi(const SparseMatrix& A,
        const double tolerance,
        const size_t max_iterations,
        const bool verbose) :
-  A(A), tolerance(tolerance),
+  A(A),
+  tolerance(tolerance),
   max_iterations(max_iterations),
   LinearSolverBase(verbose)
 {

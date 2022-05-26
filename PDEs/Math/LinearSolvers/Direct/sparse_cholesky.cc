@@ -13,7 +13,8 @@ using namespace pdes::Math;
 //################################################## Constructors
 
 LinearSolver::SparseCholesky::
-SparseCholesky(SparseMatrix& other) : A(other)
+SparseCholesky(SparseMatrix& A, const bool verbose) :
+  LinearSolverBase(verbose), A(A)
 {
   Assert(A.n_rows() == A.n_cols(), "Square matrix required.");
   factorize();

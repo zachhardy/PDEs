@@ -13,8 +13,9 @@ using namespace pdes::Math;
 //################################################## Constructors
 
 LinearSolver::LU::
-LU(Matrix& other, const bool pivot) :
-  A(other), row_pivots(other.n_rows()), pivot_flag(pivot)
+LU(Matrix& A, const bool pivot, const bool verbose) :
+  LinearSolverBase(verbose), A(A),
+  row_pivots(A.n_rows()), pivot_flag(pivot)
 {
   Assert(A.n_rows() == A.n_cols(), "Square matrix required.");
   factorize();

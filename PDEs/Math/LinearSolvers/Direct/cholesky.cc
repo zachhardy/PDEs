@@ -14,7 +14,8 @@ using namespace pdes::Math;
 
 
 LinearSolver::Cholesky::
-Cholesky(Matrix& other) : A(other)
+Cholesky(Matrix& A, const bool verbose) :
+  LinearSolverBase(verbose), A(A)
 {
   Assert(A.n_rows() == A.n_cols(), "Square matrix required.");
   factorize();
