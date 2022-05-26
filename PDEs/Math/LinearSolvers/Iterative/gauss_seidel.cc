@@ -14,50 +14,51 @@ LinearSolver::GaussSeidel::
 GaussSeidel(const SparseMatrix& A,
             const double tolerance,
             const size_t max_iterations)
-  : A(A), tol(tolerance), maxiter(max_iterations)
+  : A(A), tolerance(tolerance), max_iterations(max_iterations)
 {
   Assert(A.n_rows() == A.n_cols(), "Square matrix required.");
 }
 
 
 void
-LinearSolver::GaussSeidel::solve(const Vector& b, Vector& x) const
+LinearSolver::GaussSeidel::
+solve(Vector& x, const Vector& b) const
 {
-  Assert(A.n_rows() == A.n_cols(), "Only square matrices are allowed.")
-  Assert(A.n_rows() == b.size(), "Dimension mismatch error.");
-  Assert(A.n_cols() == x.size(), "Dimension mismatrch error.");
-
   size_t n = A.n_rows();
+  Assert(n == b.size(), "Dimension mismatch error.");
+  Assert(n == x.size(), "Dimension mismatrch error.");
+
+  double diff;
+  size_t nit;
+  bool converged = false;
 
   //======================================== Iteration loop
-  double diff; size_t nit; bool converged = false;
-  for (nit = 0; nit < maxiter; ++nit)
+  for (nit = 0; nit < max_iterations; ++nit)
   {
     diff = 0.0;
-
     for (size_t i = 0; i < n; ++i)
     {
+      //==================== Compute element-wise update
       double value = b[i];
       for (const auto el : A.const_row_iterator(i))
         if (el.column != i)
           value -= el.value * x[el.column];
       value /= *A.diagonal(i);
 
+      //==================== Increment difference
       diff += std::fabs(value - x[i]) / std::fabs(b[i]);
       x[i] = value;
     }
 
-    if (diff < tol)
+    //============================== Check convergence
+    if (diff < tolerance)
     { converged = true; break;}
   }
-  Assert(converged, "Gauss Seidel solver did not converge.");
-}
 
-
-Vector
-LinearSolver::GaussSeidel::solve(const Vector& b) const
-{
-  Vector x(A.n_cols(), 0.0);
-  solve(b, x);
-  return x;
+  std::stringstream ss;
+  ss << "\tGauss-Seidel Solver Status: "
+     << (converged? "CONVERGED,  " : "NOT CONVERGED,  ")
+     << (converged? "# Iterations: " : "Difference: ")
+     << (converged? nit : diff) << std::endl;
+  std::cout << ss.str();
 }
