@@ -6,6 +6,7 @@
 #include "LinearSolvers/Direct/sparse_cholesky.h"
 #include "LinearSolvers/Iterative/jacobi.h"
 #include "LinearSolvers/Iterative/gauss_seidel.h"
+#include "LinearSolvers/Iterative/sor.h"
 
 #include "macros.h"
 
@@ -56,13 +57,20 @@ solve_groupset(Groupset& groupset, SourceFlags source_flags)
   switch (linear_solver_type)
   {
     case LinearSolverType::LU:
-      solver = std::make_shared<SparseLU>(A);
+    { solver = std::make_shared<SparseLU>(A); break; }
+
     case LinearSolverType::CHOLESKY:
-      solver = std::make_shared<SparseCholesky>(A);
+    { solver = std::make_shared<SparseCholesky>(A); break; }
+
     case LinearSolverType::JACOBI:
-      solver = std::make_shared<Jacobi>(A);
+    { solver = std::make_shared<Jacobi>(A); break; }
+
     case LinearSolverType::GAUSS_SEIDEL:
-      solver = std::make_shared<GaussSeidel>(A);
+    { solver = std::make_shared<GaussSeidel>(A); break; }
+
+    case LinearSolverType::SOR:
+    { solver = std::make_shared<SOR>(A); break; }
+
     default:
       Assert(true, "Linear solver not implemented.");
   }

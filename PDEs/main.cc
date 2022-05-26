@@ -82,18 +82,19 @@ int main(int argc, char** argv)
     solver.boundary_info.emplace_back(BoundaryType::ZERO_FLUX, -1);
 
     solver.solution_technique = SolutionTechnique::GROUPSET_WISE;
+    solver.linear_solver_type = LinearSolver::LinearSolverType::SOR;
 
 
     //================================================== Run the problem
 
-    PetscErrorCode ierr = PetscInitialize(&argc,&argv,(char*)0,NULL);
+//    PetscErrorCode ierr = PetscInitialize(&argc,&argv,(char*)0,NULL);
 
     solver.initialize();
     solver.execute();
 
     solver.phi.print();
 
-    PetscFinalize();
+//    PetscFinalize();
   }
   catch (std::exception &exc) {
     std::cerr << std::endl
