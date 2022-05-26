@@ -1,6 +1,7 @@
 #ifndef LINEAR_SOLVER_BASE_H
 #define LINEAR_SOLVER_BASE_H
 
+#include <cstddef>
 
 //########## Forward declarations
 namespace pdes::Math
@@ -31,17 +32,32 @@ enum class LinearSolverType
  */
 class LinearSolverBase
 {
-protected:
-  bool verbose;
-
 public:
-  LinearSolverBase(const bool verbose = false);
-
   virtual void
   solve(Vector& x, const Vector& b) const = 0;
 
   Vector
   solve(const Vector& b) const;
+};
+
+
+/**
+ * Struct holding iteration parameters
+ */
+class IterativeSolver : public LinearSolverBase
+{
+protected:
+  const SparseMatrix& A;
+
+  bool verbose;
+  double tolerance;
+  size_t max_iterations;
+
+public:
+  IterativeSolver(const SparseMatrix& A,
+                  const double tolerance = 1.0e-8,
+                  const size_t max_iterations = 1000,
+                  const bool verbose = false);
 };
 
 }

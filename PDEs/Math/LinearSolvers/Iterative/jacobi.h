@@ -12,13 +12,8 @@ namespace pdes::Math::LinearSolver
 /**
  * Implementation of the Jacobi iterative method.
  */
-class Jacobi : public LinearSolverBase
+class Jacobi : public IterativeSolver
 {
-private:
-  const SparseMatrix& A;
-  double tolerance;
-  size_t max_iterations;
-
 public:
 
   /**

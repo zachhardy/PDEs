@@ -2,12 +2,10 @@
 
 #include "vector.h"
 
-using namespace pdes::Math;
+#include "macros.h"
 
-LinearSolver::LinearSolverBase::
-LinearSolverBase(const bool verbose) :
-  verbose(verbose)
-{}
+
+using namespace pdes::Math;
 
 
 Vector
@@ -18,3 +16,18 @@ solve(const Vector& b) const
   solve(x, b);
   return x;
 }
+
+
+LinearSolver::IterativeSolver::
+IterativeSolver(const SparseMatrix& A,
+                const double tolerance,
+                const size_t max_iterations,
+                const bool verbose) :
+  A(A),
+  tolerance(tolerance),
+  max_iterations(max_iterations),
+  verbose(verbose)
+{
+  Assert(tolerance > 0.0, "Tolerance must be positive.")
+}
+

@@ -12,17 +12,15 @@ using namespace pdes::Math;
 
 LinearSolver::SOR::
 SOR(const SparseMatrix& A,
+    const double omega,
     const double tolerance,
     const size_t max_iterations,
-    const double omega,
     const bool verbose) :
-  A(A), tolerance(tolerance),
-  max_iterations(max_iterations), omega(omega),
-  LinearSolverBase(verbose)
+    IterativeSolver(A, tolerance, max_iterations, verbose),
+    omega(omega)
 {
   Assert(omega > 0 && omega < 2, "Invalid relaxation parameter.");
   Assert(A.n_rows() == A.n_cols(), "Square matrix required.");
-  Assert(tolerance > 0.0, "Illegal negative tolerance specified.");
 }
 
 

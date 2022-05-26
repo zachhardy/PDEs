@@ -12,23 +12,20 @@ namespace pdes::Math::LinearSolver
 /**
  * Implementation of a successive over relaxation (SOR) solver.
  */
-class SOR : public LinearSolverBase
+class SOR : public IterativeSolver
 {
 protected:
-  const SparseMatrix& A;
-  double tolerance;
-  size_t max_iterations;
-
   double omega;
 
 public:
+
   /**
    * Default constructor.
    */
   SOR(const SparseMatrix& A,
+      const double omega = 1.7,
       const double tolerance = 1.0e-8,
       const size_t max_iteration = 1000,
-      const double omega = 1.7,
       const bool verbose = false);
 
   /**
