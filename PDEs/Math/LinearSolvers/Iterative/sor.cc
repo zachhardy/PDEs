@@ -28,8 +28,8 @@ void LinearSolver::SOR::
 solve(Vector& x, const Vector& b) const
 {
   size_t n = A.n_rows();
-  Assert(A.n_rows() == b.size(), "Dimension mismatch error.");
-  Assert(A.n_cols() == x.size(), "Dimension mismatrch error.");
+  Assert(b.size() == n, "Dimension mismatch error.");
+  Assert(x.size() == n, "Dimension mismatrch error.");
 
   double diff;
   size_t nit;

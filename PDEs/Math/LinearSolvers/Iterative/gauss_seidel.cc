@@ -26,8 +26,8 @@ LinearSolver::GaussSeidel::
 solve(Vector& x, const Vector& b) const
 {
   size_t n = A.n_rows();
-  Assert(n == b.size(), "Dimension mismatch error.");
-  Assert(n == x.size(), "Dimension mismatrch error.");
+  Assert(b.size() == n, "Dimension mismatch error.");
+  Assert(x.size() == n, "Dimension mismatrch error.");
 
   double diff;
   size_t nit;
@@ -51,7 +51,7 @@ solve(Vector& x, const Vector& b) const
       x[i] = value;
     }
 
-    //==================== Check convergence
+    //=================== Check convergence
     if (diff < tolerance)
     { converged = true; break;}
   }
