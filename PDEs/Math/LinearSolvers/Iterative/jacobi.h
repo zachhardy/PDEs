@@ -16,10 +16,11 @@ class Jacobi : public LinearSolverBase
 {
 private:
   const SparseMatrix& A;
-  double tol;
-  size_t maxiter;
+  double tolerance;
+  size_t max_iterations;
 
 public:
+
   /**
    * Default constructor.
    */
@@ -31,15 +32,7 @@ public:
    * Solve the system using the Jacobi iterative method.
    */
   void
-  solve(const Vector& b, Vector& x) const override;
-
-  /**
-   * Return the solution of the Jacobi solve.
-   * \see Jacobi::solve
-   */
-  Vector
-  solve(const Vector& b) const override;
-
+  solve(Vector& x, const Vector& b) const override;
 };
 }
 

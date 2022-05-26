@@ -15,58 +15,56 @@ LinearSolver::Jacobi::
 Jacobi(const SparseMatrix& A,
        const double tolerance,
        const size_t max_iterations)
-  : A(A), tol(tolerance), maxiter(max_iterations)
+  : A(A), tolerance(tolerance), max_iterations(max_iterations)
 {
   Assert(A.n_rows() == A.n_cols(), "Square matrix required.");
-  Assert(tol > 0.0, "Illegal negative tolerance specified.");
+  Assert(tolerance > 0.0, "Illegal negative tolerance specified.");
 }
 
 
 void
 LinearSolver::Jacobi::
-solve(const Vector& b, Vector& x) const
+solve(Vector& x, const Vector& b) const
 {
-  Assert(A.n_rows() == b.size(), "Dimension mismatch error.");
-  Assert(A.n_cols() == x.size(), "Dimension mismatrch error.");
-
   size_t n = A.n_rows();
+  Assert(n == b.size(), "Dimension mismatch error.");
+  Assert(n == x.size(), "Dimension mismatrch error.");
+
+  double diff;
+  size_t nit;
+  bool converged = false;
+  Vector x_ell = x;
 
   //======================================== Iteration loop
-  Vector x_ell = x;
-  double diff; size_t nit; bool converged = false;
-  for (nit = 0; nit < maxiter; ++nit)
+  for (nit = 0; nit < max_iterations; ++nit)
   {
     diff = 0.0;
-
-    //============================== Loop over equations
     for (size_t i = 0; i < n; ++i)
     {
-      //==================== Compute solution update
+      //==================== Compute element-wise update
       double value = b[i];
       for (const auto el : A.const_row_iterator(i))
         if (el.column != i)
           value -= el.value * x_ell[el.column];
       value /= *A.diagonal(i);
 
-      //==================== Increment solution change
+      //==================== Increment difference
       diff += std::fabs(value - x_ell[i]) / std::fabs(b[i]);
       x[i] = value;
     }
 
-    //============================== Prep for next iteration
+    //============================== Check convergence
     x_ell = x;
-    if (diff < tol)
+    if (diff < tolerance)
     { converged = true; break;}
   }
-  Assert(converged, "Jacobi solver did not converge.");
+
+  std::stringstream ss;
+  ss << "\tJacobi Solver Status: "
+     << (converged? "CONVERGED,  " : "NOT CONVERGED,  ")
+     << (converged? "# Iterations: " : "Difference: ")
+     << (converged? nit : diff) << std::endl;
+  std::cout << ss.str();
 }
 
 
-Vector
-LinearSolver::Jacobi::
-solve(const Vector& b) const
-{
-  Vector x(A.n_cols(), 0.0);
-  solve(b, x);
-  return x;
-}
