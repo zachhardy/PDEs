@@ -13,7 +13,8 @@ using namespace pdes::Math;
 //################################################## Constructors
 
 
-LinearSolver::Cholesky::Cholesky(Matrix& other) : A(other)
+LinearSolver::Cholesky::
+Cholesky(Matrix& other) : A(other)
 {
   Assert(A.n_rows() == A.n_cols(), "Square matrix required.");
   factorize();
@@ -22,7 +23,7 @@ LinearSolver::Cholesky::Cholesky(Matrix& other) : A(other)
 
 //################################################## Methods
 
-LinearSolver::Cholesky&
+void
 LinearSolver::Cholesky::factorize()
 {
   size_t n = A.n_rows();
@@ -50,18 +51,17 @@ LinearSolver::Cholesky::factorize()
     }
   }
   factorized = true;
-  return *this;
 }
 
 
 void
-LinearSolver::Cholesky::solve(const Vector& b, Vector& x) const
+LinearSolver::Cholesky::
+solve(Vector& x, const Vector& b) const
 {
-  Assert(factorized, "Matrix must be factorized before solving.");
-  Assert(b.size() == A.n_rows(), "Dimension mismatch error.");
-  Assert(x.size() == A.n_cols(), "Dimension mismatch error.");
-
   size_t n = A.n_rows();
+  Assert(factorized, "Matrix must be factorized before solving.");
+  Assert(b.size() == n, "Dimension mismatch error.");
+  Assert(x.size() == n, "Dimension mismatch error.");
 
   //================================================== Forward solve
   for (size_t i = 0; i < n; ++i)
@@ -87,13 +87,4 @@ LinearSolver::Cholesky::solve(const Vector& b, Vector& x) const
     for (size_t j = 0; j < i; ++j)
       x[j] -= *a_i++ * x_i;
   }
-}
-
-
-Vector
-LinearSolver::Cholesky::solve(const Vector& b) const
-{
-  Vector x(A.n_cols(), 0.0);
-  solve(b, x);
-  return x;
 }

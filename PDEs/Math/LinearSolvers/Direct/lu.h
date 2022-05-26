@@ -29,6 +29,7 @@ private:
   std::vector<size_t> row_pivots;
 
 public:
+
   /**
    * Default constructor.
    */
@@ -47,8 +48,8 @@ public:
   pivot() const;
 
   /**
-   * Factor the matrix \f$ \boldsymbol{A} \f$ into an upper and lower triangular
-   * form in-place.
+   * Factor the matrix \f$ \boldsymbol{A} \f$ into an upper and lower
+   * triangular form in-place.
    *
    * An LU factorization defines the relationship
    * \f$ \boldsymbol{A} = \boldsymbol{L} \boldsymbol{U} \f$ where
@@ -61,7 +62,7 @@ public:
    * is identical to the row-echelon form. The lower triangular matrix then
    * contains the row operations used to form upper triangular system.
    */
-  LU&
+  void
   factorize();
 
   /**
@@ -77,21 +78,9 @@ public:
   * \f$ \vec{x} \f$ is computed using the previous definition
   * \f$ \boldsymbol{U} \vec{x} = \vec{y} \f$ where \f$ \vec{y} \f$ is now the
   * source term. This system can be solved using back substitution.
-  *
-  * \param b A vector of length \f$ n \f$.
-  * \param x The destination vector.
-  * \param x The solution \f$ \vec{x} \f$ of
-  *          \f$ \boldsymbol{A} \vec{x} = \vec{b} \f$.
   */
   void
-  solve(const Vector& b, Vector& x) const override;
-
-  /**
-   * Return the solution of the LU solve.
-   * \see LU::solve
-   */
-  Vector
-  solve(const Vector& b) const override;
+  solve(Vector& x, const Vector& b) const override;
 };
 
 }

@@ -12,8 +12,9 @@ using namespace pdes::Math;
 
 //################################################## Constructors
 
-LinearSolver::LU::LU(Matrix& other, const bool pivot)
-  : A(other), row_pivots(other.n_rows()), pivot_flag(pivot)
+LinearSolver::LU::
+LU(Matrix& other, const bool pivot) :
+  A(other), row_pivots(other.n_rows()), pivot_flag(pivot)
 {
   Assert(A.n_rows() == A.n_cols(), "Square matrix required.");
   factorize();
@@ -23,18 +24,21 @@ LinearSolver::LU::LU(Matrix& other, const bool pivot)
 //################################################## Properties
 
 void
-LinearSolver::LU::pivot(const bool flag)
+LinearSolver::LU::
+pivot(const bool flag)
 { pivot_flag = flag; }
 
 
 bool
-LinearSolver::LU::pivot() const
+LinearSolver::LU::
+pivot() const
 { return pivot_flag; }
 
 //################################################## Methods
 
-LinearSolver::LU&
-LinearSolver::LU::factorize()
+void
+LinearSolver::LU::
+factorize()
 {
   size_t n = A.n_rows();
 
@@ -46,7 +50,7 @@ LinearSolver::LU::factorize()
   for (size_t j = 0; j < n; ++j)
   {
     /* Find the row containing the largest magnitude entry for column j.
-       * This is only done for the sub-diagonal elements. */
+     * This is only done for the sub-diagonal elements. */
     if (pivot_flag)
     {
       size_t argmax = j;
@@ -96,18 +100,17 @@ LinearSolver::LU::factorize()
     }
   }
   factorized = true;
-  return *this;
 }
 
 
 void
-LinearSolver::LU::solve(const Vector& b, Vector& x) const
+LinearSolver::LU::
+solve(Vector& x, const Vector& b) const
 {
-  Assert(factorized, "Matrix must be factorized before solving.");
-  Assert(b.size() == A.n_rows(), "Dimension mismatch error.");
-  Assert(x.size() == A.n_cols(), "Dimension mismatch error.");
-
   size_t n = A.n_rows();
+  Assert(factorized, "Matrix must be factorized before solving.");
+  Assert(n == b.size(), "Dimension mismatch error.");
+  Assert(n == x.size(), "Dimension mismatch error.");
 
   //================================================== Forward solve
   for (size_t i = 0; i < n; ++i)
@@ -132,13 +135,4 @@ LinearSolver::LU::solve(const Vector& b, Vector& x) const
       value -= *a_i++ * x[j];
     x[i] = value / a_ii;
   }
-}
-
-
-Vector
-LinearSolver::LU::solve(const Vector& b) const
-{
-  Vector x(A.n_cols(), 0.0);
-  solve(b, x);
-  return x;
 }

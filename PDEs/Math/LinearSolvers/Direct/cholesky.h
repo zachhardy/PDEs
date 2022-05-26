@@ -17,6 +17,7 @@ private:
   bool factorized = false;
 
 public:
+
   /**
    * Default constructor.
    */
@@ -32,30 +33,19 @@ public:
    * \note Checks are not performed to ensure symetric positive definiteness.
    *    The user is responsible for ensuring the matrix fits this criteria.
    */
-  Cholesky&
+  void
   factorize();
 
   /**
    * Solve the Cholesky factored linear system.
    *
    * The Cholesky solve is a specialization of the LU solve in that
-   * \f$ \boldsymbol{U} = \boldsymbol{L}^T \f$. See \ref lu_solve for
-   * implementation detail.
+   * \f$ \boldsymbol{U} = \boldsymbol{L}^T \f$.
    *
-   * \param b A vector of length \f$ n \f$.
-   * \param x The destination vector.
-   * \return The solution \f$ \vec{x} \f$ of
-   *         \f$ \boldsymbol{A} \vec{x} = \vec{b} \f$.
+   * \see LU::solve
    */
   void
-  solve(const Vector& b, Vector& x) const override;
-
-  /**
-   * Return the solution of the Cholesky solve.
-   * \see Cholesky::solve
-   */
-  Vector
-  solve(const Vector& b) const override;
+  solve(Vector& x, const Vector& b) const override;
 };
 
 }
