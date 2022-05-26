@@ -35,7 +35,7 @@ public:
   virtual void
   solve(Vector& x, const Vector& b) const = 0;
 
-  virtual Vector
+  Vector
   solve(const Vector& b) const;
 };
 
