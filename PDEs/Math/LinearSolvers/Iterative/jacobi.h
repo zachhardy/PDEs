@@ -10,7 +10,7 @@
 namespace pdes::Math
 {
 
-class JacobiSolver
+class JacobiSolver : public LinearSolverBase
 {
 public:
   static const LinearSolverType type = LinearSolverType::DIRECT;
@@ -32,14 +32,14 @@ public:
    * Solve the system using the Jacobi iterative method.
    */
   void
-  solve(Vector& x, const Vector& b) const;
+  solve(const Vector& b, Vector& x) const override;
 
   /**
    * Return the solution of the Jacobi solve.
    * \see Jacobi::solve
    */
   Vector
-  solve(const Vector& b)const ;
+  solve(const Vector& b) const override;
 
 };
 }

@@ -8,7 +8,7 @@
 namespace pdes::Math
 {
 
-class GaussSeidelSolver
+class GaussSeidelSolver : public LinearSolverBase
 {
 public:
   static const LinearSolverType type = LinearSolverType::ITERATIVE;
@@ -30,13 +30,13 @@ public:
    * Solve the system using the Gauss Seidel iterative method.
    */
   void
-  solve(Vector& x, const Vector& b) const;
+  solve(const Vector& b, Vector& x) const override;
 
   /**
    * Return the solution of the Gauss Seidel solve.
    */
   Vector
-  solve(const Vector& b) const;
+  solve(const Vector& b) const override;
 };
 
 }

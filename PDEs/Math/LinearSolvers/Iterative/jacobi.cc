@@ -19,7 +19,7 @@ JacobiSolver(const SparseMatrix& A,
 
 
 void
-JacobiSolver::solve(Vector& x, const Vector& b) const
+JacobiSolver::solve(const Vector& b, Vector& x) const
 {
   Assert(A.n_rows() == b.size(), "Dimension mismatch error.");
   Assert(A.n_cols() == x.size(), "Dimension mismatrch error.");
@@ -61,7 +61,7 @@ Vector
 JacobiSolver::solve(const Vector& b) const
 {
   Vector x(A.n_cols(), 0.0);
-  solve(x, b);
+  solve(b, x);
   return x;
 }
 

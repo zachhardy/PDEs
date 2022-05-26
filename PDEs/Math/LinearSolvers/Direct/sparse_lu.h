@@ -11,7 +11,7 @@ namespace pdes::Math
 /**
  * A class for a sparse LU decomposition solver.
  */
-class SparseLU
+class SparseLU : public LinearSolverBase
 {
 public:
   using value_type = SparseMatrix::value_type;
@@ -67,14 +67,14 @@ public:
    * \see LU::solve
    */
   void
-  solve(const Vector& b, Vector& x) const;
+  solve(const Vector& b, Vector& x) const override;
 
   /**
    * Return the solution of the LU solve.
    * \see SparseLU::solve LU::solve
    */
   Vector
-  solve(const Vector& b) const;
+  solve(const Vector& b) const override;
 };
 
 }

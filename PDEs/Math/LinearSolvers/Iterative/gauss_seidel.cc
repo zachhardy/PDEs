@@ -17,7 +17,7 @@ GaussSeidelSolver(const SparseMatrix& A,
 
 
 void
-GaussSeidelSolver::solve(Vector& x, const Vector& b) const
+GaussSeidelSolver::solve(const Vector& b, Vector& x) const
 {
   Assert(A.n_rows() == A.n_cols(), "Only square matrices are allowed.")
   Assert(A.n_rows() == b.size(), "Dimension mismatch error.");
@@ -54,6 +54,6 @@ Vector
 GaussSeidelSolver::solve(const Vector& b) const
 {
   Vector x(A.n_cols(), 0.0);
-  solve(x, b);
+  solve(b, x);
   return x;
 }

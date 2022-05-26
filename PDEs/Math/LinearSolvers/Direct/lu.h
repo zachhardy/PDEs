@@ -11,7 +11,7 @@ namespace pdes::Math
 /**
  * A class for an LU decomposition solver.
  */
-class LU
+class LU : public LinearSolverBase
 {
 public:
   using value_type = Matrix::value_type;
@@ -86,14 +86,14 @@ public:
   *          \f$ \boldsymbol{A} \vec{x} = \vec{b} \f$.
   */
   void
-  solve(const Vector& b, Vector& x) const;
+  solve(const Vector& b, Vector& x) const override;
 
   /**
    * Return the solution of the LU solve.
    * \see LU::solve
    */
   Vector
-  solve(const Vector& b) const;
+  solve(const Vector& b) const override;
 };
 
 }

@@ -12,7 +12,7 @@ namespace pdes::Math
 /**
  * A class for a Choleky decomposition solver.
  */
-class SparseCholesky
+class SparseCholesky : public LinearSolverBase
 {
 public:
   using value_type = typename SparseMatrix::value_type;
@@ -54,14 +54,14 @@ public:
    *         \f$ \boldsymbol{A} \vec{x} = \vec{b} \f$.
    */
   void
-  solve(const Vector& b, Vector& x) const;
+  solve(const Vector& b, Vector& x) const override;
 
   /**
    * Return the solution to the Cholesky solve.
    * \see SparseCholesky::solve Cholesky::solve
    */
   Vector
-  solve(const Vector& b) const;
+  solve(const Vector& b) const override;
 };
 
 }

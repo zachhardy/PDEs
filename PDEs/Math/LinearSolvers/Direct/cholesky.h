@@ -10,7 +10,7 @@ namespace pdes::Math
 /**
  * A class for a Choleky decomposition solver.
  */
-class Cholesky
+class Cholesky : public LinearSolverBase
 {
 public:
   using value_type = Matrix::value_type;
@@ -52,14 +52,14 @@ public:
    *         \f$ \boldsymbol{A} \vec{x} = \vec{b} \f$.
    */
   void
-  solve(const Vector& b, Vector& x) const;
+  solve(const Vector& b, Vector& x) const override;
 
   /**
    * Return the solution of the Cholesky solve.
    * \see Cholesky::solve
    */
   Vector
-  solve(const Vector& b) const;
+  solve(const Vector& b) const override;
 };
 
 }
