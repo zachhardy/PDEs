@@ -19,6 +19,7 @@ public:
 
 private:
   Matrix& A;
+
   bool factorized = false;
   bool pivot_flag;
 
