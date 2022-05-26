@@ -7,14 +7,12 @@ using namespace pdes::Math;
 
 //################################################## Constructors
 
-LU::LU(const Matrix& other, const bool pivot)
-  : row_pivots(other.n_rows()), pivot_flag(pivot), Matrix(other)
-{}
+LU::LU(Matrix& other, const bool pivot)
+  : A(other), row_pivots(other.n_rows()), pivot_flag(pivot)
+{
+  factorize();
+}
 
-
-LU::LU(Matrix&& other, const bool pivot)
-  : row_pivots(other.n_rows()), pivot_flag(pivot), Matrix(other)
-{}
 
 //################################################## Properties
 
@@ -29,10 +27,10 @@ LU::pivot() const
 
 //################################################## Methods
 
-void
+LU&
 LU::factorize()
 {
-  size_t n = n_rows();
+  size_t n = A.n_rows();
 
   // Initialize the pivot mappings such that each row maps to itself
   for (size_t i = 0; i < n; ++i)
@@ -46,10 +44,10 @@ LU::factorize()
     if (pivot_flag)
     {
       size_t argmax = j;
-      value_type max = std::fabs((*this)(j, j));
+      value_type max = std::fabs(A(j, j));
       for (size_t k = j + 1; k < n; ++k)
       {
-        const value_type a_kj = (*this)(k, j);
+        const value_type a_kj = A(k, j);
         if (std::fabs(a_kj) > max)
         {
           argmax = k;
@@ -66,17 +64,17 @@ LU::factorize()
       if (argmax != j)
       {
         std::swap(row_pivots[j], row_pivots[argmax]);
-        swap_row(j, argmax);
+        A.swap_row(j, argmax);
       }
     }//if pivoting
 
-    const value_type* a_j = data(j); // accessor for row j
+    const value_type* a_j = A.data(j); // accessor for row j
     const value_type a_jj = a_j[j]; // diagonal element for row j
 
     // Compute the elements of the LU decomposition.
     for (size_t i = j + 1; i < n; ++i)
     {
-      value_type* a_i = data(i); // accessor for row i
+      value_type* a_i = A.data(i); // accessor for row i
       value_type& a_ij = a_i[j]; // accessor for element i, j
 
       /* Lower triangular components. This represents the row operations
@@ -92,6 +90,7 @@ LU::factorize()
     }
   }
   factorized = true;
+  return *this;
 }
 
 
@@ -99,15 +98,15 @@ void
 LU::solve(const Vector& b, Vector& x) const
 {
   Assert(factorized, "Matrix must be factorized before solving.");
-  Assert(b.size() == n_rows(), "Dimension mismatch error.");
-  Assert(x.size() == n_cols(), "Dimension mismatch error.");
+  Assert(b.size() == A.n_rows(), "Dimension mismatch error.");
+  Assert(x.size() == A.n_cols(), "Dimension mismatch error.");
 
-  size_t n = n_rows();
+  size_t n = A.n_rows();
 
   //================================================== Forward solve
   for (size_t i = 0; i < n; ++i)
   {
-    const value_type* a_i = data(i); // accessor for row i
+    const value_type* a_i = A.data(i); // accessor for row i
 
     value_type value = b[row_pivots[i]];
     for (size_t j = 0; j < i; ++j)
@@ -118,7 +117,7 @@ LU::solve(const Vector& b, Vector& x) const
   //================================================== Backward solve
   for (size_t i = n - 1; i != -1; --i)
   {
-    const value_type* a_i = data(i); // accessor for row i
+    const value_type* a_i = A.data(i); // accessor for row i
     const value_type a_ii = a_i[i]; // diagonal element value.
     a_i += i + 1; // increment to first element after diagonal
 
@@ -133,7 +132,7 @@ LU::solve(const Vector& b, Vector& x) const
 Vector
 LU::solve(const Vector& b) const
 {
-  Vector x(n_cols(), 0.0);
+  Vector x(A.n_cols(), 0.0);
   solve(b, x);
   return x;
 }
