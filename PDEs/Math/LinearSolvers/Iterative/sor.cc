@@ -42,11 +42,13 @@ solve(Vector& x, const Vector& b) const
     for (size_t i = 0; i < A.n_rows(); ++i)
     {
       //==================== Compute element-wise update
-      double factor = omega / *A.diagonal(i);
-      double value = (1.0 - omega) * x[i] + b[i] * factor;
+      double value = 0.0;
       for (const auto el : A.const_row_iterator(i))
         if (el.column != i)
-          value -= el.value * x[el.column] * factor;
+          value += el.value * x[el.column];
+
+      double a_ii = *A.diagonal(i);
+      value = x[i] + omega * ((b[i] - value)/a_ii - x[i]);
 
       //==================== Increment difference
       diff += std::fabs(value - x[i]) / std::fabs(b[i]);
