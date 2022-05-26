@@ -17,7 +17,7 @@ public:
 
 private:
   const SparseMatrix& A;
-  double tol;
+  value_type tol;
   size_t maxiter;
 
 public:
