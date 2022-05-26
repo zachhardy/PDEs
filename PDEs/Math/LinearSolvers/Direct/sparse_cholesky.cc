@@ -1,13 +1,18 @@
 #include "sparse_cholesky.h"
+
+#include "vector.h"
+#include "sparse_matrix.h"
+
 #include "macros.h"
 
 #include <cmath>
+
 
 using namespace pdes::Math;
 
 //################################################## Constructors
 
-SparseCholesky::SparseCholesky(SparseMatrix& other) : A(other)
+LinearSolver::SparseCholesky::SparseCholesky(SparseMatrix& other) : A(other)
 {
   Assert(A.n_rows() == A.n_cols(), "Square matrix required.");
   factorize();
@@ -15,8 +20,8 @@ SparseCholesky::SparseCholesky(SparseMatrix& other) : A(other)
 
 //################################################## Methods
 
-SparseCholesky&
-SparseCholesky::factorize()
+LinearSolver::SparseCholesky&
+LinearSolver::SparseCholesky::factorize()
 {
   size_t n = A.n_rows();
 
@@ -24,11 +29,11 @@ SparseCholesky::factorize()
   for (size_t j = 0; j < n; ++j)
   {
     // Accessor for the diagonal element
-    value_type* d = A.locate(j, j);
+    double* d = A.locate(j, j);
     Assert(d && *d != 0.0, "Singular matrix error.");
 
     // Compute the new diagonal term
-    value_type sum = 0.0;
+    double sum = 0.0;
     for (const auto el : A.const_row_iterator(j))
       if (el.column < j)
         sum += el.value * el.value;
@@ -46,8 +51,8 @@ SparseCholesky::factorize()
               sum += a_ik.value * a_jk.value;
 
       // Set element i, j
-      value_type* a_ij = A.locate(i, j);
-      value_type value = (a_ij) ? (*a_ij - sum) / *d : -sum/ *d;
+      double* a_ij = A.locate(i, j);
+      double value = (a_ij) ? (*a_ij - sum) / *d : -sum/ *d;
       if (std::fabs(value) != 0.0)
         A.set(i, j, value);
     }
@@ -58,7 +63,7 @@ SparseCholesky::factorize()
 
 
 void
-SparseCholesky::solve(const Vector& b, Vector& x) const
+LinearSolver::SparseCholesky::solve(const Vector& b, Vector& x) const
 {
   Assert(factorized, "Matrix must be factorized before solving.");
   Assert(b.size() == A.n_rows(), "Dimension mismatch error.");
@@ -69,7 +74,7 @@ SparseCholesky::solve(const Vector& b, Vector& x) const
   Vector y(n);
   for (size_t i = 0; i < n; ++i)
   {
-    value_type value = b[i];
+    double value = b[i];
     for (const auto el : A.const_row_iterator(i))
       if (el.column < i)
         value -= el.value * x[el.column];
@@ -88,7 +93,7 @@ SparseCholesky::solve(const Vector& b, Vector& x) const
 
 
 Vector
-SparseCholesky::solve(const Vector& b) const
+LinearSolver::SparseCholesky::solve(const Vector& b) const
 {
   Vector x(A.n_cols(), 0.0);
   solve(b, x);

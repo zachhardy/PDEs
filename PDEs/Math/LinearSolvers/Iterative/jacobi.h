@@ -1,32 +1,31 @@
 #ifndef JACOBI_H
 #define JACOBI_H
 
-#include "sparse_matrix.h"
-#include "vector.h"
-#include "linear_solver.h"
+#include "LinearSolvers/linear_solver.h"
 
 #include <cstddef>
 
-namespace pdes::Math
+
+namespace pdes::Math::LinearSolver
 {
 
-class JacobiSolver : public LinearSolverBase
+/**
+ * Implementation of the Jacobi iterative method.
+ */
+class Jacobi : public LinearSolverBase
 {
-public:
-  using value_type = SparseMatrix::value_type;
-
 private:
   const SparseMatrix& A;
-  value_type tol;
+  double tol;
   size_t maxiter;
 
 public:
   /**
    * Default constructor.
    */
-  JacobiSolver(const SparseMatrix& A,
-               const value_type tolerance = 1.0e-8,
-               const size_t max_iterations = 1000);
+  Jacobi(const SparseMatrix& A,
+         const double tolerance = 1.0e-8,
+         const size_t max_iterations = 1000);
 
   /**
    * Solve the system using the Jacobi iterative method.

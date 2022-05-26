@@ -1,20 +1,17 @@
 #ifndef CHOLESKY_H
 #define CHOLESKY_H
 
-#include "matrix.h"
-#include "linear_solver.h"
+#include "LinearSolvers/linear_solver.h"
 
-namespace pdes::Math
+
+namespace pdes::Math::LinearSolver
 {
 
 /**
- * A class for a Choleky decomposition solver.
+ * Implementation of a Cholesky decomposition solver.
  */
 class Cholesky : public LinearSolverBase
 {
-public:
-  using value_type = Matrix::value_type;
-
 private:
   Matrix& A;
   bool factorized = false;

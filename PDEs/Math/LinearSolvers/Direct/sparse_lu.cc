@@ -1,13 +1,18 @@
 #include "sparse_lu.h"
+
+#include "vector.h"
+#include "sparse_matrix.h"
+
 #include "macros.h"
 
 #include <cmath>
+
 
 using namespace pdes::Math;
 
 //################################################## Constructors
 
-SparseLU::SparseLU(SparseMatrix& other, const bool pivot)
+LinearSolver::SparseLU::SparseLU(SparseMatrix& other, const bool pivot)
   : A(other), row_pivots(other.n_rows()), pivot_flag(pivot)
 {
   Assert(A.n_rows() == A.n_cols(), "Square matrix required.");
@@ -18,18 +23,18 @@ SparseLU::SparseLU(SparseMatrix& other, const bool pivot)
 //################################################## Properties
 
 void
-SparseLU::pivot(const bool flag)
+LinearSolver::SparseLU::pivot(const bool flag)
 { pivot_flag = flag; }
 
 
 bool
-SparseLU::pivot() const
+LinearSolver::SparseLU::pivot() const
 { return pivot_flag; }
 
 //################################################## Methods
 
-SparseLU&
-SparseLU::factorize()
+LinearSolver::SparseLU&
+LinearSolver::SparseLU::factorize()
 {
   size_t n = A.n_rows();
 
@@ -44,13 +49,13 @@ SparseLU::factorize()
      * This is only done for sub-diagonal elements. */
     if (pivot_flag)
     {
-      const value_type* a_jj = A.diagonal(j);
+      const double* a_jj = A.diagonal(j);
 
       size_t argmax = j;
-      value_type max = std::fabs((a_jj) ? *a_jj : 0.0);
+      double max = std::fabs((a_jj) ? *a_jj : 0.0);
       for (size_t k = j + 1; k < n; ++k)
       {
-        const value_type* a_kj = A.locate(k, j);
+        const double* a_kj = A.locate(k, j);
         if (a_kj && *a_kj > max)
         {
           argmax = k;
@@ -71,12 +76,12 @@ SparseLU::factorize()
       }
     }//if pivot
 
-    const value_type a_jj = *A.diagonal(j);
+    const double a_jj = *A.diagonal(j);
 
     // Compute the elements of the LU decomposition
     for (size_t i = j + 1; i < n; ++i)
     {
-      value_type* a_ij = A.locate(i, j);
+      double* a_ij = A.locate(i, j);
       if (a_ij && *a_ij != 0.0)
       {
         /* Lower triangular components. This represents the row operations
@@ -97,7 +102,7 @@ SparseLU::factorize()
 
 
 void
-SparseLU::solve(const Vector& b, Vector& x) const
+LinearSolver::SparseLU::solve(const Vector& b, Vector& x) const
 {
   Assert(factorized, "The matrix must be factorized before solve is called.");
   Assert(b.size() == A.n_rows(), "Dimension mismatch error.");
@@ -108,7 +113,7 @@ SparseLU::solve(const Vector& b, Vector& x) const
   //================================================== Forward solve
   for (size_t i = 0; i < n; ++i)
   {
-    value_type value = b[row_pivots[i]];
+    double value = b[row_pivots[i]];
     for (const auto el : A.const_row_iterator(i))
       if (el.column < i)
         value -= el.value * x[el.column];
@@ -118,7 +123,7 @@ SparseLU::solve(const Vector& b, Vector& x) const
   //================================================== Backward solve
   for (size_t i = n - 1; i != -1; --i)
   {
-    value_type value = x[i];
+    double value = x[i];
     for (const auto el : A.const_row_iterator(i))
       if (el.column > i)
         value -= el.value * x[el.column];
@@ -128,7 +133,7 @@ SparseLU::solve(const Vector& b, Vector& x) const
 
 
 Vector
-SparseLU::solve(const Vector& b) const
+LinearSolver::SparseLU::solve(const Vector& b) const
 {
   Vector x(A.n_cols(), 0.0);
   solve(b, x);

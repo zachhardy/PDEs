@@ -1,22 +1,17 @@
 #ifndef SPARSE_CHOLESKY_H
 #define SPARSE_CHOLESKY_H
 
-#include "sparse_matrix.h"
-#include "linear_solver.h"
+#include "LinearSolvers/linear_solver.h"
 
-#include <cmath>
 
-namespace pdes::Math
+namespace pdes::Math::LinearSolver
 {
 
 /**
- * A class for a Choleky decomposition solver.
+ * Implementation of a sparse Cholesky solver.
  */
 class SparseCholesky : public LinearSolverBase
 {
-public:
-  using value_type = typename SparseMatrix::value_type;
-
 private:
   SparseMatrix& A;
   bool factorized = false;

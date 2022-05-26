@@ -1,17 +1,20 @@
 #include "jacobi.h"
+
+#include "vector.h"
+#include "sparse_matrix.h"
+
 #include "macros.h"
 
-#include <sstream>
-#include <iomanip>
 #include <cmath>
+
 
 using namespace pdes::Math;
 
 
-JacobiSolver::
-JacobiSolver(const SparseMatrix& A,
-             const double tolerance,
-             const size_t max_iterations)
+LinearSolver::Jacobi::
+Jacobi(const SparseMatrix& A,
+       const double tolerance,
+       const size_t max_iterations)
   : A(A), tol(tolerance), maxiter(max_iterations)
 {
   Assert(A.n_rows() == A.n_cols(), "Square matrix required.");
@@ -20,7 +23,8 @@ JacobiSolver(const SparseMatrix& A,
 
 
 void
-JacobiSolver::solve(const Vector& b, Vector& x) const
+LinearSolver::Jacobi::
+solve(const Vector& b, Vector& x) const
 {
   Assert(A.n_rows() == b.size(), "Dimension mismatch error.");
   Assert(A.n_cols() == x.size(), "Dimension mismatrch error.");
@@ -29,7 +33,7 @@ JacobiSolver::solve(const Vector& b, Vector& x) const
 
   //======================================== Iteration loop
   Vector x_ell = x;
-  value_type diff; size_t nit; bool converged = false;
+  double diff; size_t nit; bool converged = false;
   for (nit = 0; nit < maxiter; ++nit)
   {
     diff = 0.0;
@@ -38,7 +42,7 @@ JacobiSolver::solve(const Vector& b, Vector& x) const
     for (size_t i = 0; i < n; ++i)
     {
       //==================== Compute solution update
-      value_type value = b[i];
+      double value = b[i];
       for (const auto el : A.const_row_iterator(i))
         if (el.column != i)
           value -= el.value * x_ell[el.column];
@@ -59,10 +63,10 @@ JacobiSolver::solve(const Vector& b, Vector& x) const
 
 
 Vector
-JacobiSolver::solve(const Vector& b) const
+LinearSolver::Jacobi::
+solve(const Vector& b) const
 {
   Vector x(A.n_cols(), 0.0);
   solve(b, x);
   return x;
 }
-

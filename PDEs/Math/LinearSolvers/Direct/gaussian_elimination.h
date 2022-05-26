@@ -1,13 +1,14 @@
 #ifndef GAUSSIAN_ELIMINATION_H
 #define GAUSSIAN_ELIMINATION_H
 
-#include "matrix.h"
-#include "sparse_matrix.h"
-#include "vector.h"
-
 
 namespace pdes::Math
 {
+
+//########## Forward declarations
+class Vector;
+class Matrix;
+class SparseMatrix;
 
 /**
  * Solve a system using Gaussian elimination.

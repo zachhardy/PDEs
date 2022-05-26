@@ -1,11 +1,21 @@
 #ifndef LINEAR_SOLVER_BASE_H
 #define LINEAR_SOLVER_BASE_H
 
-#include "vector.h"
 
+//########## Forward declarations
 namespace pdes::Math
 {
+  class Vector;
+  class Matrix;
+  class SparseMatrix;
+}
 
+namespace pdes::Math::LinearSolver
+{
+
+/**
+ * Available types of linear solvers.
+ */
 enum class LinearSolverType
 {
   LU = 0,
@@ -15,6 +25,9 @@ enum class LinearSolverType
 };
 
 
+/**
+ * Base class from which all linear solvers must derive.
+ */
 class LinearSolverBase
 {
 public:

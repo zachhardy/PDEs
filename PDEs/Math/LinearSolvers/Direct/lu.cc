@@ -1,13 +1,18 @@
 #include "lu.h"
+
+#include "vector.h"
+#include "matrix.h"
+
 #include "macros.h"
 
 #include <cmath>
+
 
 using namespace pdes::Math;
 
 //################################################## Constructors
 
-LU::LU(Matrix& other, const bool pivot)
+LinearSolver::LU::LU(Matrix& other, const bool pivot)
   : A(other), row_pivots(other.n_rows()), pivot_flag(pivot)
 {
   Assert(A.n_rows() == A.n_cols(), "Square matrix required.");
@@ -18,18 +23,18 @@ LU::LU(Matrix& other, const bool pivot)
 //################################################## Properties
 
 void
-LU::pivot(const bool flag)
+LinearSolver::LU::pivot(const bool flag)
 { pivot_flag = flag; }
 
 
 bool
-LU::pivot() const
+LinearSolver::LU::pivot() const
 { return pivot_flag; }
 
 //################################################## Methods
 
-LU&
-LU::factorize()
+LinearSolver::LU&
+LinearSolver::LU::factorize()
 {
   size_t n = A.n_rows();
 
@@ -45,10 +50,10 @@ LU::factorize()
     if (pivot_flag)
     {
       size_t argmax = j;
-      value_type max = std::fabs(A(j, j));
+      double max = std::fabs(A(j, j));
       for (size_t k = j + 1; k < n; ++k)
       {
-        const value_type a_kj = A(k, j);
+        const double a_kj = A(k, j);
         if (std::fabs(a_kj) > max)
         {
           argmax = k;
@@ -69,14 +74,14 @@ LU::factorize()
       }
     }//if pivoting
 
-    const value_type* a_j = A.data(j); // accessor for row j
-    const value_type a_jj = a_j[j]; // diagonal element for row j
+    const double* a_j = A.data(j); // accessor for row j
+    const double a_jj = a_j[j]; // diagonal element for row j
 
     // Compute the elements of the LU decomposition.
     for (size_t i = j + 1; i < n; ++i)
     {
-      value_type* a_i = A.data(i); // accessor for row i
-      value_type& a_ij = a_i[j]; // accessor for element i, j
+      double* a_i = A.data(i); // accessor for row i
+      double& a_ij = a_i[j]; // accessor for element i, j
 
       /* Lower triangular components. This represents the row operations
        * performed to attain the upper-triangular, row-echelon matrix. */
@@ -96,7 +101,7 @@ LU::factorize()
 
 
 void
-LU::solve(const Vector& b, Vector& x) const
+LinearSolver::LU::solve(const Vector& b, Vector& x) const
 {
   Assert(factorized, "Matrix must be factorized before solving.");
   Assert(b.size() == A.n_rows(), "Dimension mismatch error.");
@@ -107,9 +112,9 @@ LU::solve(const Vector& b, Vector& x) const
   //================================================== Forward solve
   for (size_t i = 0; i < n; ++i)
   {
-    const value_type* a_i = A.data(i); // accessor for row i
+    const double* a_i = A.data(i); // accessor for row i
 
-    value_type value = b[row_pivots[i]];
+    double value = b[row_pivots[i]];
     for (size_t j = 0; j < i; ++j)
       value -= *a_i++ * x[j];
     x[i] = value;
@@ -118,11 +123,11 @@ LU::solve(const Vector& b, Vector& x) const
   //================================================== Backward solve
   for (size_t i = n - 1; i != -1; --i)
   {
-    const value_type* a_i = A.data(i); // accessor for row i
-    const value_type a_ii = a_i[i]; // diagonal element value.
+    const double* a_i = A.data(i); // accessor for row i
+    const double a_ii = a_i[i]; // diagonal element value.
     a_i += i + 1; // increment to first element after diagonal
 
-    value_type value = x[i];
+    double value = x[i];
     for (size_t j = i + 1; j < n; ++j)
       value -= *a_i++ * x[j];
     x[i] = value / a_ii;
@@ -131,7 +136,7 @@ LU::solve(const Vector& b, Vector& x) const
 
 
 Vector
-LU::solve(const Vector& b) const
+LinearSolver::LU::solve(const Vector& b) const
 {
   Vector x(A.n_cols(), 0.0);
   solve(b, x);

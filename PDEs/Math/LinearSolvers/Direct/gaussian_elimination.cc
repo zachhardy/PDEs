@@ -1,4 +1,9 @@
 #include "gaussian_elimination.h"
+
+#include "vector.h"
+#include "matrix.h"
+#include "sparse_matrix.h"
+
 #include "macros.h"
 
 #include <cmath>

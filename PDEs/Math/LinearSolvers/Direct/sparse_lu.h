@@ -1,22 +1,20 @@
 #ifndef SPARSE_LU_H
 #define SPARSE_LU_H
 
-#include "sparse_matrix.h"
-#include "linear_solver.h"
+#include "LinearSolvers/linear_solver.h"
+
+#include <vector>
+#include <cstddef>
 
 
-namespace pdes::Math
+namespace pdes::Math::LinearSolver
 {
 
 /**
- * A class for a sparse LU decomposition solver.
+ * Implementation of a sparse LU solver.
  */
 class SparseLU : public LinearSolverBase
 {
-public:
-  using value_type = SparseMatrix::value_type;
-
-
 private:
   SparseMatrix& A;
   bool factorized = false;

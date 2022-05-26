@@ -1,21 +1,20 @@
 #ifndef LU_H
 #define LU_H
 
-#include "matrix.h"
-#include "linear_solver.h"
+#include "LinearSolvers/linear_solver.h"
+
+#include <vector>
+#include <cstddef>
 
 
-namespace pdes::Math
+namespace pdes::Math::LinearSolver
 {
 
 /**
- * A class for an LU decomposition solver.
+ * Implementation of an LU decomposition solver.
  */
 class LU : public LinearSolverBase
 {
-public:
-  using value_type = Matrix::value_type;
-
 private:
   Matrix& A;
   bool factorized = false;
