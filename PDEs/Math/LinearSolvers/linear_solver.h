@@ -31,7 +31,12 @@ enum class LinearSolverType
  */
 class LinearSolverBase
 {
+protected:
+  bool verbose;
+
 public:
+  LinearSolverBase(const bool verbose = false);
+
   virtual void
   solve(Vector& x, const Vector& b) const = 0;
 

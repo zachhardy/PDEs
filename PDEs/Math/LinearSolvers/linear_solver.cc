@@ -4,6 +4,12 @@
 
 using namespace pdes::Math;
 
+LinearSolver::LinearSolverBase::
+LinearSolverBase(const bool verbose) :
+  verbose(verbose)
+{}
+
+
 Vector
 LinearSolver::LinearSolverBase::
 solve(const Vector& b) const

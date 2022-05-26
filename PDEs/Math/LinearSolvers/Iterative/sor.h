@@ -28,7 +28,8 @@ public:
   SOR(const SparseMatrix& A,
       const double tolerance = 1.0e-8,
       const size_t max_iteration = 1000,
-      const double omega = 1.7);
+      const double omega = 1.7,
+      const bool verbose = false);
 
   /**
    * Solve the system using the SOR iterative method.

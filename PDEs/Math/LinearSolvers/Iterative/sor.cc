@@ -14,9 +14,11 @@ LinearSolver::SOR::
 SOR(const SparseMatrix& A,
     const double tolerance,
     const size_t max_iterations,
-    const double omega) :
+    const double omega,
+    const bool verbose) :
   A(A), tolerance(tolerance),
-  max_iterations(max_iterations), omega(omega)
+  max_iterations(max_iterations), omega(omega),
+  LinearSolverBase(verbose)
 {
   Assert(omega > 0 && omega < 2, "Invalid relaxation parameter.");
   Assert(A.n_rows() == A.n_cols(), "Square matrix required.");
@@ -58,10 +60,13 @@ solve(Vector& x, const Vector& b) const
     { converged = true; break; }
   }
 
-  std::stringstream ss;
-  ss << "SOR Solver Status:\n"
-     << (converged? "  CONVERGED\n" : "  NOT CONVERGED\n")
-     << (converged? "  # Iterations: " : "  Difference: ")
-     << (converged? nit : diff) << std::endl;
-  std::cout << ss.str();
+  if (verbose)
+  {
+    std::stringstream ss;
+    ss << "SOR Solver Status:\n"
+       << (converged ? "  CONVERGED\n" : "  NOT CONVERGED\n")
+       << (converged ? "  # Iterations: " : "  Difference: ")
+       << (converged ? nit : diff) << std::endl;
+    std::cout << ss.str();
+  }
 }

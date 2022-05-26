@@ -14,9 +14,11 @@ using namespace pdes::Math;
 LinearSolver::Jacobi::
 Jacobi(const SparseMatrix& A,
        const double tolerance,
-       const size_t max_iterations) :
+       const size_t max_iterations,
+       const bool verbose) :
   A(A), tolerance(tolerance),
-  max_iterations(max_iterations)
+  max_iterations(max_iterations),
+  LinearSolverBase(verbose)
 {
   Assert(A.n_rows() == A.n_cols(), "Square matrix required.");
   Assert(tolerance > 0.0, "Illegal negative tolerance specified.");
@@ -57,15 +59,18 @@ solve(Vector& x, const Vector& b) const
     //==================== Check convergence
     x_ell = x;
     if (diff < tolerance)
-    { converged = true; break;}
+    { converged = true; break; }
   }
 
-  std::stringstream ss;
-  ss << "Jacobi Solver Status:\n"
-     << (converged? "  CONVERGED\n" : "  NOT CONVERGED\n")
-     << (converged? "  # Iterations: " : "  Difference: ")
-     << (converged? nit : diff) << std::endl;
-  std::cout << ss.str();
+  if (verbose)
+  {
+    std::stringstream ss;
+    ss << "Jacobi Solver Status:\n"
+       << (converged ? "  CONVERGED\n" : "  NOT CONVERGED\n")
+       << (converged ? "  # Iterations: " : "  Difference: ")
+       << (converged ? nit : diff) << std::endl << std::endl;
+    std::cout << ss.str();
+  }
 }
 
 

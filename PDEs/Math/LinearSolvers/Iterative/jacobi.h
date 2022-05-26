@@ -26,7 +26,8 @@ public:
    */
   Jacobi(const SparseMatrix& A,
          const double tolerance = 1.0e-8,
-         const size_t max_iterations = 1000);
+         const size_t max_iterations = 1000,
+         const bool verbose = false);
 
   /**
    * Solve the system using the Jacobi iterative method.
