@@ -48,30 +48,17 @@ public:
 
   /**
    * Factor the matrix \f$ \boldsymbol{A} \f$ in-place.
-   *
    * \see LU::factorize
    */
-  SparseLU&
+  void
   factorize();
 
   /**
    * Solve the LU factored linear system.
-   *
-   * \param b A vector of length \f$ n \f$.
-   * \param x The solution \f$ \vec{x} \f$ of
-   *          \f$ \boldsymbol{A} \vec{x} = \vec{b} \f$.
-   *
    * \see LU::solve
    */
   void
-  solve(const Vector& b, Vector& x) const override;
-
-  /**
-   * Return the solution of the LU solve.
-   * \see SparseLU::solve LU::solve
-   */
-  Vector
-  solve(const Vector& b) const override;
+  solve(Vector& x, const Vector& b) const override;
 };
 
 }

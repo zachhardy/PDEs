@@ -33,7 +33,7 @@ LinearSolver::SparseLU::pivot() const
 
 //################################################## Methods
 
-LinearSolver::SparseLU&
+void
 LinearSolver::SparseLU::factorize()
 {
   size_t n = A.n_rows();
@@ -97,18 +97,16 @@ LinearSolver::SparseLU::factorize()
     }//for rows > j
   }//for j
   factorized = true;
-  return *this;
 }
 
 
 void
-LinearSolver::SparseLU::solve(const Vector& b, Vector& x) const
+LinearSolver::SparseLU::solve(Vector& x, const Vector& b) const
 {
-  Assert(factorized, "The matrix must be factorized before solve is called.");
-  Assert(b.size() == A.n_rows(), "Dimension mismatch error.");
-  Assert(x.size() == A.n_cols(), "Dimension mismatch error.");
-
   size_t n = A.n_rows();
+  Assert(factorized, "The matrix must be factorized before solve is called.");
+  Assert(b.size() == n, "Dimension mismatch error.");
+  Assert(x.size() == n, "Dimension mismatch error.");
 
   //================================================== Forward solve
   for (size_t i = 0; i < n; ++i)
@@ -129,13 +127,4 @@ LinearSolver::SparseLU::solve(const Vector& b, Vector& x) const
         value -= el.value * x[el.column];
     x[i] = value / *A.diagonal(i);
   }
-}
-
-
-Vector
-LinearSolver::SparseLU::solve(const Vector& b) const
-{
-  Vector x(A.n_cols(), 0.0);
-  solve(b, x);
-  return x;
 }

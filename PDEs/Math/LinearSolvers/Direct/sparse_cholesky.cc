@@ -12,7 +12,8 @@ using namespace pdes::Math;
 
 //################################################## Constructors
 
-LinearSolver::SparseCholesky::SparseCholesky(SparseMatrix& other) : A(other)
+LinearSolver::SparseCholesky::
+SparseCholesky(SparseMatrix& other) : A(other)
 {
   Assert(A.n_rows() == A.n_cols(), "Square matrix required.");
   factorize();
@@ -20,8 +21,9 @@ LinearSolver::SparseCholesky::SparseCholesky(SparseMatrix& other) : A(other)
 
 //################################################## Methods
 
-LinearSolver::SparseCholesky&
-LinearSolver::SparseCholesky::factorize()
+void
+LinearSolver::SparseCholesky::
+factorize()
 {
   size_t n = A.n_rows();
 
@@ -63,15 +65,15 @@ LinearSolver::SparseCholesky::factorize()
 
 
 void
-LinearSolver::SparseCholesky::solve(const Vector& b, Vector& x) const
+LinearSolver::SparseCholesky::
+solve(Vector& x, const Vector& b) const
 {
+  size_t n = A.n_rows();
   Assert(factorized, "Matrix must be factorized before solving.");
-  Assert(b.size() == A.n_rows(), "Dimension mismatch error.");
-  Assert(x.size() == A.n_cols(), "Dimension mismatch error.");
+  Assert(b.size() == n, "Dimension mismatch error.");
+  Assert(x.size() == n, "Dimension mismatch error.");
 
   //================================================== Forward solve
-  size_t n = A.n_rows();
-  Vector y(n);
   for (size_t i = 0; i < n; ++i)
   {
     double value = b[i];
@@ -89,13 +91,4 @@ LinearSolver::SparseCholesky::solve(const Vector& b, Vector& x) const
       if (a_ij.column < i)
         x[a_ij.column] -= a_ij.value * x[i];
   }
-}
-
-
-Vector
-LinearSolver::SparseCholesky::solve(const Vector& b) const
-{
-  Vector x(A.n_cols(), 0.0);
-  solve(b, x);
-  return x;
 }
