@@ -19,7 +19,6 @@ public:
 
 private:
   Matrix& A;
-
   bool factorized = false;
   bool pivot_flag;
 
@@ -33,7 +32,7 @@ private:
 
 public:
   /**
-   * Copy construction from a matrix.
+   * Default constructor.
    */
   LU(Matrix& other, const bool pivot = true);
 

@@ -10,25 +10,21 @@ namespace pdes::Math
 /**
  * A class for a Choleky decomposition solver.
  */
-class Cholesky : public Matrix
+class Cholesky
 {
 public:
   using value_type = Matrix::value_type;
   static const LinearSolverType type = LinearSolverType::DIRECT;
 
 private:
+  Matrix& A;
   bool factorized = false;
 
 public:
   /**
-   * Copy construction from a matrix.
+   * Default constructor.
    */
-  Cholesky(const Matrix& other);
-
-  /**
-   * Move construction from a matrix.
-   */
-  Cholesky(Matrix&& other);
+  Cholesky(Matrix& other);
 
   /**
    * Perform a Cholesky factorization on the matrix \f$ \boldsymbol{A} \f$.
@@ -40,7 +36,7 @@ public:
    * \note Checks are not performed to ensure symetric positive definiteness.
    *    The user is responsible for ensuring the matrix fits this criteria.
    */
-  void
+  Cholesky&
   factorize();
 
   /**

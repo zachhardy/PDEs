@@ -8,19 +8,19 @@ using namespace pdes::Math;
 
 
 JacobiSolver::
-JacobiSolver(const double tolerance,
+JacobiSolver(const SparseMatrix& A,
+             const double tolerance,
              const size_t max_iterations)
-  : tol(tolerance), maxiter(max_iterations)
+  : A(A), tol(tolerance), maxiter(max_iterations)
 {
+  Assert(A.n_rows() == A.n_cols(), "Square matrix required.");
   Assert(tol > 0.0, "Illegal negative tolerance specified.");
 }
 
 
 void
-JacobiSolver::solve(const SparseMatrix& A,
-                    Vector& x, const Vector& b) const
+JacobiSolver::solve(Vector& x, const Vector& b) const
 {
-  Assert(A.n_rows() == A.n_cols(), "Only square matrices are allowed.")
   Assert(A.n_rows() == b.size(), "Dimension mismatch error.");
   Assert(A.n_cols() == x.size(), "Dimension mismatrch error.");
 
@@ -58,10 +58,10 @@ JacobiSolver::solve(const SparseMatrix& A,
 
 
 Vector
-JacobiSolver::solve(const SparseMatrix& A, const Vector& b) const
+JacobiSolver::solve(const Vector& b) const
 {
   Vector x(A.n_cols(), 0.0);
-  solve(A, x, b);
+  solve(x, b);
   return x;
 }
 

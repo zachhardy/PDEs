@@ -14,27 +14,29 @@ public:
   static const LinearSolverType type = LinearSolverType::ITERATIVE;
 
 private:
+  const SparseMatrix& A;
   double tol;
   size_t maxiter;
 
 public:
   /**
-   * Constructor with specified iteration controls.
+   * Default constructor.
    */
-  GaussSeidelSolver(const double tolerance = 1.0e-8,
+  GaussSeidelSolver(const SparseMatrix& A,
+                    const double tolerance = 1.0e-8,
                     const size_t max_iterations = 1000);
 
   /**
    * Solve the system using the Gauss Seidel iterative method.
    */
   void
-  solve(const SparseMatrix& A, Vector& x, const Vector& b) const;
+  solve(Vector& x, const Vector& b) const;
 
   /**
    * Return the solution of the Gauss Seidel solve.
    */
   Vector
-  solve(const SparseMatrix& A, const Vector& b) const;
+  solve(const Vector& b) const;
 };
 
 }

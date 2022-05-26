@@ -12,25 +12,22 @@ namespace pdes::Math
 /**
  * A class for a Choleky decomposition solver.
  */
-class SparseCholesky : public SparseMatrix
+class SparseCholesky
 {
 public:
   using value_type = typename SparseMatrix::value_type;
   static const LinearSolverType type = LinearSolverType::DIRECT;
 
 private:
+  SparseMatrix& A;
   bool factorized = false;
 
 public:
   /**
-   * Copy construction from a sparse matrix.
+   * Default constructor.
    */
-  SparseCholesky(const SparseMatrix& other);
+  SparseCholesky(SparseMatrix& other);
 
-  /**
-   * Move construction from a sparse matrix.
-   */
-  SparseCholesky(SparseMatrix&& other);
 
   /**
    * Perform a Cholesky factorization on the matrix \f$ \boldsymbol{A} \f$.
@@ -42,7 +39,7 @@ public:
    * \note Checks are not performed to ensure symetric positive definiteness. 
    *    The user is responsible for ensuring the matrix fits this criteria.
    */
-  void
+  SparseCholesky&
   factorize();
 
   /**

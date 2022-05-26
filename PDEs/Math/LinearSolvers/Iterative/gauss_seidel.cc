@@ -7,15 +7,17 @@
 using namespace pdes::Math;
 
 GaussSeidelSolver::
-GaussSeidelSolver(const double tolerance,
+GaussSeidelSolver(const SparseMatrix& A,
+                  const double tolerance,
                   const size_t max_iterations)
-  : tol(tolerance), maxiter(max_iterations)
-{}
+  : A(A), tol(tolerance), maxiter(max_iterations)
+{
+  Assert(A.n_rows() == A.n_cols(), "Square matrix required.");
+}
 
 
 void
-GaussSeidelSolver::solve(const SparseMatrix& A,
-                         Vector& x, const Vector& b) const
+GaussSeidelSolver::solve(Vector& x, const Vector& b) const
 {
   Assert(A.n_rows() == A.n_cols(), "Only square matrices are allowed.")
   Assert(A.n_rows() == b.size(), "Dimension mismatch error.");
@@ -49,9 +51,9 @@ GaussSeidelSolver::solve(const SparseMatrix& A,
 
 
 Vector
-GaussSeidelSolver::solve(const SparseMatrix& A, const Vector& b) const
+GaussSeidelSolver::solve(const Vector& b) const
 {
   Vector x(A.n_cols(), 0.0);
-  solve(A, x, b);
+  solve(x, b);
   return x;
 }

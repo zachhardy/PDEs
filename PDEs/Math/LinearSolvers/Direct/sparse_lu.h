@@ -11,7 +11,7 @@ namespace pdes::Math
 /**
  * A class for a sparse LU decomposition solver.
  */
-class SparseLU : public SparseMatrix
+class SparseLU
 {
 public:
   using value_type = SparseMatrix::value_type;
@@ -19,6 +19,7 @@ public:
 
 
 private:
+  SparseMatrix& A;
   bool factorized = false;
   bool pivot_flag = true;
 
@@ -32,14 +33,9 @@ private:
 
 public:
   /**
-   * Copy construction from a sparse matrix.
+   * Default constructor.
    */
-  SparseLU(const SparseMatrix& other, const bool pivot = true);
-
-  /**
-   * Move construction from a sparse matrix.
-   */
-  SparseLU(SparseMatrix&& other, const bool pivot = true);
+  SparseLU(SparseMatrix& other, const bool pivot = true);
 
   /**
    * Set the pivot option.
@@ -58,7 +54,7 @@ public:
    *
    * \see LU::factorize
    */
-  void
+  SparseLU&
   factorize();
 
   /**

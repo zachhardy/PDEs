@@ -10,6 +10,7 @@ using namespace pdes::Math;
 LU::LU(Matrix& other, const bool pivot)
   : A(other), row_pivots(other.n_rows()), pivot_flag(pivot)
 {
+  Assert(A.n_rows() == A.n_cols(), "Square matrix required.");
   factorize();
 }
 
