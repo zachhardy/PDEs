@@ -1,12 +1,8 @@
 #include "vector.h"
+#include "macros.h"
 
 #include <cmath>
-
-#include <iostream>
-#include <sstream>
 #include <iomanip>
-
-#include "macros.h"
 
 
 using namespace pdes::Math;

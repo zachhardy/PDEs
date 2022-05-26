@@ -1,4 +1,6 @@
 #include "sparse_matrix.h"
+#include "matrix.h"
+#include "vector.h"
 #include "macros.h"
 
 #include <cmath>

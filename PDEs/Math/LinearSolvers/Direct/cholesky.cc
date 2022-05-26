@@ -1,4 +1,6 @@
 #include "cholesky.h"
+#include "macros.h"
+
 #include <cmath>
 
 using namespace pdes::Math;

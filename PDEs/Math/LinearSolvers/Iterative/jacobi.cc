@@ -1,4 +1,5 @@
 #include "jacobi.h"
+#include "macros.h"
 
 #include <sstream>
 #include <iomanip>

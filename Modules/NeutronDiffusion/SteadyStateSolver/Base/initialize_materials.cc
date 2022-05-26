@@ -1,4 +1,5 @@
 #include "steadystate_solver.h"
+#include "macros.h"
 
 #include <set>
 

@@ -1,9 +1,8 @@
 #include "point.h"
+#include "macros.h"
 
-#include <iostream>
 #include <cmath>
 
-#include "macros.h"
 
 using namespace pdes::Grid;
 
@@ -15,13 +14,13 @@ Point::Point() : x(0.0), y(0.0), z(0.0) {}
 Point::Point(const double a) : x(a), y(0.0), z(0.0) {}
 
 
-Point::Point(const value_type a,
-             const value_type b) : x(a), y(b), z(0.0) {}
+Point::Point(const double a,
+             const double b) : x(a), y(b), z(0.0) {}
 
 
-Point::Point(const value_type a,
-             const value_type b,
-             const value_type c) : x(a), y(b), z(c) {}
+Point::Point(const double a,
+             const double b,
+             const double c) : x(a), y(b), z(c) {}
 
 //################################################## Assignment
 
@@ -116,7 +115,7 @@ Point::operator-() const
 
 
 Point&
-Point::operator*=(const value_type factor)
+Point::operator*=(const double factor)
 {
   x *= factor;
   y *= factor;
@@ -126,7 +125,7 @@ Point::operator*=(const value_type factor)
 
 
 Point&
-Point::operator/=(const value_type factor)
+Point::operator/=(const double factor)
 {
   Assert(factor != 0.0, "Zero division error.");
   x /= factor;

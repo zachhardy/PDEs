@@ -1,9 +1,6 @@
 #ifndef SPARSE_MATRIX_H
 #define SPARSE_MATRIX_H
 
-#include "vector.h"
-#include "matrix.h"
-
 #include <iostream>
 #include <sstream>
 
@@ -14,7 +11,14 @@
 namespace pdes::Math
 {
 
+//########## Forward declarations
+class Vector;
+class Matrix;
 
+
+/**
+ * Implementation of a list of lists sparse matrix.
+ */
 class SparseMatrix
 {
 public:

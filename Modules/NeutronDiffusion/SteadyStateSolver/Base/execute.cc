@@ -7,6 +7,8 @@
 #include "LinearSolvers/Iterative/jacobi.h"
 #include "LinearSolvers/Iterative/gauss_seidel.h"
 
+#include "macros.h"
+
 #include <iomanip>
 #include <fstream>
 
@@ -60,7 +62,12 @@ solve_groupset(Groupset& groupset, SourceFlags source_flags)
       solver = std::make_shared<JacobiSolver>(A);
     case LinearSolverType::GAUSS_SEIDEL:
       solver = std::make_shared<GaussSeidelSolver>(A);
+    default:
+      Assert(true, "Linear solver not implemented.");
   }
+  /* std::map<std::string, Varying> opts;
+   * set_relaxation_factor()
+   * solver.set_additional_options(AdditionalOptions) */
 
   //======================================== Start iterations
   size_t nit; double diff; bool converged = false;

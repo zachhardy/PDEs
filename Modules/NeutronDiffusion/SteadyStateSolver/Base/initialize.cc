@@ -3,6 +3,8 @@
 #include "LinearSolvers/Direct/lu.h"
 #include "LinearSolvers/Direct/cholesky.h"
 
+#include "macros.h"
+
 #include <set>
 
 void

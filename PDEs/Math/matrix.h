@@ -1,9 +1,6 @@
 #ifndef MATRIX_H
 #define MATRIX_H
 
-#include "vector.h"
-#include "macros.h"
-
 #include <iostream>
 #include <sstream>
 
@@ -14,6 +11,12 @@
 namespace pdes::Math
 {
 
+//########## Forward declarations
+class Vector;
+
+/**
+ * Implementation of a general linear algebra dense matrix.
+ */
 class Matrix
 {
 public:

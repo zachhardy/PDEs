@@ -1,4 +1,5 @@
 #include "gauss_seidel.h"
+#include "macros.h"
 
 #include <sstream>
 #include <iomanip>

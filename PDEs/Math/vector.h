@@ -11,6 +11,9 @@
 namespace pdes::Math
 {
 
+/**
+ * Implementation of a general linear algebra vector.
+ */
 class Vector
 {
 public:
