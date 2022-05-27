@@ -1,4 +1,4 @@
-#include "jacobi.h"
+#include "ssor.h"
 
 #include "vector.h"
 #include "sparse_matrix.h"
@@ -6,19 +6,20 @@
 #include "macros.h"
 
 #include <cmath>
+#include <iomanip>
 
 
 using namespace pdes::Math;
 
 
-LinearSolver::Jacobi::
-Jacobi(const SparseMatrix& A, const Options& opts) :
-    IterativeSolverBase(A, opts, "Jacobi")
-{}
+LinearSolver::SSOR::
+SSOR(const SparseMatrix& A, const Options& opts) :
+  SOR(A, opts, "SSOR")
+{
+}
 
 
-void
-LinearSolver::Jacobi::
+void LinearSolver::SSOR::
 solve(Vector& x, const Vector& b) const
 {
   size_t n = A.n_rows();
@@ -33,18 +34,30 @@ solve(Vector& x, const Vector& b) const
   for (nit = 0; nit < max_iterations; ++nit)
   {
     change = 0.0;
+
+    //==================== Compute forward sweep
     for (size_t i = 0; i < n; ++i)
     {
-      //==================== Compute element-wise update
-      double value = b[i];
+      double s = 0.0;
       for (const auto el : A.const_row_iterator(i))
         if (el.column != i)
-          value -= el.value * x_ell[el.column];
-      value /= *A.diagonal(i);
+          s += el.value * x[el.column];
 
-      //==================== Increment difference
-      change += std::fabs(value - x_ell[i]) / std::fabs(b[i]);
-      x[i] = value;
+      double a_ii = *A.diagonal(i);
+      x[i] += omega * ((b[i] - s)/a_ii - x[i]);
+    }
+
+    //==================== Compute backward sweep
+    for (size_t i = n - 1; i != -1; --i)
+    {
+      double s = 0.0;
+      for (const auto el : A.const_row_iterator(i))
+        if (el.column != i)
+          s += el.value * x[el.column];
+
+      double a_ii = *A.diagonal(i);
+      x[i] +=  omega * ((b[i] - s)/a_ii - x[i]);
+      change += std::fabs(x[i] - x_ell[i]) / std::fabs(x[i]);
     }
 
     //==================== Check convergence
@@ -56,5 +69,3 @@ solve(Vector& x, const Vector& b) const
   if (change > tolerance)
     throw_convergence_error(nit, change);
 }
-
-

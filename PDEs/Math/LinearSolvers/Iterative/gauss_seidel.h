@@ -1,7 +1,6 @@
 #ifndef GAUSS_SEIDEL_H
 #define GAUSS_SEIDEL_H
 
-#include "LinearSolvers/linear_solver.h"
 #include "LinearSolvers/Iterative/sor.h"
 
 #include <cstddef>
@@ -23,9 +22,7 @@ public:
   /**
    * Default constructor.
    */
-  GaussSeidel(const SparseMatrix& A,
-              const double tolerance = 1.0e-8,
-              const size_t max_iterations = 1000);
+  GaussSeidel(const SparseMatrix& A, const Options& opts);
 };
 
 }

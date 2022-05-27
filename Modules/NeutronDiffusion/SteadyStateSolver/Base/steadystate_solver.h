@@ -81,8 +81,11 @@ public:
   size_t n_precursors = 0;
 
   bool use_precursors = false;
+
   SolutionTechnique solution_technique = SolutionTechnique::GROUPSET_WISE;
+
   LinearSolverType linear_solver_type = LinearSolverType::GAUSS_SEIDEL;
+  LinearSolver::Options options;
 
   /*-------------------- Groupsets and Groups --------------------*/
 
