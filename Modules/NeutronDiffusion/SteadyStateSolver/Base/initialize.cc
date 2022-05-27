@@ -1,14 +1,25 @@
 #include "steadystate_solver.h"
+#include "NeutronDiffusion/Groupset/groupset.h"
 
-#include "LinearSolvers/Direct/lu.h"
-#include "LinearSolvers/Direct/cholesky.h"
+#include "LinearSolvers/Direct/sparse_lu.h"
+#include "LinearSolvers/Direct/sparse_cholesky.h"
+#include "LinearSolvers/Iterative/jacobi.h"
+#include "LinearSolvers/Iterative/gauss_seidel.h"
+#include "LinearSolvers/Iterative/sor.h"
+#include "LinearSolvers/Iterative/ssor.h"
 
 #include "macros.h"
 
 #include <set>
 
+using namespace pdes::Math;
+using namespace pdes::Math::LinearSolver;
+
+using namespace NeutronDiffusion;
+
+
 void
-NeutronDiffusion::SteadyStateSolver::initialize()
+SteadyStateSolver::initialize()
 {
   std::cout << "Initializing solver...\n";
 
@@ -54,7 +65,7 @@ NeutronDiffusion::SteadyStateSolver::initialize()
 //######################################################################
 
 void
-NeutronDiffusion::SteadyStateSolver::input_checks()
+SteadyStateSolver::input_checks()
 {
   //================================================== Check the groups
   // Ensure groups and groupsets were added
@@ -87,4 +98,32 @@ NeutronDiffusion::SteadyStateSolver::input_checks()
   Assert(mesh->dim == 1, "Only 1D problems are implemented.");
 }
 
+//######################################################################
 
+std::shared_ptr<LinearSolver::LinearSolverBase>
+SteadyStateSolver::initialize_linear_solver(Groupset& groupset)
+{
+  switch (linear_solver_type)
+  {
+    case LinearSolverType::LU:
+      return std::make_shared<SparseLU>(groupset.matrix);
+
+    case LinearSolverType::CHOLESKY:
+      return std::make_shared<SparseCholesky>(groupset.matrix);
+
+    case LinearSolverType::JACOBI:
+      return std::make_shared<Jacobi>(groupset.matrix, options);
+
+    case LinearSolverType::GAUSS_SEIDEL:
+      return std::make_shared<GaussSeidel>(groupset.matrix, options);
+
+    case LinearSolverType::SOR:
+      return std::make_shared<SOR>(groupset.matrix, options);
+
+    case LinearSolverType::SSOR:
+      return std::make_shared<SSOR>(groupset.matrix, options);
+
+    default:
+      throw std::runtime_error("Invalid linear solver type encountered.");
+  }
+}

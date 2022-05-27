@@ -16,7 +16,6 @@
 
 
 using namespace pdes;
-using namespace pdes::Grid;
 using namespace pdes::Math;
 
 
@@ -63,6 +62,8 @@ inline SourceFlags operator|(const SourceFlags f1,
 class SteadyStateSolver
 {
 protected:
+  typedef Grid::Mesh Mesh;
+
   typedef Physics::Material Material;
   typedef Physics::MaterialPropertyType MaterialPropertyType;
   typedef Physics::CrossSections CrossSections;
@@ -71,6 +72,7 @@ protected:
   typedef std::vector<double> RobinBndryVals;
   typedef std::shared_ptr<Boundary> BndryPtr;
 
+  typedef LinearSolver::LinearSolverBase LinearSolverBase;
   typedef LinearSolver::LinearSolverType LinearSolverType;
 
 public:
@@ -246,7 +248,9 @@ protected:
   /** \name Initialization Routines */
   // @{
 
-  /** Validate the general setup of the simulation. */
+  /**
+   * Validate the general setup of the simulation.
+   */
   void
   input_checks();
 
@@ -258,13 +262,23 @@ protected:
   void
   initialize_materials();
 
-  /** Create a boundary condition for each boundary and each group. */
+  /**
+   * Create a boundary condition for each boundary and each group.
+   */
   void
   initialize_boundaries();
 
-  /** Initialize the spatial discretization for the solver. */
-  virtual
-  void initialize_discretization() = 0;
+  /**
+   * Initialize the spatial discretization for the solver.
+   */
+  virtual void
+  initialize_discretization() = 0;
+
+  /**
+   * Initialize a linear solver.
+   */
+  std::shared_ptr<LinearSolverBase>
+  initialize_linear_solver(Groupset& groupset);
 
   // @}
 

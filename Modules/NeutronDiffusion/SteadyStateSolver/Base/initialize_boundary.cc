@@ -30,35 +30,50 @@ initialize_boundaries()
       switch (boundary.first)
       {
         case BoundaryType::ZERO_FLUX:
-        { bc = std::make_shared<DirichletBoundary>(); break; }
+        {
+          bc = std::make_shared<DirichletBoundary>();
+          break;
+        }
+
         case BoundaryType::REFLECTIVE:
-        { bc = std::make_shared<NeumannBoundary>(); break; }
+        {
+          bc = std::make_shared<NeumannBoundary>();
+          break;
+        }
+
         case BoundaryType::VACUUM:
-        { bc = std::make_shared<RobinBoundary>(); break; }
+        {
+          bc = std::make_shared<RobinBoundary>();
+          break;
+        }
+
         case BoundaryType::DIRICHLET:
         {
           auto& bval = boundary_values[boundary.second][g][0];
           bc = std::make_shared<DirichletBoundary>(bval);
           break;
         }
+
         case BoundaryType::NEUMANN:
         {
           auto& bval = boundary_values[boundary.second][g][0];
           bc = std::make_shared<NeumannBoundary>(bval);
           break;
         }
+
         case BoundaryType::MARSHAK:
         {
           auto& bval = boundary_values[boundary.second][g][0];
           bc = std::make_shared<RobinBoundary>(bval);
           break;
         }
+
         case BoundaryType::ROBIN:
         {
           const auto& bval = boundary_values[boundary.second][g];
           Assert(bval.size() == 3,
-                 "Fully specified Robin boundaries must have 3 values for "
-                 "each group.");
+                 "Fully specified Robin boundaries must have 3 "
+                 "values for each group.");
 
           bc = std::make_shared<RobinBoundary>(bval[0], bval[1], bval[2]);
           break;

@@ -1,13 +1,6 @@
 #include "steadystate_solver.h"
 
-#include "LinearSolvers/Direct/lu.h"
-#include "LinearSolvers/Direct/cholesky.h"
 #include "LinearSolvers/Direct/sparse_lu.h"
-#include "LinearSolvers/Direct/sparse_cholesky.h"
-#include "LinearSolvers/Iterative/jacobi.h"
-#include "LinearSolvers/Iterative/gauss_seidel.h"
-#include "LinearSolvers/Iterative/sor.h"
-#include "LinearSolvers/Iterative/ssor.h"
 
 #include "macros.h"
 
@@ -54,30 +47,7 @@ solve_groupset(Groupset& groupset, SourceFlags source_flags)
   SparseMatrix& A = groupset.matrix;
   Vector& b = groupset.rhs;
 
-  std::shared_ptr<LinearSolverBase> solver;
-  switch (linear_solver_type)
-  {
-    case LinearSolverType::LU:
-    { solver = std::make_shared<SparseLU>(A); break; }
-
-    case LinearSolverType::CHOLESKY:
-    { solver = std::make_shared<SparseCholesky>(A); break; }
-
-    case LinearSolverType::JACOBI:
-    { solver = std::make_shared<Jacobi>(A, options); break; }
-
-    case LinearSolverType::GAUSS_SEIDEL:
-    { solver = std::make_shared<GaussSeidel>(A, options); break; }
-
-    case LinearSolverType::SOR:
-    { solver = std::make_shared<SOR>(A, options); break; }
-
-    case LinearSolverType::SSOR:
-    { solver = std::make_shared<SSOR>(A, options); break; }
-
-    default:
-      Assert(true, "Linear solver not implemented.");
-  }
+  auto solver = initialize_linear_solver(groupset);
   /* std::map<std::string, Varying> opts;
    * set_relaxation_factor()
    * solver.set_additional_options(AdditionalOptions) */
