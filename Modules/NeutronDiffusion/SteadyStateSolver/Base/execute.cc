@@ -7,6 +7,7 @@
 #include "LinearSolvers/Iterative/jacobi.h"
 #include "LinearSolvers/Iterative/gauss_seidel.h"
 #include "LinearSolvers/Iterative/sor.h"
+#include "LinearSolvers/Iterative/ssor.h"
 
 #include "macros.h"
 
@@ -70,6 +71,9 @@ solve_groupset(Groupset& groupset, SourceFlags source_flags)
 
     case LinearSolverType::SOR:
     { solver = std::make_shared<SOR>(A, options); break; }
+
+    case LinearSolverType::SSOR:
+    { solver = std::make_shared<SSOR>(A, options); break; }
 
     default:
       Assert(true, "Linear solver not implemented.");

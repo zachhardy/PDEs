@@ -82,8 +82,7 @@ int main(int argc, char** argv)
     solver.boundary_info.emplace_back(BoundaryType::ZERO_FLUX, -1);
 
     solver.solution_technique = SolutionTechnique::GROUPSET_WISE;
-    solver.linear_solver_type = LinearSolver::LinearSolverType::JACOBI;
-
+    solver.linear_solver_type = LinearSolver::LinearSolverType::SSOR;
 
     //================================================== Run the problem
 
@@ -100,7 +99,7 @@ int main(int argc, char** argv)
     std::cerr << std::endl
               << "----------------------------------------"
               << std::endl;
-    std::cerr << "Exception on processing: " << std::endl
+    std::cerr << "Exception on processing:\n\n"
               << exc.what() << std::endl
               << "Aborting!" << std::endl
               << "----------------------------------------"
@@ -111,7 +110,7 @@ int main(int argc, char** argv)
     std::cerr << std::endl
               << "----------------------------------------------------"
               << std::endl;
-    std::cerr << "Unknown exception!" << std::endl
+    std::cerr << "Unknown exception!\n\n"
               << "Aborting!" << std::endl
               << "----------------------------------------------------"
               << std::endl;
