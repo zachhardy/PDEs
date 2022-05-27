@@ -18,11 +18,7 @@ public:
   /**
    * Default constructor.
    */
-  SSOR(const SparseMatrix& A,
-       const double omega = 1.5,
-       const double tolerance = 1.0e-8,
-       const size_t max_iteration = 1000,
-       const bool verbose = false);
+  SSOR(const SparseMatrix& A, const Options& opts);
 
   /**
    * Solve the system using the SSOR iterative method.

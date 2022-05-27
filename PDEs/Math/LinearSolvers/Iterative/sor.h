@@ -22,11 +22,8 @@ public:
   /**
    * Default constructor.
    */
-  SOR(const SparseMatrix& A,
-      const double omega = 1.5,
-      const double tolerance = 1.0e-8,
-      const size_t max_iteration = 1000,
-      const bool verbose = false);
+  SOR(const SparseMatrix& A, const Options& opts,
+      const std::string solver_name = "SOR");
 
   /**
    * Solve the system using the SOR iterative method.

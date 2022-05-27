@@ -13,12 +13,8 @@ using namespace pdes::Math;
 
 
 LinearSolver::SSOR::
-SSOR(const SparseMatrix& A,
-     const double omega,
-     const double tolerance,
-     const size_t max_iteration,
-     const bool verbose) :
-  SOR(A, omega, tolerance, max_iteration, verbose)
+SSOR(const SparseMatrix& A, const Options& opts) :
+  SOR(A, opts, "SSOR")
 {}
 
 
@@ -67,5 +63,5 @@ solve(Vector& x, const Vector& b) const
     x_ell = x;
     if (change < tolerance) break;
   }
-  Assert(change < tolerance, "SSOR solver did not converge!");
+  Assert(change < tolerance, "Linear solver did not converge!");
 }

@@ -22,10 +22,7 @@ public:
   /**
    * Default constructor.
    */
-  GaussSeidel(const SparseMatrix& A,
-              const double tolerance = 1.0e-8,
-              const size_t max_iterations = 1000,
-              const bool verbose = false);
+  GaussSeidel(const SparseMatrix& A, const Options& opts);
 };
 
 }

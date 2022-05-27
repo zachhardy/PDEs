@@ -2,6 +2,7 @@
 #define LINEAR_SOLVER_BASE_H
 
 #include <cstddef>
+#include <string>
 
 //########## Forward declarations
 namespace pdes::Math
@@ -23,7 +24,20 @@ enum class LinearSolverType
   CHOLESKY      = 1,
   JACOBI        = 2,
   GAUSS_SEIDEL  = 3,
-  SOR           = 4
+  SOR           = 4,
+  SSOR          = 5
+};
+
+
+/**
+ * Struct for linear solver options.
+ */
+struct Options
+{
+  bool verbose = false;
+  double tolerance = 1.0e-8;
+  size_t max_iterations = 1000;
+  double omega = 1.5;
 };
 
 
@@ -46,24 +60,27 @@ public:
  */
 class IterativeSolverBase : public LinearSolverBase
 {
-private:
-  const std::string solver_type = "IterativeSolverBase";
+protected:
+  const std::string solver_name;
+  bool verbose;
 
 protected:
   const SparseMatrix& A;
 
-  bool verbose;
   double tolerance;
   size_t max_iterations;
 
 public:
+  /**
+   * Default constructor using Options struct to set parameters.
+   *
+   * \note The Options struct contains all parameters necessary for all
+   *       implemented iterative solvers. Each derived class should set
+   *       any and all appropriate parameters from this.
+   */
   IterativeSolverBase(const SparseMatrix& A,
-                      const double tolerance = 1.0e-8,
-                      const size_t max_iterations = 1000,
-                      const bool verbose = false);
-
-protected:
-
+                      const Options& opts = Options(),
+                      const std::string name = "Undefined");
 };
 
 }

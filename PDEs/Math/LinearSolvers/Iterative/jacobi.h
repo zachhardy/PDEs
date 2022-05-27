@@ -19,10 +19,7 @@ public:
   /**
    * Default constructor.
    */
-  Jacobi(const SparseMatrix& A,
-         const double tolerance = 1.0e-8,
-         const size_t max_iterations = 1000,
-         const bool verbose = false);
+  Jacobi(const SparseMatrix& A, const Options& opts);
 
   /**
    * Solve the system using the Jacobi iterative method.

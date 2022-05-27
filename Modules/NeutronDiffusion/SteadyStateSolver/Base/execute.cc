@@ -63,13 +63,13 @@ solve_groupset(Groupset& groupset, SourceFlags source_flags)
     { solver = std::make_shared<SparseCholesky>(A); break; }
 
     case LinearSolverType::JACOBI:
-    { solver = std::make_shared<Jacobi>(A); break; }
+    { solver = std::make_shared<Jacobi>(A, options); break; }
 
     case LinearSolverType::GAUSS_SEIDEL:
-    { solver = std::make_shared<GaussSeidel>(A); break; }
+    { solver = std::make_shared<GaussSeidel>(A, options); break; }
 
     case LinearSolverType::SOR:
-    { solver = std::make_shared<SOR>(A); break; }
+    { solver = std::make_shared<SOR>(A, options); break; }
 
     default:
       Assert(true, "Linear solver not implemented.");

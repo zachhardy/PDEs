@@ -12,15 +12,12 @@ using namespace pdes::Math;
 
 LinearSolver::SOR::
 SOR(const SparseMatrix& A,
-    const double omega,
-    const double tolerance,
-    const size_t max_iterations,
-    const bool verbose) :
-  IterativeSolverBase(A, tolerance, max_iterations, verbose),
-  omega(omega)
+    const Options& opts,
+    const std::string solver_name) :
+    IterativeSolverBase(A, opts, solver_name),
+    omega(opts.omega)
 {
   Assert(omega > 0 && omega < 2, "Invalid relaxation parameter.");
-  Assert(A.n_rows() == A.n_cols(), "Square matrix required.");
 }
 
 
@@ -31,14 +28,13 @@ solve(Vector& x, const Vector& b) const
   Assert(b.size() == n, "Dimension mismatch error.");
   Assert(x.size() == n, "Dimension mismatrch error.");
 
-  double diff;
   size_t nit;
-  bool converged = false;
+  double change;
 
   //======================================== Iteration loop
   for (nit = 0; nit < max_iterations; ++nit)
   {
-    diff = 0.0;
+    change = 0.0;
     for (size_t i = 0; i < A.n_rows(); ++i)
     {
       //==================== Compute element-wise update
@@ -51,22 +47,13 @@ solve(Vector& x, const Vector& b) const
       value = x[i] + omega * ((b[i] - value)/a_ii - x[i]);
 
       //==================== Increment difference
-      diff += std::fabs(value - x[i]) / std::fabs(b[i]);
+      change += std::fabs(value - x[i]) / std::fabs(b[i]);
       x[i] = value;
     }
 
     //==================== Check convergence
-    if (diff < tolerance)
-    { converged = true; break; }
+    if (change < tolerance) break;
   }
 
-  if (verbose)
-  {
-    std::stringstream ss;
-    ss << "SOR Solver Status:\n"
-       << (converged ? "  CONVERGED\n" : "  NOT CONVERGED\n")
-       << (converged ? "  # Iterations: " : "  Difference: ")
-       << (converged ? nit : diff) << std::endl;
-    std::cout << ss.str();
-  }
+  Assert(change < tolerance, "Linear solver did not converge!");
 }
