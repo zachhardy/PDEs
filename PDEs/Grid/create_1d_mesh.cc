@@ -11,7 +11,7 @@ Grid::create_1d_mesh(const std::vector<double> vertices,
                      const CoordinateSystem coordinate_system,
                      const bool verbose)
 {
-  std::cout << "Creating a 1D mesh from vertices...\n";
+  std::cout << "Creating a 1D mesh from vertices.\n";
 
   Assert(!vertices.empty(), "No vertices provided.");
 
@@ -91,8 +91,6 @@ Grid::create_1d_mesh(const std::vector<double> vertices,
               << "\t# of Vertices: " << mesh->vertices.size() << "\n"
               << "\t# of Cells:    " << mesh->cells.size() << "\n"
               << "\t# of Lines:    " << mesh->cells.size() << "\n";
-  std::cout << "Done creating mesh.\n";
-
   return mesh;
 }
 
@@ -105,7 +103,7 @@ Grid::create_1d_mesh(const std::vector<double> zone_edges,
                      const CoordinateSystem coordinate_system,
                      const bool verbose)
 {
-  std::cout << "Creating a 1D mesh from zones...\n";
+  std::cout << "Creating a 1D mesh from zones.\n";
 
   Assert(!zone_edges.empty(), "No zone edges provided.");
   Assert(!zone_subdivisions.empty(), "No zone subdivisions provided.");
@@ -202,7 +200,5 @@ Grid::create_1d_mesh(const std::vector<double> zone_edges,
               << "\t# of Vertices: " << mesh->vertices.size() << "\n"
               << "\t# of Cells:    " << mesh->cells.size() << "\n"
               << "\t# of Lines:    " << mesh->cells.size() << "\n";
-  std::cout << "Done creating mesh.\n";
-
   return mesh;
 }

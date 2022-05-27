@@ -21,7 +21,7 @@ using namespace NeutronDiffusion;
 void
 SteadyStateSolver::initialize()
 {
-  std::cout << "Initializing solver...\n";
+  std::cout << "Initializing diffusion solver.\n";
 
   // If the full system is being solved, only use one groupset.
   if (solution_technique == SolutionTechnique::FULL_SYSTEM)
@@ -57,9 +57,6 @@ SteadyStateSolver::initialize()
 
   for (auto& gs : groupsets)
     assemble_matrix(gs);
-
-  std::cout << "Done initializing solver.\n";
-
 }
 
 //######################################################################

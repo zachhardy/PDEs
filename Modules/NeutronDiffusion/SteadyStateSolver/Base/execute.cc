@@ -15,8 +15,6 @@ using namespace pdes::Math::LinearSolver;
 void
 NeutronDiffusion::SteadyStateSolver::execute()
 {
-  std::cout << "Executing solver...\n";
-
   //======================================== Initialize matrices
   for (auto& gs : groupsets)
    assemble_matrix(gs);
@@ -30,13 +28,9 @@ NeutronDiffusion::SteadyStateSolver::execute()
                      APPLY_MATERIAL_SOURCE |
                      APPLY_WGS_SCATTER_SOURCE | APPLY_AGS_SCATTER_SOURCE |
                      APPLY_WGS_FISSION_SOURCE | APPLY_AGS_FISSION_SOURCE);
-
-  std::cout << "\nDone executing solver.\n";
 }
 
-
 //######################################################################
-
 
 void
 NeutronDiffusion::SteadyStateSolver::
@@ -48,9 +42,6 @@ solve_groupset(Groupset& groupset, SourceFlags source_flags)
   Vector& b = groupset.rhs;
 
   auto solver = initialize_linear_solver(groupset);
-  /* std::map<std::string, Varying> opts;
-   * set_relaxation_factor()
-   * solver.set_additional_options(AdditionalOptions) */
 
   //======================================== Start iterations
   size_t nit; double diff; bool converged = false;
@@ -73,7 +64,7 @@ solve_groupset(Groupset& groupset, SourceFlags source_flags)
     std::stringstream iter_info;
     iter_info << "Iteration: " << std::setw(3) << nit << " "
               << "Change: " << diff;
-    if (converged) iter_info << " CONVERGED";
+    if (converged) iter_info << " CONVERGED\n";
     std::cout << iter_info.str() << "\n";
 
     if (converged) break;

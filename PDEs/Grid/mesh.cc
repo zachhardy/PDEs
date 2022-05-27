@@ -29,7 +29,7 @@ Mesh::Mesh(const size_t dimension,
 void
 Mesh::establish_connectivity()
 {
-  std::cout << "Establishing cell connectivity...\n";
+  std::cout << "Establishing cell connectivity.\n";
 
   /* Determine the cells which contain a specific vertex. This is done using a
    * list where each element represents a vertex and its value contains a set
@@ -96,8 +96,6 @@ Mesh::establish_connectivity()
 
     }//for face
   }//for cell
-
-  std::cout << "Finished establishing cell connectivity.\n";
 }
 
 //######################################################################
@@ -105,7 +103,7 @@ Mesh::establish_connectivity()
 void
 Mesh::compute_geometric_info()
 {
-  std::cout << "Computing geometric information on cells and faces...\n";
+  std::cout << "Computing geometric information on cells and faces.\n";
 
   Assert(dim == 1, "Only 1D meshes are implemented.");
 
