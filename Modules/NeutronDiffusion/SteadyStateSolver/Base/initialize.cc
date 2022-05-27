@@ -41,7 +41,7 @@ SteadyStateSolver::initialize()
   initialize_boundaries();
 
   //================================================== Initialize data storage
-  uint64_t n_nodes = discretization->n_nodes();
+  size_t n_nodes = discretization->n_nodes();
 
   phi.resize(n_groups * n_nodes, 0.0);
   phi_ell.resize(phi.size(), 0.0);

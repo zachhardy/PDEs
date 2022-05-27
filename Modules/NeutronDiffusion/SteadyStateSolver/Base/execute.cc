@@ -43,8 +43,11 @@ solve_groupset(Groupset& groupset, SourceFlags source_flags)
 
   auto solver = initialize_linear_solver(groupset);
 
+  size_t nit;
+  double change;
+  bool converged = false;
+
   //======================================== Start iterations
-  size_t nit; double diff; bool converged = false;
   for (nit = 0; nit < groupset.max_iterations; ++nit)
   {
     // Compute the RHS and solve
@@ -54,16 +57,16 @@ solve_groupset(Groupset& groupset, SourceFlags source_flags)
 
     // Convergence check, finalize iteration
     scoped_transfer(groupset, x, phi);
-    diff = compute_change(groupset);
+    change = compute_change(groupset);
     scoped_copy(groupset, phi, phi_ell);
 
-    if (diff < groupset.tolerance)
+    if (change < groupset.tolerance)
       converged = true;
 
     // Print iteration information
     std::stringstream iter_info;
     iter_info << "Iteration: " << std::setw(3) << nit << " "
-              << "Change: " << diff;
+              << "Change: " << change;
     if (converged) iter_info << " CONVERGED\n";
     std::cout << iter_info.str() << "\n";
 
