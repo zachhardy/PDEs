@@ -3,8 +3,6 @@
 
 #include "LinearSolvers/linear_solver.h"
 
-#include <cstddef>
-
 
 namespace pdes::Math::LinearSolver
 {
@@ -15,7 +13,6 @@ namespace pdes::Math::LinearSolver
 class Jacobi : public IterativeSolverBase
 {
 public:
-
   /**
    * Default constructor.
    */

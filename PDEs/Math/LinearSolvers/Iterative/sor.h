@@ -3,8 +3,6 @@
 
 #include "LinearSolvers/linear_solver.h"
 
-#include <cstddef>
-
 
 namespace pdes::Math::LinearSolver
 {
@@ -18,7 +16,6 @@ protected:
   double omega;
 
 public:
-
   /**
    * Default constructor.
    */

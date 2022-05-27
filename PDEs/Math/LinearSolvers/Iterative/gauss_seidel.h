@@ -18,7 +18,6 @@ namespace pdes::Math::LinearSolver
 class GaussSeidel : public SOR
 {
 public:
-
   /**
    * Default constructor.
    */
