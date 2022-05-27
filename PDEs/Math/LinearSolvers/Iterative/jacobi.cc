@@ -49,9 +49,12 @@ solve(Vector& x, const Vector& b) const
 
     //==================== Check convergence
     x_ell = x;
-    if (change < tolerance) break;
+    if (change <= tolerance) break;
   }
-  Assert(change < tolerance, "Linear solver did not converge!");
+
+  // Throw no convergence error
+  if (change > tolerance)
+    throw_convergence_error(nit, change);
 }
 
 

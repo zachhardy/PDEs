@@ -81,6 +81,14 @@ public:
   IterativeSolverBase(const SparseMatrix& A,
                       const Options& opts = Options(),
                       const std::string name = "Undefined");
+
+protected:
+  /**
+   * Throw an error when convergence criteria is not met.
+   */
+  void
+  throw_convergence_error(const size_t iteration,
+                          const double difference) const;
 };
 
 }

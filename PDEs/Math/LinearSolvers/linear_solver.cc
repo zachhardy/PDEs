@@ -30,3 +30,16 @@ IterativeSolverBase(const SparseMatrix& A,
   Assert(A.n_rows() == A.n_cols(), "Square matrix required.");
   Assert(tolerance > 0, "Invalid tolerance specified.");
 }
+
+
+void
+LinearSolver::IterativeSolverBase::
+throw_convergence_error(const size_t iteration,
+                        const double difference) const
+{
+  std::stringstream err;
+  err << solver_name << " Solver did not converge!\n"
+      << "# of Iterations:   " << iteration << std::endl
+      << "Final Difference:  " << difference << std::endl;
+  throw std::runtime_error(err.str());
+}
