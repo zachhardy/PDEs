@@ -1,7 +1,6 @@
 #ifndef GAUSS_SEIDEL_H
 #define GAUSS_SEIDEL_H
 
-#include "LinearSolvers/linear_solver.h"
 #include "LinearSolvers/Iterative/sor.h"
 
 #include <cstddef>

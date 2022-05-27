@@ -42,10 +42,13 @@ public:
 
 
 /**
- * Struct holding iteration parameters
+ * Base class for iterative solvers.
  */
-class IterativeSolver : public LinearSolverBase
+class IterativeSolverBase : public LinearSolverBase
 {
+private:
+  const std::string solver_type = "IterativeSolverBase";
+
 protected:
   const SparseMatrix& A;
 
@@ -54,12 +57,14 @@ protected:
   size_t max_iterations;
 
 public:
-  IterativeSolver(const SparseMatrix& A,
-                  const double tolerance = 1.0e-8,
-                  const size_t max_iterations = 1000,
-                  const bool verbose = false);
+  IterativeSolverBase(const SparseMatrix& A,
+                      const double tolerance = 1.0e-8,
+                      const size_t max_iterations = 1000,
+                      const bool verbose = false);
+
+protected:
+
 };
 
 }
-
 #endif //LINEAR_SOLVER_BASE_H

@@ -16,7 +16,7 @@ Jacobi(const SparseMatrix& A,
        const double tolerance,
        const size_t max_iterations,
        const bool verbose) :
-  IterativeSolver(A, tolerance, max_iterations, verbose)
+    IterativeSolverBase(A, tolerance, max_iterations, verbose)
 {
   Assert(A.n_rows() == A.n_cols(), "Square matrix required.");
 }

@@ -18,11 +18,11 @@ solve(const Vector& b) const
 }
 
 
-LinearSolver::IterativeSolver::
-IterativeSolver(const SparseMatrix& A,
-                const double tolerance,
-                const size_t max_iterations,
-                const bool verbose) :
+LinearSolver::IterativeSolverBase::
+IterativeSolverBase(const SparseMatrix& A,
+                    const double tolerance,
+                    const size_t max_iterations,
+                    const bool verbose) :
   A(A),
   tolerance(tolerance),
   max_iterations(max_iterations),

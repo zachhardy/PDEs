@@ -12,7 +12,7 @@ namespace pdes::Math::LinearSolver
 /**
  * Implementation of the Jacobi iterative method.
  */
-class Jacobi : public IterativeSolver
+class Jacobi : public IterativeSolverBase
 {
 public:
 

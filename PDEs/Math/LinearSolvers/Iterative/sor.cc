@@ -16,8 +16,8 @@ SOR(const SparseMatrix& A,
     const double tolerance,
     const size_t max_iterations,
     const bool verbose) :
-    IterativeSolver(A, tolerance, max_iterations, verbose),
-    omega(omega)
+  IterativeSolverBase(A, tolerance, max_iterations, verbose),
+  omega(omega)
 {
   Assert(omega > 0 && omega < 2, "Invalid relaxation parameter.");
   Assert(A.n_rows() == A.n_cols(), "Square matrix required.");
