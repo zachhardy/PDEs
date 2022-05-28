@@ -33,7 +33,9 @@ Vector::Vector(const std::initializer_list<double> list) :
   elements(list)
 {}
 
+
 //################################################## Assignment
+
 
 Vector&
 Vector::operator=(const std::vector<double>& other)
@@ -67,7 +69,9 @@ Vector::operator=(const double value)
   return *this;
 }
 
+
 //################################################## Comparison Operators
+
 
 bool
 Vector::operator==(const Vector& y) const
@@ -80,6 +84,7 @@ Vector::operator!=(const Vector& y) const
 
 
 //################################################## Characteristics
+
 
 size_t
 Vector::size() const
@@ -99,7 +104,9 @@ Vector::all_zero() const
   return true;
 }
 
+
 //################################################## Iterators
+
 
 std::vector<double>::iterator
 Vector::begin()
@@ -122,6 +129,7 @@ Vector::end() const
 
 
 //################################################## Accessors
+
 
 double&
 Vector::operator[](const size_t i)
@@ -182,7 +190,9 @@ const double*
 Vector::data() const
 { return elements.data(); }
 
+
 //################################################## Modifiers
+
 
 void
 Vector::clear()
@@ -240,7 +250,9 @@ Vector
 Vector::fabs() const
 { return Vector(elements).fabs(); }
 
+
 //################################################## Scalar Operations
+
 
 Vector&
 Vector::operator-()
@@ -274,7 +286,9 @@ Vector::operator/=(const double factor)
   return *this;
 }
 
+
 //################################################## Linear Algebra Operations
+
 
 Vector&
 Vector::operator+=(const Vector& y)
@@ -306,7 +320,9 @@ Vector::dot(const Vector& y) const
   return c;
 }
 
+
 //################################################## Vector Norms
+
 
 double
 Vector::linf_norm() const
@@ -348,7 +364,9 @@ Vector::lp_norm(const double p) const
   return std::pow(norm, 1.0/p);
 }
 
+
 //################################################## Print Utilities
+
 
 void
 Vector::print(std::ostream& os,
@@ -393,6 +411,7 @@ Vector::str(const bool scientific,
 
 
 //################################################## Methods
+
 
 Vector
 pdes::Math::operator*(const Vector& x, const double factor)
@@ -451,7 +470,8 @@ pdes::Math::l2_norm(const Vector& x)
 
 double
 pdes::Math::lp_norm(const Vector& x, const double p)
-{ return lp_norm(x, p); }
+{ return x.lp_norm(p); }
+
 
 std::ostream&
 pdes::Math::operator<<(std::ostream& os, const Vector& x)
