@@ -269,72 +269,48 @@ public:
   void
   swap(Vector& y);
 
-  /**
-   * Normalize the vector to unit-length. This is computed via
-   * \f$ \vec{x} = \hat{x} = \frac{\vec{x}}{|| \vec{x} ||_{\ell_2}} \f$.
-   */
-  Vector&
-  normalize();
-
-  /**
-   * Return the unit-length vector.
-   * \see Vector::normalize
-   */
-  Vector
-  unit() const;
-
-  /**
-   * Take the absolute value of all the elements. This is computed via
-   * \f$ \vec{x} = | \vec{x} | = |x_i|, ~ \forall i \f$.
-   */
-  Vector&
-  fabs();
-
-  /**
-   * Return the absolute value of the vector.
-   * \see Vector::fabs
-   */
-  Vector
-  fabs() const;
-
   // @}
 
   //================================================== Scalar Operations
 
-  /** \name Scalar Operations */
+  /** \name Scalar Operations and Norms */
   // @{
 
   /**
-   * Negate all elements of the vector. This is computed via
-   * \f$ \vec{x} = -\vec{x} = -x_i, ~ \forall i \f$.
+   * Return the dot product with another vector. The sum of element-wise
+   * products, given by \f$ \vec{x} \cdot \vec{y} = \sum_i x_i y_i \f$.
    */
-  Vector&
-  operator-();
+  value_type
+  dot(const Vector& y) const;
 
   /**
-   * Return the negated vector.
-   * \see Vector::operator-()
+   * Return the \f$ \ell_\infty \f$-norm. The maximum absolute value, given by
+   * \f$ || \vec{x} ||_{\ell_\infty} = \max_i |x_i| \f$.
    */
-  Vector
-  operator-() const;
+  value_type
+  linfty_norm() const;
 
   /**
-   * Multiply the elements of the vector by a scalar.
-   * This is computed via
-   * \f$ \vec{x} = \alpha \vec{x} = \alpha x_i, ~ \forall i \f$.
+   * Compute the \f$ \ell_1 \f$-norm. The sum of absolute values, given by
+   * \f$ || \vec{x|| ||_{\ell_1} = \sum_i |x_i| \f$.
    */
-  Vector&
-  operator*=(const value_type factor);
+  value_type
+  l1_norm() const;
 
   /**
-   * Divide the elements of the vector by a scalar.
-   * This is computed via
-   * \f$ \vec{x} = \frac{\vec{x}}{\alpha}
-   *             = \frac{x_i}{\alpha}, ~ \forall i
-   * \f$.
+   * Compute the \f$ \ell_2 \f$-norm. The square-root of the sum of squares,
+   * given by \f$ || \vec{x} ||_{\ell_2} = \sqrt{ \sum_i |x_i|^2 } \f$.
    */
-  Vector&
-  operator/=(const value_type factor);
+  value_type
+  l2_norm() const;
+
+  /**
+   * Compute the \f$ \ell_p \f$-norm. The <tt>p</tt>'th root of the sum
+   * of the <tt>p</tt>'th power of the absolute value of the elements, given by
+   * \f$ || \vec{x} ||_{\ell_p} = \left( \sum_i |x_i|^p \right)^{1/p} \f$.
+   */
+  value_type
+  lp_norm(const value_type p) const;
 
   // @}
 
@@ -344,60 +320,105 @@ public:
   // @{
 
   /**
-   * Add another vector. This is computed via
-   * \f$ \vec{x} = \vec{x} + \vec{y} = x_i + y_i, ~ \forall i \f$.
+   * Scale by a scalar factor. This is computed via via \f$ \vec{x}
+   * = \alpha \vec{x} = \alpha x_i, ~ \forall i \f$.
+   */
+  Vector&
+  scale(const value_type factor);
+
+  /**
+   * Scale by the specified scaling factors. This is computed via \f$ \vec{x} =
+   * f_i x_i, \forall i \f$.
+   */
+  Vector&
+  scale(const Vector scaling_factors);
+
+  /**
+   * Add a scalar value to each element of the vector.
+   */
+  Vector&
+  add(const value_type value);
+
+  /**
+   * Add a multiple of a vector. This is computed via \f$ \vec{x} = \vec{x} +
+   * \alpha \vec{y} = x_i + \alpha y_i, ~ \forall i \f$. The default behavior
+   * is \f$ \alpha = 1.0 \f$.
+   */
+  Vector&
+  add(const Vector& y, const value_type a);
+
+  /**
+   * Multiply by a scalar value and add another vector. This is computed via
+   * \f$ \vec{x} = \alpha \vec{x} + \vec{y} = \alpha x_i + y_i, ~ \forall i \f$.
+   */
+  Vector&
+  sadd(const value_type a, const Vector& y);
+
+  /**
+   * Scale the vector and add another scaled vector to it. This is computed via
+   * \f$ \vec{x} = \alpha \vec{x} + \beta \vec{y} = \alpha x_i + y_i, ~
+   * \forall i \f$.
+   */
+  Vector&
+  sadd(const value_type a, const value_type b, const Vector& y);
+
+  /**
+   * Set the vector to a multiple of another. This is computed via \f$ \vec{x} =
+   * \alpha \vec{y} = \alpha y_i \f$.
+   */
+  Vector&
+  equal(const value_type factor, const Vector& y);
+
+  /**
+   * Take the absolute value of each element of the vector. This is computed
+   * via \f$ \vec{x} = | \vec{x} | = | x_i |, ~ \forall i \f$.
+   */
+  Vector&
+  fabs();
+
+  /**
+   * Negate all elements of the vector. This is computed via \f$ \vec{x} =
+   * -\vec{x} = -x_i, ~ \forall i \f$.
+   *
+   * \see Vector::scale
+   */
+  Vector&
+  operator-();
+
+  /**
+   * Return a vector containing the negated elements of this one.
+   * \see Vector::scale
+   */
+  Vector
+  operator-() const;
+
+  /**
+   * Multiply the elements of the vector by a scalar. This is computed via
+   * \f$ \vec{x} = \alpha \vec{x} = \alpha x_i, ~ \forall i \f$.
+   */
+  Vector&
+  operator*=(const value_type factor);
+
+  /**
+   * Divide the elements of the vector by a scalar. This is computed via \f$
+   * \vec{x} = \frac{\vec{x}}{\alpha} = \frac{x_i}{\alpha}, ~ \forall i \f$.
+   */
+  Vector&
+  operator/=(const value_type factor);
+
+  /**
+   * Add another vector. This is computed via \f$ \vec{x} = \vec{x} + \vec{y}
+   * = x_i + y_i, ~ \forall i \f$.
    */
   Vector&
   operator+=(const Vector& y);
 
   /**
-   * Subtract another vector. This is computed via
-   * \f$ \vec{x} = \vec{x} - \vec{y} = x_i - y_i, ~ \forall i \f$.
+   * Subtract another vector. This is computed via \f$ \vec{x} = \vec{x} -
+   * \vec{y} = x_i - y_i, ~ \forall i \f$.
    */
   Vector&
   operator-=(const Vector& y);
-
-  /**
-   * Return the dot product with another vector. This is computed via
-   * \f$ \vec{x} \cdot \vec{y} = \sum_i x_i y_i \f$.
-   */
-  value_type
-  dot(const Vector& y) const;
-
-  // @}
-
-  //================================================== Vector Norms
-
-  /** \name Vector Norms */
-  // @{
-
-  /**
-   * Compute the \f$ \ell_\infty \f$-norm. This is computed via
-   * \f$ || \vec{x} ||_{\ell_\infty} = \max_i |x_i| \f$.
-   */
-  value_type
-  linf_norm() const;
-
-  /**
-   * Compute the \f$ \ell_1 \f$-norm. This is computed via
-   * \f$ || \vec{x} ||_{\ell_1} = \sum_i |x_i| \f$.
-   */
-  value_type
-  l1_norm() const;
-
-  /**
-   * Compute the \f$ \ell_2 \f$-norm. This is computed via
-   * \f$ || \vec{x} ||_{\ell_2} = \sqrt{ \sum_i |x_i|^2 } \f$.
-   */
-  value_type
-  l2_norm() const;
-
-  /**
-   * Compute the \f$ \ell_p \f$-norm. This is computed via
-   * \f$ || \vec{x} ||_{\ell_p} = \left( \sum_i |x_i|^p \right)^{1/p} \f$.
-   */
-  value_type
-  lp_norm(const value_type p) const;
 
   // @}
 
@@ -444,35 +465,35 @@ public:
 
 /**
  * Multiply each element of the vector by a scalar value.
- * \see Vector::operator*=
+ * \see Vector::scale Vector::operator*=
  */
 Vector
 operator*(const Vector& x, const double factor);
 
 /**
  * Multiply each element of the vector by a scalar value.
- * \see Vector::operator*=
+ * \see Vector::scale Vector::operator*=
  */
 Vector
 operator*(const double factor, const Vector& x);
 
 /**
  * Divide each element of the vector by a scalar value.
- * \see Vector::operator/=
+ * \see Vector::scale Vector::operator/=
  */
 Vector
 operator/(const Vector& x, const double factor);
 
 /**
  * Add two vectors together.
- * \see Vector::operator+=
+ * \see Vector::add Vector::operator+=
  */
 Vector
 operator+(const Vector& x, const Vector& y);
 
 /**
  * Subtract two vectors.
- * \see Vector::operator-=
+ * \see Vector::add Vector::operator-=
  */
 Vector
 operator-(const Vector& x, const Vector& y);
@@ -492,18 +513,11 @@ Vector
 fabs(const Vector& x);
 
 /**
- * Return the unit-length vector.
- * \see Vector::unit
- */
-Vector
-unit(const Vector& x);
-
-/**
  * Return the \f$\ell_{\infty}\f$-norm of a vector.
- * \see Vector::linf_norm
+ * \see Vector::linfty_norm
  */
 double
-linf_norm(const Vector& x);
+linfty_norm(const Vector& x);
 
 /**
  * Return the \f$\ell_1\f$-norm of a vector.

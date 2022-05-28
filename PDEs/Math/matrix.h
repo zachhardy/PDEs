@@ -398,6 +398,8 @@ public:
   /** \name Scalar Operations */
   // @{
 
+
+
   /**
    * Negate the elements of the matrix. This is compute via
    * \f$ \boldsymbol{A} = -\boldsymbol{A} = -a_{ij}, ~ \forall i, j \f$.
