@@ -434,6 +434,25 @@ pdes::Math::unit(const Vector& x)
 { return x.unit(); }
 
 
+double
+pdes::Math::linf_norm(const Vector& x)
+{ return x.linf_norm(); }
+
+
+double
+pdes::Math::l1_norm(const Vector& x)
+{ return x.l1_norm(); }
+
+
+double
+pdes::Math::l2_norm(const Vector& x)
+{ return x.l2_norm(); }
+
+
+double
+pdes::Math::lp_norm(const Vector& x, const double p)
+{ return lp_norm(x, p); }
+
 std::ostream&
 pdes::Math::operator<<(std::ostream& os, const Vector& x)
 { return os << x.str(); }

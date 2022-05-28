@@ -504,6 +504,34 @@ Vector
 unit(const Vector& x);
 
 /**
+ * Return the \f$\ell_{\infty}\f$-norm of a vector.
+ * \see Vector::linf_norm
+ */
+double
+linf_norm(const Vector& x);
+
+/**
+ * Return the \f$\ell_1\f$-norm of a vector.
+ * \see Vector::l1_norm
+ */
+double
+l1_norm(const Vector& x);
+
+/**
+ * Return the \f$\ell_2\f$-norm of a vector.
+ * \see Vector::l2_norm
+ */
+double
+l2_norm(const Vector& x);
+
+/**
+ * Return the \f$\ell_p\f$-norm of a vector.
+ * \see Vector::lp_norm
+ */
+double
+lp_norm(const Vector& x, const double p);
+
+/**
  * Insert the vector into an output stream.
  * \see Vector::str Vector::print
  */
