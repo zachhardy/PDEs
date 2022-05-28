@@ -74,7 +74,7 @@ int main(int argc, char** argv)
     solver.boundary_info.emplace_back(BoundaryType::ZERO_FLUX, -1);
 
     solver.solution_technique = SolutionTechnique::GROUPSET_WISE;
-    solver.linear_solver_type = LinearSolver::LinearSolverType::SSOR;
+    solver.linear_solver_type = LinearSolver::LinearSolverType::CG;
 
     //================================================== Run the problem
 

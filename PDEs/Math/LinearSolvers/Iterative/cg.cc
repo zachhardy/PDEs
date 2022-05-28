@@ -30,7 +30,6 @@ solve(Vector& x, const Vector& b) const
   Vector q(x.size());
 
   double alpha;
-  double beta;
   double res;
   double res_prev;
 
@@ -39,7 +38,7 @@ solve(Vector& x, const Vector& b) const
    * the initial guess is the solution. */
   r = (!x.all_zero())? b - A.vmult(x) : b;
   res = res_prev = r.dot(r);
-  if (std::sqrt(res) < tolerance)
+  if (res < tolerance)
     return;
   p = r;
 
@@ -51,7 +50,7 @@ solve(Vector& x, const Vector& b) const
     A.vmult(p, q);
 
     // Recompute alpha factor
-    alpha = res_prev * res_prev / p.dot(q);
+    alpha = res_prev / p.dot(q);
 
     // Update solution and residual vector
     x += alpha * p;
@@ -61,15 +60,14 @@ solve(Vector& x, const Vector& b) const
     res = r.dot(r);
 
     // Check convergence
-    if (std::sqrt(res) < tolerance) break;
+    if (std::sqrt(res) <= tolerance) break;
 
     // If not converged, prep for next iteration
-    p = r + (res/res_prev) * p;
+    p = r + res/res_prev * p;
     res_prev = res;
   }
 
-  std::cout << "CG Converged in " << nit << " iterations.\n";
   // Throw no convergence error
-  if (res > tolerance)
+  if (std::sqrt(res) > tolerance)
     throw_convergence_error(nit, std::sqrt(res));
 }
