@@ -25,7 +25,8 @@ enum class LinearSolverType
   JACOBI        = 2,
   GAUSS_SEIDEL  = 3,
   SOR           = 4,
-  SSOR          = 5
+  SSOR          = 5,
+  CG            = 6
 };
 
 

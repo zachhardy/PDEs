@@ -7,6 +7,7 @@
 #include "LinearSolvers/Iterative/gauss_seidel.h"
 #include "LinearSolvers/Iterative/sor.h"
 #include "LinearSolvers/Iterative/ssor.h"
+#include "LinearSolvers/Iterative/cg.h"
 
 #include "macros.h"
 
@@ -119,6 +120,9 @@ SteadyStateSolver::initialize_linear_solver(Groupset& groupset)
 
     case LinearSolverType::SSOR:
       return std::make_shared<SSOR>(groupset.matrix, options);
+
+    case LinearSolverType::CG:
+      return std::make_shared<CG>(groupset.matrix, options);
 
     default:
       throw std::runtime_error("Invalid linear solver type encountered.");
