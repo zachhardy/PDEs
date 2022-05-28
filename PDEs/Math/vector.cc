@@ -105,29 +105,6 @@ Vector::all_zero() const
 }
 
 
-//################################################## Iterators
-
-
-std::vector<double>::iterator
-Vector::begin()
-{ return elements.begin(); }
-
-
-std::vector<double>::iterator
-Vector::end()
-{ return elements.end(); }
-
-
-std::vector<double>::const_iterator
-Vector::begin() const
-{ return elements.begin(); }
-
-
-std::vector<double>::const_iterator
-Vector::end() const
-{ return elements.end(); }
-
-
 //################################################## Accessors
 
 
@@ -189,6 +166,26 @@ Vector::data()
 const double*
 Vector::data() const
 { return elements.data(); }
+
+
+Vector::iterator
+Vector::begin()
+{ return elements.begin(); }
+
+
+Vector::iterator
+Vector::end()
+{ return elements.end(); }
+
+
+Vector::const_iterator
+Vector::begin() const
+{ return elements.begin(); }
+
+
+Vector::const_iterator
+Vector::end() const
+{ return elements.end(); }
 
 
 //################################################## Modifiers

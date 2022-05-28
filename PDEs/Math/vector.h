@@ -18,6 +18,8 @@ class Vector
 {
 public:
   using value_type = double;
+  using iterator = std::vector<value_type>::iterator;
+  using const_iterator = std::vector<value_type>::const_iterator;
 
 protected:
   std::vector<value_type> elements;
@@ -123,37 +125,6 @@ public:
 
   // @}
 
-  //================================================== Iterators
-
-  /** \name Iterators */
-  // @{
-
-  /**
-   * Mutable iterator to the first element of the vector.
-   */
-  std::vector<value_type>::iterator
-  begin();
-
-  /**
-   * Mutable iterator to the end of the vector.
-   */
-  std::vector<value_type>::iterator
-  end();
-
-  /**
-   * Constant iterator to the start of the vector.
-   */
-  std::vector<value_type>::const_iterator
-  begin() const;
-
-  /**
-   * Constant iterator to the end of the vector.
-   */
-  std::vector<value_type>::const_iterator
-  end() const;
-
-  // @}
-
   //================================================== Accessors
 
   /** \name Accessors */
@@ -230,6 +201,30 @@ public:
    */
   const value_type*
   data() const;
+
+  /**
+   * Return an iterator to the start of the vector.
+   */
+  iterator
+  begin();
+
+  /**
+   * Return an iterator to the end of the vector.
+   */
+  iterator
+  end();
+
+  /**
+   * Return a constant iterator to the start of the vector.
+   */
+  const_iterator
+  begin() const;
+
+  /**
+   * Return a constant iterator to the end of the vector.
+   */
+  const_iterator
+  end() const;
 
   // @}
 
