@@ -5,7 +5,7 @@ void
 NeutronDiffusion::SteadyStateSolver::
 initialize_boundaries()
 {
-  std::cout << "Initializing simulation boundaries...\n";
+  std::cout << "Initializing simulation boundaries.\n";
 
   //============================== Check number of boundaries
   if (mesh->dim == 1)
@@ -85,5 +85,4 @@ initialize_boundaries()
   }
 
   std::cout << "Boundaries initialized: " << boundaries.size() << "\n";
-  std::cout << "Done initializing boundaries.\n";
 }
