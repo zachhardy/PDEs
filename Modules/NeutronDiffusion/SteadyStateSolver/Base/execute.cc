@@ -70,7 +70,7 @@ solve_groupset(Groupset& groupset, SourceFlags source_flags)
     // Print iteration information
     std::stringstream iter_info;
     iter_info << "Iteration: " << std::setw(3) << nit << " "
-              << "Change: " << change;
+              << "Value: " << change;
     if (converged) iter_info << " CONVERGED\n";
     std::cout << iter_info.str() << "\n";
 
