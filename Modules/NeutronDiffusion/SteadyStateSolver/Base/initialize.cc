@@ -46,7 +46,7 @@ SteadyStateSolver::initialize()
 
   phi.resize(n_groups * n_nodes, 0.0);
   phi_ell.resize(phi.size(), 0.0);
-  precursors.resize(max_precursors_per_material * n_nodes, 0.0);
+  precursors.resize(max_precursors * n_nodes, 0.0);
 
   //================================================== Initialize groupsets
   for (auto& groupset : groupsets)

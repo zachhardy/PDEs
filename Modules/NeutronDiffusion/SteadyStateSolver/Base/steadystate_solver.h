@@ -111,7 +111,7 @@ protected:
    * This is used to promote sparsity in the precursor vector for problems with
    * many materials and precursor sets, such as in burn-up applications.
    */
-  size_t max_precursors_per_material = 0;
+  size_t max_precursors = 0;
 
   /**
    * Map a material ID to a particular CrossSection object.
@@ -175,14 +175,12 @@ public:
    * valid. For example, the mesh, groups, groupsets, materials, and
    * boundaries are all checked and relevant properties are initialized.
    */
-  void
-  initialize();
+  virtual void initialize();
 
   /**
    * Run the steady state multigroup diffusion simulation.
    */
-  void
-  execute();
+  virtual void execute();
 
 protected:
   /*-------------------- Solve Routines --------------------*/
@@ -195,16 +193,13 @@ protected:
    * the scattering and fission term. In this particular case, matrices will
    * uniformly be SPD.
    */
-  void
-  solve_groupset(Groupset& groupset,
-                 SourceFlags source_flags);
+  void solve_groupset(Groupset& groupset, SourceFlags source_flags);
 
   /**
    * Solve the full multigroup system. This routine uses a direct solver to
    * solve the <tt>often</tt> asymmetric system.
    */
-  void
-  solve_full_system(SourceFlags source_flags);
+  void solve_full_system(SourceFlags source_flags);
 
   // @}
 
@@ -223,8 +218,7 @@ protected:
    *
    * \param groupset The groupset to construct the matrix for.
    */
-  virtual void
-  assemble_matrix(Groupset& groupset) = 0;
+  virtual void assemble_matrix(Groupset& groupset) = 0;
 
   /**
    * Set the right-hand side source vector for the specified groupset.
@@ -237,9 +231,13 @@ protected:
    * \param b The destination vector for the source term.
    * \param source_flags The terms to assemble into the destination vector.
    */
-  virtual void
-  set_source(Groupset& groupset, Vector& b,
-             SourceFlags source_flags) = 0;
+  virtual void set_source(Groupset& groupset, Vector& b,
+                          SourceFlags source_flags) = 0;
+
+  /**
+   * Compute the steady-state delayed neutron precursor concentrations.
+   */
+  virtual void compute_precursors() = 0;
 
   //@}
 
@@ -251,28 +249,24 @@ protected:
   /**
    * Validate the general setup of the simulation.
    */
-  void
-  input_checks();
+  void input_checks();
 
   /**
    * Parse the appropriate properties from the materials list, validate
    * compatibility with other properties and the simulation, and set relevant
    * attributes of the simulation obtained from materials.
    */
-  void
-  initialize_materials();
+  void initialize_materials();
 
   /**
    * Create a boundary condition for each boundary and each group.
    */
-  void
-  initialize_boundaries();
+  void initialize_boundaries();
 
   /**
    * Initialize the spatial discretization for the solver.
    */
-  virtual void
-  initialize_discretization() = 0;
+  virtual void initialize_discretization() = 0;
 
   /**
    * Initialize a linear solver.
@@ -294,9 +288,8 @@ protected:
    * \param x The groupset vector to be transferred.
    * \param dst The destination multigroup vector.
    */
-  void
-  scoped_transfer(const Groupset& groupset,
-                  const Vector& x, Vector& dst);
+  void scoped_transfer(const Groupset& groupset,
+                       const Vector& x, Vector& dst);
 
   /**
    * Copy the elements corresponding to the specified groupset from one full
@@ -306,9 +299,8 @@ protected:
    * \param x The multigroup vector to be copied.
    * \param dst The destination multigroup vector.
    */
-  void
-  scoped_copy(const Groupset& groupset,
-              const Vector& x, Vector& dst);
+  void scoped_copy(const Groupset& groupset,
+                   const Vector& x, Vector& dst);
 
   /**
    * Return the \f$\ell_2\f$-norm between the last two iterates of the
@@ -316,8 +308,7 @@ protected:
    *
    * \param groupset The groupset to compute the change within.
    */
-  double
-  compute_change(const Groupset& groupset);
+  double compute_change(const Groupset& groupset);
 
   // @}
 };

@@ -28,6 +28,10 @@ NeutronDiffusion::SteadyStateSolver::execute()
                      APPLY_MATERIAL_SOURCE |
                      APPLY_WGS_SCATTER_SOURCE | APPLY_AGS_SCATTER_SOURCE |
                      APPLY_WGS_FISSION_SOURCE | APPLY_AGS_FISSION_SOURCE);
+
+  //======================================== Compute precursors
+  if (use_precursors)
+    compute_precursors();
 }
 
 //######################################################################
