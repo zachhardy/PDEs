@@ -110,19 +110,19 @@ SteadyStateSolver::initialize_linear_solver(Groupset& groupset)
       return std::make_shared<SparseCholesky>(groupset.matrix);
 
     case LinearSolverType::JACOBI:
-      return std::make_shared<Jacobi>(groupset.matrix, options);
+      return std::make_shared<Jacobi>(groupset.matrix, linear_solver_opts);
 
     case LinearSolverType::GAUSS_SEIDEL:
-      return std::make_shared<GaussSeidel>(groupset.matrix, options);
+      return std::make_shared<GaussSeidel>(groupset.matrix, linear_solver_opts);
 
     case LinearSolverType::SOR:
-      return std::make_shared<SOR>(groupset.matrix, options);
+      return std::make_shared<SOR>(groupset.matrix, linear_solver_opts);
 
     case LinearSolverType::SSOR:
-      return std::make_shared<SSOR>(groupset.matrix, options);
+      return std::make_shared<SSOR>(groupset.matrix, linear_solver_opts);
 
     case LinearSolverType::CG:
-      return std::make_shared<CG>(groupset.matrix, options);
+      return std::make_shared<CG>(groupset.matrix, linear_solver_opts);
 
     default:
       throw std::runtime_error("Invalid linear solver type encountered.");

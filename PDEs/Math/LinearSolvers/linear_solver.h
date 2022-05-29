@@ -37,8 +37,10 @@ struct Options
 {
   bool verbose_history = false;
   bool verbose_result = true;
+
   double tolerance = 1.0e-8;
   size_t max_iterations = 1000;
+
   double omega = 1.5;
 };
 

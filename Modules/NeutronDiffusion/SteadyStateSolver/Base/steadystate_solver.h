@@ -87,7 +87,7 @@ public:
   SolutionTechnique solution_technique = SolutionTechnique::GROUPSET_WISE;
 
   LinearSolverType linear_solver_type = LinearSolverType::GAUSS_SEIDEL;
-  LinearSolver::Options options;
+  LinearSolver::Options linear_solver_opts;
 
   /*-------------------- Groupsets and Groups --------------------*/
 
