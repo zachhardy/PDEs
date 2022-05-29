@@ -3,7 +3,7 @@
 
 #include "vector.h"
 #include "matrix.h"
-#include "sparse_matrix.h"
+#include "Sparse/sparse_matrix.h"
 
 #include <memory>
 #include <vector>
