@@ -2,7 +2,7 @@
 
 #include "vector.h"
 #include "matrix.h"
-#include "Math/Sparse/sparse_matrix.h"
+#include "Sparse/sparse_matrix.h"
 
 #include "macros.h"
 

@@ -1,7 +1,7 @@
 #include "ssor.h"
 
 #include "vector.h"
-#include "Math/Sparse/sparse_matrix.h"
+#include "Sparse/sparse_matrix.h"
 
 #include "macros.h"
 
