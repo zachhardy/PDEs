@@ -104,11 +104,8 @@ Physics::CrossSections::reconcile_fission_properties()
   {
     // Check for negative cross sections
     for (size_t g = 0; g < n_groups; ++g)
-    {
-      Assert(sigma_f[g] < 0.0,
-             "Negative fission cross section encountered in group " +
-             std::to_string(g) + ".");
-    }
+      Assert(sigma_f[g] >= 0.0,
+             "Negative fission cross section encountered.");
 
     // Determine which terms are present
     std::pair<bool, bool> has_total(false, false);
@@ -144,22 +141,18 @@ Physics::CrossSections::reconcile_fission_properties()
       for (size_t g = 0; g < n_groups; ++g)
       {
         Assert(nu_prompt[g] >= 0.0 && nu_delayed[g] >= 0.0,
-               "Negative prompt or delayed nu encountered in group " +
-               std::to_string(g) + ".");
+               "Negative prompt or delayed nu encountered.");
         Assert(chi_prompt[g] >= 0.0,
-               "Negative prompt fission spectrum value encountered in "
-               "group " + std::to_string(g) + ".");
+               "Negative prompt fission spectrum value.");
       }
 
       // Check precursor properties
       for (size_t j = 0; j < n_precursors; ++j)
       {
         Assert(precursor_lambda[j] > 0.0,
-               "Zero or negative decay constance encountered in precursor "
-               "species " + std::to_string(j) + ".");
+               "Zero or negative decay constance encountered.");
         Assert(precursor_yield[j] > 0.0,
-               "Zero or negative precursor yield encountered in precursor "
-               "species " _ std::to_string(j) + ".");
+               "Zero or negative precursor yield encountered.");
       }
 
       // Check delayed spectra
@@ -169,17 +162,14 @@ Physics::CrossSections::reconcile_fission_properties()
         for (size_t g = 0; g < n_groups; ++g)
         {
           Assert(chi_delayed[g][j] >= 0.0,
-                 "Negative delayed emmission spectrum value encountered "
-                 "in group " + std::to_string(g) + " for precursor species " +
-                 std::tostring(j) + ".");
+                 "Negative delayed emission spectrum value encountered.");
         }
 
         // Compute spectra sum
         double sum = 0.0;
         for (size_t g = 0; g < n_groups; ++g)
           sum += chi_delayed[g][j];
-        Assert(sum > 0.0, "Zero emission spectra encountered for precursor "
-                          "species " + std::to_string(j) + ".");
+        Assert(sum > 0.0, "Zero emission spectra encountered.");
       }
       has_delayed.second = true;
 
