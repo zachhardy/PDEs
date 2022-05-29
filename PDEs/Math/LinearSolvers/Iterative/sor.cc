@@ -1,7 +1,7 @@
 #include "sor.h"
 
 #include "vector.h"
-#include "sparse_matrix.h"
+#include "Math/Sparse/sparse_matrix.h"
 
 #include "macros.h"
 
@@ -39,7 +39,7 @@ solve(Vector& x, const Vector& b) const
     {
       //==================== Compute element-wise update
       double value = 0.0;
-      for (const auto el : A.const_row_iterator(i))
+      for (const auto el : A.const_row(i))
         if (el.column != i)
           value += el.value * x[el.column];
 

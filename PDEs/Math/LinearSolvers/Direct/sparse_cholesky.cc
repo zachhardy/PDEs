@@ -1,7 +1,7 @@
 #include "sparse_cholesky.h"
 
 #include "vector.h"
-#include "sparse_matrix.h"
+#include "Math/Sparse/sparse_matrix.h"
 
 #include "macros.h"
 
@@ -36,7 +36,7 @@ factorize()
 
     // Compute the new diagonal term
     double sum = 0.0;
-    for (const auto el : A.const_row_iterator(j))
+    for (const auto el : A.const_row(j))
       if (el.column < j)
         sum += el.value * el.value;
     *d = std::sqrt(*d - sum);
@@ -46,9 +46,9 @@ factorize()
     {
       // Go through row i and j, add to sum when columns are equal
       sum = 0.0;
-      for (const auto a_ik : A.const_row_iterator(i))
+      for (const auto a_ik : A.const_row(i))
         if (a_ik.column < j)
-          for (const auto a_jk : A.const_row_iterator(j))
+          for (const auto a_jk : A.const_row(j))
             if (a_jk.column == a_ik.column)
               sum += a_ik.value * a_jk.value;
 
@@ -76,7 +76,7 @@ solve(Vector& x, const Vector& b) const
   for (size_t i = 0; i < n; ++i)
   {
     double value = b[i];
-    for (const auto el : A.const_row_iterator(i))
+    for (const auto el : A.const_row(i))
       if (el.column < i)
         value -= el.value * x[el.column];
     x[i] = value / *A.diagonal(i);
@@ -86,7 +86,7 @@ solve(Vector& x, const Vector& b) const
   for (size_t i = n - 1; i != -1; --i)
   {
     x[i] /= *A.diagonal(i);
-    for (const auto a_ij : A.const_row_iterator(i))
+    for (const auto a_ij : A.const_row(i))
       if (a_ij.column < i)
         x[a_ij.column] -= a_ij.value * x[i];
   }

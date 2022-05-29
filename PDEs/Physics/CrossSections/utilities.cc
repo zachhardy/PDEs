@@ -182,13 +182,12 @@ Physics::CrossSections::read_delayed_spectra(
   line_stream = std::istringstream(line);
   ++line_number;
 
-  line_stream >> word;
-
   //========== Go through entries
   double value;
   int group, precursor_num;
   while (line != keyword + "_END")
   {
+    line_stream >> word;
     if (word == "G_PRECURSORJ_VAL")
     {
       line_stream >> group >> precursor_num >> value;

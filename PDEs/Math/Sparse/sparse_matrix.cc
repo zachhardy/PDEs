@@ -96,7 +96,7 @@ SparseMatrix&
 SparseMatrix::operator=(const double value)
 {
   Assert(!empty(), "Cannot set an empty matrix to a scalar.");
-  for (iterator::entry el : *this)
+  for (entry el : *this)
     el.value = value;
   return *this;
 }
@@ -156,202 +156,73 @@ SparseMatrix::empty() const
 }
 
 
-//################################################## Iterators
+//################################################## Entries
 
 
-SparseMatrix::iterator::
-iterator(SparseMatrix* sparse_matrix, const size_t row) :
-  sparse_matrix_ptr(sparse_matrix),
-  current_row(row),
-  col_ptr(sparse_matrix_ptr->colnums[current_row].begin()),
-  coeff_ptr(sparse_matrix_ptr->coeffs[current_row].begin())
-{}
-
-
-SparseMatrix::iterator::
-iterator(SparseMatrix* sparse_matrix) :
-  sparse_matrix_ptr(sparse_matrix),
-  current_row(-1), col_ptr(), coeff_ptr()
-{}
-
-
-SparseMatrix::iterator::entry::
+SparseMatrix::entry::
 entry(const size_t& i, const size_t& j, double& val) :
     row(i), column(j), value(val)
 {}
 
 
-SparseMatrix::row::
-row(SparseMatrix* sparse_matrix, const size_t i) :
-    sparse_matrix_ptr(sparse_matrix), row_num(i)
-{}
-
-
-void
-SparseMatrix::iterator::advance()
+std::string
+SparseMatrix::entry::
+str() const
 {
-  // Increment along the current row
-  ++col_ptr; ++coeff_ptr;
-
-  // If at the end of a row, handle it
-  if (col_ptr == sparse_matrix_ptr->colnums[current_row].end())
-  {
-    // Increment the row to the next non-empty row.
-    ++current_row;
-    while (current_row < sparse_matrix_ptr->rows &&
-           sparse_matrix_ptr->colnums.empty())
-      ++current_row;
-
-    /* Set the pointers to the next row, for valid rows, or to the invalid
-     * iterator, if at the end of the matrix. */
-    if (current_row < sparse_matrix_ptr->rows)
-      *this = sparse_matrix_ptr->begin(current_row);
-    else
-      *this = sparse_matrix_ptr->end();
-  }
+  std::stringstream ss;
+  ss << "A(" << row << ", " << column << ") = " << value;
+  return ss.str();
 }
 
 
-SparseMatrix::iterator
-SparseMatrix::row::begin()
-{ return sparse_matrix_ptr->begin(row_num); }
-
-
-SparseMatrix::iterator
-SparseMatrix::row::end()
-{ return sparse_matrix_ptr->end(row_num); }
-
-
-SparseMatrix::iterator&
-SparseMatrix::iterator::operator++()
-{ advance(); return *this; }
-
-
-SparseMatrix::iterator
-SparseMatrix::iterator::operator++(int)
-{ auto it = *this; advance(); return it; }
-
-
-SparseMatrix::iterator::entry
-SparseMatrix::iterator::operator*()
-{ return {current_row, *col_ptr, *coeff_ptr}; }
-
-
-bool
-SparseMatrix::iterator::
-operator==(const iterator& other) const
-{
-  return (sparse_matrix_ptr == other.sparse_matrix_ptr &&
-          current_row == other.current_row &&
-          col_ptr == other.col_ptr &&
-          coeff_ptr == other.coeff_ptr);
-}
-
-
-bool
-SparseMatrix::iterator::
-operator!=(const iterator& other) const
-{ return !(*this == other); }
-
-
-//################################################## Const Iterators
-
-
-SparseMatrix::const_iterator::
-const_iterator(const SparseMatrix* sparse_matrix, const size_t row) :
-    sparse_matrix_ptr(sparse_matrix),
-    current_row(row),
-    col_ptr(sparse_matrix_ptr->colnums[current_row].begin()),
-    coeff_ptr(sparse_matrix_ptr->coeffs[current_row].begin())
-{}
-
-
-SparseMatrix::const_iterator::
-const_iterator(const SparseMatrix* sparse_matrix) :
-    sparse_matrix_ptr(sparse_matrix),
-    current_row(-1), col_ptr(), coeff_ptr()
-{}
-
-
-SparseMatrix::const_iterator::const_entry::
-const_entry(const size_t& i,
-            const size_t& j,
-            const double& val) :
+SparseMatrix::const_entry::
+const_entry(const size_t& i, const size_t& j, const double& val) :
     row(i), column(j), value(val)
 {}
 
 
-SparseMatrix::const_row::
-const_row(const SparseMatrix* sparse_matrix, const size_t i) :
-    sparse_matrix_ptr(sparse_matrix), row_num(i)
+std::string
+SparseMatrix::const_entry::
+str() const
+{
+  std::stringstream ss;
+  ss << "A(" << row << ", " << column << ") = " << value;
+  return ss.str();
+}
+
+
+SparseMatrix::row_accessor::
+row_accessor(SparseMatrix& sparse_matrix, const size_t i) :
+  row_num(i), colnums(sparse_matrix.colnums[row_num]),
+  coeffs(sparse_matrix.coeffs[row_num])
 {}
 
 
-void
-SparseMatrix::const_iterator::advance()
-{
-  // Increment along the current row
-  ++col_ptr; ++coeff_ptr;
-
-  // If at the end of a row, handle it
-  if (col_ptr == sparse_matrix_ptr->colnums[current_row].end())
-  {
-    // Increment the row to the next non-empty row.
-    ++current_row;
-    while (current_row < sparse_matrix_ptr->rows &&
-           sparse_matrix_ptr->colnums.empty())
-      ++current_row;
-
-    /* Set the pointers to the next row, for valid rows, or to the invalid
-     * iterator, if at the end of the matrix. */
-    if (current_row < sparse_matrix_ptr->rows)
-      *this = sparse_matrix_ptr->begin(current_row);
-    else
-      *this = sparse_matrix_ptr->end();
-  }
-}
+SparseMatrix::row_accessor::iterator
+SparseMatrix::row_accessor::begin()
+{ return {*this, 0}; }
 
 
-SparseMatrix::const_iterator
-SparseMatrix::const_row::begin()
-{ return sparse_matrix_ptr->begin(row_num); }
+SparseMatrix::row_accessor::iterator
+SparseMatrix::row_accessor::end()
+{ return {*this, colnums.size()}; }
 
 
-SparseMatrix::const_iterator
-SparseMatrix::const_row::end()
-{ return sparse_matrix_ptr->end(row_num); }
+SparseMatrix::const_row_accessor::
+const_row_accessor(const SparseMatrix& sparse_matrix, const size_t i) :
+    row_num(i), colnums(sparse_matrix.colnums[row_num]),
+    coeffs(sparse_matrix.coeffs[row_num])
+{}
 
 
-SparseMatrix::const_iterator&
-SparseMatrix::const_iterator::operator++()
-{ advance(); return *this; }
+SparseMatrix::const_row_accessor::const_iterator
+SparseMatrix::const_row_accessor::begin() const
+{ return {*this, 0}; }
 
 
-SparseMatrix::const_iterator
-SparseMatrix::const_iterator::operator++(int)
-{ auto it = *this; advance(); *this; return it; }
-
-
-SparseMatrix::const_iterator::const_entry
-SparseMatrix::const_iterator::operator*()
-{ return {current_row, *col_ptr, *coeff_ptr}; }
-
-
-bool
-SparseMatrix::const_iterator::
-operator==(const const_iterator& other) const
-{
-  return (sparse_matrix_ptr == other.sparse_matrix_ptr &&
-          current_row == other.current_row &&
-          col_ptr == other.col_ptr &&
-          coeff_ptr == other.coeff_ptr);
-}
-
-
-bool
-SparseMatrix::const_iterator::
-operator!=(const const_iterator& other) const
-{ return !(*this == other); }
+SparseMatrix::const_row_accessor::const_iterator
+SparseMatrix::const_row_accessor::end() const
+{ return {*this, colnums.size()}; }
 
 
 //################################################## Accessors
@@ -475,9 +346,9 @@ SparseMatrix::end(const size_t i)
 }
 
 
-SparseMatrix::row
-SparseMatrix::row_iterator(const size_t i)
-{ return {this, i}; }
+SparseMatrix::row_accessor
+SparseMatrix::row(const size_t i)
+{ return {*this, i}; }
 
 
 SparseMatrix::const_iterator
@@ -507,9 +378,9 @@ SparseMatrix::end(const size_t i) const
 }
 
 
-SparseMatrix::const_row
-SparseMatrix::const_row_iterator(const size_t i) const
-{ return {this, i}; }
+SparseMatrix::const_row_accessor
+SparseMatrix::const_row(const size_t i) const
+{ return {*this, i}; }
 
 
 //################################################## Modifiers
@@ -721,7 +592,7 @@ SparseMatrix::vmult(const Vector& x, Vector& y,
   Assert(y.size() == rows, "Dimension mismatch error.");
 
   if (!adding) y = 0.0;
-  for (const const_iterator::const_entry el : *this)
+  for (const const_entry el : *this)
     y[el.row] += el.value * x[el.column];
 }
 
@@ -748,7 +619,7 @@ SparseMatrix::Tvmult(const Vector& x, Vector& y,
   Assert(y.size() == cols, "Dimension mismatch error.");
 
   if (!adding) y = 0.0;
-  for (const const_iterator::const_entry el : *this)
+  for (const const_entry el : *this)
     y[el.column] += el.value * x[el.row];
 }
 

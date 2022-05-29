@@ -1,7 +1,7 @@
 #include "LinearSolvers/linear_solver.h"
 
 #include "vector.h"
-#include "sparse_matrix.h"
+#include "Math/Sparse/sparse_matrix.h"
 
 #include "macros.h"
 

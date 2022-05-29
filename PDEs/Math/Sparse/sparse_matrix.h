@@ -150,6 +150,40 @@ public:
   // @{
 
   /**
+   * A struct defining a mutable entry in the sparse matrix. This acts as a
+   * triplet containing a row, column, and value.
+   */
+  struct entry
+  {
+    const size_t& row, column;
+    value_type& value;
+
+    entry(const size_t& i,
+          const size_t& j,
+          value_type& val);
+
+    std::string
+    str() const;
+  };
+
+
+  /**
+   * A struct defining a constant entry in the sparse matrix.
+   *
+   * \see SparseMatrix::entry
+   */
+  struct const_entry
+  {
+    const size_t& row, column;
+    const value_type& value;
+
+    const_entry(const size_t& i, const size_t& j, const value_type& val);
+
+    std::string
+    str() const;
+  };
+
+  /**
    * A custom mutable iterator over the sparse matrix entries. This iterator
    * essentially marches through each entry by storing iterators to the column
    * indices and values. Each increment advances each iterator and when the
@@ -167,25 +201,10 @@ public:
     SparseMatrix*       sparse_matrix_ptr;
     size_t              current_row;
     ConstColumnIterator col_ptr;
-    CoeffIterator       coeff_ptr;
+    CoeffIterator       val_ptr;
 
     void
     advance();
-
-  public:
-    /**
-     * A struct defining a mutable entry in the sparse matrix. This acts as a
-     * triplet containing a row, column, and value.
-     */
-    struct entry
-    {
-      const size_t& row, column;
-      value_type& value;
-
-      entry(const size_t& i,
-            const size_t& j,
-            value_type& val);
-    };
 
   public:
     iterator(SparseMatrix* sparse_matrix, const size_t row);
@@ -198,24 +217,6 @@ public:
 
     bool operator==(const iterator& other) const;
     bool operator!=(const iterator& other) const;
-  };
-
-
-  /**
-   * A struct defining a mutable row of the sparse matrix. This is used as
-   * an interface to define range-based iterators over a particular row.
-   */
-  class row
-  {
-  private:
-    SparseMatrix* sparse_matrix_ptr;
-    const size_t row_num;
-
-  public:
-    row(SparseMatrix* sparse_matrix, const size_t i);
-
-    iterator begin();
-    iterator end();
   };
 
 
@@ -234,26 +235,10 @@ public:
     const SparseMatrix*  sparse_matrix_ptr;
     size_t               current_row;
     ConstColumnIterator  col_ptr;
-    ConstCoeffIterator   coeff_ptr;
+    ConstCoeffIterator   val_ptr;
 
     void
     advance();
-
-  public:
-    /**
-     * A struct defining a constant entry in the sparse matrix.
-     *
-     * \see SparseMatrix::entry
-     */
-    struct const_entry
-    {
-      const size_t& row, column;
-      const value_type& value;
-
-      const_entry(const size_t& i,
-                  const size_t& j,
-                  const value_type& val);
-    };
 
   public:
     const_iterator(const SparseMatrix* sparse_matrix, const size_t row);
@@ -269,22 +254,71 @@ public:
   };
 
 
-  /**
-   * A struct defining a mutable row of the sparse matrix.
-   *
-   * \see SparseMatrix::row
-   */
-  class const_row
+  class row_accessor
   {
   private:
-    const SparseMatrix* sparse_matrix_ptr;
-    const size_t        row_num;
+    const size_t               row_num;
+    const std::vector<size_t>& colnums;
+    std::vector<value_type>&   coeffs;
 
   public:
-    const_row(const SparseMatrix* sparse_matrix, const size_t i);
+    row_accessor(SparseMatrix& sparse_matrix, const size_t i);
 
-    const_iterator begin();
-    const_iterator end();
+    class iterator
+    {
+    private:
+      const size_t current_row;
+      std::vector<size_t>::const_iterator col_ptr;
+      std::vector<value_type>::iterator   val_ptr;
+
+    public:
+      iterator(row_accessor& accessor, const size_t elem);
+
+      iterator& operator++();
+      iterator operator++(int);
+
+      entry operator*();
+
+      bool operator==(const iterator& other) const;
+      bool operator!=(const iterator& other) const;
+    };
+
+    iterator begin();
+    iterator end();
+  };
+
+
+  class const_row_accessor
+  {
+  private:
+    const size_t               row_num;
+    const std::vector<size_t>& colnums;
+    const std::vector<value_type>&  coeffs;
+
+  public:
+    const_row_accessor(const SparseMatrix& sparse_matrix, const size_t i);
+
+    class const_iterator
+    {
+    private:
+      const size_t current_row;
+      std::vector<size_t>::const_iterator col_ptr;
+      std::vector<value_type>::const_iterator  val_ptr;
+
+    public:
+      const_iterator(const const_row_accessor& accessor, const size_t elem);
+
+      const_iterator& operator++();
+      const_iterator operator++(int);
+
+      const_entry operator*();
+
+      bool operator==(const const_iterator& other) const;
+      bool operator!=(const const_iterator& other) const;
+    };
+
+    const_iterator begin() const;
+    const_iterator end() const;
   };
 
   // @}
@@ -402,8 +436,8 @@ public:
    *
    * \see SparseMatrix::const_row_iterator
    */
-  row
-  row_iterator(const size_t i);
+  row_accessor
+  row(const size_t i);
 
   /**
    * Return a constant iterator to the start of the sparse matrix.
@@ -435,8 +469,8 @@ public:
    *
    * \see SparseMatrix::row_iterator
    */
-  const_row
-  const_row_iterator(const size_t i) const;
+  const_row_accessor
+  const_row(const size_t i) const;
 
   // @}
 

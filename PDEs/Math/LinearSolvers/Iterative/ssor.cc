@@ -1,7 +1,7 @@
 #include "ssor.h"
 
 #include "vector.h"
-#include "sparse_matrix.h"
+#include "Math/Sparse/sparse_matrix.h"
 
 #include "macros.h"
 
@@ -39,7 +39,7 @@ solve(Vector& x, const Vector& b) const
     for (size_t i = 0; i < n; ++i)
     {
       double s = 0.0;
-      for (const auto el : A.const_row_iterator(i))
+      for (const auto el : A.const_row(i))
         if (el.column != i)
           s += el.value * x[el.column];
 
@@ -51,7 +51,7 @@ solve(Vector& x, const Vector& b) const
     for (size_t i = n - 1; i != -1; --i)
     {
       double s = 0.0;
-      for (const auto el : A.const_row_iterator(i))
+      for (const auto el : A.const_row(i))
         if (el.column != i)
           s += el.value * x[el.column];
 
