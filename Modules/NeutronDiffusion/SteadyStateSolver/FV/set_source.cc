@@ -50,7 +50,7 @@ set_source(Groupset& groupset, Math::Vector& b,
         const double* sig_s = xs->transfer_matrices[0][g].data();
 
         if (apply_wgs_scatter_src)
-          for (size_t gp = gs_i; g <= gs_f; ++g)
+          for (size_t gp = gs_i; gp <= gs_f; ++gp)
             rhs += sig_s[gp] * x[gp] * volume;
 
         if (apply_ags_scatter_src)
