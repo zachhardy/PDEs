@@ -35,7 +35,8 @@ enum class LinearSolverType
  */
 struct Options
 {
-  bool verbose = false;
+  bool verbose_history = false;
+  bool verbose_result = true;
   double tolerance = 1.0e-8;
   size_t max_iterations = 1000;
   double omega = 1.5;
@@ -63,7 +64,9 @@ class IterativeSolverBase : public LinearSolverBase
 {
 protected:
   const std::string solver_name;
-  bool verbose;
+
+  bool verbose_history;
+  bool verbose_result;
 
 protected:
   const SparseMatrix& A;
@@ -85,11 +88,17 @@ public:
 
 protected:
   /**
+   * Check whether or not the solver has converged.
+   */
+  virtual bool
+  check(const size_t iteration, const double value) const;
+
+  /**
    * Throw an error when convergence criteria is not met.
    */
   void
   throw_convergence_error(const size_t iteration,
-                          const double difference) const;
+                          const double value) const;
 };
 
 }

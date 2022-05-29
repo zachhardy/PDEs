@@ -62,10 +62,7 @@ solve(Vector& x, const Vector& b) const
 
     //==================== Check convergence
     x_ell = x;
-    if (change <= tolerance) break;
+    if (check(nit, change))
+      break;
   }
-
-  // Throw no convergence error
-  if (change > tolerance)
-    throw_convergence_error(nit, change);
 }

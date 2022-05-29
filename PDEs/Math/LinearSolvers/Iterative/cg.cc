@@ -60,14 +60,11 @@ solve(Vector& x, const Vector& b) const
     res = r.dot(r);
 
     // Check convergence
-    if (std::sqrt(res) <= tolerance) break;
+    if(check(nit + 1, std::sqrt(res)))
+      break;
 
     // If not converged, prep for next iteration
     p.sadd(res/res_prev, r);
     res_prev = res;
   }
-
-  // Throw no convergence error
-  if (std::sqrt(res) > tolerance)
-    throw_convergence_error(nit, std::sqrt(res));
 }
