@@ -9,8 +9,8 @@ void
 NeutronDiffusion::SteadyStateSolver_FV::
 assemble_matrix(Groupset& groupset)
 {
-  Matrix A(groupset.matrix.n_rows(),
-           groupset.matrix.n_cols(), 0.0);
+  SparseMatrix& A = groupset.matrix;
+  A = 0.0;
 
   // Get groupset range
   const auto n_gsg = groupset.groups.size();
@@ -25,8 +25,9 @@ assemble_matrix(Groupset& groupset)
     const size_t i = cell.id * n_gsg;
 
     //==================== Total interaction terms
+    const double* sig_t = xs->sigma_t.data();
     for (size_t g = gs_i; g <= gs_f; ++g)
-      A[i + g][i + g] += xs->sigma_t[g] * volume;
+      A.add(i + g, i + g, sig_t[g] * volume);
 
     //============================== Cross-group coupling
     if (solution_technique == SolutionTechnique::FULL_SYSTEM)
@@ -34,11 +35,9 @@ assemble_matrix(Groupset& groupset)
       for (size_t g = gs_i; g <= gs_f; ++g)
       {
         //==================== Scattering term
+        const double* sig_s = xs->transfer_matrices[0][g].data();
         for (size_t gp = gs_i; gp <= gs_f; ++gp)
-        {
-          double value = xs->transfer_matrices[0][g][gp] * volume;
-          A[i + g][i + gp] -= value;
-        }
+          A.add(i + g, i + gp, -sig_s[gp] * volume);
 
         //==================== Fission term
         if (xs->is_fissile)
@@ -47,8 +46,9 @@ assemble_matrix(Groupset& groupset)
           if (not use_precursors)
           {
             const double chi = xs->chi[g];
+            const double* nu_sigf = xs->nu_sigma_f.data();
             for (size_t gp = gs_i; gp <= gs_f; ++gp)
-              A[i + g][i + gp] -= chi * xs->nu_sigma_f[gp] * volume;
+              A.add(i + g, i + gp, -chi * nu_sigf[gp] * volume);
           }
 
           //========== Prompt + delayed fission
@@ -56,19 +56,20 @@ assemble_matrix(Groupset& groupset)
           {
             //========== Prompt
             const double chi_p = xs->chi_prompt[g];
+            const double* nup_sigf = xs->nu_prompt_sigma_f.data();
             for (size_t gp = gs_i; gp <= gs_f; ++gp)
-              A[i + g][i + gp] -=
-                  chi_p * xs->nu_prompt_sigma_f[gp] * volume;
+              A.add(i + g, i + gp, -chi_p * nup_sigf[gp] * volume);
 
             //========== Delayed
+            const double* chi_d = xs->chi_delayed[g].data();
+            const double* gamma = xs->precursor_yield.data();
+            const double* nud_sigf = xs->nu_delayed_sigma_f.data();
             for (size_t j = 0; j < xs->n_precursors; ++j)
-            {
-              const double chi_d = xs->chi_delayed[g][j];
-              const double gamma = xs->precursor_yield[j];
               for (size_t gp = gs_i; gp <= gs_f; ++gp)
-                A[i + g][i + gp] -=
-                    chi_d * gamma * xs->nu_delayed_sigma_f[gp] * volume;;
-            }//for precursors
+              {
+                double fission_d = chi_d[j] * gamma[j] * nud_sigf[gp];
+                A.add(i + g, i + gp, -fission_d * volume);
+              }
           }
         }//if fissile
       }//for group
@@ -93,15 +94,15 @@ assemble_matrix(Groupset& groupset)
         const double w = d_pf / d_pn; // harmonic mean weighting factor
 
         //==================== Diffusion term
+        const double* D = xs->diffusion_coeff.data();
+        const double* D_nbr = nbr_xs->diffusion_coeff.data();
         for (size_t g = gs_i; g <= gs_f; ++g)
         {
-          const double D = xs->diffusion_coeff[g];
-          const double D_nbr = nbr_xs->diffusion_coeff[g];
-          const double D_eff = 1.0 / (w/D + (1.0 - w)/D_nbr);
-
+          const double D_eff = 1.0 / (w/D[g] + (1.0 - w)/D_nbr[g]);
           const double value = D_eff / d_pn * face.area;
-          A[i + g][i + g] += value;
-          A[i + g][j + g] -= value;
+
+          A.add(i + g, i + g, value);
+          A.add(i + g, j + g, -value);
         }
       }//if interior face
 
@@ -115,12 +116,11 @@ assemble_matrix(Groupset& groupset)
         if (bndry_type == BoundaryType::ZERO_FLUX or
             bndry_type == BoundaryType::DIRICHLET)
         {
+          const double* D = xs->diffusion_coeff.data();
           const double d_pf = cell.centroid.distance(face.centroid);
           for (size_t g = gs_i; g <= gs_f; ++g)
-          {
-            const double D = xs->diffusion_coeff[g];
-            A[i + g][i + g] += D/d_pf * face.area;
-          }
+            A.add(i + g, i + g, D[g]/d_pf * face.area);
+
         }
 
         //==================== Robin boundary term
@@ -128,20 +128,20 @@ assemble_matrix(Groupset& groupset)
                  bndry_type == BoundaryType::MARSHAK or
                  bndry_type == BoundaryType::ROBIN)
         {
+          const double* D = xs->diffusion_coeff.data();
           const double d_pf = cell.centroid.distance(face.centroid);
           for (size_t g = gs_i; g <= gs_f; ++g)
           {
             const auto& bndry = boundaries[bndry_id][g];
             const auto bc = std::static_pointer_cast<RobinBoundary>(bndry);
-            const double D = xs->diffusion_coeff[g];
-            A[i + g][i + g] += bc->a*D/(bc->b*D + bc->a*d_pf) * face.area;
+
+            double value = bc->a*D[g] / (bc->b*D[g] + bc->a*d_pf);
+            A.add(i + g, i + g, value * face.area);
           }
         }
       }//if boundary face
     }//for face
   }//for cell
-
-  groupset.matrix = A;
 }
 
 
