@@ -28,7 +28,7 @@ int main(int argc, char** argv)
     using namespace NeutronDiffusion;
 
     //================================================== Create the mesh
-    size_t n_cells = 50;
+    size_t n_cells = 20;
     double slab_width = 1.0;
     double cell_width = slab_width / n_cells;
 
@@ -74,6 +74,7 @@ int main(int argc, char** argv)
     solver.boundary_info.emplace_back(BoundaryType::ZERO_FLUX, -1);
 
     solver.solution_technique = SolutionTechnique::GROUPSET_WISE;
+
     solver.linear_solver_type = LinearSolver::LinearSolverType::CG;
 
     //================================================== Run the problem

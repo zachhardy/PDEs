@@ -44,13 +44,13 @@ check(const size_t iteration, const double value) const
 
   if (verbose_history)
     std::cout << solver_name << "::"
-              << "Iteration:  " << std::setw(4) << iteration << ",  "
+              << "Iteration:  " << std::setw(4) << iteration << "    "
               << "Value:  " << value
               << (converged? "  CONVERGED\n" : "\n");
 
   if (converged && verbose_result && !verbose_history)
     std::cout << solver_name << "::CONVERGED:  "
-              << "Iteration:  " << iteration << ",  "
+              << "Iteration:  " << iteration << "    "
               << "Value:  " << value << std::endl;
 
   if (iteration == max_iterations && !converged)
