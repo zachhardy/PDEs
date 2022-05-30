@@ -84,6 +84,8 @@ read_xs_file(const std::string file_name,
       for (size_t g = 0; g < n_groups; ++g)
         chi_delayed[g].resize(n_precursors);
     }
+    if (word == "DENSITY")
+      line_stream >> density;
 
     // Parse basic cross sections
     if (word == "SIGMA_T_BEGIN")
