@@ -86,15 +86,15 @@ NeutronDiffusion::SteadyStateSolver::initialize_materials()
      * tally the number of unique decay constants. */
   if (use_precursors)
   {
-    max_precursors_per_material = 0;
+    max_precursors = 0;
     std::set<double> unique_decay_constants;
     for (const auto& xs : material_xs)
     {
       for (size_t j = 0; j < xs->n_precursors; ++j)
         unique_decay_constants.insert(xs->precursor_lambda[j]);
 
-      if (xs->n_precursors > max_precursors_per_material)
-        max_precursors_per_material = xs->n_precursors;
+      if (xs->n_precursors > max_precursors)
+        max_precursors = xs->n_precursors;
     }
     n_precursors = unique_decay_constants.size();
 

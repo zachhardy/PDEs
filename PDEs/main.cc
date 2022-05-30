@@ -29,28 +29,27 @@ int main(int argc, char** argv)
 
     //================================================== Create the mesh
     size_t n_cells = 50;
-    double slab_width = 1.0;
+    double slab_width = 6.0;
     double cell_width = slab_width / n_cells;
 
     std::vector<double> vertices(1, 0.0);
     for (size_t i = 0; i < n_cells; ++i)
       vertices.emplace_back(vertices.back() + cell_width);
 
-    auto mesh = create_1d_mesh(vertices, CoordinateSystem::CARTESIAN);
+    auto mesh = create_1d_mesh(vertices, CoordinateSystem::SPHERICAL);
 
     //================================================== Create the materials
     auto material = std::make_shared<Material>();
 
     // Create the cross sections
     auto xs = std::make_shared<CrossSections>();
-    xs->read_xs_file("xs_data/test_1g.xs");
+    xs->read_xs_file("xs_data/test_3g.xs");
     material->properties.emplace_back(xs);
 
     size_t n_groups = xs->n_groups;
 
     // Create the multigroup source
-    std::vector<double> mg_source(n_groups, 0.0);
-    mg_source[0] = 1.0;
+    std::vector<double> mg_source(n_groups, 1.0);
     auto src = std::make_shared<IsotropicMultiGroupSource>(mg_source);
     material->properties.emplace_back(src);
 
@@ -70,11 +69,12 @@ int main(int argc, char** argv)
     solver.groupsets.emplace_back(groupset);
 
     // Define boundary conditions
-    solver.boundary_info.emplace_back(BoundaryType::ZERO_FLUX, -1);
+    solver.boundary_info.emplace_back(BoundaryType::REFLECTIVE, -1);
     solver.boundary_info.emplace_back(BoundaryType::ZERO_FLUX, -1);
 
-    solver.solution_technique = SolutionTechnique::GROUPSET_WISE;
+    solver.solution_technique = SolutionTechnique::FULL_SYSTEM;
     solver.linear_solver_type = LinearSolver::LinearSolverType::CG;
+    solver.use_precursors = false;
 
     //================================================== Run the problem
 

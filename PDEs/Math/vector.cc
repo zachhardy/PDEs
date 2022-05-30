@@ -221,91 +221,8 @@ Vector::swap(Vector& y)
 { elements.swap(y.elements); }
 
 
-Vector&
-Vector::normalize()
-{
-  double norm = l2_norm();
-  return *this /= (norm != 0.0) ? norm : 1.0;
-}
-
-
-Vector
-Vector::unit() const
-{ return Vector(elements).normalize(); }
-
-
-Vector&
-Vector::fabs()
-{
-  for (auto& el : elements)
-    el = std::fabs(el);
-  return *this;
-}
-
-
-Vector
-Vector::fabs() const
-{ return Vector(elements).fabs(); }
-
-
-//################################################## Scalar Operations
-
-
-Vector&
-Vector::operator-()
-{
-  for (auto& el : elements)
-    el = -el;
-  return *this;
-}
-
-
-Vector
-Vector::operator-() const
-{ return -Vector(elements); }
-
-
-Vector&
-Vector::operator*=(const double factor)
-{
-  for (auto& el : elements)
-    el *= factor;
-  return *this;
-}
-
-
-Vector&
-Vector::operator/=(const double factor)
-{
-  Assert(factor != 0.0, "Zero division error.");
-  for (auto& el : elements)
-    el /= factor;
-  return *this;
-}
-
-
-//################################################## Linear Algebra Operations
-
-
-Vector&
-Vector::operator+=(const Vector& y)
-{
-  Assert(size() == y.size(), "Dimension mismatch error.");
-  for (size_t i = 0; i < size(); ++i)
-    elements[i] += y.elements[i];
-  return *this;
-}
-
-
-Vector&
-Vector::operator-=(const Vector& y)
-{
-  Assert(size() == y.size(), "Dimension mismatch error.");
-  for (size_t i = 0; i < size(); ++i)
-    elements[i] -= y.elements[i];
-  return *this;
-}
-
+//################################################## Scalar Operations and
+//                                                   Vector Norms
 
 double
 Vector::dot(const Vector& y) const
@@ -318,11 +235,8 @@ Vector::dot(const Vector& y) const
 }
 
 
-//################################################## Vector Norms
-
-
 double
-Vector::linf_norm() const
+Vector::linfty_norm() const
 {
   double norm = 0.0;
   for (const auto& el : elements)
@@ -359,6 +273,178 @@ Vector::lp_norm(const double p) const
   for (const auto& el : elements)
     norm += std::pow(std::fabs(el), p);
   return std::pow(norm, 1.0/p);
+}
+
+
+//################################################## Linear Algebra Operations
+
+
+Vector&
+Vector::scale(const value_type factor)
+{
+  for (auto& el : elements)
+    el *= factor;
+  return *this;
+}
+
+
+Vector&
+Vector::scale(const Vector scaling_factors)
+{
+  Assert(scaling_factors.size() == size(), "Dimension mismatch error.");
+
+  // Get pointers for faster access
+  value_type* el_ptr = data();
+  const value_type* f_ptr = scaling_factors.data();
+  value_type* end_ptr = data() + elements.size();
+
+  // Perform the vector scaling
+  for (; el_ptr != end_ptr; ++el_ptr, ++f_ptr)
+    *el_ptr *= *f_ptr;
+  return *this;
+}
+
+
+Vector&
+Vector::add(const value_type value)
+{
+  for (auto& el : elements)
+    el += value;
+  return *this;
+}
+
+
+Vector&
+Vector::add(const Vector& y, const value_type a)
+{
+  Assert(y.size() == size(), "Dimension mismatch error.");
+
+  // Get pointers for fast access
+  value_type* x_ptr = data();
+  const value_type* y_ptr = y.data();
+  value_type* end_ptr = data() + size();
+
+  // Perform the add operation
+  for (; x_ptr != end_ptr; ++x_ptr, ++y_ptr)
+    *x_ptr += a * *y_ptr;
+  return *this;
+}
+
+
+Vector&
+Vector::sadd(const value_type a, const Vector& y)
+{
+  Assert(y.size() == size(), "Dimension mismatch error.");
+
+  // Get pointers for fast access
+  value_type* x_ptr = data();
+  const value_type* y_ptr = y.data();
+  value_type* end_ptr = data() + size();
+
+  // Perform the add operation
+  for (; x_ptr != end_ptr; ++x_ptr, ++y_ptr)
+    *x_ptr = a * *x_ptr + *y_ptr;
+  return *this;
+}
+
+
+Vector&
+Vector::sadd(const value_type a, const value_type b, const Vector& y)
+{
+  Assert(y.size() == size(), "Dimension mismatch error.");
+
+  // Get pointers for fast access
+  value_type* x_ptr = data();
+  const value_type* y_ptr = y.data();
+  value_type* end_ptr = data() + size();
+
+  // Perform the add operation
+  for (; x_ptr != end_ptr; ++x_ptr, ++y_ptr)
+    *x_ptr = a * *x_ptr + b * *y_ptr;
+  return *this;
+}
+
+
+Vector&
+Vector::equal(const value_type factor, const Vector& y)
+{
+  Assert(y.size() == size(), "Dimension mismatch error.")
+
+  // Get pointers for fast access
+  value_type* x_ptr = data();
+  const value_type* y_ptr = y.data();
+  value_type* end_ptr = data() + size();
+
+  // Perform the add operation
+  for (; x_ptr != end_ptr; ++x_ptr, ++y_ptr)
+    *x_ptr = factor * *y_ptr;
+  return *this;
+}
+
+
+Vector&
+Vector::fabs()
+{
+  for (auto& el : elements)
+    el = std::fabs(el);
+  return *this;
+}
+
+
+Vector&
+Vector::operator-()
+{ return scale(-1.0); }
+
+
+Vector
+Vector::operator-() const
+{ return -Vector(elements); }
+
+
+Vector&
+Vector::operator*=(const double factor)
+{ return scale(factor); }
+
+
+Vector&
+Vector::operator/=(const double factor)
+{
+  Assert(factor != 0.0, "Zero division error.");
+  return scale(1.0 / factor);
+}
+
+
+Vector&
+Vector::operator+=(const Vector& y)
+{
+  Assert(y.size() == size(), "Dimension mismatch error.");
+
+  // Get pointers for fast access
+  value_type* x_ptr = data();
+  const value_type* y_ptr = y.data();
+  value_type* end_ptr = data() + size();
+
+  // Add the other vector
+  for (; x_ptr != end_ptr; ++x_ptr, ++y_ptr)
+    *x_ptr += *y_ptr;
+  return *this;
+}
+
+
+Vector&
+Vector::operator-=(const Vector& y)
+{
+  Assert(y.size() == size(), "Dimension mismatch error.");
+
+  // Get pointers for fast access
+  value_type* x_ptr = data();
+  const value_type* y_ptr = y.data();
+  value_type* end_ptr = data() + size();
+
+  // Subtract the other vector
+  for (; x_ptr != end_ptr; ++x_ptr, ++y_ptr)
+    *x_ptr -= *y_ptr;
+  return *this;
 }
 
 
@@ -442,17 +528,12 @@ pdes::Math::dot(const Vector& x, const Vector& y)
 
 Vector
 pdes::Math::fabs(const Vector& x)
-{ return x.fabs(); }
-
-
-Vector
-pdes::Math::unit(const Vector& x)
-{ return x.unit(); }
+{ return Vector(x).fabs(); }
 
 
 double
-pdes::Math::linf_norm(const Vector& x)
-{ return x.linf_norm(); }
+pdes::Math::linfty_norm(const Vector& x)
+{ return x.linfty_norm(); }
 
 
 double

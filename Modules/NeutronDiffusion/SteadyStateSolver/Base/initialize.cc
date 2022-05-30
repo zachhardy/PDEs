@@ -46,7 +46,7 @@ SteadyStateSolver::initialize()
 
   phi.resize(n_groups * n_nodes, 0.0);
   phi_ell.resize(phi.size(), 0.0);
-  precursors.resize(max_precursors_per_material * n_nodes, 0.0);
+  precursors.resize(max_precursors * n_nodes, 0.0);
 
   //================================================== Initialize groupsets
   for (auto& groupset : groupsets)
@@ -55,9 +55,6 @@ SteadyStateSolver::initialize()
     groupset.matrix.reinit(n_gsg * n_nodes, n_gsg * n_nodes);
     groupset.rhs.resize(n_gsg * n_nodes, 0.0);
   }//for groupset
-
-  for (auto& gs : groupsets)
-    assemble_matrix(gs);
 }
 
 //######################################################################
@@ -110,19 +107,19 @@ SteadyStateSolver::initialize_linear_solver(Groupset& groupset)
       return std::make_shared<SparseCholesky>(groupset.matrix);
 
     case LinearSolverType::JACOBI:
-      return std::make_shared<Jacobi>(groupset.matrix, options);
+      return std::make_shared<Jacobi>(groupset.matrix, linear_solver_opts);
 
     case LinearSolverType::GAUSS_SEIDEL:
-      return std::make_shared<GaussSeidel>(groupset.matrix, options);
+      return std::make_shared<GaussSeidel>(groupset.matrix, linear_solver_opts);
 
     case LinearSolverType::SOR:
-      return std::make_shared<SOR>(groupset.matrix, options);
+      return std::make_shared<SOR>(groupset.matrix, linear_solver_opts);
 
     case LinearSolverType::SSOR:
-      return std::make_shared<SSOR>(groupset.matrix, options);
+      return std::make_shared<SSOR>(groupset.matrix, linear_solver_opts);
 
     case LinearSolverType::CG:
-      return std::make_shared<CG>(groupset.matrix, options);
+      return std::make_shared<CG>(groupset.matrix, linear_solver_opts);
 
     default:
       throw std::runtime_error("Invalid linear solver type encountered.");

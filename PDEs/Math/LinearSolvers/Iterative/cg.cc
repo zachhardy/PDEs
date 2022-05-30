@@ -1,7 +1,7 @@
 #include "cg.h"
 
 #include "vector.h"
-#include "sparse_matrix.h"
+#include "Sparse/sparse_matrix.h"
 
 #include "macros.h"
 
@@ -53,21 +53,18 @@ solve(Vector& x, const Vector& b) const
     alpha = res_prev / p.dot(q);
 
     // Update solution and residual vector
-    x += alpha * p;
-    r -= alpha * q;
+    x.add(p, alpha);
+    r.add(q, -alpha);
 
     // Update residual norm
     res = r.dot(r);
 
     // Check convergence
-    if (std::sqrt(res) <= tolerance) break;
+    if(check(nit + 1, std::sqrt(res)))
+      break;
 
     // If not converged, prep for next iteration
-    p = r + res/res_prev * p;
+    p.sadd(res/res_prev, r);
     res_prev = res;
   }
-
-  // Throw no convergence error
-  if (std::sqrt(res) > tolerance)
-    throw_convergence_error(nit, std::sqrt(res));
 }

@@ -1,7 +1,7 @@
 #include "sparse_lu.h"
 
 #include "vector.h"
-#include "sparse_matrix.h"
+#include "Sparse/sparse_matrix.h"
 
 #include "macros.h"
 
@@ -91,7 +91,7 @@ LinearSolver::SparseLU::factorize()
 
         /* Upper triangular components. This represents the row-echelon form
          * of the original matrix. Her*/
-        for (const auto el : A.const_row_iterator(j))
+        for (const auto el : A.const_row(j))
           if (el.column > j)
             A.add(i, el.column, -(*a_ij) * el.value);
       }//if a_ij exists
@@ -113,7 +113,7 @@ LinearSolver::SparseLU::solve(Vector& x, const Vector& b) const
   for (size_t i = 0; i < n; ++i)
   {
     double value = b[row_pivots[i]];
-    for (const auto el : A.const_row_iterator(i))
+    for (const auto el : A.const_row(i))
       if (el.column < i)
         value -= el.value * x[el.column];
     x[i] = value;
@@ -123,7 +123,7 @@ LinearSolver::SparseLU::solve(Vector& x, const Vector& b) const
   for (size_t i = n - 1; i != -1; --i)
   {
     double value = x[i];
-    for (const auto el : A.const_row_iterator(i))
+    for (const auto el : A.const_row(i))
       if (el.column > i)
         value -= el.value * x[el.column];
     x[i] = value / *A.diagonal(i);

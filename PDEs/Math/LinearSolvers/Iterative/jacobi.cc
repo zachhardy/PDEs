@@ -1,7 +1,7 @@
 #include "jacobi.h"
 
 #include "vector.h"
-#include "sparse_matrix.h"
+#include "Sparse/sparse_matrix.h"
 
 #include "macros.h"
 
@@ -37,7 +37,7 @@ solve(Vector& x, const Vector& b) const
     {
       //==================== Compute element-wise update
       double value = b[i];
-      for (const auto el : A.const_row_iterator(i))
+      for (const auto el : A.const_row(i))
         if (el.column != i)
           value -= el.value * x_ell[el.column];
       value /= *A.diagonal(i);
@@ -49,12 +49,9 @@ solve(Vector& x, const Vector& b) const
 
     //==================== Check convergence
     x_ell = x;
-    if (change <= tolerance) break;
+    if (check(nit + 1, change))
+      break;
   }
-
-  // Throw no convergence error
-  if (change > tolerance)
-    throw_convergence_error(nit, change);
 }
 
 

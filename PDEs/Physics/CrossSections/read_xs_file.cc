@@ -27,7 +27,6 @@ read_xs_file(const std::string file_name,
 
   // Book-Keeping
   bool found_groups = false;
-  bool found_velocity = false;
   bool found_inv_velocity = false;
 
   // Read the file
@@ -82,9 +81,11 @@ read_xs_file(const std::string file_name,
       precursor_yield.assign(n_precursors, 0.0);
 
       chi_delayed.resize(n_groups);
-      for (uint64_t g = 0; g < n_groups; ++g)
+      for (size_t g = 0; g < n_groups; ++g)
         chi_delayed[g].resize(n_precursors);
     }
+    if (word == "DENSITY")
+      line_stream >> density;
 
     // Parse basic cross sections
     if (word == "SIGMA_T_BEGIN")
@@ -109,7 +110,6 @@ read_xs_file(const std::string file_name,
     if (word == "VELOCITY_BEGIN" and !found_inv_velocity)
     {
       read_cross_section("VELOCITY", inv_velocity, f, ls, ln);
-      found_velocity = true;
       for (auto& v : inv_velocity) v = 1.0 / v;
     }
     if (word == "INV_VELOCITY_BEGIN")
@@ -124,7 +124,7 @@ read_xs_file(const std::string file_name,
     // Read transfer matrix
     if (word == "TRANSFER_MOMENTS_BEGIN")
       read_transfer_matrices(
-          "TRANSFER_MATRICES", transfer_matrices, f, ls, ln);
+          "TRANSFER_MOMENTS", transfer_matrices, f, ls, ln);
 
     // Read delayed neutron data
     if (n_precursors > 0)

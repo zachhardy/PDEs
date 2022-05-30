@@ -17,17 +17,18 @@ private:
 
 protected:
 
-  void
-  initialize_discretization() override;
+  void initialize_discretization() override;
 
 protected:
-  void
-  assemble_matrix(Groupset& groupset) override;
+  void assemble_matrix(Groupset& groupset) override;
 
-  void
-  set_source(Groupset& groupset, Vector& b,
-             SourceFlags source_flags) override;
+  void set_source(Groupset& groupset, Vector& b,
+                  SourceFlags source_flags) override;
+
+  void compute_precursors() override;
 };
+
+
 
 }
 

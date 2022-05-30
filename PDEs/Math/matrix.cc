@@ -138,48 +138,9 @@ bool
 Matrix::all_zero() const
 { return (nnz() == 0)? true : false; }
 
-//################################################## Iterators
-
-std::vector<Vector>::iterator
-Matrix::begin()
-{ return coeffs.begin(); }
-
-
-std::vector<Vector>::iterator
-Matrix::end()
-{ return coeffs.end(); }
-
-
-std::vector<Vector>::const_iterator
-Matrix::begin() const
-{ return coeffs.begin(); }
-
-
-std::vector<Vector>::const_iterator
-Matrix::end() const
-{ return coeffs.end(); }
-
-
-std::vector<double>::iterator
-Matrix::begin(const size_t i)
-{ return coeffs.at(i).begin(); }
-
-
-std::vector<double>::iterator
-Matrix::end(const size_t i)
-{ return coeffs.at(i).end(); }
-
-
-std::vector<double>::const_iterator
-Matrix::begin(const size_t i) const
-{ return coeffs.at(i).begin(); }
-
-
-std::vector<double>::const_iterator
-Matrix::end(const size_t i) const
-{ return coeffs.at(i).end(); }
 
 //################################################## Accessors
+
 
 Vector&
 Matrix::operator[](const size_t i)
@@ -271,6 +232,47 @@ const double*
 Matrix::data(const size_t i) const
 { return coeffs.at(i).data(); }
 
+
+Matrix::iterator
+Matrix::begin()
+{ return coeffs.begin(); }
+
+
+Matrix::iterator
+Matrix::end()
+{ return coeffs.end(); }
+
+
+Matrix::const_iterator
+Matrix::begin() const
+{ return coeffs.begin(); }
+
+
+Matrix::const_iterator
+Matrix::end() const
+{ return coeffs.end(); }
+
+
+Vector::iterator
+Matrix::begin(const size_t i)
+{ return coeffs.at(i).begin(); }
+
+
+Vector::iterator
+Matrix::end(const size_t i)
+{ return coeffs.at(i).end(); }
+
+
+Vector::const_iterator
+Matrix::begin(const size_t i) const
+{ return coeffs.at(i).begin(); }
+
+
+Vector::const_iterator
+Matrix::end(const size_t i) const
+{ return coeffs.at(i).end(); }
+
+
 //################################################## Modifiers
 
 void
@@ -308,7 +310,7 @@ Matrix::resize(const size_t n_rows,
 void
 Matrix::resize(const size_t n_rows,
                const size_t n_cols,
-               const value_type value)
+               const double value)
 { coeffs.resize(n_rows, Vector(n_cols, value)); }
 
 
@@ -321,7 +323,7 @@ Matrix::reinit(const size_t n_rows,
 void
 Matrix::reinit(const size_t n_rows,
                const size_t n_cols,
-               const value_type value)
+               const double value)
 { resize(n_rows, n_cols, value); }
 
 
@@ -365,7 +367,7 @@ Matrix::set_diagonal(const Vector& diag)
 
 
 void
-Matrix::set_diagonal(const value_type value)
+Matrix::set_diagonal(const double value)
 {
   Assert(!coeffs.empty(), "Cannot set an empty matrix with a scalar.");
 
@@ -374,84 +376,126 @@ Matrix::set_diagonal(const value_type value)
     coeffs[i][i] = value;
 }
 
-//################################################## Scalar Operations
-
-Matrix&
-Matrix::operator-()
-{
-  for (auto& row : coeffs)
-    row = -row;
-  return *this;
-}
-
-
-Matrix
-Matrix::operator-() const
-{ return -Matrix(*this); }
-
-
-Matrix&
-Matrix::operator*=(const double value)
-{
-  for (auto& row : coeffs)
-    row *= value;
-  return *this;
-}
-
-
-Matrix&
-Matrix::operator/=(const value_type value)
-{
-  {
-    Assert(value != 0.0, "Division by zero error.");
-
-    for (auto& row : *this)
-      row /= value;
-    return *this;
-  }
-}
 
 //################################################## Linear Algebra
 
-void
-Matrix::add(const Matrix& B, const value_type factor)
+
+Matrix&
+Matrix::scale(const double factor)
+{
+  for (auto& row : *this)
+    row *= factor;
+  return *this;
+}
+
+
+Matrix&
+Matrix::add(const Matrix& B, const double a)
 {
   Assert(n_rows() == B.n_rows(), "Dimension mismatch error.");
   Assert(n_cols() == B.n_cols(), "Dimension mismatch error.");
 
+
+  // Perform the operation
   for (size_t i = 0; i < n_rows(); ++i)
   {
     double* a_ij = data(i);
     const double* b_ij = B.data(i);
-    for (size_t j = 0; j < n_cols(); ++j)
-      *a_ij++ += factor * *b_ij++;
+
+    for (size_t j = 0; j < n_cols(); ++j, ++a_ij, ++b_ij)
+      *a_ij += a * *b_ij;
   }
+  return *this;
 }
 
 
-void
-Matrix::Tadd(const Matrix& B, const value_type factor)
+Matrix&
+Matrix::sadd(const double a, const Matrix& B)
+{
+  Assert(B.n_rows() == n_rows(), "Dimension mismatch error.");
+  Assert(B.n_cols() == n_cols(), "Dimension mismatch error.");
+
+  // Perform the operation
+  for (size_t i = 0; i < n_rows(); ++i)
+  {
+    double* a_ij = data(i);
+    const double* b_ij = B.data(i);
+
+    for (size_t j = 0; j < n_cols(); ++j, ++a_ij, ++b_ij)
+      *a_ij = a * *a_ij + *b_ij;
+  }
+  return *this;
+}
+
+
+Matrix&
+Matrix::sadd(const double a, const double b, const Matrix& B)
+{
+  Assert(B.n_rows() == n_rows(), "Dimension mismatch error.");
+  Assert(B.n_cols() == n_cols(), "Dimension mismatch error.");
+
+  // Perform the operation
+  for (size_t i = 0; i < n_rows(); ++i)
+  {
+    double* a_ij = data(i);
+    const double* b_ij = B.data(i);
+
+    for (size_t j = 0; j < n_cols(); ++j, ++a_ij, ++b_ij)
+      *a_ij = a * *a_ij + b * *b_ij;
+  }
+  return *this;
+}
+
+
+Matrix&
+Matrix::Tadd(const Matrix& B, const double a)
 {
   Assert(n_rows() == B.n_cols(), "Dimension mismatch error.");
   Assert(n_cols() == B.n_rows(), "Dimension mismatch error.");
 
+  // Perform the operation
   for (size_t i = 0; i < n_rows(); ++i)
   {
-    value_type* a_ij = data(i);
-    for (size_t j = 0; j < n_cols(); ++j)
-      *a_ij++ += factor * B[j][i];
+    double* a_ij = data(i);
+    for (size_t j = 0; j < n_cols(); ++j, ++a_ij)
+      *a_ij += a * B(j, i);
   }
+  return *this;
 }
 
 
 Matrix&
-Matrix::operator+=(const Matrix& B)
-{ add(B); return *this; }
+Matrix::sTadd(const double a, const Matrix& B)
+{
+  Assert(n_rows() == B.n_cols(), "Dimension mismatch error.");
+  Assert(n_cols() == B.n_rows(), "Dimension mismatch error.");
+
+  // Perform the operation
+  for (size_t i = 0; i < n_rows(); ++i)
+  {
+    double* a_ij = data(i);
+    for (size_t j = 0; j < n_cols(); ++j, ++a_ij)
+      *a_ij = a * *a_ij * B(j, i);
+  }
+  return *this;
+}
 
 
-Matrix&
-Matrix::operator-=(const Matrix& B)
-{ add(B, -1.0); return *this; }
+Matrix& 
+Matrix::sTadd(const double a, const double b, const Matrix& B)
+{
+  Assert(n_rows() == B.n_cols(), "Dimension mismatch error.");
+  Assert(n_cols() == B.n_rows(), "Dimension mismatch error.");
+
+  // Perform the operation
+  for (size_t i = 0; i < n_rows(); ++i)
+  {
+    double* a_ij = data(i);
+    for (size_t j = 0; j < n_cols(); ++j, ++a_ij)
+      *a_ij = a * *a_ij * b * B(j, i);
+  }
+  return *this;
+}
 
 
 void
@@ -464,14 +508,15 @@ Matrix::mmult(const Matrix& B, Matrix& C,
 
   for (size_t i = 0; i < C.n_rows(); ++i)
   {
-    value_type* c_ij = C.data(i);
-    const value_type* a_i = data(i);
-    for (size_t j = 0; j < C.n_cols(); ++j)
+    double* c_ij = C.data(i);
+    const double* a_i = data(i);
+
+    for (size_t j = 0; j < C.n_cols(); ++j, ++c_ij)
     {
-      value_type value = adding? *c_ij : 0.0;
+      double value = adding? *c_ij : 0.0;
       for (size_t k = 0; k < n_cols(); ++k)
         value += a_i[k] * B(k, j);
-     *c_ij++ = value;
+      *c_ij = value;
     }
   }
 }
@@ -495,15 +540,16 @@ Matrix::Tmmult(const Matrix& B, Matrix& C,
   Assert(C.n_cols() == B.n_cols(), "Dimension mismatch error.");
   Assert(n_rows() == B.n_rows(), "Dimension mismatch error.");
 
+
   for (size_t i = 0; i < C.n_rows(); ++i)
   {
-    value_type* c_ij = C.data(i);
-    for (size_t j = 0; j < C.n_cols(); ++j)
+    double* c_ij = C.data(i);
+    for (size_t j = 0; j < C.n_cols(); ++j, ++c_ij)
     {
-      value_type value = adding? *c_ij : 0.0;
+      double value = adding? *c_ij : 0.0;
       for (size_t k = 0; k < n_rows(); ++k)
         value += coeffs[k][i] * B(k, j);
-      *c_ij++ = value;
+      *c_ij = value;
     }
   }
 }
@@ -529,15 +575,17 @@ Matrix::mTmult(const Matrix& B, Matrix& C,
 
   for (size_t i = 0; i < C.n_rows(); ++i)
   {
-    value_type* c_ij = C.data(i);
-    const value_type* a_i = data(i);
-    for (size_t j = 0; j < C.n_cols(); ++j)
+    double* c_ij = C.data(i);
+    const double* a_i = data(i);
+
+    for (size_t j = 0; j < C.n_cols(); ++j, ++c_ij)
     {
-      const value_type* b_j = B.data(j);
-      value_type value = adding? *c_ij : 0.0;
-      for (size_t k = 0; k < n_cols(); ++k)
-        value += a_i[k] * *b_j++;
-      *c_ij++ = value;
+      const double* b_jk = B.data(j);
+
+      double value = adding? *c_ij : 0.0;
+      for (size_t k = 0; k < n_cols(); ++k, ++b_jk)
+        value += a_i[k] * *b_jk;
+      *c_ij = value;
     }
   }
 }
@@ -563,14 +611,16 @@ Matrix::TTmult(const Matrix& B, Matrix& C,
 
   for (size_t i = 0; i < C.n_rows(); ++i)
   {
-    value_type* c_ij = C.data(i);
-    for (size_t j = 0; j < C.n_cols(); ++j)
+    double* c_ij = C.data(i);
+
+    for (size_t j = 0; j < C.n_cols(); ++j, ++c_ij)
     {
-      const value_type* b_j = B.data(j);
-      value_type value = adding? *c_ij : 0.0;
-      for (size_t k = 0; k < n_rows(); ++k)
-        value += coeffs[k][i] * *b_j++;
-     *c_ij++ = value;
+      const double* b_jk = B.data(j);
+
+      double value = adding? *c_ij : 0.0;
+      for (size_t k = 0; k < n_rows(); ++k, ++ b_jk)
+        value += coeffs[k][i] * *b_jk;
+      *c_ij = value;
     }
   }
 }
@@ -593,14 +643,17 @@ Matrix::vmult(const Vector& x, Vector& y,
   Assert(x.size() == n_cols(), "Dimension mismatch error.");
   Assert(y.size() == n_rows(), "Dimension mismatch error.");
 
-  value_type* y_i = y.data();
-  for (size_t i = 0; i < n_rows(); ++i)
+  double* y_i = y.data();
+
+  for (size_t i = 0; i < n_rows(); ++i, ++y_i)
   {
-    value_type v = adding? *y_i : 0.0;
-    const value_type* a_ij = data(i);
-    for (size_t j = 0; j < n_cols(); ++j)
-      v += *a_ij++ * x[j];
-    *y_i++ = v;
+    const double* a_ij = data(i);
+    const double* x_j = x.data();
+
+    double v = adding? *y_i : 0.0;
+    for (size_t j = 0; j < n_cols(); ++j, ++a_ij, ++x_j)
+      v += *a_ij * *x_j;
+    *y_i = v;
   }
 }
 
@@ -629,10 +682,12 @@ Matrix::Tvmult(const Vector& x, Vector& y,
   if (!adding) y = 0.0;
   for (size_t i = 0; i < n_rows(); ++i)
   {
-    const value_type x_i = x[i];
-    const value_type* a_ij = data(i);
-    for (size_t j = 0; j < n_cols(); ++j)
-      y[j] += *a_ij++ * x_i;
+    const double x_i = x[i];
+    const double* a_ij = data(i);
+    double* y_j = y.data();
+
+    for (size_t j = 0; j < n_cols(); ++j, ++a_ij, ++y_j)
+      *y_j += *a_ij * x_i;
   }
 }
 
@@ -651,6 +706,39 @@ Matrix::Tvmult_add(const Vector& x, Vector& y)
 { Tvmult(x, y, true); }
 
 
+Matrix&
+Matrix::operator-()
+{ return scale(-1.0); }
+
+
+Matrix
+Matrix::operator-() const
+{ return -Matrix(*this); }
+
+
+Matrix&
+Matrix::operator*=(const double factor)
+{ return scale(factor); }
+
+
+Matrix&
+Matrix::operator/=(const double factor)
+{
+  Assert(factor != 0.0, "Zero division error!");
+  return scale(1.0/factor);
+}
+
+
+Matrix&
+Matrix::operator+=(const Matrix& B)
+{ return add(B); }
+
+
+Matrix&
+Matrix::operator-=(const Matrix& B)
+{ return add(B, -1.0); }
+
+
 Vector
 Matrix::operator*(const Vector& x) const
 { return vmult(x); }
@@ -662,14 +750,16 @@ Matrix::transpose() const
   Matrix A_T(n_cols(), n_rows());
   for (size_t i = 0; i < n_rows(); ++i)
   {
-    const value_type* a_ij = coeffs[i].data();
+    const double* a_ij = coeffs[i].data();
     for (size_t j = 0; j < n_cols(); ++j)
       A_T[j][i] = *a_ij++;
   }
   return A_T;
 }
 
+
 //################################################## Print Utilities
+
 
 void
 Matrix::print(std::ostream& os,
@@ -695,7 +785,7 @@ Matrix::print(std::ostream& os,
 
   for (uint64_t i = 0; i < n_rows(); ++i)
   {
-    const value_type* a_ij = coeffs[i].data();
+    const double* a_ij = coeffs[i].data();
     for (uint64_t j = 0; j < n_cols(); ++j)
       os << std::setw(w) << *a_ij++;
     os << std::endl;
@@ -716,7 +806,9 @@ Matrix::str(const bool scientific,
   return ss.str();
 }
 
+
 //################################################## Validations
+
 
 bool
 Matrix::valid_dimensions(const STLMatrix& A)
@@ -727,7 +819,9 @@ Matrix::valid_dimensions(const STLMatrix& A)
   return true;
 }
 
+
 //################################################## Methods
+
 
 Matrix
 pdes::Math::operator+(const Matrix& A, const Matrix& B)
