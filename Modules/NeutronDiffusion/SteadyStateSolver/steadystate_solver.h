@@ -227,6 +227,9 @@ protected:
    */
   void assemble_matrix(Groupset& groupset);
 
+  /**
+   * \see assemble_matrix
+   */
   void fv_assemble_matrix(Groupset& groupset);
 
   /**
@@ -237,11 +240,13 @@ protected:
    * terms.
    *
    * \param groupset The groupset to construct the source for.
-   * \param b The destination vector for the source term.
    * \param source_flags The terms to assemble into the destination vector.
    */
   void set_source(Groupset& groupset, SourceFlags source_flags);
 
+  /**
+   * \see set_source
+   */
   void fv_set_source(Groupset& groupset, SourceFlags source_flags);
 
   /**
@@ -249,6 +254,9 @@ protected:
    */
   void compute_precursors();
 
+  /**
+   * \see compute_precursors
+   */
   void fv_compute_precursors();
 
   /**

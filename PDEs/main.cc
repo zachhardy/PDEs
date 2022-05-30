@@ -5,7 +5,7 @@
 #include "CrossSections/cross_sections.h"
 
 #include "NeutronDiffusion/Groupset/groupset.h"
-#include "NeutronDiffusion/SteadyStateSolver/FV/steadystate_solver_fv.h"
+#include "NeutronDiffusion/SteadyStateSolver/steadystate_solver.h"
 
 #include "macros.h"
 
@@ -54,7 +54,7 @@ int main(int argc, char** argv)
     material->properties.emplace_back(src);
 
     //================================================== Create the solver
-    SteadyStateSolver_FV solver;
+    SteadyStateSolver solver;
     solver.mesh = mesh;
     solver.materials.emplace_back(material);
 
