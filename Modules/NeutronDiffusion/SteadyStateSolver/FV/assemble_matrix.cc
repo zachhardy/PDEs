@@ -1,13 +1,13 @@
-#include "steadystate_solver_fv.h"
+#include "../steadystate_solver.h"
 
 
 using namespace pdes;
 using namespace Math;
+using namespace NeutronDiffusion;
 
 
 void
-NeutronDiffusion::SteadyStateSolver_FV::
-assemble_matrix(Groupset& groupset)
+SteadyStateSolver::fv_assemble_matrix(Groupset& groupset)
 {
   SparseMatrix& A = groupset.matrix = 0.0;
 
@@ -163,7 +163,4 @@ assemble_matrix(Groupset& groupset)
       }//if boundary face
     }//for face
   }//for cell
-  A.print_formatted();
 }
-
-

@@ -1,10 +1,12 @@
-#include "steadystate_solver_fv.h"
+#include "../steadystate_solver.h"
+
+
+using namespace NeutronDiffusion;
 
 
 void
-NeutronDiffusion::SteadyStateSolver_FV::
-set_source(Groupset& groupset,
-           SourceFlags source_flags)
+SteadyStateSolver::
+fv_set_source(Groupset& groupset, SourceFlags source_flags)
 {
   const bool apply_mat_src         = (source_flags & APPLY_MATERIAL_SOURCE);
   const bool apply_wgs_scatter_src = (source_flags & APPLY_WGS_SCATTER_SOURCE);

@@ -64,6 +64,8 @@ class SteadyStateSolver
 protected:
   typedef Grid::Mesh Mesh;
 
+  typedef DiscretizationMethod SDMethod;
+
   typedef Physics::Material Material;
   typedef Physics::MaterialPropertyType MaterialPropertyType;
   typedef Physics::CrossSections CrossSections;
@@ -84,10 +86,13 @@ public:
 
   bool use_precursors = false;
 
+  /*-------------------- Solver Information --------------------*/
   SolutionTechnique solution_technique = SolutionTechnique::GROUPSET_WISE;
 
-  LinearSolverType linear_solver_type = LinearSolverType::GAUSS_SEIDEL;
   LinearSolver::Options linear_solver_opts;
+  LinearSolverType linear_solver_type = LinearSolverType::SSOR;
+
+  std::shared_ptr<LinearSolverBase> linear_solver;
 
   /*-------------------- Groupsets and Groups --------------------*/
 
@@ -97,6 +102,8 @@ public:
   /*-------------------- Spatial Grid Information --------------------*/
 
   std::shared_ptr<Mesh> mesh;
+
+  SDMethod discretization_method = SDMethod::FINITE_VOLUME;
   std::shared_ptr<Discretization> discretization;
 
   /*-------------------- Physics Information --------------------*/
@@ -218,8 +225,9 @@ protected:
    *
    * \param groupset The groupset to construct the matrix for.
    */
-  virtual void
-  assemble_matrix(Groupset& groupset) = 0;
+  void assemble_matrix(Groupset& groupset);
+
+  void fv_assemble_matrix(Groupset& groupset);
 
   /**
    * Set the right-hand side source vector for the specified groupset.
@@ -232,14 +240,21 @@ protected:
    * \param b The destination vector for the source term.
    * \param source_flags The terms to assemble into the destination vector.
    */
-  virtual void
-  set_source(Groupset& groupset, SourceFlags source_flags) = 0;
+  void set_source(Groupset& groupset, SourceFlags source_flags);
+
+  void fv_set_source(Groupset& groupset, SourceFlags source_flags);
 
   /**
    * Compute the steady-state delayed neutron precursor concentrations.
    */
-  virtual void
-  compute_precursors() = 0;
+  void compute_precursors();
+
+  void fv_compute_precursors();
+
+  /**
+   * Create a linear solver.
+   */
+  void create_linear_solver(Groupset& groupset);
 
   //@}
 
@@ -264,18 +279,6 @@ protected:
    * Create a boundary condition for each boundary and each group.
    */
   void initialize_boundaries();
-
-  /**
-   * Initialize the spatial discretization for the solver.
-   */
-  virtual void
-  initialize_discretization() = 0;
-
-  /**
-   * Initialize a linear solver.
-   */
-  std::shared_ptr<LinearSolverBase>
-  initialize_linear_solver(Groupset& groupset);
 
   // @}
 

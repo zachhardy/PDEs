@@ -1,11 +1,13 @@
-#include "steadystate_solver_fv.h"
+#include "../steadystate_solver.h"
 
 #include "macros.h"
 
 
+using namespace NeutronDiffusion;
+
+
 void
-NeutronDiffusion::SteadyStateSolver_FV::
-compute_precursors()
+SteadyStateSolver::fv_compute_precursors()
 {
   Assert(use_precursors,
          "Cannot call compute_precursors when use_precursors "

@@ -1,6 +1,12 @@
 #include "steadystate_solver.h"
 
 #include "LinearSolvers/Direct/sparse_lu.h"
+#include "LinearSolvers/Direct/sparse_cholesky.h"
+#include "LinearSolvers/Iterative/jacobi.h"
+#include "LinearSolvers/Iterative/gauss_seidel.h"
+#include "LinearSolvers/Iterative/sor.h"
+#include "LinearSolvers/Iterative/ssor.h"
+#include "LinearSolvers/Iterative/cg.h"
 
 #include "macros.h"
 
@@ -46,7 +52,7 @@ solve_groupset(Groupset& groupset, SourceFlags source_flags)
   Vector& b = groupset.rhs;
   const Vector b_init = b;
 
-  auto solver = initialize_linear_solver(groupset);
+  create_linear_solver(groupset);
 
   size_t nit;
   double change;
@@ -58,7 +64,7 @@ solve_groupset(Groupset& groupset, SourceFlags source_flags)
     // Compute the RHS and solve
     b = b_init;
     set_source(groupset, source_flags);
-    auto x = solver->solve(b);
+    auto x = linear_solver->solve(b);
 
     // Convergence check, finalize iteration
     scoped_transfer(groupset, x, phi);
@@ -79,7 +85,9 @@ solve_groupset(Groupset& groupset, SourceFlags source_flags)
   }
 }
 
+
 //###########################################################################
+
 
 void
 NeutronDiffusion::SteadyStateSolver::
@@ -95,4 +103,56 @@ solve_full_system(SourceFlags source_flags)
   b = 0.0;
   set_source(groupsets.front(), source_flags);
   phi = lu.solve(b);
+}
+
+
+//###########################################################################
+
+
+void
+NeutronDiffusion::SteadyStateSolver::
+create_linear_solver(Groupset& groupset)
+{
+  SparseMatrix& A = groupset.matrix;
+  switch (linear_solver_type)
+  {
+    case LinearSolverType::LU:
+    {
+      linear_solver = std::make_shared<SparseLU>(A);
+      break;
+    }
+    case LinearSolverType::CHOLESKY:
+    {
+      linear_solver = std::make_shared<SparseCholesky>(A);
+      break;
+    }
+    case LinearSolverType::JACOBI:
+    {
+      linear_solver = std::make_shared<Jacobi>(A, linear_solver_opts);
+      break;
+    }
+    case LinearSolverType::GAUSS_SEIDEL:
+    {
+      linear_solver = std::make_shared<GaussSeidel>(A, linear_solver_opts);
+      break;
+    }
+    case LinearSolverType::SOR:
+    {
+      linear_solver = std::make_shared<SOR>(A, linear_solver_opts);
+      break;
+    }
+    case LinearSolverType::SSOR:
+    {
+      linear_solver = std::make_shared<SSOR>(A, linear_solver_opts);
+      break;
+    }
+
+    case LinearSolverType::CG:
+    {
+      linear_solver=  std::make_shared<CG>(A, linear_solver_opts);
+      break;
+    }
+    default:
+      throw std::runtime_error("Invalid linear solver type encountered.");
+  }
 }

@@ -1,13 +1,7 @@
 #include "steadystate_solver.h"
 #include "NeutronDiffusion/Groupset/groupset.h"
 
-#include "LinearSolvers/Direct/sparse_lu.h"
-#include "LinearSolvers/Direct/sparse_cholesky.h"
-#include "LinearSolvers/Iterative/jacobi.h"
-#include "LinearSolvers/Iterative/gauss_seidel.h"
-#include "LinearSolvers/Iterative/sor.h"
-#include "LinearSolvers/Iterative/ssor.h"
-#include "LinearSolvers/Iterative/cg.h"
+#include "Discretization/FiniteVolume/fv.h"
 
 #include "macros.h"
 
@@ -35,9 +29,15 @@ SteadyStateSolver::initialize()
       groupsets[0].groups.emplace_back(group);
   }
 
-  //================================================== Initialize objects
   input_checks();
-  initialize_discretization();
+
+  //================================================== Initialize objects
+
+  if (discretization_method == SDMethod::FINITE_VOLUME)
+    discretization = std::make_shared<FiniteVolume>(mesh);
+  else
+    throw std::runtime_error("Invalid spatial discretization method.");
+
   initialize_materials();
   initialize_boundaries();
 
@@ -58,6 +58,7 @@ SteadyStateSolver::initialize()
 }
 
 //######################################################################
+
 
 void
 SteadyStateSolver::input_checks()
@@ -91,37 +92,4 @@ SteadyStateSolver::input_checks()
   //================================================== Check the mesh
   Assert(mesh != nullptr, "No mesh found.");
   Assert(mesh->dim == 1, "Only 1D problems are implemented.");
-}
-
-//######################################################################
-
-std::shared_ptr<LinearSolver::LinearSolverBase>
-SteadyStateSolver::initialize_linear_solver(Groupset& groupset)
-{
-  switch (linear_solver_type)
-  {
-    case LinearSolverType::LU:
-      return std::make_shared<SparseLU>(groupset.matrix);
-
-    case LinearSolverType::CHOLESKY:
-      return std::make_shared<SparseCholesky>(groupset.matrix);
-
-    case LinearSolverType::JACOBI:
-      return std::make_shared<Jacobi>(groupset.matrix, linear_solver_opts);
-
-    case LinearSolverType::GAUSS_SEIDEL:
-      return std::make_shared<GaussSeidel>(groupset.matrix, linear_solver_opts);
-
-    case LinearSolverType::SOR:
-      return std::make_shared<SOR>(groupset.matrix, linear_solver_opts);
-
-    case LinearSolverType::SSOR:
-      return std::make_shared<SSOR>(groupset.matrix, linear_solver_opts);
-
-    case LinearSolverType::CG:
-      return std::make_shared<CG>(groupset.matrix, linear_solver_opts);
-
-    default:
-      throw std::runtime_error("Invalid linear solver type encountered.");
-  }
 }
