@@ -235,7 +235,7 @@ Physics::CrossSections::reconcile_fission_properties()
         double beta = nu_delayed[g] / nu[g];
         chi[g] = (1.0 - beta) * chi_prompt[g];
         for (size_t j = 0; j < n_precursors; ++j)
-          chi[g] = beta * precursor_yield[j] * chi_delayed[g][j];
+          chi[g] += beta * precursor_yield[j] * chi_delayed[g][j];
       }
       has_total.first = true;
       has_total.second= true;
