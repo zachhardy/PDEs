@@ -13,28 +13,28 @@ using namespace pdes::Math;
 
 
 SparseMatrix::SparseMatrix() :
-  rows(0), cols(0), colnums(), coeffs()
+    rows(0), cols(0), colnums(), coeffs()
 {}
 
 
 SparseMatrix::SparseMatrix(const size_t n_rows,
                            const size_t n_cols,
                            const size_t default_row_length) :
-  rows(n_rows), cols(n_cols),
-  colnums(n_rows, std::vector<size_t>(default_row_length)),
-  coeffs(n_rows, std::vector<double>(default_row_length))
+    rows(n_rows), cols(n_cols),
+    colnums(n_rows, std::vector<size_t>(default_row_length)),
+    coeffs(n_rows, std::vector<double>(default_row_length))
 {}
 
 
 SparseMatrix::SparseMatrix(const size_t n,
                            const size_t default_row_length) :
-  SparseMatrix(n, n, default_row_length)
+    SparseMatrix(n, n, default_row_length)
 {}
 
 
 SparseMatrix::SparseMatrix(SparsityPattern sparsity_pattern) :
-  rows(sparsity_pattern.size()), colnums(sparsity_pattern),
-  coeffs(sparsity_pattern.size())
+    rows(sparsity_pattern.size()), colnums(sparsity_pattern),
+    coeffs(sparsity_pattern.size())
 {
   cols = 0;
   {
@@ -54,8 +54,8 @@ SparseMatrix::SparseMatrix(SparsityPattern sparsity_pattern) :
 
 
 SparseMatrix::SparseMatrix(const Matrix& other) :
-  rows(other.n_rows()), cols(other.n_cols()),
-  colnums(other.n_rows()), coeffs(other.n_rows())
+    rows(other.n_rows()), cols(other.n_cols()),
+    colnums(other.n_rows()), coeffs(other.n_rows())
 {
   for (size_t i = 0; i < rows; ++i)
     for (size_t j = 0; j < cols; ++j)
@@ -154,75 +154,6 @@ SparseMatrix::empty() const
   return (rows == 0 && cols == 0 &&
           colnums.empty() && coeffs.empty());
 }
-
-
-//################################################## Entries
-
-
-SparseMatrix::entry::
-entry(const size_t& i, const size_t& j, double& val) :
-    row(i), column(j), value(val)
-{}
-
-
-std::string
-SparseMatrix::entry::
-str() const
-{
-  std::stringstream ss;
-  ss << "A(" << row << ", " << column << ") = " << value;
-  return ss.str();
-}
-
-
-SparseMatrix::const_entry::
-const_entry(const size_t& i, const size_t& j, const double& val) :
-    row(i), column(j), value(val)
-{}
-
-
-std::string
-SparseMatrix::const_entry::
-str() const
-{
-  std::stringstream ss;
-  ss << "A(" << row << ", " << column << ") = " << value;
-  return ss.str();
-}
-
-
-SparseMatrix::row_accessor::
-row_accessor(SparseMatrix& sparse_matrix, const size_t i) :
-  row_num(i), colnums(sparse_matrix.colnums[row_num]),
-  coeffs(sparse_matrix.coeffs[row_num])
-{}
-
-
-SparseMatrix::row_accessor::iterator
-SparseMatrix::row_accessor::begin()
-{ return {*this, 0}; }
-
-
-SparseMatrix::row_accessor::iterator
-SparseMatrix::row_accessor::end()
-{ return {*this, colnums.size()}; }
-
-
-SparseMatrix::const_row_accessor::
-const_row_accessor(const SparseMatrix& sparse_matrix, const size_t i) :
-    row_num(i), colnums(sparse_matrix.colnums[row_num]),
-    coeffs(sparse_matrix.coeffs[row_num])
-{}
-
-
-SparseMatrix::const_row_accessor::const_iterator
-SparseMatrix::const_row_accessor::begin() const
-{ return {*this, 0}; }
-
-
-SparseMatrix::const_row_accessor::const_iterator
-SparseMatrix::const_row_accessor::end() const
-{ return {*this, colnums.size()}; }
 
 
 //################################################## Accessors
@@ -415,12 +346,11 @@ SparseMatrix::reinit(const size_t n,
 
 
 void
-SparseMatrix::set(const size_t i,
-                  const size_t j,
-                  const double value)
-
+SparseMatrix::set(const size_t i, const size_t j, const double value)
 {
   Assert(i < rows && j < cols, "Out of range error.");
+  if (value == 0.0)
+    return;
 
   /* If the row is empty or the column number is larger than all current
    * entries on the row, add to the back of the row. */
@@ -449,9 +379,7 @@ SparseMatrix::set(const size_t i,
 
 
 void
-SparseMatrix::add(const size_t i,
-                  const size_t j,
-                  const double value)
+SparseMatrix::add(const size_t i, const size_t j, const double value)
 {
   Assert(i < rows && j < cols, "Out of range error.");
 
@@ -527,8 +455,7 @@ SparseMatrix::scale(const value_type factor)
 
 
 SparseMatrix&
-SparseMatrix::add(const SparseMatrix& B,
-                  const double a)
+SparseMatrix::add(const SparseMatrix& B, const double a)
 {
   Assert(colnums == B.colnums,
          "Adding two different sparse matrices with different "
@@ -566,7 +493,8 @@ SparseMatrix::sadd(const value_type a, const SparseMatrix& B)
 
 
 SparseMatrix&
-SparseMatrix::sadd(const value_type a, const value_type b, const SparseMatrix& B)
+SparseMatrix::
+sadd(const value_type a, const value_type b, const SparseMatrix& B)
 {
   Assert(colnums == B.colnums,
          "Adding two different sparse matrices with different "
@@ -585,8 +513,7 @@ SparseMatrix::sadd(const value_type a, const value_type b, const SparseMatrix& B
 
 
 void
-SparseMatrix::vmult(const Vector& x, Vector& y,
-                    const bool adding) const
+SparseMatrix::vmult(const Vector& x, Vector& y, const bool adding) const
 {
   Assert(x.size() == cols, "Dimension mismatch error.");
   Assert(y.size() == rows, "Dimension mismatch error.");
@@ -612,8 +539,7 @@ SparseMatrix::vmult_add(const Vector& x, Vector& y) const
 
 
 void
-SparseMatrix::Tvmult(const Vector& x, Vector& y,
-                     const bool adding) const
+SparseMatrix::Tvmult(const Vector& x, Vector& y, const bool adding) const
 {
   Assert(x.size() == rows, "Dimension mismatch error.");
   Assert(y.size() == cols, "Dimension mismatch error.");
