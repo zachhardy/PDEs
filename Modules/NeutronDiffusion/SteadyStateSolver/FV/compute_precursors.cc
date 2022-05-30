@@ -29,7 +29,15 @@ compute_precursors()
     const size_t uk_map = cell.id * max_precursors;
 
     for (size_t j = 0; j < xs->n_precursors; ++j)
-      for (size_t g = 0; g < n_groups; ++g)
-        precursors[uk_map + j] += gamma[j]/lambda[j]*nud_sigf[g] * x[g];
+    {
+      double value = 0.0;
+      const double coeff = gamma[j]/lambda[j];
+      for (size_t gr = 0; gr < n_groups; ++gr)
+      {
+        const size_t g = groups[gr];
+        value += coeff * nud_sigf[g] * x[g];
+      }
+      precursors[uk_map + j] = value;
+    }
   }
 }

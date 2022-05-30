@@ -218,7 +218,8 @@ protected:
    *
    * \param groupset The groupset to construct the matrix for.
    */
-  virtual void assemble_matrix(Groupset& groupset) = 0;
+  virtual void
+  assemble_matrix(Groupset& groupset) = 0;
 
   /**
    * Set the right-hand side source vector for the specified groupset.
@@ -231,13 +232,14 @@ protected:
    * \param b The destination vector for the source term.
    * \param source_flags The terms to assemble into the destination vector.
    */
-  virtual void set_source(Groupset& groupset, Vector& b,
-                          SourceFlags source_flags) = 0;
+  virtual void
+  set_source(Groupset& groupset, SourceFlags source_flags) = 0;
 
   /**
    * Compute the steady-state delayed neutron precursor concentrations.
    */
-  virtual void compute_precursors() = 0;
+  virtual void
+  compute_precursors() = 0;
 
   //@}
 
@@ -266,7 +268,8 @@ protected:
   /**
    * Initialize the spatial discretization for the solver.
    */
-  virtual void initialize_discretization() = 0;
+  virtual void
+  initialize_discretization() = 0;
 
   /**
    * Initialize a linear solver.

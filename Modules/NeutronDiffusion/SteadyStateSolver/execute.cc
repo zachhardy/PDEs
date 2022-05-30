@@ -44,6 +44,7 @@ solve_groupset(Groupset& groupset, SourceFlags source_flags)
 
   SparseMatrix& A = groupset.matrix;
   Vector& b = groupset.rhs;
+  const Vector b_init = b;
 
   auto solver = initialize_linear_solver(groupset);
 
@@ -55,8 +56,8 @@ solve_groupset(Groupset& groupset, SourceFlags source_flags)
   for (nit = 0; nit < groupset.max_iterations; ++nit)
   {
     // Compute the RHS and solve
-    b = 0.0;
-    set_source(groupset, b, source_flags);
+    b = b_init;
+    set_source(groupset, source_flags);
     auto x = solver->solve(b);
 
     // Convergence check, finalize iteration
@@ -92,6 +93,6 @@ solve_full_system(SourceFlags source_flags)
   SparseLU lu(A);
 
   b = 0.0;
-  set_source(groupsets.front(), b, source_flags);
+  set_source(groupsets.front(), source_flags);
   phi = lu.solve(b);
 }

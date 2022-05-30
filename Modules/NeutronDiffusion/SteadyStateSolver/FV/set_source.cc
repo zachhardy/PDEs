@@ -3,7 +3,7 @@
 
 void
 NeutronDiffusion::SteadyStateSolver_FV::
-set_source(Groupset& groupset, Math::Vector& b,
+set_source(Groupset& groupset,
            SourceFlags source_flags)
 {
   const bool apply_mat_src         = (source_flags & APPLY_MATERIAL_SOURCE);
@@ -17,8 +17,8 @@ set_source(Groupset& groupset, Math::Vector& b,
   const auto gs_i = groupset.groups.front();
   const auto gs_f = groupset.groups.back();
 
-  const auto g_i = groups.front();
-  const auto g_f = groups.back();
+  // Get groupset vector
+  Vector& b = groupset.rhs;
 
   //================================================== Loop over cells
   for (const auto& cell : mesh->cells)
@@ -195,6 +195,4 @@ set_source(Groupset& groupset, Math::Vector& b,
       }//if boundary face
     }//for faces
   }//for cells
-
-  std::cout << "DONE\n";
 }

@@ -66,6 +66,7 @@ include_directories("${PROJECT_SOURCE_DIR}/PDEs/Math")
 include_directories("${PROJECT_SOURCE_DIR}/PDEs/Physics")
 
 include_directories("${PROJECT_SOURCE_DIR}/Modules")
+include_directories("${PROJECT_SOURCE_DIR}/Modules/NeutronDiffusion")
 
 
 #-------------------- Source directories
