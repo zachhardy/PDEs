@@ -13,11 +13,9 @@ namespace pdes::Math::LinearSolver
 /**
  * Implementation of a sparse LU solver.
  */
-class SparseLU : public LinearSolverBase
+class SparseLU : public DirectSolverBase
 {
 private:
-  SparseMatrix& A;
-  bool factorized = false;
   bool pivot_flag = true;
 
   /**
@@ -51,7 +49,7 @@ public:
    * \see LU::factorize
    */
   void
-  factorize();
+  factorize() override;
 
   /**
    * Solve the LU factored linear system.

@@ -21,6 +21,11 @@ solve(const Vector& b) const
 }
 
 
+LinearSolver::DirectSolverBase::
+DirectSolverBase(SparseMatrix& A) : A(A)
+{}
+
+
 LinearSolver::IterativeSolverBase::
 IterativeSolverBase(const SparseMatrix& A,
                     const Options& opts,

@@ -10,14 +10,9 @@ namespace pdes::Math::LinearSolver
 /**
  * Implementation of a sparse Cholesky solver.
  */
-class SparseCholesky : public LinearSolverBase
+class SparseCholesky : public DirectSolverBase
 {
-private:
-  SparseMatrix& A;
-  bool factorized = false;
-
 public:
-
   /**
    * Default constructor.
    */
@@ -29,7 +24,7 @@ public:
    * \see Cholesky::solve
    */
   void
-  factorize();
+  factorize() override;
 
   /**
    * Solve the Cholesky factored linear system.

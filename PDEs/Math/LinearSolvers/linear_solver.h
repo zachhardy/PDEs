@@ -59,6 +59,35 @@ public:
 };
 
 
+//###########################################################################
+
+
+/**
+ * Base class for direct solvers.
+ */
+class DirectSolverBase : public LinearSolverBase
+{
+protected:
+  SparseMatrix& A;
+  bool factorized = false;
+
+public:
+  /**
+   * Default constructor.
+   */
+  DirectSolverBase(SparseMatrix& A);
+
+  /**
+   * Abstract routine for factorizing the matrix.
+   */
+  virtual void
+  factorize() = 0;
+};
+
+
+//###########################################################################
+
+
 /**
  * Base class for iterative solvers.
  */
