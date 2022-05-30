@@ -39,7 +39,7 @@ enum class SolutionTechnique
  */
 enum SourceFlags : int
 {
-  NO_FLAGS = 0,
+  NO_SOURCE_FLAGS = 0,
   APPLY_MATERIAL_SOURCE = (1 << 0),
   APPLY_WGS_SCATTER_SOURCE = (1 << 1),
   APPLY_AGS_SCATTER_SOURCE = (1 << 2),
@@ -52,6 +52,24 @@ inline SourceFlags operator|(const SourceFlags f1,
 {
   return static_cast<SourceFlags>(static_cast<int>(f1) |
                                   static_cast<int>(f2));
+}
+
+
+/**
+ * Bitwise assembler flags
+ */
+enum AssemblerFlags : int
+{
+  NO_ASSEMBLER_FLAGS = 0,
+  ASSEMBLE_SCATTER   = (1 << 0),
+  ASSEMBLE_FISSION   = (1 << 1)
+};
+
+inline AssemblerFlags operator|(const AssemblerFlags f1,
+                                const AssemblerFlags f2)
+{
+  return static_cast<AssemblerFlags>(static_cast<int>(f1) |
+                                     static_cast<int>(f2));
 }
 
 //######################################################################
@@ -85,6 +103,8 @@ public:
   size_t n_precursors = 0;
 
   bool use_precursors = false;
+
+  bool verbose = false;
 
   /*-------------------- Solver Information --------------------*/
   SolutionTechnique solution_technique = SolutionTechnique::GROUPSET_WISE;
@@ -225,12 +245,14 @@ protected:
    *
    * \param groupset The groupset to construct the matrix for.
    */
-  void assemble_matrix(Groupset& groupset);
+  void assemble_matrix(Groupset& groupset,
+                       AssemblerFlags assembler_flags = NO_ASSEMBLER_FLAGS);
 
   /**
    * \see assemble_matrix
    */
-  void fv_assemble_matrix(Groupset& groupset);
+  void fv_assemble_matrix(Groupset& groupset,
+                          AssemblerFlags assembler_flags = NO_ASSEMBLER_FLAGS);
 
   /**
    * Set the right-hand side source vector for the specified groupset.

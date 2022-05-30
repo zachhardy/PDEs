@@ -8,6 +8,9 @@ void
 SteadyStateSolver::
 fv_set_source(Groupset& groupset, SourceFlags source_flags)
 {
+  if (source_flags == NO_SOURCE_FLAGS)
+    return;
+
   const bool apply_mat_src         = (source_flags & APPLY_MATERIAL_SOURCE);
   const bool apply_wgs_scatter_src = (source_flags & APPLY_WGS_SCATTER_SOURCE);
   const bool apply_ags_scatter_src = (source_flags & APPLY_AGS_SCATTER_SOURCE);
@@ -64,7 +67,7 @@ fv_set_source(Groupset& groupset, SourceFlags source_flags)
             rhs += sig_s[gp] * x[gp] * volume;
 
         if (apply_ags_scatter_src)
-          for (size_t gpr = 0; gpr <= n_groups; ++gpr)
+          for (size_t gpr = 0; gpr < n_groups; ++gpr)
           {
             const size_t gp = groups[gpr];
             if (gp < gs_i || gp > gs_f)

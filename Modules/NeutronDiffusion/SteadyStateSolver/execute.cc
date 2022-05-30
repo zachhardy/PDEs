@@ -22,8 +22,13 @@ void
 NeutronDiffusion::SteadyStateSolver::execute()
 {
   //======================================== Initialize matrices
-  for (auto& gs : groupsets)
-   assemble_matrix(gs);
+  for (auto& groupset : groupsets)
+  {
+    if (solution_technique == SolutionTechnique::GROUPSET_WISE)
+      assemble_matrix(groupset);
+    else
+      assemble_matrix(groupset, ASSEMBLE_SCATTER | ASSEMBLE_FISSION);
+  }
 
   //======================================== Solve
   if (solution_technique == SolutionTechnique::FULL_SYSTEM)
@@ -46,13 +51,12 @@ void
 NeutronDiffusion::SteadyStateSolver::
 solve_groupset(Groupset& groupset, SourceFlags source_flags)
 {
-  std::cout << "\n***** Solving Groupset " << groupset.id << "\n\n";
+  if (verbose)
+    std::cout << "\n***** Solving Groupset " << groupset.id << "\n\n";
 
   SparseMatrix& A = groupset.matrix;
   Vector& b = groupset.rhs;
   const Vector b_init = b;
-
-  create_linear_solver(groupset);
 
   size_t nit;
   double change;
@@ -75,11 +79,14 @@ solve_groupset(Groupset& groupset, SourceFlags source_flags)
       converged = true;
 
     // Print iteration information
-    std::stringstream iter_info;
-    iter_info << "Iteration: " << std::setw(3) << nit << " "
-              << "Value: " << change;
-    if (converged) iter_info << " CONVERGED\n";
-    std::cout << iter_info.str() << "\n";
+    if (verbose)
+    {
+      std::stringstream iter_info;
+      iter_info << "Iteration: " << std::setw(3) << nit << " "
+                << "Value: " << change;
+      if (converged) iter_info << " CONVERGED\n";
+      std::cout << iter_info.str() << "\n";
+    }
 
     if (converged) break;
   }
@@ -93,16 +100,13 @@ void
 NeutronDiffusion::SteadyStateSolver::
 solve_full_system(SourceFlags source_flags)
 {
-  std::cout << "\n***** Solving Full System\n";
+  if (verbose)
+    std::cout << "\n***** Solving Full System\n";
 
-  SparseMatrix& A = groupsets.front().matrix;
-  Vector& b = groupsets.front().rhs;
-
-  SparseLU lu(A);
-
-  b = 0.0;
   set_source(groupsets.front(), source_flags);
-  phi = lu.solve(b);
+
+  Vector& b = groupsets.front().rhs;
+  phi = linear_solver->solve(b);
 }
 
 
@@ -146,7 +150,6 @@ create_linear_solver(Groupset& groupset)
       linear_solver = std::make_shared<SSOR>(A, linear_solver_opts);
       break;
     }
-
     case LinearSolverType::CG:
     {
       linear_solver=  std::make_shared<CG>(A, linear_solver_opts);

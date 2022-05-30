@@ -27,6 +27,9 @@ SteadyStateSolver::initialize()
     groupsets.emplace_back(0);
     for (const size_t group : groups)
       groupsets[0].groups.emplace_back(group);
+
+    // Set solver type to LU
+    linear_solver_type = LinearSolverType::LU;
   }
 
   input_checks();
