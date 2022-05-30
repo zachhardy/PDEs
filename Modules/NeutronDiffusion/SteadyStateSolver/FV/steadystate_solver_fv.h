@@ -10,7 +10,7 @@ using namespace pdes::Math;
 namespace NeutronDiffusion
 {
 
-class SteadyStateSolver_FV : public SteadyStateSolver
+class SteadyStateSolver_FV : virtual public SteadyStateSolver
 {
 private:
   std::shared_ptr<FiniteVolume> fv;
