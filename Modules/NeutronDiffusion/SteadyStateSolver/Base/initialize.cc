@@ -55,9 +55,6 @@ SteadyStateSolver::initialize()
     groupset.matrix.reinit(n_gsg * n_nodes, n_gsg * n_nodes);
     groupset.rhs.resize(n_gsg * n_nodes, 0.0);
   }//for groupset
-
-  for (auto& gs : groupsets)
-    assemble_matrix(gs);
 }
 
 //######################################################################
