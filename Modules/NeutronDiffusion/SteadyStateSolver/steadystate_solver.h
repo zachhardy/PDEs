@@ -86,6 +86,8 @@ public:
 
   bool use_precursors = false;
 
+  bool verbose = false;
+
   /*-------------------- Solver Information --------------------*/
   SolutionTechnique solution_technique = SolutionTechnique::GROUPSET_WISE;
 

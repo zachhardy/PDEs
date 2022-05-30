@@ -64,7 +64,7 @@ fv_set_source(Groupset& groupset, SourceFlags source_flags)
             rhs += sig_s[gp] * x[gp] * volume;
 
         if (apply_ags_scatter_src)
-          for (size_t gpr = 0; gpr <= n_groups; ++gpr)
+          for (size_t gpr = 0; gpr < n_groups; ++gpr)
           {
             const size_t gp = groups[gpr];
             if (gp < gs_i || gp > gs_f)

@@ -12,7 +12,7 @@ SteadyStateSolver::assemble_matrix(Groupset& groupset)
     case DiscretizationMethod::FINITE_VOLUME:
     { fv_assemble_matrix(groupset); break; }
     default:
-      throw std::runtime_error("Unimplemented discretization method.");
+      throw std::runtime_error("Invalid discretization method.");
   }
 }
 
@@ -26,7 +26,7 @@ set_source(Groupset& groupset, SourceFlags source_flags)
     case DiscretizationMethod::FINITE_VOLUME:
     { fv_set_source(groupset, source_flags); break; }
     default:
-      throw std::runtime_error("Unimplemented discretization method.");
+      throw std::runtime_error("Invalid discretization method.");
   }
 }
 
@@ -39,6 +39,6 @@ compute_precursors()
     case DiscretizationMethod::FINITE_VOLUME:
     { fv_compute_precursors(); break; }
     default:
-      throw std::runtime_error("Unimplemented discretization method.");
+      throw std::runtime_error("Invalid discretization method.");
   }
 }
