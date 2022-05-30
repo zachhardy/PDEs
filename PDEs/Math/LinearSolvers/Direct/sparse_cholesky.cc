@@ -16,6 +16,7 @@ LinearSolver::SparseCholesky::
 SparseCholesky(SparseMatrix& A) : DirectSolverBase(A)
 {
   Assert(A.n_rows() == A.n_cols(), "Square matrix required.");
+  factorize();
 }
 
 //################################################## Methods

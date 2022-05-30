@@ -18,6 +18,7 @@ SparseLU(SparseMatrix& A, const bool pivot) :
     row_pivots(A.n_rows()), pivot_flag(pivot)
 {
   Assert(A.n_rows() == A.n_cols(), "Square matrix required.");
+  factorize();
 }
 
 

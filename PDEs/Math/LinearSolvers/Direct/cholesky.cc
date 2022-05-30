@@ -17,6 +17,7 @@ LinearSolver::Cholesky::
 Cholesky(Matrix& A) : A(A)
 {
   Assert(A.n_rows() == A.n_cols(), "Square matrix required.");
+  factorize();
 }
 
 
