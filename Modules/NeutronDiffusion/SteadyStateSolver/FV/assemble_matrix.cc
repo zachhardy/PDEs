@@ -83,8 +83,6 @@ assemble_matrix(Groupset& groupset)
       }//if full system
     }//for group
 
-    std::cout << "FINISHED WITHIN CELL\n";
-
     //============================================= Loop over faces
     for (const auto& face : cell.faces)
     {
@@ -112,8 +110,6 @@ assemble_matrix(Groupset& groupset)
           const size_t ig = i + gr;
           const size_t jg = j + gr;
           const size_t g = groupset.groups[gr];
-
-          std::cout << "Group " << gr << std::endl;
 
           const double D_eff = 1.0 / (w/D[g] + (1.0 - w) / D_nbr[g]);
           const double value = D_eff / d_pn * face.area;
@@ -167,6 +163,7 @@ assemble_matrix(Groupset& groupset)
       }//if boundary face
     }//for face
   }//for cell
+  A.print_formatted();
 }
 
 
