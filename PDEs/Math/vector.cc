@@ -464,12 +464,12 @@ Vector::print(std::ostream& os,
   if (scientific)
   {
     os.setf(std::ios::scientific, std::ios::floatfield);
-    w = (!width) ? precision + 7 : w;
+    w = (!width) ? precision + 10 : w;
   }
   else
   {
     os.setf(std::ios::fixed, std::ios::floatfield);
-    w = (!width) ? precision + 4 : w;
+    w = (!width) ? precision + 5 : w;
   }
 
   os << "[";
