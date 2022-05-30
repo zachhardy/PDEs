@@ -5,15 +5,18 @@ using namespace NeutronDiffusion;
 
 
 void
-SteadyStateSolver::assemble_matrix(Groupset& groupset)
+SteadyStateSolver::
+assemble_matrix(Groupset& groupset, AssemblerFlags assembler_flags)
 {
   switch (discretization_method)
   {
     case DiscretizationMethod::FINITE_VOLUME:
-    { fv_assemble_matrix(groupset); break; }
+    { fv_assemble_matrix(groupset, assembler_flags); break; }
     default:
       throw std::runtime_error("Invalid discretization method.");
   }
+
+  create_linear_solver(groupset);
 }
 
 

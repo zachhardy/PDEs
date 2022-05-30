@@ -22,8 +22,13 @@ void
 NeutronDiffusion::SteadyStateSolver::execute()
 {
   //======================================== Initialize matrices
-  for (auto& gs : groupsets)
-   assemble_matrix(gs);
+  for (auto& groupset : groupsets)
+  {
+    if (solution_technique == SolutionTechnique::GROUPSET_WISE)
+      assemble_matrix(groupset);
+    else
+      assemble_matrix(groupset, ASSEMBLE_SCATTER | ASSEMBLE_FISSION);
+  }
 
   //======================================== Solve
   if (solution_technique == SolutionTechnique::FULL_SYSTEM)
@@ -52,8 +57,6 @@ solve_groupset(Groupset& groupset, SourceFlags source_flags)
   SparseMatrix& A = groupset.matrix;
   Vector& b = groupset.rhs;
   const Vector b_init = b;
-
-  create_linear_solver(groupset);
 
   size_t nit;
   double change;
@@ -97,16 +100,13 @@ void
 NeutronDiffusion::SteadyStateSolver::
 solve_full_system(SourceFlags source_flags)
 {
-  std::cout << "\n***** Solving Full System\n";
+  if (verbose)
+    std::cout << "\n***** Solving Full System\n";
 
-  SparseMatrix& A = groupsets.front().matrix;
-  Vector& b = groupsets.front().rhs;
-
-  SparseLU lu(A);
-
-  b = 0.0;
   set_source(groupsets.front(), source_flags);
-  phi = lu.solve(b);
+
+  Vector& b = groupsets.front().rhs;
+  phi = linear_solver->solve(b);
 }
 
 
@@ -150,7 +150,6 @@ create_linear_solver(Groupset& groupset)
       linear_solver = std::make_shared<SSOR>(A, linear_solver_opts);
       break;
     }
-
     case LinearSolverType::CG:
     {
       linear_solver=  std::make_shared<CG>(A, linear_solver_opts);

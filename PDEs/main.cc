@@ -6,6 +6,7 @@
 
 #include "NeutronDiffusion/Groupset/groupset.h"
 #include "NeutronDiffusion/SteadyStateSolver/steadystate_solver.h"
+#include "NeutronDiffusion/KEigenvalueSolver/keigenvalue_solver.h"
 
 #include "macros.h"
 
@@ -28,7 +29,7 @@ int main(int argc, char** argv)
     using namespace NeutronDiffusion;
 
     //================================================== Create the mesh
-    size_t n_cells = 50;
+    size_t n_cells = 500;
     double slab_width = 6.0;
     double cell_width = slab_width / n_cells;
 
@@ -54,7 +55,7 @@ int main(int argc, char** argv)
     material->properties.emplace_back(src);
 
     //================================================== Create the solver
-    SteadyStateSolver solver;
+    KEigenvalueSolver solver;
     solver.mesh = mesh;
     solver.materials.emplace_back(material);
 
@@ -73,8 +74,13 @@ int main(int argc, char** argv)
     solver.boundary_info.emplace_back(BoundaryType::ZERO_FLUX, -1);
 
     solver.solution_technique = SolutionTechnique::FULL_SYSTEM;
-    solver.linear_solver_type = LinearSolver::LinearSolverType::CG;
+    solver.linear_solver_type = LinearSolver::LinearSolverType::SSOR;
+
+    solver.linear_solver_opts.verbose_history = true;
+    solver.linear_solver_opts.verbose_result = false;
+
     solver.use_precursors = false;
+    solver.verbose = false;
 
     //================================================== Run the problem
 
@@ -82,8 +88,6 @@ int main(int argc, char** argv)
 
     solver.initialize();
     solver.execute();
-
-    solver.phi.print();
 
 //    PetscFinalize();
   }

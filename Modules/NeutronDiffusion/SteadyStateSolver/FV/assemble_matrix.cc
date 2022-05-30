@@ -7,12 +7,16 @@ using namespace NeutronDiffusion;
 
 
 void
-SteadyStateSolver::fv_assemble_matrix(Groupset& groupset)
+SteadyStateSolver::
+fv_assemble_matrix(Groupset& groupset, AssemblerFlags assembler_flags)
 {
+  const bool assemble_scatter = (assembler_flags & ASSEMBLE_SCATTER);
+  const bool assemble_fission = (assembler_flags & ASSEMBLE_FISSION);
+
   SparseMatrix& A = groupset.matrix = 0.0;
 
   // Get groupset range
-  const auto n_gsg = groupset.groups.size();
+  const size_t n_gsg = groupset.groups.size();
 
   //================================================== Loop over cells
   for (const auto& cell : mesh->cells)
@@ -30,7 +34,7 @@ SteadyStateSolver::fv_assemble_matrix(Groupset& groupset)
       //==================== Total interaction term
       A.add(ig, ig, xs->sigma_t[g] * volume);
 
-      if (solution_technique == SolutionTechnique::FULL_SYSTEM)
+      if (assemble_scatter)
       {
         //==================== Scattering term
         const double* sig_s = &xs->transfer_matrices[0][g][0];
@@ -41,46 +45,47 @@ SteadyStateSolver::fv_assemble_matrix(Groupset& groupset)
           const size_t gp = groupset.groups[gpr];
           A.add(ig, igp, -sig_s[gp] * volume);
         }
+      }
 
-        //==================== Fission term
-        if (xs->is_fissile)
+
+      //==================== Fission term
+      if (xs->is_fissile && assemble_fission)
+      {
+        //========== Total fission
+        if (not use_precursors)
         {
-          //========== Total fission
-          if (not use_precursors)
+          const double chi      = xs->chi[g];
+          const double* nu_sigf = &xs->nu_sigma_f[0];
+
+          for (size_t gpr = 0; gpr < n_gsg; ++gpr)
           {
-            const double chi      = xs->chi[g];
-            const double* nu_sigf = &xs->nu_sigma_f[0];
-
-            for (size_t gpr = 0; gpr < n_gsg; ++gpr)
-            {
-              const size_t igp = i + gpr;
-              const size_t gp = groupset.groups[gpr];
-              A.add(ig, igp, -chi * nu_sigf[gp] * volume);
-            }
+            const size_t igp = i + gpr;
+            const size_t gp = groupset.groups[gpr];
+            A.add(ig, igp, -chi * nu_sigf[gp] * volume);
           }
+        }
 
-          //========== Prompt + delayed fission
-          else
+        //========== Prompt + delayed fission
+        else
+        {
+          const double chi_p     = xs->chi_prompt[g];
+          const double* chi_d    = &xs->chi_delayed[g][0];
+          const double* nup_sigf = &xs->nu_prompt_sigma_f[0];
+          const double* nud_sigf = &xs->nu_delayed_sigma_f[0];
+          const double* gamma    = &xs->precursor_yield[0];
+
+          for (size_t gpr = 0; gpr < n_gsg; ++gpr)
           {
-            const double chi_p     = xs->chi_prompt[g];
-            const double* chi_d    = &xs->chi_delayed[g][0];
-            const double* nup_sigf = &xs->nu_prompt_sigma_f[0];
-            const double* nud_sigf = &xs->nu_delayed_sigma_f[0];
-            const double* gamma    = &xs->precursor_yield[0];
+            const size_t igp = i + gpr;
+            const size_t gp = groupset.groups[gpr];
 
-            for (size_t gpr = 0; gpr < n_gsg; ++gpr)
-            {
-              const size_t igp = i + gpr;
-              const size_t gp = groupset.groups[gpr];
-
-              double f = chi_p * nup_sigf[gp];
-              for (size_t j = 0; j < xs->n_precursors; ++j)
-                f += chi_d[j] * gamma[j] * nud_sigf[gp];
-              A.add(ig, igp, -f * volume);
-            }
+            double f = chi_p * nup_sigf[gp];
+            for (size_t j = 0; j < xs->n_precursors; ++j)
+              f += chi_d[j] * gamma[j] * nud_sigf[gp];
+            A.add(ig, igp, -f * volume);
           }
-        }//if fissile
-      }//if full system
+        }
+      }//if fissile
     }//for group
 
     //============================================= Loop over faces

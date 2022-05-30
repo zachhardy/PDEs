@@ -15,41 +15,52 @@ KEigenvalueSolver::power_method()
 
   phi = phi_ell = 1.0;
 
-  double f_prev = 1.0;
-  double k_eff_prev = k_eff;
-  double f_new, k_eff_change, rho;
+  double production_ell = 1.0;
+  double k_eff_ell = k_eff;
+  double production, rho;
+  double k_eff_change, phi_change;
 
   size_t nit;
   bool converged = false;
 
   for (nit = 0; nit < max_iterations; ++nit)
   {
-    //==================== Solve each groupset
+    //==================== Precompute the fission source
     for (auto& groupset : groupsets)
     {
-      // Precompute the fission source
       groupset.rhs = 0.0;
-      set_source(groupset,
-                 APPLY_WGS_FISSION_SOURCE |
-                 APPLY_AGS_FISSION_SOURCE);
+      set_source(groupset, APPLY_WGS_FISSION_SOURCE |
+                           APPLY_AGS_FISSION_SOURCE);
       groupset.rhs /= k_eff;
-
-      // Converge the scattering source
-      solve_groupset(groupset,
-                     APPLY_WGS_SCATTER_SOURCE |
-                     APPLY_AGS_SCATTER_SOURCE);
     }
 
+    //==================== Solve the system
+    if (solution_technique == SolutionTechnique::GROUPSET_WISE)
+      for (auto& groupset : groupsets)
+      {
+        // Converge the scattering source
+        solve_groupset(groupset,
+                       APPLY_WGS_SCATTER_SOURCE |
+                       APPLY_AGS_SCATTER_SOURCE);
+      }
+    else
+      solve_full_system(NO_SOURCE_FLAGS);
+
+
     //==================== Recompute the k-eigenvalue
-    f_new = compute_production();
-    k_eff *= f_new / f_prev;
+    production = compute_production();
+    k_eff *= production / production_ell;
     rho = (k_eff - 1.0)/k_eff;
 
-    k_eff_change = std::fabs(k_eff - k_eff_prev) / k_eff;
-    f_prev = f_new;
-    k_eff_prev = k_eff;
+    k_eff_change = std::fabs(k_eff - k_eff_ell) / k_eff;
+    phi_change = l2_norm(phi - phi_ell);
 
-    if (k_eff_change <= tolerance)
+    production_ell = production;
+    k_eff_ell = k_eff;
+    phi_ell = phi;
+
+    if (k_eff_change <= tolerance &&
+        phi_change <= tolerance)
       converged = true;
 
     // Print iteration information
@@ -64,9 +75,18 @@ KEigenvalueSolver::power_method()
     if (converged) break;
   }
 
-  std::cout << "\n"
-            << "          Final k-eigenvalue     :     "
-            <<  std::setprecision(6) << k_eff << "\n"
-            << "          Final Change           :     "
-            << std::setprecision(6) << k_eff_change << "\n";
+  std::stringstream summary;
+  if (converged)
+    summary << "***** k-Eigenvalue Solver Converged! *****\n";
+  else
+    summary << "!!*!! WARNING: k-Eigenvalue Solver NOT Converged !!*!!\n";
+
+  summary << "Final k-Eigenvalue:         "
+          << std::left << std::setw(6) << k_eff << "\n"
+          << "Final k-Eigenvalue Change:  "
+          << std::left << std::setw(6) << k_eff_change << "\n"
+          << "Final Phi Change:           "
+          << std::left << std::setw(6) << phi_change << "\n"
+          << "# of Iterations:            " << nit;
+  std::cout << summary.str() << std::endl;
 }
