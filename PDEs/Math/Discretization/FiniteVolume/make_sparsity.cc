@@ -2,7 +2,7 @@
 
 
 void
-pdes::Math::FiniteVolume::
+Math::FiniteVolume::
 make_sparsity_pattern(std::vector<std::vector<size_t>> pattern,
                       const size_t n_components,
                       const bool is_coupled) const

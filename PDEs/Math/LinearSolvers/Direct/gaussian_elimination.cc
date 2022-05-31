@@ -8,6 +8,7 @@
 
 #include <cmath>
 
+
 using namespace pdes;
 
 Math::Vector
@@ -140,7 +141,7 @@ Math::gaussian_elimination(SparseMatrix& A, Vector& b, const bool pivot)
       const double* a_ij = A.locate(i, j);
       if (a_ij && *a_ij != 0.0)
       {
-        const double factor = *a_ij /a_jj;
+        const double factor = *a_ij / a_jj;
         for (const auto el : A.const_row(j))
           if (el.column >= j)
             A.add(i, el.column, -el.value * factor);

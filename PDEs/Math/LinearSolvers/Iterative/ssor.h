@@ -4,28 +4,28 @@
 #include "LinearSolvers/Iterative/sor.h"
 
 
-namespace pdes::Math::LinearSolver
+namespace Math::LinearSolver
 {
 
 
-/**
- * Implementation of the symmetric successive over relaxation (SSOR)
- * iterative method.
- */
-class SSOR : public SOR
-{
-public:
   /**
-   * Default constructor.
+   * Implementation of the symmetric successive over relaxation (SSOR)
+   * iterative method.
    */
-  SSOR(const SparseMatrix& A, const Options& opts);
+  class SSOR : public SOR
+  {
+  public:
+    /**
+     * Default constructor.
+     */
+    SSOR(const SparseMatrix& A, const Options& opts);
 
-  /**
-   * Solve the system using the SSOR iterative method.
-   */
-  void
-  solve(Vector& x, const Vector& b) const override;
-};
+    /**
+     * Solve the system using the SSOR iterative method.
+     */
+    void
+    solve(Vector& x, const Vector& b) const override;
+  };
 
 }
 

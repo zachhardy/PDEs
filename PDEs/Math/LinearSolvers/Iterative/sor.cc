@@ -8,14 +8,14 @@
 #include <cmath>
 
 
-using namespace pdes::Math;
+using namespace Math;
 
 LinearSolver::SOR::
 SOR(const SparseMatrix& A,
     const Options& opts,
     const std::string solver_name) :
-    IterativeSolverBase(A, opts, solver_name),
-    omega(opts.omega)
+  IterativeSolverBase(A, opts, solver_name),
+  omega(opts.omega)
 {
   Assert(omega > 0 && omega < 2, "Invalid relaxation parameter.");
 }
@@ -44,7 +44,7 @@ solve(Vector& x, const Vector& b) const
           value += el.value * x[el.column];
 
       double a_ii = *A.diagonal(i);
-      value = x[i] + omega * ((b[i] - value)/a_ii - x[i]);
+      value = x[i] + omega * ((b[i] - value) / a_ii - x[i]);
 
       //==================== Increment difference
       change += std::fabs(value - x[i]) / std::fabs(b[i]);

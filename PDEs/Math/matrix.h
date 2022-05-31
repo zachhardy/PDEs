@@ -8,7 +8,7 @@
 #include <vector>
 
 
-namespace pdes::Math
+namespace Math
 {
 
 //########## Forward declarations

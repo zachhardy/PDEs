@@ -4,29 +4,29 @@
 #include "LinearSolvers/linear_solver.h"
 
 
-namespace pdes::Math::LinearSolver
+namespace Math::LinearSolver
 {
 
-/**
- * Implementation of the Jacobi iterative method.
- */
-class Jacobi : public IterativeSolverBase
-{
-public:
   /**
-   * Default constructor.
+   * Implementation of the Jacobi iterative method.
    */
-  Jacobi(const SparseMatrix& A, const Options& opts);
+  class Jacobi : public IterativeSolverBase
+  {
+  public:
+    /**
+     * Default constructor.
+     */
+    Jacobi(const SparseMatrix& A, const Options& opts);
 
-  /**
-   * Solve the system using the Jacobi iterative method.
-   */
-  void
-  solve(Vector& x, const Vector& b) const override;
+    /**
+     * Solve the system using the Jacobi iterative method.
+     */
+    void
+    solve(Vector& x, const Vector& b) const override;
 
 
-  using LinearSolverBase::solve;
-};
+    using LinearSolverBase::solve;
+  };
 }
 
 #endif //JACOBI_H

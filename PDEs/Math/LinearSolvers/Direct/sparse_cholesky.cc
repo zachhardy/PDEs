@@ -8,7 +8,7 @@
 #include <cmath>
 
 
-using namespace pdes::Math;
+using namespace Math;
 
 //################################################## Constructors
 
@@ -54,7 +54,7 @@ factorize()
 
       // Set element i, j
       double* a_ij = A.locate(i, j);
-      double value = (a_ij) ? (*a_ij - sum) / *d : -sum/ *d;
+      double value = (a_ij)? (*a_ij - sum) / *d : -sum / *d;
       if (std::fabs(value) != 0.0)
         A.set(i, j, value);
     }

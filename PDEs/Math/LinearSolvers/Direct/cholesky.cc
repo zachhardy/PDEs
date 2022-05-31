@@ -8,7 +8,7 @@
 #include <cmath>
 
 
-using namespace pdes::Math;
+using namespace Math;
 
 //################################################## Constructors
 
@@ -31,7 +31,7 @@ LinearSolver::Cholesky::factorize()
   // Compute the factorization column by column
   for (size_t j = 0; j < n; ++j)
   {
-    double * a_j = A.data(j); // accessor for row j
+    double* a_j = A.data(j); // accessor for row j
 
     // Compute the diagonal term
     double sum = 0.0;

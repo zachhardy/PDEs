@@ -5,7 +5,7 @@
 #include <iomanip>
 
 
-using namespace pdes::Math;
+using namespace Math;
 
 //################################################## Constructors
 
@@ -497,60 +497,60 @@ Vector::str(const bool scientific,
 
 
 Vector
-pdes::Math::operator*(const Vector& x, const double factor)
+Math::operator*(const Vector& x, const double factor)
 { return Vector(x) *= factor; }
 
 
 Vector
-pdes::Math::operator*(const double factor, const Vector& x)
+Math::operator*(const double factor, const Vector& x)
 { return Vector(x) *= factor; }
 
 
 Vector
-pdes::Math::operator/(const Vector& x, const double factor)
+Math::operator/(const Vector& x, const double factor)
 { return Vector(x) /= factor; }
 
 
 Vector
-pdes::Math::operator+(const Vector& x, const Vector& y)
+Math::operator+(const Vector& x, const Vector& y)
 { return Vector(x) += y; }
 
 
 Vector
-pdes::Math::operator-(const Vector& x, const Vector& y)
+Math::operator-(const Vector& x, const Vector& y)
 { return Vector(x) -= y; }
 
 
 double
-pdes::Math::dot(const Vector& x, const Vector& y)
+Math::dot(const Vector& x, const Vector& y)
 { return x.dot(y); }
 
 
 Vector
-pdes::Math::fabs(const Vector& x)
+Math::fabs(const Vector& x)
 { return Vector(x).fabs(); }
 
 
 double
-pdes::Math::linfty_norm(const Vector& x)
+Math::linfty_norm(const Vector& x)
 { return x.linfty_norm(); }
 
 
 double
-pdes::Math::l1_norm(const Vector& x)
+Math::l1_norm(const Vector& x)
 { return x.l1_norm(); }
 
 
 double
-pdes::Math::l2_norm(const Vector& x)
+Math::l2_norm(const Vector& x)
 { return x.l2_norm(); }
 
 
 double
-pdes::Math::lp_norm(const Vector& x, const double p)
+Math::lp_norm(const Vector& x, const double p)
 { return x.lp_norm(p); }
 
 
 std::ostream&
-pdes::Math::operator<<(std::ostream& os, const Vector& x)
+Math::operator<<(std::ostream& os, const Vector& x)
 { return os << x.str(); }

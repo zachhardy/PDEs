@@ -8,12 +8,12 @@
 #include <cmath>
 
 
-using namespace pdes::Math;
+using namespace Math;
 
 
 LinearSolver::Jacobi::
 Jacobi(const SparseMatrix& A, const Options& opts) :
-    IterativeSolverBase(A, opts, "Jacobi")
+  IterativeSolverBase(A, opts, "Jacobi")
 {}
 
 

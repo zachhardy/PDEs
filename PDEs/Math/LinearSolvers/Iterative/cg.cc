@@ -7,12 +7,13 @@
 
 #include <cmath>
 
-using namespace pdes::Math;
+
+using namespace Math;
 
 
 LinearSolver::CG::
 CG(const SparseMatrix& A, const Options& opts) :
-    IterativeSolverBase(A, opts, "CG")
+  IterativeSolverBase(A, opts, "CG")
 {}
 
 
@@ -60,11 +61,11 @@ solve(Vector& x, const Vector& b) const
     res = r.dot(r);
 
     // Check convergence
-    if(check(nit + 1, std::sqrt(res)))
+    if (check(nit + 1, std::sqrt(res)))
       break;
 
     // If not converged, prep for next iteration
-    p.sadd(res/res_prev, r);
+    p.sadd(res / res_prev, r);
     res_prev = res;
   }
 }

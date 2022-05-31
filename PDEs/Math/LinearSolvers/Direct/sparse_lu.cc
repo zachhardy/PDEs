@@ -8,14 +8,14 @@
 #include <cmath>
 
 
-using namespace pdes::Math;
+using namespace Math;
 
 //################################################## Constructors
 
 LinearSolver::SparseLU::
 SparseLU(SparseMatrix& A, const bool pivot) :
-    DirectSolverBase(A),
-    row_pivots(A.n_rows()), pivot_flag(pivot)
+  DirectSolverBase(A),
+  row_pivots(A.n_rows()), pivot_flag(pivot)
 {
   Assert(A.n_rows() == A.n_cols(), "Square matrix required.");
   factorize();
@@ -54,7 +54,7 @@ LinearSolver::SparseLU::factorize()
       const double* a_jj = A.diagonal(j);
 
       size_t argmax = j;
-      double max = std::fabs((a_jj) ? *a_jj : 0.0);
+      double max = std::fabs((a_jj)? *a_jj : 0.0);
       for (size_t k = j + 1; k < n; ++k)
       {
         const double* a_kj = A.locate(k, j);
