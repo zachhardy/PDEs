@@ -5,24 +5,28 @@
 #include <set>
 #include <cmath>
 
-using namespace pdes::Grid;
+
+using namespace Grid;
+
 
 std::string
 coordinate_system_str(const CoordinateSystem coord_sys)
 {
   switch (coord_sys)
   {
-    case CoordinateSystem::CARTESIAN:   return "CARTESIAN";
+    case CoordinateSystem::CARTESIAN: return "CARTESIAN";
     case CoordinateSystem::CYLINDRICAL: return "CYLINDRICAL";
-    case CoordinateSystem::SPHERICAL:   return "SPHERICAL";
-    default:                            return "UNDEFINED";
+    case CoordinateSystem::SPHERICAL: return "SPHERICAL";
+    default: return "UNDEFINED";
   }
 }
 
+
 //######################################################################
 
+
 Mesh::Mesh(const size_t dimension,
-                 const CoordinateSystem coordinate_system)
+           const CoordinateSystem coordinate_system)
   : dim(dimension), coord_sys(coordinate_system)
 {}
 
@@ -98,7 +102,9 @@ Mesh::establish_connectivity()
   }//for cell
 }
 
+
 //######################################################################
+
 
 void
 Mesh::compute_geometric_info()
@@ -122,15 +128,24 @@ Mesh::compute_geometric_info()
       auto cell_type = cell.type;
       auto& v1 = vertices[cell.vertex_ids[1]].z;
       auto& v0 = vertices[cell.vertex_ids[0]].z;
-      
+
       switch (cell_type)
       {
         case CellType::SLAB:
-        { cell.volume = v1 - v0; break; }
+        {
+          cell.volume = v1 - v0;
+          break;
+        }
         case CellType::ANNULUS:
-        { cell.volume = M_PI*(v1*v1 - v0*v0); break; }
+        {
+          cell.volume = M_PI * (v1 * v1 - v0 * v0);
+          break;
+        }
         case CellType::SHELL:
-        { cell.volume = 4.0/3.0*M_PI*(v1*v1*v1 - v0*v0*v0); break; }
+        {
+          cell.volume = 4.0 / 3.0 * M_PI * (v1 * v1 * v1 - v0 * v0 * v0);
+          break;
+        }
       }
     }//if 1D
 
@@ -151,11 +166,20 @@ Mesh::compute_geometric_info()
         switch (coord_sys)
         {
           case CoordinateSystem::CARTESIAN:
-          { face.area = 1.0; break; }
+          {
+            face.area = 1.0;
+            break;
+          }
           case CoordinateSystem::CYLINDRICAL:
-          { face.area = 2.0*M_PI * v; break; }
+          {
+            face.area = 2.0 * M_PI * v;
+            break;
+          }
           case CoordinateSystem::SPHERICAL:
-          { face.area = 4.0*M_PI * v*v; break; }
+          {
+            face.area = 4.0 * M_PI * v * v;
+            break;
+          }
         }
       }// if 1D
     }//for faces

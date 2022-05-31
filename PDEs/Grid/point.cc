@@ -4,25 +4,37 @@
 #include <cmath>
 
 
-using namespace pdes::Grid;
+using namespace Grid;
+
 
 //################################################## Constructors
 
-Point::Point() : x(0.0), y(0.0), z(0.0) {}
+
+Point::Point()
+  : x(0.0), y(0.0), z(0.0)
+{}
 
 
-Point::Point(const double a) : x(a), y(0.0), z(0.0) {}
+Point::Point(const double a)
+  : x(a), y(0.0), z(0.0)
+{}
 
 
 Point::Point(const double a,
-             const double b) : x(a), y(b), z(0.0) {}
+             const double b)
+  : x(a), y(b), z(0.0)
+{}
 
 
 Point::Point(const double a,
              const double b,
-             const double c) : x(a), y(b), z(c) {}
+             const double c)
+  : x(a), y(b), z(c)
+{}
+
 
 //################################################## Assignment
+
 
 Point&
 Point::operator=(const double value)
@@ -33,7 +45,9 @@ Point::operator=(const double value)
   return *this;
 }
 
+
 //################################################## Static Methods
+
 
 Point
 Point::unit_vector(const std::size_t axis)
@@ -44,7 +58,9 @@ Point::unit_vector(const std::size_t axis)
   else return Point(0.0, 0.0, 1.0);
 }
 
+
 //################################################## Comparison Operators
+
 
 bool
 Point::operator==(const Point& q) const
@@ -55,7 +71,9 @@ bool
 Point::operator!=(const Point& q) const
 { return !(*this == q); }
 
+
 //################################################## Accessors
+
 
 double&
 Point::operator[](const size_t i)
@@ -86,7 +104,9 @@ const double&
 Point::operator()(const size_t i) const
 { return (*this)[i]; }
 
+
 //################################################## Characteristics
+
 
 double
 Point::length() const
@@ -95,9 +115,11 @@ Point::length() const
 
 double
 Point::length_squared() const
-{ return x*x + y*y + z*z; }
+{ return x * x + y * y + z * z; }
+
 
 //################################################## Scalar Operations
+
 
 Point&
 Point::operator-()
@@ -134,7 +156,9 @@ Point::operator/=(const double factor)
   return *this;
 }
 
+
 //################################################## Point Operations
+
 
 Point&
 Point::operator+=(const Point& q)
@@ -181,7 +205,7 @@ Point::distance_squared(const Point& q) const
   double dx = x - q.x;
   double dy = y - q.y;
   double dz = z - q.z;
-  return dx*dx + dy*dy + dz*dz;
+  return dx * dx + dy * dy + dz * dz;
 }
 
 
@@ -212,7 +236,9 @@ Point
 Point::direction() const
 { return Point(x, y, z).normalize(); }
 
+
 //################################################## Print Utilities
+
 
 std::string
 Point::str() const
@@ -227,58 +253,60 @@ void
 Point::print(std::ostream& os) const
 { os << str(); }
 
+
 //################################################## Methods
 
+
 Point
-pdes::Grid::operator*(const Point& p, const double factor)
+Grid::operator*(const Point& p, const double factor)
 { return Point(p) *= factor; }
 
 
 Point
-pdes::Grid::operator*(const double factor, const Point& p)
+Grid::operator*(const double factor, const Point& p)
 { return Point(p) *= factor; }
 
 
 Point
-pdes::Grid::operator/(const Point& p, const double factor)
+Grid::operator/(const Point& p, const double factor)
 { return Point(p) /= factor; }
 
 
 Point
-pdes::Grid::operator+(const Point& p, const Point& q)
+Grid::operator+(const Point& p, const Point& q)
 { return Point(p) += q; }
 
 
 Point
-pdes::Grid::operator-(const Point& p, const Point& q)
+Grid::operator-(const Point& p, const Point& q)
 { return Point(p) -= q; }
 
 
 double
-pdes::Grid::dot(const Point& p, const Point& q)
+Grid::dot(const Point& p, const Point& q)
 { return p.dot(q); }
 
 
 Point
-pdes::Grid::cross(const Point& p, const Point& q)
+Grid::cross(const Point& p, const Point& q)
 { return p.cross(q); }
 
 
 double
-pdes::Grid::distance(const Point& p, const Point& q)
+Grid::distance(const Point& p, const Point& q)
 { return p.distance(q); }
 
 
 Point
-pdes::Grid::fabs(const Point& p)
+Grid::fabs(const Point& p)
 { return p.fabs(); }
 
 
 Point
-pdes::Grid::direction(const Point& p)
+Grid::direction(const Point& p)
 { return p.direction(); }
 
 
 std::ostream&
-pdes::Grid::operator<<(std::ostream& os, const Point& p)
+Grid::operator<<(std::ostream& os, const Point& p)
 { return os << p.str(); }
