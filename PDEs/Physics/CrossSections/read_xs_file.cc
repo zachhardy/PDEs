@@ -7,13 +7,10 @@
 
 #include "macros.h"
 
-using namespace pdes;
-
 
 void
 Physics::CrossSections::
-read_xs_file(const std::string file_name,
-             const bool verbose)
+read_xs_file(const std::string file_name, const bool verbose)
 {
   std::cout << "Reading cross-section file \"" << file_name << "\".\n";
 
@@ -124,7 +121,7 @@ read_xs_file(const std::string file_name,
     // Read transfer matrix
     if (word == "TRANSFER_MOMENTS_BEGIN")
       read_transfer_matrices(
-          "TRANSFER_MOMENTS", transfer_matrices, f, ls, ln);
+        "TRANSFER_MOMENTS", transfer_matrices, f, ls, ln);
 
     // Read delayed neutron data
     if (n_precursors > 0)
@@ -137,7 +134,8 @@ read_xs_file(const std::string file_name,
         read_delayed_spectra("CHI_DELAYED", chi_delayed, f, ls, ln);
     }
 
-    word = ""; ++line_number;
+    word = "";
+    ++line_number;
   }//while open
   file.close();
 

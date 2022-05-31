@@ -7,8 +7,9 @@
 
 #include <set>
 
-using namespace pdes::Math;
-using namespace pdes::Math::LinearSolver;
+
+using namespace Math;
+using namespace Math::LinearSolver;
 
 using namespace NeutronDiffusion;
 

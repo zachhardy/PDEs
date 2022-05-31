@@ -1,7 +1,6 @@
 #include "../steadystate_solver.h"
 
 
-using namespace pdes;
 using namespace Math;
 using namespace NeutronDiffusion;
 
@@ -22,8 +21,8 @@ fv_assemble_matrix(Groupset& groupset, AssemblerFlags assembler_flags)
   for (const auto& cell : mesh->cells)
   {
     const double volume = cell.volume;
-    const auto& xs      = material_xs[matid_to_xs_map[cell.material_id]];
-    const size_t i      = cell.id * n_gsg;
+    const auto& xs = material_xs[matid_to_xs_map[cell.material_id]];
+    const size_t i = cell.id * n_gsg;
 
     //============================== Loop over groups
     for (size_t gr = 0; gr < n_gsg; ++gr)
@@ -54,7 +53,7 @@ fv_assemble_matrix(Groupset& groupset, AssemblerFlags assembler_flags)
         //========== Total fission
         if (not use_precursors)
         {
-          const double chi      = xs->chi[g];
+          const double chi = xs->chi[g];
           const double* nu_sigf = &xs->nu_sigma_f[0];
 
           for (size_t gpr = 0; gpr < n_gsg; ++gpr)
@@ -65,14 +64,14 @@ fv_assemble_matrix(Groupset& groupset, AssemblerFlags assembler_flags)
           }
         }
 
-        //========== Prompt + delayed fission
+          //========== Prompt + delayed fission
         else
         {
-          const double chi_p     = xs->chi_prompt[g];
-          const double* chi_d    = &xs->chi_delayed[g][0];
+          const double chi_p = xs->chi_prompt[g];
+          const double* chi_d = &xs->chi_delayed[g][0];
           const double* nup_sigf = &xs->nu_prompt_sigma_f[0];
           const double* nud_sigf = &xs->nu_delayed_sigma_f[0];
-          const double* gamma    = &xs->precursor_yield[0];
+          const double* gamma = &xs->precursor_yield[0];
 
           for (size_t gpr = 0; gpr < n_gsg; ++gpr)
           {
@@ -107,7 +106,7 @@ fv_assemble_matrix(Groupset& groupset, AssemblerFlags assembler_flags)
         const double w = d_pf / d_pn; // harmonic mean weighting factor
 
         //==================== Diffusion term
-        const double* D     = &xs->diffusion_coeff[0];
+        const double* D = &xs->diffusion_coeff[0];
         const double* D_nbr = &nbr_xs->diffusion_coeff[0];
 
         for (size_t gr = 0; gr < n_gsg; ++gr)
@@ -116,7 +115,7 @@ fv_assemble_matrix(Groupset& groupset, AssemblerFlags assembler_flags)
           const size_t jg = j + gr;
           const size_t g = groupset.groups[gr];
 
-          const double D_eff = 1.0 / (w/D[g] + (1.0 - w) / D_nbr[g]);
+          const double D_eff = 1.0 / (w / D[g] + (1.0 - w) / D_nbr[g]);
           const double value = D_eff / d_pn * face.area;
 
           A.add(ig, ig, value);
@@ -124,7 +123,7 @@ fv_assemble_matrix(Groupset& groupset, AssemblerFlags assembler_flags)
         }
       }//if interior face
 
-      //============================== Boundary faces
+        //============================== Boundary faces
       else
       {
         const auto bndry_id = face.neighbor_id;
@@ -145,7 +144,7 @@ fv_assemble_matrix(Groupset& groupset, AssemblerFlags assembler_flags)
           }
         }
 
-        //==================== Robin boundary term
+          //==================== Robin boundary term
         else if (bndry_type == BoundaryType::VACUUM or
                  bndry_type == BoundaryType::MARSHAK or
                  bndry_type == BoundaryType::ROBIN)
@@ -161,7 +160,7 @@ fv_assemble_matrix(Groupset& groupset, AssemblerFlags assembler_flags)
             const auto& bndry = boundaries[bndry_id][g];
             const auto bc = std::static_pointer_cast<RobinBoundary>(bndry);
 
-            double value = bc->a*D[g] / (bc->b*D[g] + bc->a*d_pf);
+            double value = bc->a * D[g] / (bc->b * D[g] + bc->a * d_pf);
             A.add(ig, ig, value * face.area);
           }
         }

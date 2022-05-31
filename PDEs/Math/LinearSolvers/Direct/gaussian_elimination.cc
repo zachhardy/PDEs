@@ -9,8 +9,6 @@
 #include <cmath>
 
 
-using namespace pdes;
-
 Math::Vector
 Math::gaussian_elimination(Matrix& A, Vector& b, const bool pivot)
 {

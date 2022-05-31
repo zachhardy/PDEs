@@ -11,7 +11,7 @@ fv_set_source(Groupset& groupset, SourceFlags source_flags)
   if (source_flags == NO_SOURCE_FLAGS)
     return;
 
-  const bool apply_mat_src         = (source_flags & APPLY_MATERIAL_SOURCE);
+  const bool apply_mat_src = (source_flags & APPLY_MATERIAL_SOURCE);
   const bool apply_wgs_scatter_src = (source_flags & APPLY_WGS_SCATTER_SOURCE);
   const bool apply_ags_scatter_src = (source_flags & APPLY_AGS_SCATTER_SOURCE);
   const bool apply_wgs_fission_src = (source_flags & APPLY_WGS_FISSION_SOURCE);
@@ -82,7 +82,7 @@ fv_set_source(Groupset& groupset, SourceFlags source_flags)
         //==================== Total fission
         if (not use_precursors)
         {
-          const double chi      = xs->chi[g];
+          const double chi = xs->chi[g];
           const double* nu_sigf = &xs->nu_sigma_f[0];
 
           if (apply_wgs_fission_src)
@@ -98,14 +98,14 @@ fv_set_source(Groupset& groupset, SourceFlags source_flags)
             }
         }
 
-        //==================== Prompt + delayed fission
+          //==================== Prompt + delayed fission
         else
         {
-          const double  chi_p    = xs->chi_prompt[g];
-          const double* chi_d    = &xs->chi_delayed[g][0];
+          const double chi_p = xs->chi_prompt[g];
+          const double* chi_d = &xs->chi_delayed[g][0];
           const double* nup_sigf = &xs->nu_prompt_sigma_f[0];
           const double* nud_sigf = &xs->nu_delayed_sigma_f[0];
-          const double* gamma    = &xs->precursor_yield[0];
+          const double* gamma = &xs->precursor_yield[0];
 
           if (apply_wgs_fission_src)
           {
@@ -127,7 +127,7 @@ fv_set_source(Groupset& groupset, SourceFlags source_flags)
               {
                 double value = chi_p * nup_sigf[gp];
                 for (size_t j = 0; j < xs->n_precursors; ++j)
-                  value += chi_d[j] * gamma[j] * nud_sigf[gp] ;
+                  value += chi_d[j] * gamma[j] * nud_sigf[gp];
                 rhs += value * x[gp] * volume;
               }
             }//for gpr
@@ -160,11 +160,11 @@ fv_set_source(Groupset& groupset, SourceFlags source_flags)
             const auto& bndry = boundaries[bndry_id][g];
             const auto bc = std::static_pointer_cast<DirichletBoundary>(bndry);
 
-            b[ig] += D[g]/d_pf * bc->value * face.area;
+            b[ig] += D[g] / d_pf * bc->value * face.area;
           }
         }
 
-        //==================== Neumann boundary term
+          //==================== Neumann boundary term
         else if (bndry_type == BoundaryType::NEUMANN)
         {
           for (size_t gr = 0; gr < n_gsg; ++gr)
@@ -179,7 +179,7 @@ fv_set_source(Groupset& groupset, SourceFlags source_flags)
           }
         }
 
-        //==================== Robin boundary term
+          //==================== Robin boundary term
         else if (bndry_type == BoundaryType::MARSHAK or
                  bndry_type == BoundaryType::ROBIN)
         {
@@ -194,7 +194,7 @@ fv_set_source(Groupset& groupset, SourceFlags source_flags)
             const auto& bndry = boundaries[bndry_id][g];
             const auto bc = std::static_pointer_cast<RobinBoundary>(bndry);
 
-            b[ig] += D[g]/(bc->b*D[g] + bc->a*d_pf) * bc->f * face.area;
+            b[ig] += D[g] / (bc->b * D[g] + bc->a * d_pf) * bc->f * face.area;
           }
         }
       }//if boundary face

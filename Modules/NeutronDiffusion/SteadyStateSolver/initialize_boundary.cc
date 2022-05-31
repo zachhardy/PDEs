@@ -1,6 +1,7 @@
 #include "steadystate_solver.h"
 #include "macros.h"
 
+
 void
 NeutronDiffusion::SteadyStateSolver::
 initialize_boundaries()
@@ -9,8 +10,8 @@ initialize_boundaries()
 
   //============================== Check number of boundaries
   if (mesh->dim == 1)
-    Assert(boundary_info.size() == 2,
-           "1D problems must have 2 boundary conditions.");
+  Assert(boundary_info.size() == 2,
+         "1D problems must have 2 boundary conditions.");
 
   //============================== Check specified boundary values
   for (const auto& bndry_vals : boundary_values)
