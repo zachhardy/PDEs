@@ -7,60 +7,60 @@
 #include <cstddef>
 
 
-namespace pdes::Math::LinearSolver
+namespace Math::LinearSolver
 {
 
-/**
- * Implementation of a sparse LU solver.
- */
-class SparseLU : public DirectSolverBase
-{
-private:
-  bool pivot_flag = true;
-
   /**
-   * The pivot mapping vector.
-   * The index corresponds to the initial row number and the value to the
-   * pivoted row number. This is used to map the right-hand side vector to the
-   * correct row when solving.
+   * Implementation of a sparse LU solver.
    */
-  std::vector<size_t> row_pivots;
+  class SparseLU : public DirectSolverBase
+  {
+  private:
+    bool pivot_flag = true;
 
-public:
-  /**
-   * Default constructor.
-   */
-  SparseLU(SparseMatrix& A, const bool pivot = true);
+    /**
+     * The pivot mapping vector.
+     * The index corresponds to the initial row number and the value to the
+     * pivoted row number. This is used to map the right-hand side vector to the
+     * correct row when solving.
+     */
+    std::vector<size_t> row_pivots;
 
-  /**
-   * Set the pivot option.
-   */
-  void
-  pivot(const bool flag);
+  public:
+    /**
+     * Default constructor.
+     */
+    SparseLU(SparseMatrix& A, const bool pivot = true);
 
-  /**
-   * Return the pivot option.
-   */
-  bool
-  pivot() const;
+    /**
+     * Set the pivot option.
+     */
+    void
+    pivot(const bool flag);
 
-  /**
-   * Factor the matrix \f$ \boldsymbol{A} \f$ in-place.
-   * \see LU::factorize
-   */
-  void
-  factorize() override;
+    /**
+     * Return the pivot option.
+     */
+    bool
+    pivot() const;
 
-  /**
-   * Solve the LU factored linear system.
-   * \see LU::solve
-   */
-  void
-  solve(Vector& x, const Vector& b) const override;
+    /**
+     * Factor the matrix \f$ \boldsymbol{A} \f$ in-place.
+     * \see LU::factorize
+     */
+    void
+    factorize() override;
+
+    /**
+     * Solve the LU factored linear system.
+     * \see LU::solve
+     */
+    void
+    solve(Vector& x, const Vector& b) const override;
 
 
-  using LinearSolverBase::solve;
-};
+    using LinearSolverBase::solve;
+  };
 
 }
 

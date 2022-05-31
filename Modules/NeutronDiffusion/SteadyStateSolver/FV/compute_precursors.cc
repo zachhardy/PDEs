@@ -33,7 +33,7 @@ SteadyStateSolver::fv_compute_precursors()
     for (size_t j = 0; j < xs->n_precursors; ++j)
     {
       double value = 0.0;
-      const double coeff = gamma[j]/lambda[j];
+      const double coeff = gamma[j] / lambda[j];
       for (size_t gr = 0; gr < n_groups; ++gr)
       {
         const size_t g = groups[gr];

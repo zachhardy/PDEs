@@ -62,7 +62,7 @@ NeutronDiffusion::SteadyStateSolver::initialize_materials()
         found_xs = true;
       }
 
-      //============================== Parse multigroup sources
+        //============================== Parse multigroup sources
       else if (property->type() == MaterialPropertyType::ISOTROPIC_MG_SOURCE)
       {
         auto src = std::static_pointer_cast<IsotropicMGSource>(property);

@@ -8,7 +8,7 @@
 #include <iomanip>
 
 
-using namespace pdes::Math;
+using namespace Math;
 
 
 Vector

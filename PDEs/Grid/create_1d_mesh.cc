@@ -3,8 +3,6 @@
 
 #include <numeric>
 
-using namespace pdes;
-
 
 std::shared_ptr<Grid::Mesh>
 Grid::create_1d_mesh(const std::vector<double> vertices,
@@ -44,11 +42,20 @@ Grid::create_1d_mesh(const std::vector<double> vertices,
   switch (coordinate_system)
   {
     case CoordinateSystem::CARTESIAN:
-    { cell_type = CellType::SLAB; break; }
+    {
+      cell_type = CellType::SLAB;
+      break;
+    }
     case CoordinateSystem::CYLINDRICAL:
-    { cell_type = CellType::ANNULUS; break; }
+    {
+      cell_type = CellType::ANNULUS;
+      break;
+    }
     case CoordinateSystem::SPHERICAL:
-    { cell_type = CellType::SHELL; break; }
+    {
+      cell_type = CellType::SHELL;
+      break;
+    }
   }
 
   // Create the cells
@@ -131,13 +138,13 @@ Grid::create_1d_mesh(const std::vector<double> zone_edges,
   for (size_t z = 0; z < zone_subdivisions.size(); ++z)
   {
     // Define the width of cells in this zone z
-    double zone_width = zone_edges[z+1] - zone_edges[z];
+    double zone_width = zone_edges[z + 1] - zone_edges[z];
     double n_zone_cells = static_cast<double>(zone_subdivisions[z]);
     double cell_width = zone_width / n_zone_cells;
 
-    for (size_t c = 0; c < n_zone_cells; ++ c)
+    for (size_t c = 0; c < n_zone_cells; ++c)
     {
-      mesh->vertices.emplace_back(0.0, 0.0, current_pos+cell_width);
+      mesh->vertices.emplace_back(0.0, 0.0, current_pos + cell_width);
       current_pos += cell_width;
     }
   }
@@ -147,11 +154,20 @@ Grid::create_1d_mesh(const std::vector<double> zone_edges,
   switch (coordinate_system)
   {
     case CoordinateSystem::CARTESIAN:
-    { cell_type = CellType::SLAB; break; }
+    {
+      cell_type = CellType::SLAB;
+      break;
+    }
     case CoordinateSystem::CYLINDRICAL:
-    { cell_type = CellType::ANNULUS; break; }
+    {
+      cell_type = CellType::ANNULUS;
+      break;
+    }
     case CoordinateSystem::SPHERICAL:
-    { cell_type = CellType::SHELL; break; }
+    {
+      cell_type = CellType::SHELL;
+      break;
+    }
   }
 
   // Create the cells, loop over zones, then cells per zone
@@ -172,14 +188,14 @@ Grid::create_1d_mesh(const std::vector<double> zone_edges,
       // Define the left face info, add to cell
       left_face.vertex_ids = {count};
       left_face.has_neighbor = (count > 0);
-      left_face.neighbor_id = (count > 0) ? count - 1 : 0;
+      left_face.neighbor_id = (count > 0)? count - 1 : 0;
       left_face.normal = Normal(0.0, 0.0, -1.0);
       cell.faces.push_back(left_face);
 
       // Define the right face info, add to cell
       right_face.vertex_ids = {count + 1};
       right_face.has_neighbor = {count < n_cells - 1};
-      right_face.neighbor_id = (count < n_cells - 1) ? count + 1 : 1;
+      right_face.neighbor_id = (count < n_cells - 1)? count + 1 : 1;
       right_face.normal = Normal(0.0, 0.0, 1.0);
       cell.faces.push_back(right_face);
 

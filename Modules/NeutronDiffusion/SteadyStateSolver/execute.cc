@@ -13,9 +13,9 @@
 #include <iomanip>
 #include <fstream>
 
-using namespace pdes;
-using namespace pdes::Math;
-using namespace pdes::Math::LinearSolver;
+
+using namespace Math;
+using namespace Math::LinearSolver;
 
 
 void
@@ -152,10 +152,9 @@ create_linear_solver(Groupset& groupset)
     }
     case LinearSolverType::CG:
     {
-      linear_solver=  std::make_shared<CG>(A, linear_solver_opts);
+      linear_solver = std::make_shared<CG>(A, linear_solver_opts);
       break;
     }
-    default:
-      throw std::runtime_error("Invalid linear solver type encountered.");
+    default:throw std::runtime_error("Invalid linear solver type encountered.");
   }
 }

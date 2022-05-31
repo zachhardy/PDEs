@@ -8,7 +8,7 @@
 #include <cmath>
 
 
-using namespace pdes::Math;
+using namespace Math;
 
 //################################################## Constructors
 

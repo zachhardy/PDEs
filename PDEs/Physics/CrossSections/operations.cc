@@ -6,7 +6,6 @@
 #include <cmath>
 #include <numeric>
 
-using namespace pdes;
 
 void
 Physics::CrossSections::compute_scattering_from_transfers()
@@ -35,6 +34,7 @@ Physics::CrossSections::compute_scattering_from_transfers()
 
 
 //######################################################################
+
 
 void
 Physics::CrossSections::reconcile_cross_sections()
@@ -79,6 +79,7 @@ Physics::CrossSections::reconcile_cross_sections()
 
 //######################################################################
 
+
 void
 Physics::CrossSections::reconcile_fission_properties()
 {
@@ -104,8 +105,8 @@ Physics::CrossSections::reconcile_fission_properties()
   {
     // Check for negative cross sections
     for (size_t g = 0; g < n_groups; ++g)
-      Assert(sigma_f[g] >= 0.0,
-             "Negative fission cross section encountered.");
+    Assert(sigma_f[g] >= 0.0,
+           "Negative fission cross section encountered.");
 
     // Determine which terms are present
     std::pair<bool, bool> has_total(false, false);
@@ -180,8 +181,8 @@ Physics::CrossSections::reconcile_fission_properties()
       if (std::abs(prompt_sum - 1.0) > 1.0e-12)
       {
         std::stringstream warn;
-        warn  << "!!! Warning !!! CrossSections::" << __FUNCTION__ << ": "
-              << "Normalizing prompt fission spectrum to unity.";
+        warn << "!!! Warning !!! CrossSections::" << __FUNCTION__ << ": "
+             << "Normalizing prompt fission spectrum to unity.";
         std::cout << warn.str() << std::endl;
 
         for (auto& v : chi_prompt)
@@ -198,9 +199,9 @@ Physics::CrossSections::reconcile_fission_properties()
         if (std::abs(sum - 1.0) > 1.0e-12)
         {
           std::stringstream warn;
-          warn  << "!!! Warning !!! CrossSections::" << __FUNCTION__ << ": "
-                << "Normalizing delayed emmission spectrum to unity "
-                << "for precursor species " << j << ".";
+          warn << "!!! Warning !!! CrossSections::" << __FUNCTION__ << ": "
+               << "Normalizing delayed emmission spectrum to unity "
+               << "for precursor species " << j << ".";
           std::cout << warn.str() << std::endl;
 
           for (size_t g = 0; g < n_groups; ++g)
@@ -214,8 +215,8 @@ Physics::CrossSections::reconcile_fission_properties()
       if (std::abs(yield_sum - 1.0) > 1.0e-12)
       {
         std::stringstream warn;
-        warn  << "!!! Warning !!! CrossSections::" << __FUNCTION__ << ": "
-              << "Normalizing precursor yields to unity.";
+        warn << "!!! Warning !!! CrossSections::" << __FUNCTION__ << ": "
+             << "Normalizing precursor yields to unity.";
         std::cout << warn.str() << std::endl;
 
         for (auto& v : precursor_yield)
@@ -238,7 +239,7 @@ Physics::CrossSections::reconcile_fission_properties()
           chi[g] += beta * precursor_yield[j] * chi_delayed[g][j];
       }
       has_total.first = true;
-      has_total.second= true;
+      has_total.second = true;
     }//if has_precursors
     else
     {
@@ -251,8 +252,8 @@ Physics::CrossSections::reconcile_fission_properties()
       if (std::abs(sum - 1.0) > 1.0e-12)
       {
         std::stringstream warn;
-        warn  << "!!! Warning !!! CrossSections::" << __FUNCTION__ << ": "
-              << "Normalizing total fission spectrum to unity.";
+        warn << "!!! Warning !!! CrossSections::" << __FUNCTION__ << ": "
+             << "Normalizing total fission spectrum to unity.";
         std::cout << warn.str() << std::endl;
 
         for (auto& v : chi)
@@ -270,7 +271,9 @@ Physics::CrossSections::reconcile_fission_properties()
   }//if fissile
 }
 
+
 //######################################################################
+
 
 void
 Physics::CrossSections::compute_macroscopic_cross_sections()

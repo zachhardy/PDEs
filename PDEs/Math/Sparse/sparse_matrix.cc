@@ -7,34 +7,35 @@
 #include <algorithm>
 #include <iomanip>
 
-using namespace pdes::Math;
+
+using namespace Math;
 
 //################################################## Constructors
 
 
 SparseMatrix::SparseMatrix() :
-    rows(0), cols(0), colnums(), coeffs()
+  rows(0), cols(0), colnums(), coeffs()
 {}
 
 
 SparseMatrix::SparseMatrix(const size_t n_rows,
                            const size_t n_cols,
                            const size_t default_row_length) :
-    rows(n_rows), cols(n_cols),
-    colnums(n_rows, std::vector<size_t>(default_row_length)),
-    coeffs(n_rows, std::vector<double>(default_row_length))
+  rows(n_rows), cols(n_cols),
+  colnums(n_rows, std::vector<size_t>(default_row_length)),
+  coeffs(n_rows, std::vector<double>(default_row_length))
 {}
 
 
 SparseMatrix::SparseMatrix(const size_t n,
                            const size_t default_row_length) :
-    SparseMatrix(n, n, default_row_length)
+  SparseMatrix(n, n, default_row_length)
 {}
 
 
 SparseMatrix::SparseMatrix(SparsityPattern sparsity_pattern) :
-    rows(sparsity_pattern.size()), colnums(sparsity_pattern),
-    coeffs(sparsity_pattern.size())
+  rows(sparsity_pattern.size()), colnums(sparsity_pattern),
+  coeffs(sparsity_pattern.size())
 {
   cols = 0;
   {
@@ -54,8 +55,8 @@ SparseMatrix::SparseMatrix(SparsityPattern sparsity_pattern) :
 
 
 SparseMatrix::SparseMatrix(const Matrix& other) :
-    rows(other.n_rows()), cols(other.n_cols()),
-    colnums(other.n_rows()), coeffs(other.n_rows())
+  rows(other.n_rows()), cols(other.n_cols()),
+  colnums(other.n_rows()), coeffs(other.n_rows())
 {
   for (size_t i = 0; i < rows; ++i)
     for (size_t j = 0; j < cols; ++j)
@@ -72,7 +73,6 @@ SparseMatrix::SparseMatrix(const Matrix& other) :
 
 SparseMatrix&
 SparseMatrix::operator=(const Matrix& other)
-
 {
   colnums.clear();
   coeffs.clear();
@@ -108,8 +108,8 @@ SparseMatrix::operator=(const double value)
 bool
 SparseMatrix::operator==(const SparseMatrix& other) const
 {
-  return (rows    == other.rows &&
-          cols    == other.cols &&
+  return (rows == other.rows &&
+          cols == other.cols &&
           colnums == other.colnums &&
           coeffs == other.coeffs);
 }
@@ -252,7 +252,7 @@ SparseMatrix::diagonal() const
 
 SparseMatrix::iterator
 SparseMatrix::begin()
-{ return (!empty()) ? begin(0) : end(); }
+{ return (!empty())? begin(0) : end(); }
 
 
 SparseMatrix::iterator
@@ -284,7 +284,7 @@ SparseMatrix::row(const size_t i)
 
 SparseMatrix::const_iterator
 SparseMatrix::begin() const
-{ return (!empty()) ? begin(0) : end(); }
+{ return (!empty())? begin(0) : end(); }
 
 
 SparseMatrix::const_iterator
@@ -430,7 +430,8 @@ SparseMatrix::eliminate_zeros()
         zero_colnums.push_back(col_ptr);
         zero_coeffs.push_back(coeff_ptr);
       }
-      ++col_ptr; ++coeff_ptr;
+      ++col_ptr;
+      ++coeff_ptr;
     }
 
     for (size_t jr = 0; jr < zero_coeffs.size(); ++jr)
@@ -583,7 +584,7 @@ SparseMatrix&
 SparseMatrix::operator/=(const double factor)
 {
   Assert(factor != 0.0, "Zero division error.");
-  return scale(1.0/factor);
+  return scale(1.0 / factor);
 }
 
 
@@ -606,14 +607,13 @@ SparseMatrix::operator*(const Vector& x) const
 
 
 void
-SparseMatrix::print(std::ostream& os, 
-                    const bool scientific, 
+SparseMatrix::print(std::ostream& os,
+                    const bool scientific,
                     const unsigned int precision) const
-
 {
-  unsigned int w                   = precision + 7;
-  std::ios::fmtflags old_flags     = os.flags();
-  unsigned int       old_precision = os.precision(precision);
+  unsigned int w = precision + 7;
+  std::ios::fmtflags old_flags = os.flags();
+  unsigned int old_precision = os.precision(precision);
 
   if (scientific)
     os.setf(std::ios::scientific, std::ios::floatfield);
@@ -626,29 +626,28 @@ SparseMatrix::print(std::ostream& os,
      << std::setw(w) << "Column"
      << std::setw(w) << "Value" << std::endl;
   os << std::setw(w) << "---"
-      << std::setw(w) << "------"
-      << std::setw(w) << "-----" << std::endl;
+     << std::setw(w) << "------"
+     << std::setw(w) << "-----" << std::endl;
 
   for (const auto elem : *this)
     os << std::setw(w) << elem.row
        << std::setw(w) << elem.column
-       << std::setw(w)<< elem.value << std::endl;
+       << std::setw(w) << elem.value << std::endl;
 
   os.flags(old_flags);
   os.precision(old_precision);
 }
 
 
-void 
+void
 SparseMatrix::print_formatted(std::ostream& os,
                               const bool scientific,
                               const unsigned int precision,
                               const unsigned int width) const
-
 {
-  unsigned int w                   = width;
-  std::ios::fmtflags old_flags     = os.flags();
-  unsigned int       old_precision = os.precision(precision);
+  unsigned int w = width;
+  std::ios::fmtflags old_flags = os.flags();
+  unsigned int old_precision = os.precision(precision);
 
   if (scientific)
   {
@@ -694,22 +693,22 @@ SparseMatrix::str(const bool scientific,
 
 
 SparseMatrix
-pdes::Math::operator*(const double factor, const SparseMatrix& A)
+Math::operator*(const double factor, const SparseMatrix& A)
 { return SparseMatrix(A) *= factor; }
 
 
 SparseMatrix
-pdes::Math::operator*(const SparseMatrix& A, const double factor)
+Math::operator*(const SparseMatrix& A, const double factor)
 { return SparseMatrix(A) *= factor; }
 
 
 SparseMatrix
-pdes::Math::operator/(const SparseMatrix& A, const double factor)
+Math::operator/(const SparseMatrix& A, const double factor)
 { return SparseMatrix(A) /= factor; }
 
 
 SparseMatrix
-pdes::Math::operator+(const SparseMatrix& A, const SparseMatrix& B)
+Math::operator+(const SparseMatrix& A, const SparseMatrix& B)
 {
   SparseMatrix C(A);
   C.add(B);
@@ -718,7 +717,7 @@ pdes::Math::operator+(const SparseMatrix& A, const SparseMatrix& B)
 
 
 SparseMatrix
-pdes::Math::operator-(const SparseMatrix& A, const SparseMatrix& B)
+Math::operator-(const SparseMatrix& A, const SparseMatrix& B)
 {
   SparseMatrix C(A);
   C.add(B, -1.0);
@@ -727,25 +726,25 @@ pdes::Math::operator-(const SparseMatrix& A, const SparseMatrix& B)
 
 
 void
-pdes::Math::vmult(const SparseMatrix& A, const Vector& x, Vector& y)
+Math::vmult(const SparseMatrix& A, const Vector& x, Vector& y)
 { A.vmult(x, y); }
 
 
 Vector
-pdes::Math::vmult(const SparseMatrix& A, const Vector& x)
+Math::vmult(const SparseMatrix& A, const Vector& x)
 { return A.vmult(x); }
 
 
 void
-pdes::Math::Tvmult(const SparseMatrix& A, const Vector& x, Vector& y)
+Math::Tvmult(const SparseMatrix& A, const Vector& x, Vector& y)
 { A.Tvmult(x, y); }
 
 
 Vector
-pdes::Math::Tvmult(const SparseMatrix& A, const Vector& x)
+Math::Tvmult(const SparseMatrix& A, const Vector& x)
 { return A.Tvmult(x); }
 
 
 std::ostream&
-pdes::Math::operator<<(std::ostream& os, const SparseMatrix& A)
+Math::operator<<(std::ostream& os, const SparseMatrix& A)
 { return os << A.str(); }

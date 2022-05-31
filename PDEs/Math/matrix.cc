@@ -5,12 +5,14 @@
 #include <cmath>
 #include <iomanip>
 
-using namespace pdes::Math;
+
+using namespace Math;
+
 
 //################################################## Constructors
 
-Matrix::Matrix(const size_t n_rows,
-               const size_t n_cols) :
+
+Matrix::Matrix(const size_t n_rows, const size_t n_cols) :
   coeffs(n_rows, Vector(n_cols))
 {}
 
@@ -25,7 +27,7 @@ Matrix::Matrix(const size_t n_rows,
 Matrix::Matrix(const STLMatrix& other)
 {
   Assert(valid_dimensions(other),
-         "Invalid input. All rows must be the same length.");
+         "Invalid input. All rows must be the same length.")
 
   for (const auto& row : other)
     coeffs.push_back(row);
@@ -35,7 +37,7 @@ Matrix::Matrix(const STLMatrix& other)
 Matrix::Matrix(STLMatrix&& other)
 {
   Assert(valid_dimensions(other),
-         "Invalid input. All rows must be the same length.");
+         "Invalid input. All rows must be the same length.")
 
   for (auto& row : other)
     coeffs.push_back(row);
@@ -47,20 +49,22 @@ Matrix::Matrix(const InitializerMatrix list)
   for (auto& row : list)
   {
     if (!coeffs.empty())
-      Assert(row.size() == coeffs.front().size(),
-             "Invalid input. All rows must be the same length.");
+    Assert(row.size() == coeffs.front().size(),
+           "Invalid input. All rows must be the same length.")
 
     coeffs.push_back(row);
   }
 }
 
+
 //################################################## Assignment Operators
+
 
 Matrix&
 Matrix::operator=(const STLMatrix& other)
 {
   Assert(valid_dimensions(other),
-         "Invalid input. All rows must be the same length.");
+         "Invalid input. All rows must be the same length.")
 
   for (const auto& row : other)
     coeffs.push_back(row);
@@ -72,7 +76,7 @@ Matrix&
 Matrix::operator=(STLMatrix&& other)
 {
   Assert(valid_dimensions(other),
-         "Invalid input. All rows must be the same length.");
+         "Invalid input. All rows must be the same length.")
 
   for (auto& row : other)
     coeffs.push_back(row);
@@ -83,14 +87,16 @@ Matrix::operator=(STLMatrix&& other)
 Matrix&
 Matrix::operator=(const double value)
 {
-  Assert(!coeffs.empty(), "Cannot set an empty matrix to a scalar.");
+  Assert(!coeffs.empty(), "Cannot set an empty matrix to a scalar.")
 
   for (auto& row : coeffs)
     row = value;
   return *this;
 }
 
+
 //################################################## Comparison Operators
+
 
 bool
 Matrix::operator==(const Matrix& other) const
@@ -101,7 +107,9 @@ bool
 Matrix::operator!=(const Matrix& other) const
 { return (coeffs != other.coeffs); }
 
+
 //################################################## Characteristics
+
 
 size_t
 Matrix::n_rows() const
@@ -275,6 +283,7 @@ Matrix::end(const size_t i) const
 
 //################################################## Modifiers
 
+
 void
 Matrix::clear()
 { coeffs.clear(); }
@@ -288,7 +297,7 @@ Matrix::pop_back()
 void
 Matrix::push_back(const Vector& row)
 {
-  Assert(row.size() == n_cols(), "Dimension mismatch error.");
+  Assert(row.size() == n_cols(), "Dimension mismatch error.")
   coeffs.push_back(row);
 }
 
@@ -296,7 +305,7 @@ Matrix::push_back(const Vector& row)
 void
 Matrix::push_back(Vector&& row)
 {
-  Assert(row.size() == n_cols(), "Dimension mismatch error.");
+  Assert(row.size() == n_cols(), "Dimension mismatch error.")
   coeffs.push_back(row);
 }
 
@@ -335,7 +344,7 @@ Matrix::swap_row(const size_t i, const size_t k)
 void
 Matrix::swap_column(const size_t j, const size_t k)
 {
-  Assert(j < n_cols() && k < n_cols(), "Out of range error.");
+  Assert(j < n_cols() && k < n_cols(), "Out of range error.")
   for (size_t i = 0; i < n_rows(); ++i)
     std::swap(coeffs[i][j], coeffs[i][k]);
 }
@@ -358,7 +367,7 @@ Matrix::set_diagonal(const Vector& diag)
   else
   {
     size_t min_dim = std::min(n_rows(), n_cols());
-    Assert(diag.size() == min_dim, "Dimension mismatch error.");
+    Assert(diag.size() == min_dim, "Dimension mismatch error.")
 
     for (size_t i = 0; i < min_dim; ++i)
       coeffs[i][i] = diag[i];
@@ -369,7 +378,7 @@ Matrix::set_diagonal(const Vector& diag)
 void
 Matrix::set_diagonal(const double value)
 {
-  Assert(!coeffs.empty(), "Cannot set an empty matrix with a scalar.");
+  Assert(!coeffs.empty(), "Cannot set an empty matrix with a scalar.")
 
   size_t min_dim = std::min(n_rows(), n_cols());
   for (size_t i = 0; i < min_dim; ++i)
@@ -392,8 +401,8 @@ Matrix::scale(const double factor)
 Matrix&
 Matrix::add(const Matrix& B, const double a)
 {
-  Assert(n_rows() == B.n_rows(), "Dimension mismatch error.");
-  Assert(n_cols() == B.n_cols(), "Dimension mismatch error.");
+  Assert(n_rows() == B.n_rows(), "Dimension mismatch error.")
+  Assert(n_cols() == B.n_cols(), "Dimension mismatch error.")
 
 
   // Perform the operation
@@ -412,8 +421,8 @@ Matrix::add(const Matrix& B, const double a)
 Matrix&
 Matrix::sadd(const double a, const Matrix& B)
 {
-  Assert(B.n_rows() == n_rows(), "Dimension mismatch error.");
-  Assert(B.n_cols() == n_cols(), "Dimension mismatch error.");
+  Assert(B.n_rows() == n_rows(), "Dimension mismatch error.")
+  Assert(B.n_cols() == n_cols(), "Dimension mismatch error.")
 
   // Perform the operation
   for (size_t i = 0; i < n_rows(); ++i)
@@ -431,8 +440,8 @@ Matrix::sadd(const double a, const Matrix& B)
 Matrix&
 Matrix::sadd(const double a, const double b, const Matrix& B)
 {
-  Assert(B.n_rows() == n_rows(), "Dimension mismatch error.");
-  Assert(B.n_cols() == n_cols(), "Dimension mismatch error.");
+  Assert(B.n_rows() == n_rows(), "Dimension mismatch error.")
+  Assert(B.n_cols() == n_cols(), "Dimension mismatch error.")
 
   // Perform the operation
   for (size_t i = 0; i < n_rows(); ++i)
@@ -450,8 +459,8 @@ Matrix::sadd(const double a, const double b, const Matrix& B)
 Matrix&
 Matrix::Tadd(const Matrix& B, const double a)
 {
-  Assert(n_rows() == B.n_cols(), "Dimension mismatch error.");
-  Assert(n_cols() == B.n_rows(), "Dimension mismatch error.");
+  Assert(n_rows() == B.n_cols(), "Dimension mismatch error.")
+  Assert(n_cols() == B.n_rows(), "Dimension mismatch error.")
 
   // Perform the operation
   for (size_t i = 0; i < n_rows(); ++i)
@@ -467,8 +476,8 @@ Matrix::Tadd(const Matrix& B, const double a)
 Matrix&
 Matrix::sTadd(const double a, const Matrix& B)
 {
-  Assert(n_rows() == B.n_cols(), "Dimension mismatch error.");
-  Assert(n_cols() == B.n_rows(), "Dimension mismatch error.");
+  Assert(n_rows() == B.n_cols(), "Dimension mismatch error.")
+  Assert(n_cols() == B.n_rows(), "Dimension mismatch error.")
 
   // Perform the operation
   for (size_t i = 0; i < n_rows(); ++i)
@@ -481,11 +490,11 @@ Matrix::sTadd(const double a, const Matrix& B)
 }
 
 
-Matrix& 
+Matrix&
 Matrix::sTadd(const double a, const double b, const Matrix& B)
 {
-  Assert(n_rows() == B.n_cols(), "Dimension mismatch error.");
-  Assert(n_cols() == B.n_rows(), "Dimension mismatch error.");
+  Assert(n_rows() == B.n_cols(), "Dimension mismatch error.")
+  Assert(n_cols() == B.n_rows(), "Dimension mismatch error.")
 
   // Perform the operation
   for (size_t i = 0; i < n_rows(); ++i)
@@ -502,9 +511,9 @@ void
 Matrix::mmult(const Matrix& B, Matrix& C,
               const bool adding) const
 {
-  Assert(C.n_rows() == n_rows(), "Dimension mismatch error.");
-  Assert(C.n_cols() == B.n_cols(), "Dimension mismatch error.");
-  Assert(n_cols() == B.n_rows(), "Dimension mismatch error.");
+  Assert(C.n_rows() == n_rows(), "Dimension mismatch error.")
+  Assert(C.n_cols() == B.n_cols(), "Dimension mismatch error.")
+  Assert(n_cols() == B.n_rows(), "Dimension mismatch error.")
 
   for (size_t i = 0; i < C.n_rows(); ++i)
   {
@@ -534,11 +543,10 @@ Matrix::mmult(const Matrix& B) const
 void
 Matrix::Tmmult(const Matrix& B, Matrix& C,
                const bool adding) const
-
 {
-  Assert(C.n_rows() == n_cols(), "Dimension mismatch error.");
-  Assert(C.n_cols() == B.n_cols(), "Dimension mismatch error.");
-  Assert(n_rows() == B.n_rows(), "Dimension mismatch error.");
+  Assert(C.n_rows() == n_cols(), "Dimension mismatch error.")
+  Assert(C.n_cols() == B.n_cols(), "Dimension mismatch error.")
+  Assert(n_rows() == B.n_rows(), "Dimension mismatch error.")
 
 
   for (size_t i = 0; i < C.n_rows(); ++i)
@@ -567,11 +575,10 @@ Matrix::Tmmult(const Matrix& B) const
 void
 Matrix::mTmult(const Matrix& B, Matrix& C,
                const bool adding) const
-
 {
-  Assert(C.n_rows() == n_rows(), "Dimension mismatch error.");
-  Assert(C.n_cols() == B.n_rows(), "Dimension mismatch error.");
-  Assert(n_cols() == B.n_cols(), "Dimension mismatch error.");
+  Assert(C.n_rows() == n_rows(), "Dimension mismatch error.")
+  Assert(C.n_cols() == B.n_rows(), "Dimension mismatch error.")
+  Assert(n_cols() == B.n_cols(), "Dimension mismatch error.")
 
   for (size_t i = 0; i < C.n_rows(); ++i)
   {
@@ -603,11 +610,10 @@ Matrix::mTmult(const Matrix& B) const
 void
 Matrix::TTmult(const Matrix& B, Matrix& C,
                const bool adding) const
-
 {
-  Assert(C.n_rows() == n_cols(), "Dimension mismatch error.");
-  Assert(C.n_cols() == B.n_rows(), "Dimension mismatch error.");
-  Assert(n_rows() == B.n_cols(), "Dimension mismatch error.");
+  Assert(C.n_rows() == n_cols(), "Dimension mismatch error.")
+  Assert(C.n_cols() == B.n_rows(), "Dimension mismatch error.")
+  Assert(n_rows() == B.n_cols(), "Dimension mismatch error.")
 
   for (size_t i = 0; i < C.n_rows(); ++i)
   {
@@ -618,7 +624,7 @@ Matrix::TTmult(const Matrix& B, Matrix& C,
       const double* b_jk = B.data(j);
 
       double value = adding? *c_ij : 0.0;
-      for (size_t k = 0; k < n_rows(); ++k, ++ b_jk)
+      for (size_t k = 0; k < n_rows(); ++k, ++b_jk)
         value += coeffs[k][i] * *b_jk;
       *c_ij = value;
     }
@@ -638,10 +644,9 @@ Matrix::TTmult(const Matrix& B) const
 void
 Matrix::vmult(const Vector& x, Vector& y,
               const bool adding) const
-
 {
-  Assert(x.size() == n_cols(), "Dimension mismatch error.");
-  Assert(y.size() == n_rows(), "Dimension mismatch error.");
+  Assert(x.size() == n_cols(), "Dimension mismatch error.")
+  Assert(y.size() == n_rows(), "Dimension mismatch error.")
 
   double* y_i = y.data();
 
@@ -676,8 +681,8 @@ void
 Matrix::Tvmult(const Vector& x, Vector& y,
                const bool adding) const
 {
-  Assert(x.size() == n_rows(), "Dimension mismatch error.");
-  Assert(y.size() == n_cols(), "Dimension mismatch error.");
+  Assert(x.size() == n_rows(), "Dimension mismatch error.")
+  Assert(y.size() == n_cols(), "Dimension mismatch error.")
 
   if (!adding) y = 0.0;
   for (size_t i = 0; i < n_rows(); ++i)
@@ -724,8 +729,8 @@ Matrix::operator*=(const double factor)
 Matrix&
 Matrix::operator/=(const double factor)
 {
-  Assert(factor != 0.0, "Zero division error!");
-  return scale(1.0/factor);
+  Assert(factor != 0.0, "Zero division error!")
+  return scale(1.0 / factor);
 }
 
 
@@ -766,11 +771,10 @@ Matrix::print(std::ostream& os,
               const bool scientific,
               const unsigned int precision,
               const unsigned int width) const
-
 {
-  unsigned int w                   = width;
-  std::ios::fmtflags old_flags     = os.flags();
-  unsigned int       old_precision = os.precision(precision);
+  unsigned int w = width;
+  std::ios::fmtflags old_flags = os.flags();
+  unsigned int old_precision = os.precision(precision);
 
   if (scientific)
   {
@@ -824,80 +828,80 @@ Matrix::valid_dimensions(const STLMatrix& A)
 
 
 Matrix
-pdes::Math::operator+(const Matrix& A, const Matrix& B)
+Math::operator+(const Matrix& A, const Matrix& B)
 { return Matrix(A) += B; }
 
 
 Matrix
-pdes::Math::operator-(const Matrix& A, const Matrix& B)
+Math::operator-(const Matrix& A, const Matrix& B)
 { return Matrix(A) -= B; }
 
 
 Matrix
-pdes::Math::operator*(const Matrix& A, const Matrix& B)
+Math::operator*(const Matrix& A, const Matrix& B)
 { return A.mmult(B); }
 
 
 void
-pdes::Math::mmult(const Matrix& A, const Matrix& B, Matrix& C)
+Math::mmult(const Matrix& A, const Matrix& B, Matrix& C)
 { A.mmult(B, C); }
 
 
 Matrix
-pdes::Math::mmult(const Matrix& A, const Matrix& B)
+Math::mmult(const Matrix& A, const Matrix& B)
 { return A.mmult(B); }
 
 
 void
-pdes::Math::Tmmult(const Matrix& A, const Matrix& B, Matrix& C)
+Math::Tmmult(const Matrix& A, const Matrix& B, Matrix& C)
 { A.Tmmult(B, C); }
 
 
 Matrix
-pdes::Math::Tmmult(const Matrix& A, const Matrix& B)
+Math::Tmmult(const Matrix& A, const Matrix& B)
 { return A.Tmmult(B); }
 
 
 void
-pdes::Math::mTmult(const Matrix& A, const Matrix& B, Matrix& C)
+Math::mTmult(const Matrix& A, const Matrix& B, Matrix& C)
 { A.mTmult(B, C); }
 
 
 Matrix
-pdes::Math::mTmult(const Matrix& A, const Matrix& B)
+Math::mTmult(const Matrix& A, const Matrix& B)
 { return A.mTmult(B); }
 
 
 void
-pdes::Math::TTmult(const Matrix& A, const Matrix& B, Matrix& C)
+Math::TTmult(const Matrix& A, const Matrix& B, Matrix& C)
 { A.TTmult(B, C); }
 
 
 Matrix
-pdes::Math::TTmult(const Matrix& A, const Matrix& B)
+Math::TTmult(const Matrix& A, const Matrix& B)
 { return A.TTmult(B); }
 
 
 void
-pdes::Math::vmult(const Matrix& A, const Vector& x, Vector& y)
+Math::vmult(const Matrix& A, const Vector& x, Vector& y)
 { A.vmult(x, y); }
 
 
 Vector
-pdes::Math::vmult(const Matrix& A, const Vector& x)
+Math::vmult(const Matrix& A, const Vector& x)
 { return A.vmult(x); }
 
 
 void
-pdes::Math::Tvmult(const Matrix& A, const Vector& x, Vector& y)
+Math::Tvmult(const Matrix& A, const Vector& x, Vector& y)
 { A.Tvmult(x, y); }
 
 
 Vector
-pdes::Math::Tvmult(const Matrix& A, const Vector& x)
+Math::Tvmult(const Matrix& A, const Vector& x)
 { return A.Tvmult(x); }
 
 
 std::ostream&
-pdes::Math::operator<<(std::ostream& os, const Matrix& A)
+Math::operator<<(std::ostream& os, const Matrix& A)
 { return os << A.str(); }

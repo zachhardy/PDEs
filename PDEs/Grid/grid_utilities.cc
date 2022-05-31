@@ -5,17 +5,16 @@
 #include <iostream>
 #include <sstream>
 
-using namespace pdes;
 
 std::string
 Grid::coordinate_system_str(const CoordinateSystem coord_sys)
 {
   switch (coord_sys)
   {
-    case CoordinateSystem::CARTESIAN:   return "CARTESIAN";
+    case CoordinateSystem::CARTESIAN: return "CARTESIAN";
     case CoordinateSystem::CYLINDRICAL: return "CYLINDRICAL";
-    case CoordinateSystem::SPHERICAL:   return "SPHERICAL";
-    default:                            return "UNDEFINED";
+    case CoordinateSystem::SPHERICAL: return "SPHERICAL";
+    default: return "UNDEFINED";
   }
 }
 
@@ -25,10 +24,10 @@ Grid::cell_type_str(const CellType cell_type)
 {
   switch (cell_type)
   {
-    case CellType::SLAB:    return "SLAB";
+    case CellType::SLAB: return "SLAB";
     case CellType::ANNULUS: return "ANNULUS";
-    case CellType::SHELL:   return "SHELL";
-    default:                return "UNDEFINED";
+    case CellType::SHELL: return "SHELL";
+    default: return "UNDEFINED";
   }
 }
 
@@ -56,8 +55,8 @@ Grid::Cell::str() const
   int f = 0;
   ss << "n_faces: " << faces.size() << "\n";
   for (auto& face : faces)
-    ss  << "--- Face " << f++ << " ---\n"
-        << face.str();
+    ss << "--- Face " << f++ << " ---\n"
+       << face.str();
 
   return ss.str();
 }

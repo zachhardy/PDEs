@@ -11,9 +11,11 @@ assemble_matrix(Groupset& groupset, AssemblerFlags assembler_flags)
   switch (discretization_method)
   {
     case DiscretizationMethod::FINITE_VOLUME:
-    { fv_assemble_matrix(groupset, assembler_flags); break; }
-    default:
-      throw std::runtime_error("Invalid discretization method.");
+    {
+      fv_assemble_matrix(groupset, assembler_flags);
+      break;
+    }
+    default:throw std::runtime_error("Invalid discretization method.");
   }
 
   create_linear_solver(groupset);
@@ -27,9 +29,11 @@ set_source(Groupset& groupset, SourceFlags source_flags)
   switch (discretization_method)
   {
     case DiscretizationMethod::FINITE_VOLUME:
-    { fv_set_source(groupset, source_flags); break; }
-    default:
-      throw std::runtime_error("Invalid discretization method.");
+    {
+      fv_set_source(groupset, source_flags);
+      break;
+    }
+    default:throw std::runtime_error("Invalid discretization method.");
   }
 }
 
@@ -40,8 +44,10 @@ compute_precursors()
   switch (discretization_method)
   {
     case DiscretizationMethod::FINITE_VOLUME:
-    { fv_compute_precursors(); break; }
-    default:
-      throw std::runtime_error("Invalid discretization method.");
+    {
+      fv_compute_precursors();
+      break;
+    }
+    default:throw std::runtime_error("Invalid discretization method.");
   }
 }

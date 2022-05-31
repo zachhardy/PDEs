@@ -22,14 +22,13 @@
 int main(int argc, char** argv)
 {
   try{
-    using namespace pdes;
     using namespace Grid;
     using namespace Math;
     using namespace Physics;
     using namespace NeutronDiffusion;
 
     //================================================== Create the mesh
-    size_t n_cells = 500;
+    size_t n_cells = 200;
     double slab_width = 6.0;
     double cell_width = slab_width / n_cells;
 
