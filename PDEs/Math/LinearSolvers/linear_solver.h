@@ -35,11 +35,10 @@ namespace Math::LinearSolver
    */
   struct Options
   {
-    bool verbose_history = false;
-    bool verbose_result = true;
+    size_t verbosity = 0;
 
-    double tolerance = 1.0e-8;
-    size_t max_iterations = 1000;
+    double tolerance = 1.0e-6;
+    size_t max_iterations = 500;
 
     double omega = 1.5;
   };
@@ -72,16 +71,11 @@ namespace Math::LinearSolver
     bool factorized = false;
 
   public:
-    /**
-     * Default constructor.
-     */
+    /** Default constructor. */
     DirectSolverBase(SparseMatrix& A);
 
-    /**
-     * Abstract routine for factorizing the matrix.
-     */
-    virtual void
-    factorize() = 0;
+    /** Abstract routine for factorizing the matrix. */
+    virtual void factorize() = 0;
   };
 
 
@@ -95,9 +89,7 @@ namespace Math::LinearSolver
   {
   protected:
     const std::string solver_name;
-
-    bool verbose_history;
-    bool verbose_result;
+    size_t verbosity = 0;
 
   protected:
     const SparseMatrix& A;
@@ -118,15 +110,11 @@ namespace Math::LinearSolver
                         const std::string name = "Undefined");
 
   protected:
-    /**
-     * Check whether or not the solver has converged.
-     */
+    /** Check whether or not the solver has converged. */
     virtual bool
     check(const size_t iteration, const double value) const;
 
-    /**
-     * Throw an error when convergence criteria is not met.
-     */
+    /** Throw an error when convergence criteria is not met. */
     void
     throw_convergence_error(const size_t iteration,
                             const double value) const;

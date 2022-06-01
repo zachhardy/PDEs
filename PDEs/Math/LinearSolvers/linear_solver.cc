@@ -32,8 +32,7 @@ IterativeSolverBase(const SparseMatrix& A,
                     const std::string solver_name) :
   A(A), tolerance(opts.tolerance),
   max_iterations(opts.max_iterations),
-  verbose_history(opts.verbose_history),
-  verbose_result(opts.verbose_result),
+  verbosity(opts.verbosity),
   solver_name(solver_name)
 {
   Assert(A.n_rows() == A.n_cols(), "Square matrix required.");
@@ -47,13 +46,13 @@ check(const size_t iteration, const double value) const
 {
   bool converged = value <= tolerance;
 
-  if (verbose_history)
+  if (verbosity > 1)
     std::cout << solver_name << "::"
               << "Iteration:  " << std::setw(4) << iteration << "    "
               << "Value:  " << value
               << (converged? "  CONVERGED\n" : "\n");
 
-  if (converged && verbose_result && !verbose_history)
+  if (converged && verbosity == 1)
     std::cout << solver_name << "::CONVERGED:  "
               << "Iteration:  " << iteration << "    "
               << "Value:  " << value << std::endl;
