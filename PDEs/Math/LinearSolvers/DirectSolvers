@@ -1,0 +1,10 @@
+#ifndef DIRECTSOLVERS_H
+#define DIRECTSOLVERS_H
+
+#include "Direct/lu.h"
+#include "Direct/cholesky.h"
+
+#include "Direct/sparse_lu.h"
+#include "Direct/sparse_cholesky.h"
+
+#endif //DIRECTSOLVERS_H

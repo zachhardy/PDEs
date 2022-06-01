@@ -1,0 +1,11 @@
+#ifndef ITERATIVESOLVERS_H
+#define ITERATIVESOLVERS_H
+
+#include "Iterative/jacobi.h"
+#include "Iterative/gauss_seidel.h"
+#include "Iterative/sor.h"
+#include "Iterative/ssor.h"
+
+#include "Iterative/cg.h"
+
+#endif //ITERATIVESOLVERS_H
