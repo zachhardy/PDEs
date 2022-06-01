@@ -11,8 +11,7 @@
 using namespace Math;
 
 LinearSolver::SOR::
-SOR(const SparseMatrix& A,
-    const Options& opts,
+SOR(const SparseMatrix& A, const Options& opts,
     const std::string solver_name) :
   IterativeSolverBase(A, opts, solver_name),
   omega(opts.omega)

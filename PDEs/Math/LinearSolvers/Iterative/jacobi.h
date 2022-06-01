@@ -16,7 +16,8 @@ namespace Math::LinearSolver
     /**
      * Default constructor.
      */
-    Jacobi(const SparseMatrix& A, const Options& opts);
+    Jacobi(const SparseMatrix& A,
+           const Options& opts = Options());
 
     /**
      * Solve the system using the Jacobi iterative method.

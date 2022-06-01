@@ -15,8 +15,7 @@ using namespace Math;
 LinearSolver::SSOR::
 SSOR(const SparseMatrix& A, const Options& opts) :
   SOR(A, opts, "SSOR")
-{
-}
+{}
 
 
 void LinearSolver::SSOR::

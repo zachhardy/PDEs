@@ -17,7 +17,8 @@ namespace Math::LinearSolver
     /**
      * Default constructor.
      */
-    CG(const SparseMatrix& A, const Options& opts);
+    CG(const SparseMatrix& A,
+       const Options& opts = Options());
 
     /**
      * Solve the system using the CG method.

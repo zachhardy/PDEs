@@ -22,7 +22,8 @@ namespace Math::LinearSolver
     /**
      * Default constructor.
      */
-    GaussSeidel(const SparseMatrix& A, const Options& opts);
+    GaussSeidel(const SparseMatrix& A,
+                const Options& opts = Options());
   };
 
 }

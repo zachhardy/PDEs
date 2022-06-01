@@ -19,7 +19,8 @@ namespace Math::LinearSolver
     /**
      * Default constructor.
      */
-    SOR(const SparseMatrix& A, const Options& opts,
+    SOR(const SparseMatrix& A,
+        const Options& opts = Options(),
         const std::string solver_name = "SOR");
 
     /**

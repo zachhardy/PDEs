@@ -71,10 +71,14 @@ namespace Math::LinearSolver
     bool factorized = false;
 
   public:
-    /** Default constructor. */
+    /**
+     * Default constructor.
+     */
     DirectSolverBase(SparseMatrix& A);
 
-    /** Abstract routine for factorizing the matrix. */
+    /**
+     * Abstract routine for factorizing the matrix.
+     */
     virtual void factorize() = 0;
   };
 
@@ -110,11 +114,15 @@ namespace Math::LinearSolver
                         const std::string name = "Undefined");
 
   protected:
-    /** Check whether or not the solver has converged. */
+    /**
+     * Check whether the solver has converged.
+     */
     virtual bool
     check(const size_t iteration, const double value) const;
 
-    /** Throw an error when convergence criteria is not met. */
+    /**
+     * Throw an error when convergence criteria is not met.
+     */
     void
     throw_convergence_error(const size_t iteration,
                             const double value) const;

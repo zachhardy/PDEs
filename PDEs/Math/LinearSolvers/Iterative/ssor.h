@@ -18,7 +18,8 @@ namespace Math::LinearSolver
     /**
      * Default constructor.
      */
-    SSOR(const SparseMatrix& A, const Options& opts);
+    SSOR(const SparseMatrix& A,
+         const Options& opts = Options());
 
     /**
      * Solve the system using the SSOR iterative method.
