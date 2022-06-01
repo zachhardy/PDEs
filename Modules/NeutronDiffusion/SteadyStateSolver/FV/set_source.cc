@@ -23,7 +23,7 @@ fv_set_source(Groupset& groupset, SourceFlags source_flags)
   const auto gs_f = groupset.groups.back();
 
   // Get groupset vector
-  Vector& b = groupset.rhs;
+  auto& b = groupset.b;
 
   //================================================== Loop over cells
   for (const auto& cell : mesh->cells)
@@ -38,16 +38,9 @@ fv_set_source(Groupset& groupset, SourceFlags source_flags)
 
     //======================================== Inhomogeneous source term
     const int src_id = matid_to_src_map[cell.material_id];
+    const double* src = nullptr;
     if (src_id >= 0 and apply_mat_src)
-    {
-      const auto* src = material_src[src_id]->values.data();
-      for (size_t gr = 0; gr < n_gsg; ++gr)
-      {
-        const size_t ig = i + gr;
-        const size_t g = groupset.groups[gr];
-        b[ig] += src[g] * volume;
-      }
-    }
+      src = &material_src[src_id]->values[0];
 
     //======================================== Group coupling terms
     for (size_t gr = 0; gr < n_gsg; ++gr)
@@ -55,7 +48,10 @@ fv_set_source(Groupset& groupset, SourceFlags source_flags)
       const size_t ig = i + gr;
       const size_t g = groupset.groups[gr];
 
-      double& rhs = b[ig];
+      double rhs = 0.0;
+
+      //==================== Inhomogeneous source term
+      if (src) rhs += src[g] * volume;
 
       //==================== Scattering terms
       if (apply_wgs_scatter_src || apply_ags_scatter_src)
@@ -134,6 +130,9 @@ fv_set_source(Groupset& groupset, SourceFlags source_flags)
           }
         }//prompt + delayed fission
       }//if fissile
+
+      b[ig] += rhs;
+
     }//for gr
 
 
@@ -194,7 +193,7 @@ fv_set_source(Groupset& groupset, SourceFlags source_flags)
             const auto& bndry = boundaries[bndry_id][g];
             const auto bc = std::static_pointer_cast<RobinBoundary>(bndry);
 
-            b[ig] += D[g] / (bc->b * D[g] + bc->a * d_pf) * bc->f * face.area;
+            b[ig] += D[g]/(bc->b*D[g] + bc->a*d_pf) * bc->f * face.area;
           }
         }
       }//if boundary face

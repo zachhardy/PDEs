@@ -56,8 +56,8 @@ SteadyStateSolver::initialize()
   for (auto& groupset : groupsets)
   {
     const size_t n_gsg = groupset.groups.size();
-    groupset.matrix.reinit(n_gsg * n_nodes, n_gsg * n_nodes);
-    groupset.rhs.resize(n_gsg * n_nodes, 0.0);
+    groupset.A.reinit(n_gsg * n_nodes, n_gsg * n_nodes);
+    groupset.b.resize(n_gsg * n_nodes, 0.0);
   }//for groupset
 }
 

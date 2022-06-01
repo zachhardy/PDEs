@@ -28,10 +28,10 @@ KEigenvalueSolver::power_method()
     //==================== Precompute the fission source
     for (auto& groupset : groupsets)
     {
-      groupset.rhs = 0.0;
+      groupset.b = 0.0;
       set_source(groupset, APPLY_WGS_FISSION_SOURCE |
                            APPLY_AGS_FISSION_SOURCE);
-      groupset.rhs /= k_eff;
+      groupset.b /= k_eff;
     }
 
     //==================== Solve the system

@@ -10,6 +10,9 @@
 #include <cinttypes>
 
 
+using namespace Math;
+
+
 namespace NeutronDiffusion
 {
 
@@ -24,8 +27,8 @@ namespace NeutronDiffusion
     double tolerance = 1.0e-8;
 
     /*---------- System Storage ----------*/
-    Math::SparseMatrix matrix;
-    Math::Vector rhs;
+    SparseMatrix  A;
+    Vector        b;
 
     Groupset() : id(-1)
     {}

@@ -12,7 +12,7 @@ fv_assemble_matrix(Groupset& groupset, AssemblerFlags assembler_flags)
   const bool assemble_scatter = (assembler_flags & ASSEMBLE_SCATTER);
   const bool assemble_fission = (assembler_flags & ASSEMBLE_FISSION);
 
-  SparseMatrix& A = groupset.matrix = 0.0;
+  SparseMatrix& A = groupset.A = 0.0;
 
   // Get groupset range
   const size_t n_gsg = groupset.groups.size();
