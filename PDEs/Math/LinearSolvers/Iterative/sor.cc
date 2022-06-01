@@ -52,7 +52,7 @@ solve(Vector& x, const Vector& b) const
     }
 
     //==================== Check convergence
-    if (check(nit, change))
+    if (check(nit + 1, change))
       break;
   }
 }

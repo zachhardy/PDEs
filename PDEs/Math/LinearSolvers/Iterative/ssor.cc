@@ -62,7 +62,7 @@ solve(Vector& x, const Vector& b) const
 
     //==================== Check convergence
     x_ell = x;
-    if (check(nit, change))
+    if (check(nit + 1, change))
       break;
   }
 }

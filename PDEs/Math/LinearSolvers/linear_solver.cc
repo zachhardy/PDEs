@@ -70,7 +70,7 @@ throw_convergence_error(const size_t iteration,
                         const double value) const
 {
   std::stringstream err;
-  err << solver_name << "!!*!! FAILURE !!*!!\n"
+  err << "!!*!! " << solver_name << " FAILURE !!*!!\n"
       << "# of Iterations:   " << iteration << std::endl
       << "Final Difference:  " << value << std::endl;
   throw std::runtime_error(err.str());
