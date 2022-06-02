@@ -19,10 +19,10 @@ LU(const bool pivot) : pivot_flag(pivot)
 
 
 void
-LinearSolver::LU::set_matrix(const Matrix* matrix)
+LinearSolver::LU::set_matrix(const Matrix& matrix)
 {
   DirectSolverBase<Matrix>::set_matrix(matrix);
-  row_pivots.resize(matrix->n_rows());
+  row_pivots.resize(matrix.n_rows());
 }
 
 

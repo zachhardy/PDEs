@@ -34,7 +34,7 @@ namespace Math::LinearSolver
     LU(const bool pivot = true);
 
     /** Attach a matrix to the solver. */
-    void set_matrix(const Matrix* matrix) override;
+    void set_matrix(const Matrix& matrix) override;
 
     /**
      * Factor the matrix \f$ \boldsymbol{A} \f$ into an upper and lower

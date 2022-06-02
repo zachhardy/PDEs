@@ -32,7 +32,7 @@ namespace Math::LinearSolver
     SparseLU(const bool pivot = true);
 
     /** Attach a matrix to the solver. */
-    void set_matrix(const SparseMatrix* matrix) override;
+    void set_matrix(const SparseMatrix& matrix) override;
 
     /**
      * Factor the matrix \f$ \boldsymbol{A} \f$ in-place.

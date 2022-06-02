@@ -15,24 +15,6 @@ namespace Math
 namespace Math::LinearSolver
 {
 
-  /**
-   * Available types of linear solvers.
-   */
-  enum class LinearSolverType
-  {
-    LU = 0,
-    CHOLESKY = 1,
-    JACOBI = 2,
-    GAUSS_SEIDEL = 3,
-    SOR = 4,
-    SSOR = 5,
-    CG = 6
-  };
-
-
-  /**
-   * Struct for linear solver options.
-   */
   struct Options
   {
     size_t verbosity = 0;
@@ -40,9 +22,6 @@ namespace Math::LinearSolver
     double tolerance = 1.0e-6;
     size_t max_iterations = 500;
   };
-
-
-  //###########################################################################
 
   
   /**
@@ -59,7 +38,7 @@ namespace Math::LinearSolver
     Vector solve(const Vector& b) const;
     
     /** Attach a matrix to the solver. */
-    virtual void set_matrix(const MatrixType* matrix);
+    virtual void set_matrix(const MatrixType& matrix);
   };
 
 
@@ -84,7 +63,7 @@ namespace Math::LinearSolver
     virtual void factorize() = 0;
 
     /** Attach a matrix to the solver. */
-    virtual void set_matrix(const MatrixType* matrix) override;
+    virtual void set_matrix(const MatrixType& matrix) override;
   };
 
 
@@ -117,7 +96,7 @@ namespace Math::LinearSolver
                         const std::string name = "Undefined");
 
     /** Attach a matrix to the solver. */
-    void set_matrix(const SparseMatrix* matrix) override;
+    void set_matrix(const SparseMatrix& matrix) override;
 
   protected:
 

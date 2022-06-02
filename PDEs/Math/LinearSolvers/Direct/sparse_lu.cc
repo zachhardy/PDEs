@@ -20,10 +20,10 @@ SparseLU(const bool pivot) : pivot_flag(pivot)
 
 
 void
-LinearSolver::SparseLU::set_matrix(const SparseMatrix* matrix)
+LinearSolver::SparseLU::set_matrix(const SparseMatrix& matrix)
 {
   DirectSolverBase<SparseMatrix>::set_matrix(matrix);
-  row_pivots.resize(matrix->n_rows());
+  row_pivots.resize(matrix.n_rows());
 }
 
 

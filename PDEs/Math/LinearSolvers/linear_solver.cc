@@ -29,9 +29,9 @@ solve(const Vector& b) const
 template<class MatrixType>
 void
 LinearSolver::LinearSolverBase<MatrixType>::
-set_matrix(const MatrixType* matrix)
+set_matrix(const MatrixType& matrix)
 {
-  Assert(matrix->n_rows() == matrix->n_cols(),
+  Assert(matrix.n_rows() == matrix.n_cols(),
          "Linear solvers require square matrices.")
 }
 
@@ -51,10 +51,10 @@ DirectSolverBase() : LinearSolverBase<MatrixType>()
 
 template<class MatrixType>
 void LinearSolver::DirectSolverBase<MatrixType>::
-set_matrix(const MatrixType* matrix)
+set_matrix(const MatrixType& matrix)
 {
   LinearSolverBase<MatrixType>::set_matrix(matrix);
-  A = *matrix;
+  A = matrix;
   factorize();
 }
 
@@ -76,10 +76,10 @@ IterativeSolverBase(const Options& opts, const std::string name) :
 
 
 void LinearSolver::IterativeSolverBase::
-set_matrix(const SparseMatrix* matrix)
+set_matrix(const SparseMatrix& matrix)
 {
   LinearSolverBase<SparseMatrix>::set_matrix(matrix);
-  A = matrix;
+  A = &matrix;
 }
 
 
