@@ -39,22 +39,27 @@ namespace Math::LinearSolver
 
     double tolerance = 1.0e-6;
     size_t max_iterations = 500;
-
-    double omega = 1.5;
   };
 
 
+  //###########################################################################
+
+  
   /**
    * Base class from which all linear solvers must derive.
    */
+  template<class MatrixType>
   class LinearSolverBase
   {
   public:
-    virtual void
-    solve(Vector& x, const Vector& b) const = 0;
+    /** Abstract method for solving a linear system. */ 
+    virtual void solve(Vector& x, const Vector& b) const = 0;
 
-    Vector
-    solve(const Vector& b) const;
+    /** Return the solution to \f$ \boldsymbol{A} \vec{x} = \vec{b} \f$. */
+    Vector solve(const Vector& b) const;
+    
+    /** Attach a matrix to the solver. */
+    virtual void set_matrix(const MatrixType* matrix);
   };
 
 
@@ -64,22 +69,22 @@ namespace Math::LinearSolver
   /**
    * Base class for direct solvers.
    */
-  class DirectSolverBase : public LinearSolverBase
+  template<class MatrixType>
+  class DirectSolverBase : public LinearSolverBase<MatrixType>
   {
   protected:
-    SparseMatrix& A;
-    bool factorized = false;
+    MatrixType   A;
+    bool         factorized = false;
 
   public:
-    /**
-     * Default constructor.
-     */
-    DirectSolverBase(SparseMatrix& A);
+    /** Default constructor. */
+    DirectSolverBase();
 
-    /**
-     * Abstract routine for factorizing the matrix.
-     */
+    /** Abstract routine for factorizing the matrix. */
     virtual void factorize() = 0;
+
+    /** Attach a matrix to the solver. */
+    virtual void set_matrix(const MatrixType* matrix) override;
   };
 
 
@@ -89,14 +94,13 @@ namespace Math::LinearSolver
   /**
    * Base class for iterative solvers.
    */
-  class IterativeSolverBase : public LinearSolverBase
+  class IterativeSolverBase : public LinearSolverBase<SparseMatrix>
   {
   protected:
     const std::string solver_name;
     size_t verbosity = 0;
 
-  protected:
-    const SparseMatrix& A;
+    const SparseMatrix* A;
 
     double tolerance;
     size_t max_iterations;
@@ -109,20 +113,19 @@ namespace Math::LinearSolver
      *       implemented iterative solvers. Each derived class should set
      *       any and all appropriate parameters from this.
      */
-    IterativeSolverBase(const SparseMatrix& A,
-                        const Options& opts = Options(),
+    IterativeSolverBase(const Options& opts = Options(),
                         const std::string name = "Undefined");
 
+    /** Attach a matrix to the solver. */
+    void set_matrix(const SparseMatrix* matrix) override;
+
   protected:
-    /**
-     * Check whether the solver has converged.
-     */
+
+    /** Check whether the solver has converged. */
     virtual bool
     check(const size_t iteration, const double value) const;
 
-    /**
-     * Throw an error when convergence criteria is not met.
-     */
+    /** Throw an error when convergence criteria is not met. */
     void
     throw_convergence_error(const size_t iteration,
                             const double value) const;

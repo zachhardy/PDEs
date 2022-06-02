@@ -11,9 +11,8 @@
 using namespace Math;
 
 
-LinearSolver::Jacobi::
-Jacobi(const SparseMatrix& A, const Options& opts) :
-  IterativeSolverBase(A, opts, "Jacobi")
+LinearSolver::Jacobi::Jacobi(const Options& opts) :
+  IterativeSolverBase(opts, "Jacobi")
 {}
 
 
@@ -21,7 +20,7 @@ void
 LinearSolver::Jacobi::
 solve(Vector& x, const Vector& b) const
 {
-  size_t n = A.n_rows();
+  size_t n = A->n_rows();
   Assert(b.size() == n, "Dimension mismatch error.");
   Assert(x.size() == n, "Dimension mismatrch error.");
 
@@ -37,10 +36,10 @@ solve(Vector& x, const Vector& b) const
     {
       //==================== Compute element-wise update
       double value = b[i];
-      for (const auto el : A.const_row(i))
+      for (const auto el : A->const_row(i))
         if (el.column != i)
           value -= el.value * x_ell[el.column];
-      value /= *A.diagonal(i);
+      value /= *A->diagonal(i);
 
       //==================== Increment difference
       change += std::fabs(value - x_ell[i]) / std::fabs(b[i]);

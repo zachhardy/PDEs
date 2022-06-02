@@ -14,17 +14,11 @@ namespace Math::LinearSolver
   class CG : public IterativeSolverBase
   {
   public:
-    /**
-     * Default constructor.
-     */
-    CG(const SparseMatrix& A,
-       const Options& opts = Options());
+    /** Default constructor. */
+    CG(const Options& opts = Options());
 
-    /**
-     * Solve the system using the CG method.
-     */
-    void
-    solve(Vector& x, const Vector& b) const override;
+    /** Solve the system using the CG method. */
+    void solve(Vector& x, const Vector& b) const override;
 
 
     using LinearSolverBase::solve;

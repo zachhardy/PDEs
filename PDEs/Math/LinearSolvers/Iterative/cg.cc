@@ -12,8 +12,7 @@ using namespace Math;
 
 
 LinearSolver::CG::
-CG(const SparseMatrix& A, const Options& opts) :
-  IterativeSolverBase(A, opts, "CG")
+CG(const Options& opts) : IterativeSolverBase(opts, "CG")
 {}
 
 
@@ -21,9 +20,9 @@ void
 LinearSolver::CG::
 solve(Vector& x, const Vector& b) const
 {
-  size_t n = A.n_rows();
-  Assert(b.size() == n, "Dimension mismatch error.");
-  Assert(x.size() == n, "Dimension mismatrch error.");
+  size_t n = A->n_rows();
+  Assert(b.size() == n, "Dimension mismatch error.")
+  Assert(x.size() == n, "Dimension mismatrch error.")
 
   // Allocate data needed for the CG solver
   Vector r(x.size());
@@ -37,7 +36,7 @@ solve(Vector& x, const Vector& b) const
   /* Initialize residual, residual norms, and search directions.
    * If the residual norm is smaller than the tolerance, exit because
    * the initial guess is the solution. */
-  r = (!x.all_zero())? b - A.vmult(x) : b;
+  r = (!x.all_zero())? b - A->vmult(x) : b;
   res = res_prev = r.dot(r);
   if (res < tolerance)
     return;
@@ -48,7 +47,7 @@ solve(Vector& x, const Vector& b) const
   for (nit = 0; nit < max_iterations; ++nit)
   {
     // Precompute necessary matrix-vector product q = Ap
-    A.vmult(p, q);
+    A->vmult(p, q);
 
     // Recompute alpha factor
     alpha = res_prev / p.dot(q);

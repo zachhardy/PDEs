@@ -1,7 +1,8 @@
 #ifndef SPARSE_LU_H
 #define SPARSE_LU_H
 
-#include "LinearSolvers/linear_solver.h"
+#include "../linear_solver.h"
+#include "Sparse/sparse_matrix.h"
 
 #include <vector>
 #include <cstddef>
@@ -13,7 +14,7 @@ namespace Math::LinearSolver
   /**
    * Implementation of a sparse LU solver.
    */
-  class SparseLU : public DirectSolverBase
+  class SparseLU : public DirectSolverBase<SparseMatrix>
   {
   private:
     bool pivot_flag = true;
@@ -27,36 +28,31 @@ namespace Math::LinearSolver
     std::vector<size_t> row_pivots;
 
   public:
-    /**
-     * Default constructor.
-     */
-    SparseLU(SparseMatrix& A, const bool pivot = true);
+    /** Default constructor. */
+    SparseLU(const bool pivot = true);
 
-    /**
-     * Set the pivot option.
-     */
-    void
-    pivot(const bool flag);
-
-    /**
-     * Return the pivot option.
-     */
-    bool
-    pivot() const;
+    /** Attach a matrix to the solver. */
+    void set_matrix(const SparseMatrix* matrix) override;
 
     /**
      * Factor the matrix \f$ \boldsymbol{A} \f$ in-place.
+     *
      * \see LU::factorize
      */
-    void
-    factorize() override;
+    void factorize() override;
 
     /**
      * Solve the LU factored linear system.
+     *
      * \see LU::solve
      */
-    void
-    solve(Vector& x, const Vector& b) const override;
+    void solve(Vector& x, const Vector& b) const override;
+
+    /** Set the pivot option. */
+    void pivot(const bool flag);
+
+    /** Return the pivot option. */
+    bool pivot() const;
 
 
     using LinearSolverBase::solve;

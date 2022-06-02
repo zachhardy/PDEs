@@ -10,35 +10,27 @@
 
 using namespace Math;
 
-//################################################## Constructors
+//################################################## Setp
+
 
 LinearSolver::LU::
-LU(Matrix& A, const bool pivot) :
-  A(A), row_pivots(A.n_rows()), pivot_flag(pivot)
+LU(const bool pivot) : pivot_flag(pivot)
+{}
+
+
+void
+LinearSolver::LU::set_matrix(const Matrix* matrix)
 {
-  Assert(A.n_rows() == A.n_cols(), "Square matrix required.");
-  factorize();
+  DirectSolverBase<Matrix>::set_matrix(matrix);
+  row_pivots.resize(matrix->n_rows());
 }
 
 
-//################################################## Properties
-
-void
-LinearSolver::LU::
-pivot(const bool flag)
-{ pivot_flag = flag; }
-
-
-bool
-LinearSolver::LU::
-pivot() const
-{ return pivot_flag; }
-
 //################################################## Methods
 
+
 void
-LinearSolver::LU::
-factorize()
+LinearSolver::LU::factorize()
 {
   size_t n = A.n_rows();
 
@@ -104,15 +96,14 @@ factorize()
 
 
 void
-LinearSolver::LU::
-solve(Vector& x, const Vector& b) const
+LinearSolver::LU::solve(Vector& x, const Vector& b) const
 {
   size_t n = A.n_rows();
-  Assert(factorized, "Matrix must be factorized before solving.");
-  Assert(n == b.size(), "Dimension mismatch error.");
-  Assert(n == x.size(), "Dimension mismatch error.");
+  Assert(factorized, "Matrix must be factorized before solving.")
+  Assert(n == b.size(), "Dimension mismatch error.")
+  Assert(n == x.size(), "Dimension mismatch error.")
 
-  //================================================== Forward solve
+  //======================================== Forward solve
   for (size_t i = 0; i < n; ++i)
   {
     const double* a_i = A.data(i); // accessor for row i
@@ -123,7 +114,7 @@ solve(Vector& x, const Vector& b) const
     x[i] = value;
   }
 
-  //================================================== Backward solve
+  //======================================== Backward solve
   for (size_t i = n - 1; i != -1; --i)
   {
     const double* a_i = A.data(i); // accessor for row i
@@ -136,3 +127,16 @@ solve(Vector& x, const Vector& b) const
     x[i] = value / a_ii;
   }
 }
+
+
+//################################################## Properties
+
+
+void
+LinearSolver::LU::pivot(const bool flag)
+{ pivot_flag = flag; }
+
+
+bool
+LinearSolver::LU::pivot() const
+{ return pivot_flag; }

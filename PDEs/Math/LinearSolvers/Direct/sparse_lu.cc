@@ -10,30 +10,25 @@
 
 using namespace Math;
 
-//################################################## Constructors
+
+//################################################## Setup
+
 
 LinearSolver::SparseLU::
-SparseLU(SparseMatrix& A, const bool pivot) :
-  DirectSolverBase(A),
-  row_pivots(A.n_rows()), pivot_flag(pivot)
+SparseLU(const bool pivot) : pivot_flag(pivot)
+{}
+
+
+void
+LinearSolver::SparseLU::set_matrix(const SparseMatrix* matrix)
 {
-  Assert(A.n_rows() == A.n_cols(), "Square matrix required.");
-  factorize();
+  DirectSolverBase<SparseMatrix>::set_matrix(matrix);
+  row_pivots.resize(matrix->n_rows());
 }
 
 
-//################################################## Properties
-
-void
-LinearSolver::SparseLU::pivot(const bool flag)
-{ pivot_flag = flag; }
-
-
-bool
-LinearSolver::SparseLU::pivot() const
-{ return pivot_flag; }
-
 //################################################## Methods
+
 
 void
 LinearSolver::SparseLU::factorize()
@@ -110,7 +105,7 @@ LinearSolver::SparseLU::solve(Vector& x, const Vector& b) const
   Assert(b.size() == n, "Dimension mismatch error.");
   Assert(x.size() == n, "Dimension mismatch error.");
 
-  //================================================== Forward solve
+  //======================================== Forward solve
   for (size_t i = 0; i < n; ++i)
   {
     double value = b[row_pivots[i]];
@@ -120,7 +115,7 @@ LinearSolver::SparseLU::solve(Vector& x, const Vector& b) const
     x[i] = value;
   }
 
-  //================================================== Backward solve
+  //======================================== Backward solve
   for (size_t i = n - 1; i != -1; --i)
   {
     double value = x[i];
@@ -130,3 +125,16 @@ LinearSolver::SparseLU::solve(Vector& x, const Vector& b) const
     x[i] = value / *A.diagonal(i);
   }
 }
+
+
+//################################################## Properties
+
+
+void
+LinearSolver::SparseLU::pivot(const bool flag)
+{ pivot_flag = flag; }
+
+
+bool
+LinearSolver::SparseLU::pivot() const
+{ return pivot_flag; }

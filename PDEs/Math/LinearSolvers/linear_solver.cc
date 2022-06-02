@@ -1,6 +1,7 @@
 #include "LinearSolvers/linear_solver.h"
 
 #include "vector.h"
+#include "matrix.h"
 #include "Sparse/sparse_matrix.h"
 
 #include "macros.h"
@@ -11,8 +12,12 @@
 using namespace Math;
 
 
+//################################################## LinearSolverBase
+
+
+template<class MatrixType>
 Vector
-LinearSolver::LinearSolverBase::
+LinearSolver::LinearSolverBase<MatrixType>::
 solve(const Vector& b) const
 {
   Vector x(b.size(), 0.0);
@@ -21,22 +26,60 @@ solve(const Vector& b) const
 }
 
 
-LinearSolver::DirectSolverBase::
-DirectSolverBase(SparseMatrix& A) : A(A)
+template<class MatrixType>
+void
+LinearSolver::LinearSolverBase<MatrixType>::
+set_matrix(const MatrixType* matrix)
+{
+  Assert(matrix->n_rows() == matrix->n_cols(),
+         "Linear solvers require square matrices.")
+}
+
+
+template class LinearSolver::LinearSolverBase<Matrix>;
+template class LinearSolver::LinearSolverBase<SparseMatrix>;
+
+
+//################################################## DirectSolverBase
+
+
+template<class MatrixType>
+LinearSolver::DirectSolverBase<MatrixType>::
+DirectSolverBase() : LinearSolverBase<MatrixType>()
 {}
 
 
+template<class MatrixType>
+void LinearSolver::DirectSolverBase<MatrixType>::
+set_matrix(const MatrixType* matrix)
+{
+  LinearSolverBase<MatrixType>::set_matrix(matrix);
+  A = *matrix;
+  factorize();
+}
+
+
+template class LinearSolver::DirectSolverBase<Matrix>;
+template class LinearSolver::DirectSolverBase<SparseMatrix>;
+
+
+//################################################## IterativeSolverBase
+
+
 LinearSolver::IterativeSolverBase::
-IterativeSolverBase(const SparseMatrix& A,
-                    const Options& opts,
-                    const std::string solver_name) :
-  A(A), tolerance(opts.tolerance),
+IterativeSolverBase(const Options& opts, const std::string name) :
+  tolerance(opts.tolerance),
   max_iterations(opts.max_iterations),
   verbosity(opts.verbosity),
-  solver_name(solver_name)
+  solver_name(name)
+{}
+
+
+void LinearSolver::IterativeSolverBase::
+set_matrix(const SparseMatrix* matrix)
 {
-  Assert(A.n_rows() == A.n_cols(), "Square matrix required.");
-  Assert(tolerance > 0, "Invalid tolerance specified.");
+  LinearSolverBase<SparseMatrix>::set_matrix(matrix);
+  A = matrix;
 }
 
 

@@ -1,7 +1,8 @@
 #ifndef CHOLESKY_H
 #define CHOLESKY_H
 
-#include "LinearSolvers/linear_solver.h"
+#include "../linear_solver.h"
+#include "matrix.h"
 
 
 namespace Math::LinearSolver
@@ -10,18 +11,11 @@ namespace Math::LinearSolver
   /**
    * Implementation of a Cholesky decomposition solver.
    */
-  class Cholesky : public LinearSolverBase
+  class Cholesky : public DirectSolverBase<Matrix>
   {
-  private:
-    Matrix& A;
-    bool factorized = false;
-
   public:
-
-    /**
-     * Default constructor.
-     */
-    Cholesky(Matrix& A);
+    /** Default constructor. */
+    Cholesky();
 
     /**
      * Perform a Cholesky factorization on the matrix \f$ \boldsymbol{A} \f$.
@@ -33,8 +27,7 @@ namespace Math::LinearSolver
      * \note Checks are not performed to ensure symetric positive definiteness.
      *    The user is responsible for ensuring the matrix fits this criteria.
      */
-    void
-    factorize();
+    void factorize() override;
 
     /**
      * Solve the Cholesky factored linear system.
@@ -44,8 +37,7 @@ namespace Math::LinearSolver
      *
      * \see LU::solve
      */
-    void
-    solve(Vector& x, const Vector& b) const override;
+    void solve(Vector& x, const Vector& b) const override;
 
 
     using LinearSolverBase::solve;

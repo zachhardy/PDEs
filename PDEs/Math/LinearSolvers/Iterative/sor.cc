@@ -11,10 +11,8 @@
 using namespace Math;
 
 LinearSolver::SOR::
-SOR(const SparseMatrix& A, const Options& opts,
-    const std::string solver_name) :
-  IterativeSolverBase(A, opts, solver_name),
-  omega(opts.omega)
+SOR(const double omega, const Options& opts, const std::string solver_name) :
+  IterativeSolverBase(opts, solver_name), omega(omega)
 {
   Assert(omega > 0 && omega < 2, "Invalid relaxation parameter.");
 }
@@ -23,7 +21,7 @@ SOR(const SparseMatrix& A, const Options& opts,
 void LinearSolver::SOR::
 solve(Vector& x, const Vector& b) const
 {
-  size_t n = A.n_rows();
+  size_t n = A->n_rows();
   Assert(b.size() == n, "Dimension mismatch error.");
   Assert(x.size() == n, "Dimension mismatrch error.");
 
@@ -34,15 +32,15 @@ solve(Vector& x, const Vector& b) const
   for (nit = 0; nit < max_iterations; ++nit)
   {
     change = 0.0;
-    for (size_t i = 0; i < A.n_rows(); ++i)
+    for (size_t i = 0; i < A->n_rows(); ++i)
     {
       //==================== Compute element-wise update
       double value = 0.0;
-      for (const auto el : A.const_row(i))
+      for (const auto el : A->const_row(i))
         if (el.column != i)
           value += el.value * x[el.column];
 
-      double a_ii = *A.diagonal(i);
+      double a_ii = *A->diagonal(i);
       value = x[i] + omega * ((b[i] - value) / a_ii - x[i]);
 
       //==================== Increment difference

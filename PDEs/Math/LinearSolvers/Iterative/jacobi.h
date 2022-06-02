@@ -13,17 +13,11 @@ namespace Math::LinearSolver
   class Jacobi : public IterativeSolverBase
   {
   public:
-    /**
-     * Default constructor.
-     */
-    Jacobi(const SparseMatrix& A,
-           const Options& opts = Options());
+    /** Default constructor. */
+    Jacobi(const Options& opts = Options());
 
-    /**
-     * Solve the system using the Jacobi iterative method.
-     */
-    void
-    solve(Vector& x, const Vector& b) const override;
+    /** Solve the system using the Jacobi iterative method. */
+    void solve(Vector& x, const Vector& b) const override;
 
 
     using LinearSolverBase::solve;

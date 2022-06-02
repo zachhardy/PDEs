@@ -12,18 +12,17 @@ using namespace Math;
 
 //################################################## Constructors
 
+
 LinearSolver::SparseCholesky::
-SparseCholesky(SparseMatrix& A) : DirectSolverBase(A)
-{
-  Assert(A.n_rows() == A.n_cols(), "Square matrix required.");
-  factorize();
-}
+SparseCholesky() : DirectSolverBase<SparseMatrix>()
+{}
+
 
 //################################################## Methods
 
+
 void
-LinearSolver::SparseCholesky::
-factorize()
+LinearSolver::SparseCholesky::factorize()
 {
   size_t n = A.n_rows();
 
@@ -64,15 +63,14 @@ factorize()
 
 
 void
-LinearSolver::SparseCholesky::
-solve(Vector& x, const Vector& b) const
+LinearSolver::SparseCholesky::solve(Vector& x, const Vector& b) const
 {
   size_t n = A.n_rows();
-  Assert(factorized, "Matrix must be factorized before solving.");
-  Assert(b.size() == n, "Dimension mismatch error.");
-  Assert(x.size() == n, "Dimension mismatch error.");
+  Assert(factorized, "Matrix must be factorized before solving.")
+  Assert(b.size() == n, "Dimension mismatch error.")
+  Assert(x.size() == n, "Dimension mismatch error.")
 
-  //================================================== Forward solve
+  //======================================== Forward solve
   for (size_t i = 0; i < n; ++i)
   {
     double value = b[i];
@@ -82,7 +80,7 @@ solve(Vector& x, const Vector& b) const
     x[i] = value / *A.diagonal(i);
   }
 
-  //================================================== Backward solve
+  //======================================== Backward solve
   for (size_t i = n - 1; i != -1; --i)
   {
     x[i] /= *A.diagonal(i);

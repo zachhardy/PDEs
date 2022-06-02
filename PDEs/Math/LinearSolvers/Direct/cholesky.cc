@@ -10,25 +10,25 @@
 
 using namespace Math;
 
+
 //################################################## Constructors
 
 
 LinearSolver::Cholesky::
-Cholesky(Matrix& A) : A(A)
-{
-  Assert(A.n_rows() == A.n_cols(), "Square matrix required.");
-  factorize();
-}
+Cholesky() : DirectSolverBase<Matrix>()
+{}
 
 
 //################################################## Methods
 
+
 void
 LinearSolver::Cholesky::factorize()
 {
-  size_t n = A.n_rows();
+  if (factorized) return;
 
   // Compute the factorization column by column
+  size_t n = A.n_rows();
   for (size_t j = 0; j < n; ++j)
   {
     double* a_j = A.data(j); // accessor for row j
@@ -55,15 +55,14 @@ LinearSolver::Cholesky::factorize()
 
 
 void
-LinearSolver::Cholesky::
-solve(Vector& x, const Vector& b) const
+LinearSolver::Cholesky::solve(Vector& x, const Vector& b) const
 {
   size_t n = A.n_rows();
   Assert(factorized, "Matrix must be factorized before solving.");
   Assert(b.size() == n, "Dimension mismatch error.");
   Assert(x.size() == n, "Dimension mismatch error.");
 
-  //================================================== Forward solve
+  //======================================== Forward solve
   for (size_t i = 0; i < n; ++i)
   {
     const double* a_i = A.data(i); // accessor for row i
@@ -75,7 +74,7 @@ solve(Vector& x, const Vector& b) const
     x[i] = value / a_ii;
   }
 
-  //================================================== Backward solve
+  //======================================== Backward solve
   for (size_t i = n - 1; i != -1; --i)
   {
     const double* a_i = A.data(i); // accessor for row i

@@ -1,7 +1,8 @@
 #ifndef SPARSE_CHOLESKY_H
 #define SPARSE_CHOLESKY_H
 
-#include "LinearSolvers/linear_solver.h"
+#include "../linear_solver.h"
+#include "Sparse/sparse_matrix.h"
 
 
 namespace Math::LinearSolver
@@ -10,28 +11,25 @@ namespace Math::LinearSolver
   /**
    * Implementation of a sparse Cholesky solver.
    */
-  class SparseCholesky : public DirectSolverBase
+  class SparseCholesky : public DirectSolverBase<SparseMatrix>
   {
   public:
-    /**
-     * Default constructor.
-     */
-    SparseCholesky(SparseMatrix& A);
-
+    /** Default constructor. */
+    SparseCholesky();
 
     /**
      * Perform a Cholesky factorization on the matrix \f$ \boldsymbol{A} \f$.
+     *
      * \see Cholesky::solve
      */
-    void
-    factorize() override;
+    void factorize() override;
 
     /**
      * Solve the Cholesky factored linear system.
+     *
      * \see Cholesky::solve
      */
-    void
-    solve(Vector& x, const Vector& b) const override;
+    void solve(Vector& x, const Vector& b) const override;
 
 
     using LinearSolverBase::solve;

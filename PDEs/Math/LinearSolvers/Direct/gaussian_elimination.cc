@@ -9,12 +9,17 @@
 #include <cmath>
 
 
-Math::Vector
-Math::gaussian_elimination(Matrix& A, Vector& b, const bool pivot)
+using namespace Math;
+
+
+template<>
+Vector
+Math::gaussian_elimination<Matrix>(Matrix& A, Vector& b,
+                                   const bool pivot)
 {
   Assert(A.n_rows() == A.n_cols(),
-         "Square matrices are required for Gaussian elimination.");
-  Assert(b.size() == A.n_rows(), "Dimension mismatch error.");
+         "Square matrices are required for Gaussian elimination.")
+  Assert(b.size() == A.n_rows(), "Dimension mismatch error.")
 
   size_t n = b.size();
 
@@ -39,7 +44,7 @@ Math::gaussian_elimination(Matrix& A, Vector& b, const bool pivot)
       }
 
       // If the sub-diagonal is uniformly zero, throw error
-      Assert(max != 0.0, "Singular matrix error.");
+      Assert(max != 0.0, "Singular matrix error.")
 
       /* Swap the current row and the row containing the largest magnitude
        * entry corresponding for the current column. This is done to improve
@@ -85,12 +90,14 @@ Math::gaussian_elimination(Matrix& A, Vector& b, const bool pivot)
 }
 
 
-Math::Vector
-Math::gaussian_elimination(SparseMatrix& A, Vector& b, const bool pivot)
+template<>
+Vector
+Math::gaussian_elimination<SparseMatrix>(SparseMatrix& A, Vector& b,
+                                         const bool pivot)
 {
   Assert(A.n_rows() == A.n_cols(),
-         "Square matrices are required for Gaussian elimination.");
-  Assert(b.size() == A.n_rows(), "Dimension mismatch error.");
+         "Square matrices are required for Gaussian elimination.")
+  Assert(b.size() == A.n_rows(), "Dimension mismatch error.")
 
   size_t n = b.size();
 
@@ -117,7 +124,7 @@ Math::gaussian_elimination(SparseMatrix& A, Vector& b, const bool pivot)
       }
 
       // If the sub-diagonal is uniformly zero, throw an error
-      Assert(max != 0.0, "Singular matrix error.");
+      Assert(max != 0.0, "Singular matrix error.")
 
       /* Swap the current row and the row containing the largest magnitude
        * entry corresponding for the current column. This is done to improve

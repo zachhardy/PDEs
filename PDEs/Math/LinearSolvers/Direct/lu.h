@@ -1,7 +1,9 @@
 #ifndef LU_H
 #define LU_H
 
-#include "LinearSolvers/linear_solver.h"
+#include "../linear_solver.h"
+
+#include "matrix.h"
 
 #include <vector>
 #include <cstddef>
@@ -13,11 +15,9 @@ namespace Math::LinearSolver
   /**
    * Implementation of an LU decomposition solver.
    */
-  class LU : public LinearSolverBase
+  class LU : public DirectSolverBase<Matrix>
   {
   private:
-    Matrix& A;
-    bool factorized = false;
     bool pivot_flag;
 
     /**
@@ -30,22 +30,11 @@ namespace Math::LinearSolver
 
   public:
 
-    /**
-     * Default constructor.
-     */
-    LU(Matrix& A, const bool pivot = true);
+    /** Default constructor. */
+    LU(const bool pivot = true);
 
-    /**
-     * Set the pivot option.
-     */
-    void
-    pivot(const bool flag);
-
-    /**
-     * Get the pivot option.
-     */
-    bool
-    pivot() const;
+    /** Attach a matrix to the solver. */
+    void set_matrix(const Matrix* matrix) override;
 
     /**
      * Factor the matrix \f$ \boldsymbol{A} \f$ into an upper and lower
@@ -62,8 +51,7 @@ namespace Math::LinearSolver
      * is identical to the row-echelon form. The lower triangular matrix then
      * contains the row operations used to form upper triangular system.
      */
-    void
-    factorize();
+    void factorize() override;
 
     /**
     * Solve an LU factored linear system.
@@ -79,8 +67,14 @@ namespace Math::LinearSolver
     * \f$ \boldsymbol{U} \vec{x} = \vec{y} \f$ where \f$ \vec{y} \f$ is now the
     * source term. This system can be solved using back substitution.
     */
-    void
-    solve(Vector& x, const Vector& b) const override;
+    void solve(Vector& x, const Vector& b) const override;
+
+
+    /** Set the pivot option. */
+    void pivot(const bool flag);
+
+    /** Get the pivot option. */
+    bool pivot() const;
 
 
     using LinearSolverBase::solve;
