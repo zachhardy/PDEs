@@ -3,6 +3,8 @@
 
 #include "Discretization/FiniteVolume/fv.h"
 
+#include "LinearSolvers/Direct/sparse_lu.h"
+
 #include "macros.h"
 
 #include <set>
@@ -29,8 +31,7 @@ SteadyStateSolver::initialize()
     for (const size_t group : groups)
       groupsets[0].groups.emplace_back(group);
 
-    // Set solver type to LU
-    linear_solver_type = LinearSolverType::LU;
+    linear_solver = std::make_shared<SparseLU>();
   }
 
   input_checks();

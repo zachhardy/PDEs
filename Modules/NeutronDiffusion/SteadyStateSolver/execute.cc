@@ -58,6 +58,8 @@ solve_groupset(Groupset& groupset, SourceFlags source_flags)
   Vector& b = groupset.b;
   const Vector b_init = b;
 
+  linear_solver->set_matrix(&A);
+
   size_t nit;
   double change;
   bool converged = false;
@@ -107,54 +109,4 @@ solve_full_system(SourceFlags source_flags)
 
   Vector& b = groupsets.front().b;
   phi = linear_solver->solve(b);
-}
-
-
-//###########################################################################
-
-
-void
-NeutronDiffusion::SteadyStateSolver::
-create_linear_solver(Groupset& groupset)
-{
-  SparseMatrix& A = groupset.A;
-  switch (linear_solver_type)
-  {
-    case LinearSolverType::LU:
-    {
-      linear_solver = std::make_shared<SparseLU>(A);
-      break;
-    }
-    case LinearSolverType::CHOLESKY:
-    {
-      linear_solver = std::make_shared<SparseCholesky>(A);
-      break;
-    }
-    case LinearSolverType::JACOBI:
-    {
-      linear_solver = std::make_shared<Jacobi>(A, linear_solver_opts);
-      break;
-    }
-    case LinearSolverType::GAUSS_SEIDEL:
-    {
-      linear_solver = std::make_shared<GaussSeidel>(A, linear_solver_opts);
-      break;
-    }
-    case LinearSolverType::SOR:
-    {
-      linear_solver = std::make_shared<SOR>(A, linear_solver_opts);
-      break;
-    }
-    case LinearSolverType::SSOR:
-    {
-      linear_solver = std::make_shared<SSOR>(A, linear_solver_opts);
-      break;
-    }
-    case LinearSolverType::CG:
-    {
-      linear_solver = std::make_shared<CG>(A, linear_solver_opts);
-      break;
-    }
-    default:throw std::runtime_error("Invalid linear solver type encountered.");
-  }
 }

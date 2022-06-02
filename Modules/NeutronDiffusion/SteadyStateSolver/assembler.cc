@@ -17,8 +17,6 @@ assemble_matrix(Groupset& groupset, AssemblerFlags assembler_flags)
     }
     default:throw std::runtime_error("Invalid discretization method.");
   }
-
-  create_linear_solver(groupset);
 }
 
 

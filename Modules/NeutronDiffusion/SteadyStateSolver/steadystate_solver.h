@@ -90,7 +90,7 @@ namespace NeutronDiffusion
     typedef std::vector<double> RobinBndryVals;
     typedef std::shared_ptr<Boundary> BndryPtr;
 
-    typedef LinearSolver::LinearSolverBase LinearSolverBase;
+    typedef LinearSolver::LinearSolverBase<SparseMatrix> LinearSolverBase;
     typedef LinearSolver::LinearSolverType LinearSolverType;
 
   public:
@@ -107,8 +107,6 @@ namespace NeutronDiffusion
     /*-------------------- Solver Information --------------------*/
     SolutionTechnique solution_technique = SolutionTechnique::GROUPSET_WISE;
 
-    LinearSolver::Options linear_solver_opts;
-    LinearSolverType linear_solver_type = LinearSolverType::SSOR;
 
     std::shared_ptr<LinearSolverBase> linear_solver;
 
@@ -202,9 +200,7 @@ namespace NeutronDiffusion
      */
     virtual void initialize();
 
-    /**
-     * Run the steady state multigroup diffusion simulation.
-     */
+    /** Run the steady state multigroup diffusion simulation. */
     virtual void execute();
 
   protected:
@@ -246,9 +242,7 @@ namespace NeutronDiffusion
     void assemble_matrix(Groupset& groupset,
                          AssemblerFlags assembler_flags = NO_ASSEMBLER_FLAGS);
 
-    /**
-     * \see assemble_matrix
-     */
+    /** \see assemble_matrix */
     void fv_assemble_matrix(Groupset& groupset,
                             AssemblerFlags assembler_flags = NO_ASSEMBLER_FLAGS);
 
@@ -264,25 +258,15 @@ namespace NeutronDiffusion
      */
     void set_source(Groupset& groupset, SourceFlags source_flags);
 
-    /**
-     * \see set_source
-     */
+    /** \see set_source */
     void fv_set_source(Groupset& groupset, SourceFlags source_flags);
 
-    /**
-     * Compute the steady-state delayed neutron precursor concentrations.
-     */
+    /** Compute the steady-state delayed neutron precursor concentrations. */
     void compute_precursors();
 
-    /**
-     * \see compute_precursors
-     */
+    /** \see compute_precursors */
     void fv_compute_precursors();
 
-    /**
-     * Create a linear solver.
-     */
-    void create_linear_solver(Groupset& groupset);
 
     //@}
 
