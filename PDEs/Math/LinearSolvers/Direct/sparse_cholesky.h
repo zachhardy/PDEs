@@ -14,7 +14,9 @@ namespace Math::LinearSolver
   class SparseCholesky : public DirectSolverBase<SparseMatrix>
   {
   public:
-    /** Default constructor. */
+    /**
+     * Default constructor.
+     */
     SparseCholesky();
 
     /**
@@ -22,14 +24,16 @@ namespace Math::LinearSolver
      *
      * \see Cholesky::solve
      */
-    void factorize() override;
+    void
+    factorize() override;
 
     /**
      * Solve the Cholesky factored linear system.
      *
      * \see Cholesky::solve
      */
-    void solve(Vector& x, const Vector& b) const override;
+    void
+    solve(Vector& x, const Vector& b) const override;
 
 
     using LinearSolverBase::solve;

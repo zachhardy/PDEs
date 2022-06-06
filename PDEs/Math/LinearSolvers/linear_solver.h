@@ -23,7 +23,7 @@ namespace Math::LinearSolver
     size_t max_iterations = 500;
   };
 
-  
+
   /**
    * Base class from which all linear solvers must derive.
    */
@@ -31,14 +31,23 @@ namespace Math::LinearSolver
   class LinearSolverBase
   {
   public:
-    /** Abstract method for solving a linear system. */ 
-    virtual void solve(Vector& x, const Vector& b) const = 0;
+    /**
+     * Abstract method for solving a linear system.
+     */
+    virtual void
+    solve(Vector& x, const Vector& b) const = 0;
 
-    /** Return the solution to \f$ \boldsymbol{A} \vec{x} = \vec{b} \f$. */
-    Vector solve(const Vector& b) const;
-    
-    /** Attach a matrix to the solver. */
-    virtual void set_matrix(const MatrixType& matrix);
+    /**
+     * Return the solution to \f$ \boldsymbol{A} \vec{x} = \vec{b} \f$.
+     */
+    Vector
+    solve(const Vector& b) const;
+
+    /**
+     * Attach a matrix to the solver.
+     */
+    virtual void
+    set_matrix(const MatrixType& matrix);
   };
 
 
@@ -52,18 +61,26 @@ namespace Math::LinearSolver
   class DirectSolverBase : public LinearSolverBase<MatrixType>
   {
   protected:
-    MatrixType   A;
-    bool         factorized = false;
+    MatrixType A;
+    bool factorized = false;
 
   public:
-    /** Default constructor. */
+    /**
+     * Default constructor.
+     */
     DirectSolverBase();
 
-    /** Abstract routine for factorizing the matrix. */
-    virtual void factorize() = 0;
+    /**
+     * Abstract routine for factorizing the matrix.
+     */
+    virtual void
+    factorize() = 0;
 
-    /** Attach a matrix to the solver. */
-    virtual void set_matrix(const MatrixType& matrix) override;
+    /**
+     * Attach a matrix to the solver.
+     */
+    virtual void
+    set_matrix(const MatrixType& matrix) override;
   };
 
 
@@ -95,16 +112,21 @@ namespace Math::LinearSolver
     IterativeSolverBase(const Options& opts = Options(),
                         const std::string name = "Undefined");
 
-    /** Attach a matrix to the solver. */
+    /**
+     * Attach a matrix to the solver.
+     */
     void set_matrix(const SparseMatrix& matrix) override;
 
   protected:
-
-    /** Check whether the solver has converged. */
+    /**
+     * Check whether the solver has converged.
+     */
     virtual bool
     check(const size_t iteration, const double value) const;
 
-    /** Throw an error when convergence criteria is not met. */
+    /**
+     * Throw an error when convergence criteria is not met.
+     */
     void
     throw_convergence_error(const size_t iteration,
                             const double value) const;

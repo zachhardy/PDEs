@@ -7,11 +7,7 @@ namespace Math
 
   //########## Forward declarations
   class Vector;
-
-
   class Matrix;
-
-
   class SparseMatrix;
 
 
@@ -34,20 +30,5 @@ namespace Math
   template<class MatrixType>
   Vector
   gaussian_elimination(MatrixType& A, Vector& b, const bool pivot = true);
-
-//  /**
-//   * Solve a system using Gaussian elimination with a sparse matrix.
-//   *
-//   * \param A An \f$ n \times n \f$ matrix.
-//   * \param b A vector of length \f$ n \f$.
-//   * \param pivot A flag for whether pivoting is performed.
-//   * \return The solution \f$ \vec{x} \f$ of
-//   *         \f$ \boldsymbol{A} \vec{x} = \vec{b} \f$.
-//   *
-//   * \see gaussian_elimination
-//   */
-//  Vector
-//  gaussian_elimination(SparseMatrix& A, Vector& b, const bool pivot = true);
-
 }
 #endif //GAUSSIAN_ELIMINATION_H

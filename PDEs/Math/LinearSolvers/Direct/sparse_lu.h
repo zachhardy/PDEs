@@ -28,31 +28,44 @@ namespace Math::LinearSolver
     std::vector<size_t> row_pivots;
 
   public:
-    /** Default constructor. */
+    /**
+     * Default constructor.
+     */
     SparseLU(const bool pivot = true);
 
-    /** Attach a matrix to the solver. */
-    void set_matrix(const SparseMatrix& matrix) override;
+    /**
+     * Attach a matrix to the solver.
+     */
+    void
+    set_matrix(const SparseMatrix& matrix) override;
 
     /**
      * Factor the matrix \f$ \boldsymbol{A} \f$ in-place.
      *
      * \see LU::factorize
      */
-    void factorize() override;
+    void
+    factorize() override;
 
     /**
      * Solve the LU factored linear system.
      *
      * \see LU::solve
      */
-    void solve(Vector& x, const Vector& b) const override;
+    void
+    solve(Vector& x, const Vector& b) const override;
 
-    /** Set the pivot option. */
-    void pivot(const bool flag);
+    /**
+     * Set the pivot option.
+     */
+    void
+    pivot(const bool flag);
 
-    /** Return the pivot option. */
-    bool pivot() const;
+    /**
+     * Return the pivot option.
+     */
+    bool
+    pivot() const;
 
 
     using LinearSolverBase::solve;

@@ -326,14 +326,20 @@ Matrix::resize(const size_t n_rows,
 void
 Matrix::reinit(const size_t n_rows,
                const size_t n_cols)
-{ resize(n_rows, n_cols); }
+{
+  clear();
+  resize(n_rows, n_cols);
+}
 
 
 void
 Matrix::reinit(const size_t n_rows,
                const size_t n_cols,
                const double value)
-{ resize(n_rows, n_cols, value); }
+{
+  clear();
+  resize(n_rows, n_cols, value);
+}
 
 
 void
@@ -419,6 +425,23 @@ Matrix::add(const Matrix& B, const double a)
 
 
 Matrix&
+Matrix::Tadd(const Matrix& B, const double a)
+{
+  Assert(n_rows() == B.n_cols(), "Dimension mismatch error.")
+  Assert(n_cols() == B.n_rows(), "Dimension mismatch error.")
+
+  // Perform the operation
+  for (size_t i = 0; i < n_rows(); ++i)
+  {
+    double* a_ij = data(i);
+    for (size_t j = 0; j < n_cols(); ++j, ++a_ij)
+      *a_ij += a * B(j, i);
+  }
+  return *this;
+}
+
+
+Matrix&
 Matrix::sadd(const double a, const Matrix& B)
 {
   Assert(B.n_rows() == n_rows(), "Dimension mismatch error.")
@@ -451,23 +474,6 @@ Matrix::sadd(const double a, const double b, const Matrix& B)
 
     for (size_t j = 0; j < n_cols(); ++j, ++a_ij, ++b_ij)
       *a_ij = a * *a_ij + b * *b_ij;
-  }
-  return *this;
-}
-
-
-Matrix&
-Matrix::Tadd(const Matrix& B, const double a)
-{
-  Assert(n_rows() == B.n_cols(), "Dimension mismatch error.")
-  Assert(n_cols() == B.n_rows(), "Dimension mismatch error.")
-
-  // Perform the operation
-  for (size_t i = 0; i < n_rows(); ++i)
-  {
-    double* a_ij = data(i);
-    for (size_t j = 0; j < n_cols(); ++j, ++a_ij)
-      *a_ij += a * B(j, i);
   }
   return *this;
 }
@@ -531,15 +537,6 @@ Matrix::mmult(const Matrix& B, Matrix& C,
 }
 
 
-Matrix
-Matrix::mmult(const Matrix& B) const
-{
-  Matrix C(n_rows(), B.n_cols());
-  mmult(B, C);
-  return C;
-}
-
-
 void
 Matrix::Tmmult(const Matrix& B, Matrix& C,
                const bool adding) const
@@ -560,15 +557,6 @@ Matrix::Tmmult(const Matrix& B, Matrix& C,
       *c_ij = value;
     }
   }
-}
-
-
-Matrix
-Matrix::Tmmult(const Matrix& B) const
-{
-  Matrix C(n_cols(), B.n_cols());
-  Tmmult(B, C);
-  return C;
 }
 
 
@@ -598,15 +586,6 @@ Matrix::mTmult(const Matrix& B, Matrix& C,
 }
 
 
-Matrix
-Matrix::mTmult(const Matrix& B) const
-{
-  Matrix C(n_rows(), B.n_rows());
-  mTmult(B, C);
-  return C;
-}
-
-
 void
 Matrix::TTmult(const Matrix& B, Matrix& C,
                const bool adding) const
@@ -629,6 +608,33 @@ Matrix::TTmult(const Matrix& B, Matrix& C,
       *c_ij = value;
     }
   }
+}
+
+
+Matrix
+Matrix::mmult(const Matrix& B) const
+{
+  Matrix C(n_rows(), B.n_cols());
+  mmult(B, C);
+  return C;
+}
+
+
+Matrix
+Matrix::Tmmult(const Matrix& B) const
+{
+  Matrix C(n_cols(), B.n_cols());
+  Tmmult(B, C);
+  return C;
+}
+
+
+Matrix
+Matrix::mTmult(const Matrix& B) const
+{
+  Matrix C(n_rows(), B.n_rows());
+  mTmult(B, C);
+  return C;
 }
 
 
@@ -663,20 +669,6 @@ Matrix::vmult(const Vector& x, Vector& y,
 }
 
 
-Vector
-Matrix::vmult(const Vector& x) const
-{
-  Vector y(n_rows());
-  vmult(x, y);
-  return y;
-}
-
-
-void
-Matrix::vmult_add(const Vector& x, Vector& y) const
-{ vmult(x, y, true); }
-
-
 void
 Matrix::Tvmult(const Vector& x, Vector& y,
                const bool adding) const
@@ -698,12 +690,26 @@ Matrix::Tvmult(const Vector& x, Vector& y,
 
 
 Vector
+Matrix::vmult(const Vector& x) const
+{
+  Vector y(n_rows());
+  vmult(x, y);
+  return y;
+}
+
+
+Vector
 Matrix::Tvmult(const Vector& x) const
 {
   Vector y(n_cols());
   Tvmult(x, y);
   return y;
 }
+
+
+void
+Matrix::vmult_add(const Vector& x, Vector& y) const
+{ vmult(x, y, true); }
 
 
 void
@@ -847,19 +853,9 @@ Math::mmult(const Matrix& A, const Matrix& B, Matrix& C)
 { A.mmult(B, C); }
 
 
-Matrix
-Math::mmult(const Matrix& A, const Matrix& B)
-{ return A.mmult(B); }
-
-
 void
 Math::Tmmult(const Matrix& A, const Matrix& B, Matrix& C)
 { A.Tmmult(B, C); }
-
-
-Matrix
-Math::Tmmult(const Matrix& A, const Matrix& B)
-{ return A.Tmmult(B); }
 
 
 void
@@ -867,14 +863,24 @@ Math::mTmult(const Matrix& A, const Matrix& B, Matrix& C)
 { A.mTmult(B, C); }
 
 
-Matrix
-Math::mTmult(const Matrix& A, const Matrix& B)
-{ return A.mTmult(B); }
-
-
 void
 Math::TTmult(const Matrix& A, const Matrix& B, Matrix& C)
 { A.TTmult(B, C); }
+
+
+Matrix
+Math::mmult(const Matrix& A, const Matrix& B)
+{ return A.mmult(B); }
+
+
+Matrix
+Math::Tmmult(const Matrix& A, const Matrix& B)
+{ return A.Tmmult(B); }
+
+
+Matrix
+Math::mTmult(const Matrix& A, const Matrix& B)
+{ return A.mTmult(B); }
 
 
 Matrix
@@ -887,14 +893,14 @@ Math::vmult(const Matrix& A, const Vector& x, Vector& y)
 { A.vmult(x, y); }
 
 
-Vector
-Math::vmult(const Matrix& A, const Vector& x)
-{ return A.vmult(x); }
-
-
 void
 Math::Tvmult(const Matrix& A, const Vector& x, Vector& y)
 { A.Tvmult(x, y); }
+
+
+Vector
+Math::vmult(const Matrix& A, const Vector& x)
+{ return A.vmult(x); }
 
 
 Vector

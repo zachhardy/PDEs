@@ -43,6 +43,9 @@ namespace Math
 
     //================================================== Constructors
 
+    /** \name Constructors and Initializers */
+    // @{
+
     /**
      * Default contructor.
      */
@@ -78,8 +81,6 @@ namespace Math
      */
     SparseMatrix(const Matrix& other);
 
-    //================================================== Assignment
-
     /**
      * Assignment with a dense matrix.
      */
@@ -93,19 +94,28 @@ namespace Math
     SparseMatrix&
     operator=(const value_type value);
 
+    // @}
+
     //================================================== Comparison
 
+    /** \name Comparison */
+    // @{
+
     /**
-     * Test the equality of two sparse matrices.
+     * Test the equality of two sparse matrices. Two sparse matrices are
+     * equal if all their elements are equal.
      */
     bool
     operator==(const SparseMatrix& other) const;
 
     /**
-     * Test the inequality of two sparse matrices.
+     * Test the inequality of two sparse matrices. Two sparse matrices are not
+     * equal if any of their elements are not equal.
      */
     bool
     operator!=(const SparseMatrix& other) const;
+
+    // @}
 
     //================================================== Characteristics
 
@@ -158,10 +168,16 @@ namespace Math
       const size_t& row, column;
       value_type& value;
 
+      /**
+       * Default constructor.
+       */
       entry(const size_t& i,
             const size_t& j,
             value_type& val);
 
+      /**
+       * Return the entry as a string.
+       */
       std::string
       str() const;
     };
@@ -177,8 +193,14 @@ namespace Math
       const size_t& row, column;
       const value_type& value;
 
+      /**
+       * Default constructor.
+       */
       const_entry(const size_t& i, const size_t& j, const value_type& val);
 
+      /**
+       * Return the constant entry as a string.
+       */
       std::string
       str() const;
     };
@@ -204,23 +226,55 @@ namespace Math
       ConstColumnIterator col_ptr;
       CoeffIterator val_ptr;
 
+      /**
+       * A convenience function to advance the iterator one element forward.
+       */
       void
       advance();
 
     public:
+      /**
+       * Default constructor. This will point to the first column index and
+       * value of the specified \p row.
+       */
       iterator(SparseMatrix* sparse_matrix, const size_t row);
 
+      /**
+       * Construct an invalid iterator used to designate the end of the
+       * sparse matrix.
+       */
       iterator(SparseMatrix* sparse_matrix);
 
-      iterator& operator++();
+      /**
+       * Prefix increment operator.
+       */
+      iterator&
+      operator++();
 
-      iterator operator++(int);
+      /**
+       * Postfix increment operator.
+       */
+      iterator
+      operator++(int);
 
-      entry operator*();
+      /**
+       * Dereference operator. Return an entry object corresponding to the
+       * current element the iterator describes.
+       */
+      entry
+      operator*();
 
-      bool operator==(const iterator& other) const;
+      /**
+       * Test the equality of two iterators.
+       */
+      bool
+      operator==(const iterator& other) const;
 
-      bool operator!=(const iterator& other) const;
+      /**
+       * Test the inequality of two iterators.
+       */
+      bool
+      operator!=(const iterator& other) const;
     };
 
 
@@ -241,26 +295,62 @@ namespace Math
       ConstColumnIterator col_ptr;
       ConstCoeffIterator val_ptr;
 
+      /**
+       * A convenience function to advance the iterator one element forward.
+       */
       void
       advance();
 
     public:
+      /**
+       * Default constructor. This will point to the first column index and
+       * value of the specified \p row.
+       */
       const_iterator(const SparseMatrix* sparse_matrix, const size_t row);
 
+      /**
+       * Construct an invalid iterator used to designate the end of the
+       * sparse matrix.
+       */
       const_iterator(const SparseMatrix* sparse_matrix);
 
-      const_iterator& operator++();
+      /**
+       * Prefix increment operator.
+       */
+      const_iterator&
+      operator++();
 
-      const_iterator operator++(int);
+      /**
+       * Postfix increment operator.
+       */
+      const_iterator
+      operator++(int);
 
+      /**
+       * Dereference operator. Return a constant entry object corresponding to
+       * the current element the iterator describes.
+       */
       const_entry operator*();
 
-      bool operator==(const const_iterator& other) const;
+      /**
+       * Test the equality of two iterators.
+       */
+      bool
+      operator==(const const_iterator& other) const;
 
-      bool operator!=(const const_iterator& other) const;
+      /**
+       * Test the inequality of two iterators.
+       */
+      bool
+      operator!=(const const_iterator& other) const;
     };
 
 
+    /**
+     * Accessor for a row of the sparse matrix. This class implements an
+     * iterator which can be used to go through a single row of the sparse
+     * matrix.
+     */
     class row_accessor
     {
     private:
@@ -269,9 +359,14 @@ namespace Math
       std::vector<value_type>& coeffs;
 
     public:
+      /**
+       * Default constructor.
+       */
       row_accessor(SparseMatrix& sparse_matrix, const size_t i);
 
-
+      /**
+       * An iterator over the elements of a row.
+       */
       class iterator
       {
       private:
@@ -280,26 +375,62 @@ namespace Math
         std::vector<value_type>::iterator val_ptr;
 
       public:
+        /**
+         * Default constructor.
+         */
         iterator(row_accessor& accessor, const size_t elem);
 
-        iterator& operator++();
+        /**
+         * Prefix increment operator.
+         */
+        iterator&
+        operator++();
 
-        iterator operator++(int);
+        /**
+         * Postfix increment operator.
+         */
+        iterator
+        operator++(int);
 
-        entry operator*();
+        /**
+         * Dereference operator. Return an entry object describing the element
+         * the iterator is pointing to.
+         */
+        entry
+        operator*();
 
-        bool operator==(const iterator& other) const;
+        /**
+         * Test the equality of two iterators.
+         */
+        bool
+        operator==(const iterator& other) const;
 
-        bool operator!=(const iterator& other) const;
+        /**
+         * Test the inequality of two iterators.
+         */
+        bool
+        operator!=(const iterator& other) const;
       };
 
+      /**
+       * Return an iterator to the start of the row.
+       */
+      iterator
+      begin();
 
-      iterator begin();
-
-      iterator end();
+      /**
+       * Return an iterator to the end of the row.
+       */
+      iterator
+      end();
     };
 
 
+    /**
+     * Constant accessor for a row of the sparse matrix. This class implements
+     * an iterator which can be used to go through a single row of the sparse
+     * matrix.
+     */
     class const_row_accessor
     {
     private:
@@ -308,9 +439,14 @@ namespace Math
       const std::vector<value_type>& coeffs;
 
     public:
+      /**
+       * Default constructor.
+       */
       const_row_accessor(const SparseMatrix& sparse_matrix, const size_t i);
 
-
+      /**
+       * An constant iterator over the elements of a row.
+       */
       class const_iterator
       {
       private:
@@ -319,23 +455,54 @@ namespace Math
         std::vector<value_type>::const_iterator val_ptr;
 
       public:
+        /**
+         * Default constructor.
+         */
         const_iterator(const const_row_accessor& accessor, const size_t elem);
 
-        const_iterator& operator++();
+        /**
+         * Prefix increment operator.
+         */
+        const_iterator&
+        operator++();
 
-        const_iterator operator++(int);
+        /**
+         * Postfix increment operator.
+         */
+        const_iterator
+        operator++(int);
 
-        const_entry operator*();
+        /**
+         * Dereference operator. Return a constant entry object describing the
+         * element the iterator is pointing to.
+         */
+        const_entry
+        operator*();
 
-        bool operator==(const const_iterator& other) const;
+        /**
+         * Test the equality of two iterators.
+         */
+        bool
+        operator==(const const_iterator& other) const;
 
-        bool operator!=(const const_iterator& other) const;
+        /**
+         * Test the inequality of two iterators.
+         */
+        bool
+        operator!=(const const_iterator& other) const;
       };
 
+      /**
+       * Return a constant iterator to the start of the row.
+       */
+      const_iterator
+      begin() const;
 
-      const_iterator begin() const;
-
-      const_iterator end() const;
+      /**
+       * Return a constant iterator to the end of the row.
+       */
+      const_iterator
+      end() const;
     };
 
     // @}
@@ -608,23 +775,6 @@ namespace Math
           const bool adding = false) const;
 
     /**
-     * Return a matrix-vector product.
-     *
-     * \see SparseMatrix::vmult
-     */
-    Vector
-    vmult(const Vector& x) const;
-
-    /**
-     * Compute a matrix-vector product and add to the destination vector \f$
-     * \vec{y} \f$.
-     *
-     * \see SparseMatrix::vmult
-     */
-    void
-    vmult_add(const Vector& x, Vector& y) const;
-
-    /**
      * Compute a transpose matrix-vector product. This is computed via \f$
      * \vec{y} = \boldsymbol{A}^T \vec{x} = \sum_{i=1}^{n} a_{ji} x_i, ~ \forall i
      * \f$. If the \p adding flag is set to \p true, the matrix-vector product is
@@ -635,12 +785,29 @@ namespace Math
            const bool adding = false) const;
 
     /**
+     * Return a matrix-vector product.
+     *
+     * \see SparseMatrix::vmult
+     */
+    Vector
+    vmult(const Vector& x) const;
+
+    /**
      * Return a transpose matrix-vector product.
      *
      * \see SparseMatrix::Tvmult
      */
     Vector
     Tvmult(const Vector& x) const;
+
+    /**
+     * Compute a matrix-vector product and add to the destination vector \f$
+     * \vec{y} \f$.
+     *
+     * \see SparseMatrix::vmult
+     */
+    void
+    vmult_add(const Vector& x, Vector& y) const;
 
     /**
      * Compute a transpose matrix-vector product and to the destination vector
@@ -817,20 +984,20 @@ namespace Math
   vmult(const SparseMatrix& A, const Vector& x, Vector& y);
 
   /**
-   * Return a matrix-vector product.
-   *
-   * \see SparseMatrix::vmult
-   */
-  Vector
-  vmult(const SparseMatrix& A, const Vector& x);
-
-  /**
    * Compute a transpose matrix-vector product.
    *
    * \see SparseMatrix::Tvmult
    */
   void
   Tvmult(const SparseMatrix& A, const Vector& x, Vector& y);
+
+  /**
+   * Return a matrix-vector product.
+   *
+   * \see SparseMatrix::vmult
+   */
+  Vector
+  vmult(const SparseMatrix& A, const Vector& x);
 
   /**
    * Return a transpose matrix-vector product.

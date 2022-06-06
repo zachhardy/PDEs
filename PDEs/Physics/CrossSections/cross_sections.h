@@ -56,6 +56,11 @@ namespace Physics
     std::vector<double> diffusion_coeff; ///< Diffusion coefficient
 
   public:
+
+    //================================================== Constructors
+    /** \name Constructors and Initialization */
+    // @{
+
     /**
      * Construct an empty cross-section property.
      */
@@ -70,7 +75,6 @@ namespace Physics
       MaterialProperty(MaterialPropertyType::CROSS_SECTIONS, property_name)
     {}
 
-
     /**
      * Reset the cross-sections to an uninitialized state.
      */
@@ -84,7 +88,14 @@ namespace Physics
     read_xs_file(const std::string file_name,
                  const bool verbose = false);
 
+    // @}
+
   private:
+
+    //============================================= Cross Section Operations
+    /** \name Cross Section Operations */
+    // @{
+
     /**
      * Compute \f$ \sigma_s \f$ from the zeroth scattering moment.
      *
@@ -145,6 +156,12 @@ namespace Physics
      */
     void
     compute_macroscopic_cross_sections();
+
+    // @}
+
+    //================================================== Read Operations
+    /** \name Read Operations */
+    // @{
 
     /**
      * Read a cross-section block from the ".xs" file.
@@ -209,6 +226,8 @@ namespace Physics
                          std::ifstream& file,
                          std::istringstream& line_stream,
                          size_t& line_number);
+
+    // @}
   };
 
 }

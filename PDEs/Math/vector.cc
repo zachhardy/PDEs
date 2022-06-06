@@ -272,7 +272,7 @@ Vector::lp_norm(const double p) const
   double norm = 0.0;
   for (const auto& el : elements)
     norm += std::pow(std::fabs(el), p);
-  return std::pow(norm, 1.0/p);
+  return std::pow(norm, 1.0 / p);
 }
 
 
@@ -457,19 +457,19 @@ Vector::print(std::ostream& os,
               const unsigned int precision,
               const unsigned int width) const
 {
-  unsigned int w                   = width;
-  std::ios::fmtflags old_flags     = os.flags();
-  unsigned int       old_precision = os.precision(precision);
+  unsigned int w = width;
+  std::ios::fmtflags old_flags = os.flags();
+  unsigned int old_precision = os.precision(precision);
 
   if (scientific)
   {
     os.setf(std::ios::scientific, std::ios::floatfield);
-    w = (!width) ? precision + 10 : w;
+    w = (!width)? precision + 10 : w;
   }
   else
   {
     os.setf(std::ios::fixed, std::ios::floatfield);
-    w = (!width) ? precision + 5 : w;
+    w = (!width)? precision + 5 : w;
   }
 
   os << "[";

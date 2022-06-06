@@ -14,7 +14,9 @@ namespace Math::LinearSolver
   class Cholesky : public DirectSolverBase<Matrix>
   {
   public:
-    /** Default constructor. */
+    /**
+     * Default constructor.
+     */
     Cholesky();
 
     /**
@@ -27,7 +29,8 @@ namespace Math::LinearSolver
      * \note Checks are not performed to ensure symetric positive definiteness.
      *    The user is responsible for ensuring the matrix fits this criteria.
      */
-    void factorize() override;
+    void
+    factorize() override;
 
     /**
      * Solve the Cholesky factored linear system.
@@ -37,7 +40,8 @@ namespace Math::LinearSolver
      *
      * \see LU::solve
      */
-    void solve(Vector& x, const Vector& b) const override;
+    void
+    solve(Vector& x, const Vector& b) const override;
 
 
     using LinearSolverBase::solve;

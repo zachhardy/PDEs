@@ -15,13 +15,36 @@ private:
   std::chrono::steady_clock::time_point end_time;
 
 public:
+  /**
+   * Default constructor.
+   */
   Timer() noexcept = default;
 
-  void start();
-  void stop();
+  /**
+   * Start the timer.
+   */
+  void
+  start();
 
-  double get_time();
-  std::string get_time_string();
+  /**
+   * Stop the timer.
+   */
+  void
+  stop();
+
+  /**
+   * Get the duration of time between the start and stop calls.
+   */
+  double
+  get_time();
+
+  /**
+   * Print the elapsed time between the start and stop calls.
+   *
+   * \see Timer::get_time
+   */
+  std::string
+  get_time_string();
 };
 
 
