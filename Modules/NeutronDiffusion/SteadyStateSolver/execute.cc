@@ -58,7 +58,7 @@ solve_groupset(Groupset& groupset, SourceFlags source_flags)
   Vector& b = groupset.b;
   const Vector b_init = b;
 
-  linear_solver->set_matrix(&A);
+  linear_solver->set_matrix(A);
 
   size_t nit;
   double change;

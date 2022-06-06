@@ -91,7 +91,6 @@ namespace NeutronDiffusion
     typedef std::shared_ptr<Boundary> BndryPtr;
 
     typedef LinearSolver::LinearSolverBase<SparseMatrix> LinearSolverBase;
-    typedef LinearSolver::LinearSolverType LinearSolverType;
 
   public:
 
@@ -105,8 +104,8 @@ namespace NeutronDiffusion
     bool verbose = false;
 
     /*-------------------- Solver Information --------------------*/
-    SolutionTechnique solution_technique = SolutionTechnique::GROUPSET_WISE;
 
+    SolutionTechnique solution_technique = SolutionTechnique::GROUPSET_WISE;
 
     std::shared_ptr<LinearSolverBase> linear_solver;
 
