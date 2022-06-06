@@ -64,6 +64,7 @@ include_directories("${PROJECT_SOURCE_DIR}/PDEs")
 include_directories("${PROJECT_SOURCE_DIR}/PDEs/Grid")
 include_directories("${PROJECT_SOURCE_DIR}/PDEs/Math")
 include_directories("${PROJECT_SOURCE_DIR}/PDEs/Physics")
+include_directories("${PROJECT_SOURCE_DIR}/PDEs/Timer")
 
 include_directories("${PROJECT_SOURCE_DIR}/Modules")
 include_directories("${PROJECT_SOURCE_DIR}/Modules/NeutronDiffusion")
@@ -74,6 +75,7 @@ set(SOURCES)
 add_subdirectory("${PROJECT_SOURCE_DIR}/PDEs/Grid")
 add_subdirectory("${PROJECT_SOURCE_DIR}/PDEs/Math")
 add_subdirectory("${PROJECT_SOURCE_DIR}/PDEs/Physics")
+add_subdirectory("${PROJECT_SOURCE_DIR}/PDEs/Timer")
 
 add_subdirectory("${PROJECT_SOURCE_DIR}/Modules")
 
