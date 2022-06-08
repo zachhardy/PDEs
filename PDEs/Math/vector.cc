@@ -9,29 +9,15 @@ using namespace Math;
 
 //################################################## Constructors
 
-Vector::Vector(const size_t n) :
-  elements(n)
-{}
+Vector::Vector(const size_t n) : vals(n) {}
 
+Vector::Vector(const size_t n, const double value) : vals(n, value) {}
 
-Vector::Vector(const size_t n, const double value) :
-  elements(n, value)
-{}
+Vector::Vector(const std::vector<double>& other) : vals(other) {}
 
+Vector::Vector(std::vector<double>&& other) : vals(other) {}
 
-Vector::Vector(const std::vector<double>& other) :
-  elements(other)
-{}
-
-
-Vector::Vector(std::vector<double>&& other) :
-  elements(other)
-{}
-
-
-Vector::Vector(const std::initializer_list<double> list) :
-  elements(list)
-{}
+Vector::Vector(const std::initializer_list<double> list) : vals(list) {}
 
 
 //################################################## Assignment
@@ -40,7 +26,7 @@ Vector::Vector(const std::initializer_list<double> list) :
 Vector&
 Vector::operator=(const std::vector<double>& other)
 {
-  elements = other;
+  vals = other;
   return *this;
 }
 
@@ -48,7 +34,7 @@ Vector::operator=(const std::vector<double>& other)
 Vector&
 Vector::operator=(std::vector<double>&& other)
 {
-  elements = other;
+  vals = other;
   return *this;
 }
 
@@ -56,7 +42,7 @@ Vector::operator=(std::vector<double>&& other)
 Vector&
 Vector::operator=(const std::initializer_list<double> list)
 {
-  elements = list;
+  vals = list;
   return *this;
 }
 
@@ -64,23 +50,10 @@ Vector::operator=(const std::initializer_list<double> list)
 Vector&
 Vector::operator=(const double value)
 {
-  for (auto& el : elements)
+  for (auto& el : vals)
     el = value;
   return *this;
 }
-
-
-//################################################## Comparison Operators
-
-
-bool
-Vector::operator==(const Vector& y) const
-{ return (elements == y.elements); }
-
-
-bool
-Vector::operator!=(const Vector& y) const
-{ return (elements != y.elements); }
 
 
 //################################################## Characteristics
@@ -88,21 +61,31 @@ Vector::operator!=(const Vector& y) const
 
 size_t
 Vector::size() const
-{ return elements.size(); }
+{ return vals.size(); }
 
 
 bool
 Vector::empty() const
-{ return elements.empty(); }
+{ return vals.empty(); }
 
 
 bool
 Vector::all_zero() const
 {
-  for (const auto& el : elements)
+  for (const auto& el : vals)
     if (el != 0.0) return false;
   return true;
 }
+
+
+bool
+Vector::operator==(const Vector& y) const
+{ return (vals == y.vals); }
+
+
+bool
+Vector::operator!=(const Vector& y) const
+{ return (vals != y.vals); }
 
 
 //################################################## Accessors
@@ -110,82 +93,82 @@ Vector::all_zero() const
 
 double&
 Vector::operator[](const size_t i)
-{ return elements[i]; }
+{ return vals[i]; }
 
 
 const double&
 Vector::operator[](const size_t i) const
-{ return elements[i]; }
+{ return vals[i]; }
 
 
 double&
 Vector::operator()(const size_t i)
-{ return elements[i]; }
+{ return vals[i]; }
 
 
 const double&
 Vector::operator()(const size_t i) const
-{ return elements[i]; }
+{ return vals[i]; }
 
 
 double&
 Vector::at(const size_t i)
-{ return elements.at(i); }
+{ return vals.at(i); }
 
 
 const double&
 Vector::at(const size_t i) const
-{ return elements.at(i); }
+{ return vals.at(i); }
 
 
 double&
 Vector::front()
-{ return elements.front(); }
+{ return vals.front(); }
 
 
 const double&
 Vector::front() const
-{ return elements.front(); }
+{ return vals.front(); }
 
 
 double&
 Vector::back()
-{ return elements.back(); }
+{ return vals.back(); }
 
 
 const double&
 Vector::back() const
-{ return elements.back(); }
+{ return vals.back(); }
 
 
 double*
 Vector::data()
-{ return elements.data(); }
+{ return vals.data(); }
 
 
 const double*
 Vector::data() const
-{ return elements.data(); }
+{ return vals.data(); }
 
 
 Vector::iterator
 Vector::begin()
-{ return elements.begin(); }
+{ return vals.begin(); }
 
 
 Vector::iterator
 Vector::end()
-{ return elements.end(); }
+{ return vals.end(); }
 
 
 Vector::const_iterator
 Vector::begin() const
-{ return elements.begin(); }
+{ return vals.begin(); }
 
 
 Vector::const_iterator
 Vector::end() const
-{ return elements.end(); }
+{ return vals.end(); }
 
 
 //################################################## Modifiers
@@ -193,32 +176,32 @@ Vector::end() const
 
 void
 Vector::clear()
-{ elements.clear(); }
+{ vals.clear(); }
 
 
 void
 Vector::push_back(const double value)
-{ elements.push_back(value); }
+{ vals.push_back(value); }
 
 
 void
 Vector::pop_back()
-{ elements.pop_back(); }
+{ vals.pop_back(); }
 
 
 void
 Vector::resize(const size_t n)
-{ elements.resize(n); }
+{ vals.resize(n); }
 
 
 void
 Vector::resize(const size_t n, const double value)
-{ elements.resize(n, value); }
+{ vals.resize(n, value); }
 
 
 void
 Vector::swap(Vector& y)
-{ elements.swap(y.elements); }
+{ vals.swap(y.vals); }
 
 
 //################################################## Scalar Operations and
@@ -230,7 +213,7 @@ Vector::dot(const Vector& y) const
   Assert(size() == y.size(), "Dimension mismatch error.");
   double c = 0.0;
   for (size_t i = 0; i < size(); ++i)
-    c += elements[i] * y.elements[i];
+    c += vals[i] * y.vals[i];
   return c;
 }
 
@@ -239,7 +222,7 @@ double
 Vector::linfty_norm() const
 {
   double norm = 0.0;
-  for (const auto& el : elements)
+  for (const auto& el : vals)
     if (std::fabs(el) > norm)
       norm = std::fabs(el);
   return norm;
@@ -250,7 +233,7 @@ double
 Vector::l1_norm() const
 {
   double norm = 0.0;
-  for (const auto& el : elements)
+  for (const auto& el : vals)
     norm += std::fabs(el);
   return norm;
 }
@@ -260,7 +243,7 @@ double
 Vector::l2_norm() const
 {
   double norm = 0.0;
-  for (const auto& el : elements)
+  for (const auto& el : vals)
     norm += std::fabs(el) * std::fabs(el);
   return std::sqrt(norm);
 }
@@ -270,7 +253,7 @@ double
 Vector::lp_norm(const double p) const
 {
   double norm = 0.0;
-  for (const auto& el : elements)
+  for (const auto& el : vals)
     norm += std::pow(std::fabs(el), p);
   return std::pow(norm, 1.0 / p);
 }
@@ -282,7 +265,7 @@ Vector::lp_norm(const double p) const
 Vector&
 Vector::scale(const value_type factor)
 {
-  for (auto& el : elements)
+  for (auto& el : vals)
     el *= factor;
   return *this;
 }
@@ -296,7 +279,7 @@ Vector::scale(const Vector scaling_factors)
   // Get pointers for faster access
   value_type* el_ptr = data();
   const value_type* f_ptr = scaling_factors.data();
-  value_type* end_ptr = data() + elements.size();
+  value_type* end_ptr = data() + vals.size();
 
   // Perform the vector scaling
   for (; el_ptr != end_ptr; ++el_ptr, ++f_ptr)
@@ -308,7 +291,7 @@ Vector::scale(const Vector scaling_factors)
 Vector&
 Vector::add(const value_type value)
 {
-  for (auto& el : elements)
+  for (auto& el : vals)
     el += value;
   return *this;
 }
@@ -385,7 +368,7 @@ Vector::equal(const value_type factor, const Vector& y)
 Vector&
 Vector::fabs()
 {
-  for (auto& el : elements)
+  for (auto& el : vals)
     el = std::fabs(el);
   return *this;
 }
@@ -398,7 +381,7 @@ Vector::operator-()
 
 Vector
 Vector::operator-() const
-{ return -Vector(elements); }
+{ return -Vector(vals); }
 
 
 Vector&
@@ -474,8 +457,8 @@ Vector::print(std::ostream& os,
 
   os << "[";
   for (size_t i = 0; i < size() - 1; ++i)
-    os << std::setw(w) << elements[i];
-  os << std::setw(w) << elements.back() << "]\n";
+    os << std::setw(w) << vals[i];
+  os << std::setw(w) << vals.back() << "]\n";
 
   os.flags(old_flags);
   os.precision(old_precision);

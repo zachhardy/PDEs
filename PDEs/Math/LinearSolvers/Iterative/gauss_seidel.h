@@ -19,9 +19,6 @@ namespace Math::LinearSolver
   class GaussSeidel : public SOR
   {
   public:
-    /**
-     * Default constructor.
-     */
     GaussSeidel(const Options& opts = Options()) :
       SOR(1.0, opts, "Gauss-Seidel")
     {}

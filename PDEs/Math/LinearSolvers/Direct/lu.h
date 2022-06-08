@@ -12,9 +12,7 @@
 namespace Math::LinearSolver
 {
 
-  /**
-   * Implementation of an LU decomposition solver.
-   */
+  /** Implementation of an LU decomposition solver. */
   class LU : public DirectSolverBase<Matrix>
   {
   private:
@@ -29,17 +27,13 @@ namespace Math::LinearSolver
     std::vector<size_t> row_pivots;
 
   public:
-
-    /**
-     * Default constructor.
-     å*/
     LU(const bool pivot = true);
 
-    /**
-     * Attach a matrix to the solver.
-     å*/
-    void
-    set_matrix(const Matrix& matrix) override;
+    void pivot(const bool flag);
+    bool pivot() const;
+
+    /** Attach a matrix to the solver. */
+    void set_matrix(const Matrix& matrix) override;
 
     /**
      * Factor the matrix \f$ \boldsymbol{A} \f$ into an upper and lower
@@ -56,8 +50,7 @@ namespace Math::LinearSolver
      * is identical to the row-echelon form. The lower triangular matrix then
      * contains the row operations used to form upper triangular system.
      */
-    void
-    factorize() override;
+    void factorize() override;
 
     /**
     * Solve an LU factored linear system.
@@ -73,21 +66,7 @@ namespace Math::LinearSolver
     * \f$ \boldsymbol{U} \vec{x} = \vec{y} \f$ where \f$ \vec{y} \f$ is now the
     * source term. This system can be solved using back substitution.
     */
-    void
-    solve(Vector& x, const Vector& b) const override;
-
-
-    /**
-     * Set the pivot option.
-     */
-    void
-    pivot(const bool flag);
-
-    /**
-     * Get the pivot option.
-     */
-    bool
-    pivot() const;
+    void solve(Vector& x, const Vector& b) const override;
 
 
     using LinearSolverBase::solve;

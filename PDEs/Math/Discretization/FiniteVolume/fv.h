@@ -4,7 +4,7 @@
 #include "Discretization/discretization.h"
 #include "cell.h"
 
-#include <cinttypes>
+#include <cstddef>
 
 
 namespace Math
@@ -23,35 +23,25 @@ namespace Math
   class FiniteVolume : public Discretization
   {
   public:
-
-    /**
-     * Default constructor.
-     */
-    explicit
-    FiniteVolume(std::shared_ptr<Grid::Mesh> reference_mesh);
-
-  public:
+    explicit FiniteVolume(std::shared_ptr<Grid::Mesh> reference_mesh);
 
     /**
      * Return the number of nodes per cell. For FV discretizations, there is 1
      * node per cell.
      */
-    size_t
-    nodes_per_cell() const override;
+    size_t nodes_per_cell() const override;
 
     /**
      * Return the number of DoFs per cell. This returns the number of nodes per
      * cell multiplied by the number of solution components. For FV
      * discretizations, this returns the number of solution components.
      * \see FiniteVolume::nodes_per_cell */
-    size_t
-    dofs_per_cell(const size_t n_components) const override;
+    size_t dofs_per_cell(const size_t n_components) const override;
 
     /**
      * Return the number of nodes in the discretization. For FV discretizations,
      * this is equivalent to the number of cells. */
-    size_t
-    n_nodes() const override;
+    size_t n_nodes() const override;
 
     /**
      * Return the number of DoFs in the discretization. This returns the number
@@ -60,15 +50,13 @@ namespace Math
      * solution components.
      * \see FiniteVolume::n_nodes
      */
-    size_t
-    n_dofs(const size_t n_components) const override;
+    size_t n_dofs(const size_t n_components) const override;
 
     /**
      * Return the location of the nodes on the specified Cell. For FV
      * discretizations, this returns the Cell centroid.
      */
-    std::vector<Grid::Point>
-    nodes(const Grid::Cell& cell) const override;
+    std::vector<Grid::Point> nodes(const Grid::Cell& cell) const override;
 
     /**
      * Define the sparsity pattern. This routine defines the column indices of

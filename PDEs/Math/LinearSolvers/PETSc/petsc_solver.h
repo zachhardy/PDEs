@@ -10,9 +10,7 @@
 namespace Math::LinearSolver
 {
 
-  /**
-   * A class for a PETSc linear solver.
-   */
+  /** Implementation of a PETSc solver. */
   class PETScSolver : public LinearSolverBase<SparseMatrix>
   {
 
@@ -32,27 +30,18 @@ namespace Math::LinearSolver
     PC    pc;
 
   public:
-    /**
-     * Default constructor.
-     */
     PETScSolver(const std::string solver_type = KSPCG,
                 const std::string preconditioner_type = PCNONE,
                 const Options& opts = Options());
 
-    /**
-     * Attach a matrix to the solver.
-     */
-    void
-    set_matrix(const SparseMatrix& matrix) override;
+    /** Attach a matrix to the solver. */
+    void set_matrix(const SparseMatrix& matrix) override;
 
-    /**
-     * Solve the system using PETSc.
-     */
-    void
-    solve(Vector& x, const Vector& b) const override;
+    /** Solve the system using PETSc. */
+    void solve(Vector& x, const Vector& b) const override;
 
 
-
+    using LinearSolverBase::solve;
   };
 }
 

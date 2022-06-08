@@ -4,7 +4,6 @@
 
 namespace Math
 {
-
   //########## Forward declarations
   class Vector;
   class Matrix;

@@ -32,9 +32,7 @@ Grid::cell_type_str(const CellType cell_type)
 }
 
 
-Grid::Cell::Cell(const CellType cell_type)
-  : type(cell_type)
-{}
+Grid::Cell::Cell(const CellType cell_type) : type(cell_type) {}
 
 
 std::string

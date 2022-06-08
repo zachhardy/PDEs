@@ -39,19 +39,13 @@ namespace Grid
     Centroid centroid;
     double area = 0.0;
 
-    /**
-     * Return the face as a string.
-     */
-    std::string
-    str() const;
+    /** Return the face as a string. */
+    std::string str() const;
   };
 
 
-  /**
-   * Insert a face into an output stream.
-   */
-  std::ostream&
-  operator<<(std::ostream&, const Face& face);
+  /** Insert a face into an output stream. */
+  std::ostream& operator<<(std::ostream&, const Face& face);
 
 }
 #endif //FACE_H

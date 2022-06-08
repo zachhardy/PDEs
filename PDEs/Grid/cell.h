@@ -10,10 +10,6 @@
 
 namespace Grid
 {
-
-  /**
-   * Available cell types.
-   */
   enum class CellType
   {
     SLAB = 0,  ///< 1D Cartesian geometry.
@@ -22,11 +18,8 @@ namespace Grid
   };
 
 
-  /**
-   * Return the cell type as a string.
-   */
-  std::string
-  cell_type_str(const CellType cell_type);
+  /** Return the cell type as a string. */
+  std::string cell_type_str(const CellType cell_type);
 
 
   //######################################################################
@@ -67,23 +60,15 @@ namespace Grid
     std::vector<Face> faces;
 
   public:
-    /**
-     * Construct an empty cell of the specified type.
-     */
-    explicit
-    Cell(const CellType cell_type);
+    /** Construct an empty cell of the specified type. */
+    explicit Cell(const CellType cell_type);
 
-    /**
-     * Return the cell as a string.
-     */
-    std::string
-    str() const;
+    /** Return the cell as a string. */
+    std::string str() const;
   };
 
 
-  /**
-   * Insert a cell into an output stream.
-   */
+  /** Insert a cell into an output stream. */
   std::ostream&
   operator<<(std::ostream& os, const Cell& cell);
 

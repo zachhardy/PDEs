@@ -11,9 +11,7 @@
 namespace Physics
 {
 
-  /**
-   * A class holding nuclear data for neutron interactions.
-   */
+  /** A class holding nuclear data for neutron interactions. */
   class CrossSections : public MaterialProperty
   {
   protected:
@@ -57,42 +55,30 @@ namespace Physics
 
   public:
 
-    //================================================== Constructors
+    //################################################## Constructors
+
     /** \name Constructors and Initialization */
     // @{
 
-    /**
-     * Construct an empty cross-section property.
-     */
-    CrossSections() :
-      MaterialProperty(MaterialPropertyType::CROSS_SECTIONS)
-    {}
+    /** Construct an empty cross-section property. */
+    CrossSections();
 
-    /**
-     * Construct an empty cross-section property with the specified name.
-     */
-    CrossSections(const std::string property_name) :
-      MaterialProperty(MaterialPropertyType::CROSS_SECTIONS, property_name)
-    {}
+    /** Construct an empty cross-section property with the specified name. */
+    CrossSections(const std::string property_name);
 
-    /**
-     * Reset the cross-sections to an uninitialized state.
-     */
-    void
-    reset();
+    /** Reset the cross-sections to an uninitialized state. */
+    void reset();
 
-    /**
-     * Read a "xs" file containing the cross-section infromation.
-     */
-    void
-    read_xs_file(const std::string file_name,
-                 const bool verbose = false);
+    /** Read a "xs" file containing the cross-section information. */
+    void read_xs_file(const std::string file_name,
+                      const bool verbose = false);
 
     // @}
 
   private:
 
-    //============================================= Cross Section Operations
+    //################################################## Cross Section Ops
+
     /** \name Cross Section Operations */
     // @{
 
@@ -105,8 +91,7 @@ namespace Physics
      * \f$ \sigma_{s,g} = \sum_{g^\prime} \sigma_{0, g \rightarrow g^\prime} \f$,
      * which is obtained via column-wise sums.
      */
-    void
-    compute_scattering_from_transfers();
+    void compute_scattering_from_transfers();
 
     /**
      * Enforce the relationship \f$ \sigma_t = \sigma_a + \sigma_s \f$.
@@ -119,8 +104,7 @@ namespace Physics
      * \f$ \sigma_a \f$ are provided, and they do not agree with the transfer
      * matrix, the \f$ \sigma_a \f$ values are taken as true.
      */
-    void
-    reconcile_cross_sections();
+    void reconcile_cross_sections();
 
     /**
      * Validate and process fission related properties.
@@ -143,8 +127,7 @@ namespace Physics
      *    checks for total \f$ \nu \f$ and \f$ \chi \f$ are performed and the
      *    fission spectrum is normalized to unity.
      */
-    void
-    reconcile_fission_properties();
+    void reconcile_fission_properties();
 
     /**
      * Compute the macroscopic cross-sections.
@@ -154,12 +137,12 @@ namespace Physics
      * If the \p diffusion_coeff was unspecified, it is computed via its standard
      * defintion, given by \f$ D = \frac{1}{3 \Sigma_t} \f$.
      */
-    void
-    compute_macroscopic_cross_sections();
+    void compute_macroscopic_cross_sections();
 
     // @}
 
-    //================================================== Read Operations
+    //################################################## Read Operations
+
     /** \name Read Operations */
     // @{
 
@@ -172,12 +155,11 @@ namespace Physics
      * \param line_stream Storage for a line in the file.
      * \param line_number The current line number in the file.
      */
-    void
-    read_cross_section(const std::string keyword,
-                       std::vector<double>& destination,
-                       std::ifstream& file,
-                       std::istringstream& line_stream,
-                       size_t& line_number);
+    void read_cross_section(const std::string keyword,
+                            std::vector<double>& destination,
+                            std::ifstream& file,
+                            std::istringstream& line_stream,
+                            size_t& line_number);
 
     /**
      * Read the transfer matrix block of the cross-section file.
@@ -188,12 +170,11 @@ namespace Physics
      * \param line_stream Storage for a line in the file.
      * \param line_number The current line number in the file.
      */
-    void
-    read_transfer_matrices(const std::string keyword,
-                           std::vector<TransferMatrix>& destination,
-                           std::ifstream& file,
-                           std::istringstream& line_stream,
-                           size_t& line_number);
+    void read_transfer_matrices(const std::string keyword,
+                                std::vector<TransferMatrix>& destination,
+                                std::ifstream& file,
+                                std::istringstream& line_stream,
+                                size_t& line_number);
 
     /**
      * Read a precursor property from the cross-section file.
@@ -204,12 +185,11 @@ namespace Physics
      * \param line_stream Storage for a line in the file.
      * \param line_number The current line number in the file.
      */
-    void
-    read_precursor_property(const std::string keyword,
-                            std::vector<double>& destination,
-                            std::ifstream& file,
-                            std::istringstream& line_stream,
-                            size_t& line_number);
+    void read_precursor_property(const std::string keyword,
+                                 std::vector<double>& destination,
+                                 std::ifstream& file,
+                                 std::istringstream& line_stream,
+                                 size_t& line_number);
 
     /**
      * Read the delayed neutron spectra from the cross-section file.
@@ -220,12 +200,11 @@ namespace Physics
      * \param line_stream Storage for a line in the file.
      * \param line_number The current line number in the file.
      */
-    void
-    read_delayed_spectra(const std::string keyword,
-                         EmissionSpectra& destination,
-                         std::ifstream& file,
-                         std::istringstream& line_stream,
-                         size_t& line_number);
+    void read_delayed_spectra(const std::string keyword,
+                              EmissionSpectra& destination,
+                              std::ifstream& file,
+                              std::istringstream& line_stream,
+                              size_t& line_number);
 
     // @}
   };
