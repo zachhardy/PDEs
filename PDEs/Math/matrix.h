@@ -10,14 +10,11 @@
 
 namespace Math
 {
-
   //########## Forward declarations
   class Vector;
 
 
-  /**
-   * Implementation of a general linear algebra dense matrix.
-   */
+  /** Implementation of a general linear algebra dense matrix. */
   class Matrix
   {
   public:

@@ -210,17 +210,6 @@ Matrix::diagonal(const size_t i) const
 { return vals.at(i).at(i); }
 
 
-Vector
-Matrix::diagonal() const
-{
-  Vector diag;
-  size_t min_dim = std::min(n_rows(), n_cols());
-  for (size_t i = 0; i < min_dim; ++i)
-    diag.push_back(vals[i][i]);
-  return diag;
-}
-
-
 Vector*
 Matrix::data()
 { return vals.data(); }
