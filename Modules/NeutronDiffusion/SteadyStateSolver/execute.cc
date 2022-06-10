@@ -51,8 +51,9 @@ void
 NeutronDiffusion::SteadyStateSolver::
 solve_groupset(Groupset& groupset, SourceFlags source_flags)
 {
-  if (verbose)
-    std::cout << "\n***** Solving Groupset " << groupset.id << "\n\n";
+  if (verbosity > 1)
+    std::cout << "\n***** Solving Groupset "
+              << groupset.id << std::endl << std::endl;
 
   SparseMatrix& A = groupset.A;
   Vector& b = groupset.b;
@@ -81,13 +82,15 @@ solve_groupset(Groupset& groupset, SourceFlags source_flags)
       converged = true;
 
     // Print iteration information
-    if (verbose)
+    if (verbosity > 1)
     {
       std::stringstream iter_info;
-      iter_info << "Iteration: " << std::setw(3) << nit << " "
-                << "Value: " << change;
-      if (converged) iter_info << " CONVERGED\n";
-      std::cout << iter_info.str() << "\n";
+      iter_info
+        << std::left << "SourceIteration::"
+        << "Step  " << std::setw(3) << nit << "   "
+        << "Value  " << change;
+      if (converged) iter_info << "  CONVERGED";
+      std::cout << iter_info.str() << std::endl;
     }
 
     if (converged) break;
@@ -102,7 +105,7 @@ void
 NeutronDiffusion::SteadyStateSolver::
 solve_full_system(SourceFlags source_flags)
 {
-  if (verbose)
+  if (verbosity)
     std::cout << "\n***** Solving Full System\n";
 
   set_source(groupsets.front(), source_flags);
