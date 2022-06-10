@@ -4,9 +4,8 @@
 #include "matrix.h"
 #include "Sparse/sparse_matrix.h"
 
-#include "macros.h"
-
 #include <iomanip>
+#include <cassert>
 
 
 using namespace Math;
@@ -30,10 +29,8 @@ template<class MatrixType>
 void
 LinearSolver::LinearSolverBase<MatrixType>::
 set_matrix(const MatrixType& matrix)
-{
-  Assert(matrix.n_rows() == matrix.n_cols(),
-         "Linear solvers require square matrices.")
-}
+{ assert(matrix.n_rows() == matrix.n_cols()); }
+
 
 
 template class LinearSolver::LinearSolverBase<Matrix>;

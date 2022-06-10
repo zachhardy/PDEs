@@ -21,8 +21,8 @@ void LinearSolver::SSOR::
 solve(Vector& x, const Vector& b) const
 {
   size_t n = A->n_rows();
-  Assert(b.size() == n, "Dimension mismatch error.")
-  Assert(x.size() == n, "Dimension mismatrch error.")
+  assert(b.size() == n);
+  assert(x.size() == n);
 
   size_t nit;
   double change;
@@ -37,11 +37,11 @@ solve(Vector& x, const Vector& b) const
     for (size_t i = 0; i < n; ++i)
     {
       double s = 0.0;
-      for (const auto el : A->const_row(i))
-        if (el.column != i)
-          s += el.value * x[el.column];
+      for (const auto el : A->row_iterator(i))
+        if (el.column() != i)
+          s += el.value() * x[el.column()];
 
-      double a_ii = *A->diagonal(i);
+      double a_ii = A->diag(i);
       x[i] += omega * ((b[i] - s) / a_ii - x[i]);
     }
 
@@ -49,11 +49,11 @@ solve(Vector& x, const Vector& b) const
     for (size_t i = n - 1; i != -1; --i)
     {
       double s = 0.0;
-      for (const auto el : A->const_row(i))
-        if (el.column != i)
-          s += el.value * x[el.column];
+      for (const auto el : A->row_iterator(i))
+        if (el.column() != i)
+          s += el.value() * x[el.column()];
 
-      double a_ii = *A->diagonal(i);
+      double a_ii = A->diag(i);
       x[i] += omega * ((b[i] - s) / a_ii - x[i]);
       change += std::fabs(x[i] - x_ell[i]) / std::fabs(x[i]);
     }

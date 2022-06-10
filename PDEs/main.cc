@@ -37,7 +37,7 @@ int main(int argc, char** argv)
 
     //================================================== Mesh
 
-    size_t n_cells = 500;
+    size_t n_cells = 250;
     double slab_width = 1.0;
     double cell_width = slab_width / n_cells;
 

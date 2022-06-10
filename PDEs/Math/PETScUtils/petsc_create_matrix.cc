@@ -45,7 +45,7 @@ PETScUtils::CreateMatrix(Mat& A, const SparseMatrix& mat)
 
   // Add data to the PETSc matrix
   for (const auto el : mat)
-    MatSetValue(A, el.row, el.column, el.value, ADD_VALUES);
+    MatSetValue(A, el.row(), el.column(), el.value(), ADD_VALUES);
 
   MatAssemblyBegin(A, MAT_FINAL_ASSEMBLY);
   MatAssemblyEnd(A, MAT_FINAL_ASSEMBLY);

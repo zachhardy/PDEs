@@ -127,6 +127,36 @@ namespace Math
       Accessor accessor;
     };
 
+
+    class RowIterator
+    {
+    private:
+      SparseMatrix* matrix;
+      const size_t row;
+
+    public:
+      RowIterator(SparseMatrix* matrix,
+                  const size_t  row);
+
+      Iterator begin();
+      Iterator end();
+    };
+
+
+    class ConstRowIterator
+    {
+    private:
+      const SparseMatrix* matrix;
+      const size_t row;
+
+    public:
+      ConstRowIterator(const SparseMatrix* matrix,
+                       const size_t  row);
+
+      ConstIterator begin() const;
+      ConstIterator end() const;
+    };
+
   }
 
 
@@ -137,8 +167,12 @@ namespace Math
   {
   public:
     using value_type = double;
+
     using iterator = SparseMatrixIterators::Iterator;
     using const_iterator = SparseMatrixIterators::ConstIterator;
+
+    using RowIterator = SparseMatrixIterators::RowIterator;
+    using ConstRowIterator = SparseMatrixIterators::ConstRowIterator;
 
     static const size_t invalid_entry = numbers::invalid_size_t;
 
@@ -157,12 +191,6 @@ namespace Math
 
     /** Construct a sparse matrix with \p n_rows and \p n_cols. */
     SparseMatrix(const size_t n_rows, const size_t n_cols);
-
-    /** Reinitialize the sparse matrix with \p n_rows and \p n_cols. */
-    void reinit(const size_t n_rows, const size_t n_cols);
-
-    /** Copy the non-zero contents of a dense matrix. */
-    void copy_from(const Matrix& matrix);
 
     /** Assign all entries in the sparse matrix to a scalar value. */
     SparseMatrix& operator=(const value_type value);
@@ -212,6 +240,10 @@ namespace Math
 
     const_iterator begin(const size_t row) const;
     const_iterator end(const size_t row) const;
+
+    RowIterator row_iterator(const size_t row);
+    ConstRowIterator row_iterator(const size_t row) const;
+
 
     // @}
 
@@ -269,7 +301,14 @@ namespace Math
     /** \name Modifiers */
     // @{
 
+    /** Set the sparse matrix to an uninitialized state. */
     void clear();
+
+    /** Reinitialize the sparse matrix with \p n_rows and \p n_cols. */
+    void reinit(const size_t n_rows, const size_t n_cols);
+
+    /** Copy the non-zero contents of a dense matrix. */
+    void copy_from(const Matrix& matrix);
 
     /**
      * Set element <tt>(row, col)</tt> to \p value. If the element is
@@ -453,7 +492,10 @@ namespace Math
     std::vector<std::vector<value_type>> vals;
 
     friend class SparseMatrixIterators::Iterator;
+    friend class SparseMatrixIterators::RowIterator;
+
     friend class SparseMatrixIterators::ConstIterator;
+    friend class SparseMatrixIterators::ConstRowIterator;
   };
 
 

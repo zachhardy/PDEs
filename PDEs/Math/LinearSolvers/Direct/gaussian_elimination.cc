@@ -95,9 +95,8 @@ Vector
 Math::gaussian_elimination<SparseMatrix>(SparseMatrix& A, Vector& b,
                                          const bool pivot)
 {
-  Assert(A.n_rows() == A.n_cols(),
-         "Square matrices are required for Gaussian elimination.")
-  Assert(b.size() == A.n_rows(), "Dimension mismatch error.")
+  assert(A.n_rows() == A.n_cols());
+  assert(b.size() == A.n_rows());
 
   size_t n = b.size();
 
@@ -109,22 +108,22 @@ Math::gaussian_elimination<SparseMatrix>(SparseMatrix& A, Vector& b,
      * This is only done for sub-diagonal elements. */
     if (pivot)
     {
-      const double* a_jj = A.diagonal(j);
+      const double a_jj = A.diag_el(j);
 
       size_t argmax = j;
-      double max = std::fabs((a_jj)? *a_jj : 0.0);
+      double max = std::fabs(a_jj);
       for (size_t k = j + 1; k < n; ++k)
       {
-        const double* a_kj = A.locate(k, j);
-        if (a_kj && *a_kj > max)
+        const double a_kj = A.el(k, j);
+        if (a_kj > max)
         {
           argmax = k;
-          max = std::fabs(*a_kj);
+          max = std::fabs(a_kj);
         }
       }
 
       // If the sub-diagonal is uniformly zero, throw an error
-      Assert(max != 0.0, "Singular matrix error.")
+      assert(max != 0.0);
 
       /* Swap the current row and the row containing the largest magnitude
        * entry corresponding for the current column. This is done to improve
@@ -136,20 +135,20 @@ Math::gaussian_elimination<SparseMatrix>(SparseMatrix& A, Vector& b,
       }
     }//if pivot
 
-    const double a_jj = *A.diagonal(j);
+    const double a_jj = A.diag(j);
 
     /* Perform row-wise operations such that all sub-diagonal values are zero.
      * This is done by subtracting the current row times the ratio of the
      * sub-diagonal and the current row's leading value. */
     for (size_t i = j + 1; i < n; ++i)
     {
-      const double* a_ij = A.locate(i, j);
-      if (a_ij && *a_ij != 0.0)
+      const double a_ij = A.el(i, j);
+      if (a_ij != 0.0)
       {
-        const double factor = *a_ij / a_jj;
-        for (const auto el : A.const_row(j))
-          if (el.column >= j)
-            A.add(i, el.column, -el.value * factor);
+        const double factor = a_ij / a_jj;
+        for (const auto el : A.row_iterator(j))
+          if (el.column() >= j)
+            A.add(i, el.column(), -el.value() * factor);
         b[i] -= b[j] * factor;
       }
     }
@@ -160,10 +159,10 @@ Math::gaussian_elimination<SparseMatrix>(SparseMatrix& A, Vector& b,
   for (size_t i = n - 1; i != -1; --i)
   {
     double value = b[i];
-    for (const auto el : A.const_row(i))
-      if (el.column > i)
-        value -= el.value * x[el.column];
-    x[i] = value / *A.diagonal(i);
+    for (const auto el : A.row_iterator(i))
+      if (el.column() > i)
+        value -= el.value() * x[el.column()];
+    x[i] = value / A.diag(i);
   }
   return x;
 }

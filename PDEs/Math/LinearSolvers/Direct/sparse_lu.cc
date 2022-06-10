@@ -3,9 +3,8 @@
 #include "vector.h"
 #include "Sparse/sparse_matrix.h"
 
-#include "macros.h"
-
 #include <cmath>
+#include <cassert>
 
 
 using namespace Math;
@@ -46,22 +45,22 @@ LinearSolver::SparseLU::factorize()
      * This is only done for sub-diagonal elements. */
     if (pivot_flag)
     {
-      const double* a_jj = A.diagonal(j);
+      const double a_jj = A.diag_el(j);
 
       size_t argmax = j;
-      double max = std::fabs((a_jj)? *a_jj : 0.0);
+      double max = std::fabs((a_jj)? a_jj : 0.0);
       for (size_t k = j + 1; k < n; ++k)
       {
-        const double* a_kj = A.locate(k, j);
-        if (a_kj && *a_kj > max)
+        const double a_kj = A.el(k, j);
+        if (a_kj > max)
         {
           argmax = k;
-          max = std::fabs(*a_kj);
+          max = std::fabs(a_kj);
         }
       }
 
       // If the sub-diagonal is uniformly zero, throw an error.
-      Assert(max != 0.0, "Singular matrix error.");
+      assert(max != 0.0);
 
       /* Swap the current row and the row containing the largest magnitude
        * entry corresponding for the current column. This is done to improve
@@ -73,23 +72,23 @@ LinearSolver::SparseLU::factorize()
       }
     }//if pivot
 
-    const double a_jj = *A.diagonal(j);
+    const double a_jj = A.diag(j);
 
     // Compute the elements of the LU decomposition
     for (size_t i = j + 1; i < n; ++i)
     {
-      double* a_ij = A.locate(i, j);
-      if (a_ij && *a_ij != 0.0)
+      double a_ij = A.el(i, j);
+      if (a_ij != 0.0)
       {
         /* Lower triangular components. This represents the row operations
          * performed to attain the upper-triangular, row-echelon matrix. */
-        *a_ij /= a_jj;
+        a_ij /= a_jj;
 
         /* Upper triangular components. This represents the row-echelon form
-         * of the original matrix. Her*/
-        for (const auto el : A.const_row(j))
-          if (el.column > j)
-            A.add(i, el.column, -(*a_ij) * el.value);
+         * of the original matrix. */
+        for (const auto el : A.row_iterator(j))
+          if (el.column() > j)
+            A.add(i, el.column(), -a_ij * el.value());
       }//if a_ij exists
     }//for rows > j
   }//for j
@@ -101,17 +100,17 @@ void
 LinearSolver::SparseLU::solve(Vector& x, const Vector& b) const
 {
   size_t n = A.n_rows();
-  Assert(factorized, "The matrix must be factorized before solve is called.");
-  Assert(b.size() == n, "Dimension mismatch error.");
-  Assert(x.size() == n, "Dimension mismatch error.");
+  assert(factorized);
+  assert(b.size() == n);
+  assert(x.size() == n);
 
   //======================================== Forward solve
   for (size_t i = 0; i < n; ++i)
   {
     double value = b[row_pivots[i]];
-    for (const auto el : A.const_row(i))
-      if (el.column < i)
-        value -= el.value * x[el.column];
+    for (const auto el : A.row_iterator(i))
+      if (el.column() < i)
+        value -= el.value() * x[el.column()];
     x[i] = value;
   }
 
@@ -119,10 +118,10 @@ LinearSolver::SparseLU::solve(Vector& x, const Vector& b) const
   for (size_t i = n - 1; i != -1; --i)
   {
     double value = x[i];
-    for (const auto el : A.const_row(i))
-      if (el.column > i)
-        value -= el.value * x[el.column];
-    x[i] = value / *A.diagonal(i);
+    for (const auto el : A.row_iterator(i))
+      if (el.column() > i)
+        value -= el.value() * x[el.column()];
+    x[i] = value / A.diag(i);
   }
 }
 

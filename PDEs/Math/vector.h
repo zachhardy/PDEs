@@ -212,7 +212,7 @@ namespace Math
      * Set the vector to a multiple of another. This is computed via \f$ \vec{x} =
      * \alpha \vec{y} = \alpha y_i \f$.
      */
-    Vector& equal(const value_type factor, const Vector& y);
+    Vector& equal(const Vector& y, const value_type factor = 1.0);
 
     /**
      * Take the absolute value of each element of the vector. This is computed
@@ -293,93 +293,42 @@ namespace Math
                     const unsigned int width = 0) const;
 
     // @}
-
   };
 
-  //################################################## Methods
-
-  /**
-   * Multiply each element of the vector by a scalar value.
-   *
-   * \see Vector::scale Vector::operator*=
-   */
+  /** Multiply each element of the vector by a scalar value. */
   Vector operator*(const Vector& x, const double factor);
 
-  /**
-   * Multiply each element of the vector by a scalar value.
-   *
-   * \see Vector::scale Vector::operator*=
-   */
+  /** Multiply each element of the vector by a scalar value. */
   Vector operator*(const double factor, const Vector& x);
 
-  /**
-   * Divide each element of the vector by a scalar value.
-   *
-   * \see Vector::scale Vector::operator/=
-   */
-  Vector operator/(const Vector& x, const double factor);
+  /** Divide each element of the vector by a scalar value. */
+   Vector operator/(const Vector& x, const double factor);
 
-  /**
-   * Add two vectors together.
-   *
-   * \see Vector::add Vector::operator+=
-   */
-  Vector operator+(const Vector& x, const Vector& y);
+  /** Add two vectors together. */
+   Vector operator+(const Vector& x, const Vector& y);
 
-  /**
-   * Subtract two vectors.
-   *
-   * \see Vector::add Vector::operator-=
-   */
-  Vector operator-(const Vector& x, const Vector& y);
+  /** Subtract two vectors. */
+   Vector operator-(const Vector& x, const Vector& y);
 
-  /**
-   * Return the dot product of two vectors.
-   *
-   * \see Vector::dot
-   */
-  double dot(const Vector& x, const Vector& y);
+  /** Return the dot product of two vectors. */
+   double dot(const Vector& x, const Vector& y);
 
-  /**
-   * Return the absolute value of a vector.
-   *
-   * \see Vector::fabs
-   */
-  Vector fabs(const Vector& x);
+  /** Return the absolute value of a vector. */
+   Vector fabs(const Vector& x);
 
-  /**
-   * Return the \f$\ell_{\infty}\f$-norm of a vector.
-   *
-   * \see Vector::linfty_norm
-   */
-  double linfty_norm(const Vector& x);
+  /** Return the \f$\ell_{\infty}\f$-norm of a vector. */
+   double linfty_norm(const Vector& x);
 
-  /**
-   * Return the \f$\ell_1\f$-norm of a vector.
-   *
-   * \see Vector::l1_norm
-   */
-  double l1_norm(const Vector& x);
+  /** Return the \f$\ell_1\f$-norm of a vector. */
+   double l1_norm(const Vector& x);
 
-  /**
-   * Return the \f$\ell_2\f$-norm of a vector.
-   *
-   * \see Vector::l2_norm
-   */
-  double l2_norm(const Vector& x);
+  /** Return the \f$\ell_2\f$-norm of a vector. */
+   double l2_norm(const Vector& x);
 
-  /**
-   * Return the \f$\ell_p\f$-norm of a vector.
-   *
-   * \see Vector::lp_norm
-   */
-  double lp_norm(const Vector& x, const double p);
+  /** Return the \f$\ell_p\f$-norm of a vector. */
+   double lp_norm(const Vector& x, const double p);
 
-  /**
-   * Insert the vector into an output stream.
-   *
-   * \see Vector::str Vector::print
-   */
-  std::ostream& operator<<(std::ostream& os, const Vector& x);
+  /** Insert the vector into an output stream. */
+   std::ostream& operator<<(std::ostream& os, const Vector& x);
 }
 #endif //VECTOR_H

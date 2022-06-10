@@ -349,9 +349,9 @@ Vector::sadd(const value_type a, const value_type b, const Vector& y)
 
 
 Vector&
-Vector::equal(const value_type factor, const Vector& y)
+Vector::equal(const Vector& y, const value_type factor)
 {
-  Assert(y.size() == size(), "Dimension mismatch error.")
+  assert(y.size() == size());
 
   // Get pointers for fast access
   value_type* x_ptr = data();
@@ -359,8 +359,8 @@ Vector::equal(const value_type factor, const Vector& y)
   value_type* end_ptr = data() + size();
 
   // Perform the add operation
-  for (; x_ptr != end_ptr; ++x_ptr, ++y_ptr)
-    *x_ptr = factor * *y_ptr;
+  for (; x_ptr != end_ptr;)
+    *x_ptr++ = factor * *y_ptr++;
   return *this;
 }
 

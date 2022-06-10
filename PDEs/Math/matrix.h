@@ -19,6 +19,7 @@ namespace Math
   {
   public:
     using value_type = double;
+
     using iterator = std::vector<Vector>::iterator;
     using const_iterator = std::vector<Vector>::const_iterator;
 
@@ -30,7 +31,7 @@ namespace Math
 
   public:
 
-    //================================================== Constructors
+    //################################################## Constructors
 
     /** \name Constructors and Initialization */
     // @{
@@ -65,7 +66,7 @@ namespace Math
 
     // @}
 
-    //================================================== Characteristics
+    //################################################## Characteristics
 
     /** \name Characteristics */
     // @{
@@ -85,7 +86,7 @@ namespace Math
 
     // @}
 
-    //================================================== Accessors
+    //################################################## Accessors
 
     /** \name Accessors */
     // @{
@@ -105,8 +106,8 @@ namespace Math
     value_type& at(const size_t i, const size_t j);
     const value_type& at(const size_t i, const size_t j) const;
 
-    value_type& diagonal(const size_t i);
-    const value_type& diagonal(const size_t i) const;
+    value_type& diag(const size_t i);
+    const value_type& diag(const size_t i) const;
 
     Vector* data();
     const Vector* data() const;
@@ -132,7 +133,7 @@ namespace Math
 
     // @}
 
-    //================================================== Modifiers
+    //################################################## Modifiers
 
     /** \name Modifiers */
     // @{
@@ -144,13 +145,15 @@ namespace Math
     void push_back(const Vector& row);
     void push_back(Vector&& row);
 
-    void resize(const size_t n_rows, const size_t n_cols);
+    void resize(const size_t n_rows,
+                const size_t n_cols);
 
     void resize(const size_t n_rows,
                 const size_t n_cols,
                 const value_type value);
 
-    void reinit(const size_t n_rows, const size_t n_cols);
+    void reinit(const size_t n_rows,
+                const size_t n_cols);
 
     void reinit(const size_t n_rows,
                 const size_t n_cols,
@@ -160,12 +163,12 @@ namespace Math
     void swap_column(const size_t j, const size_t k);
     void swap(Matrix& other);
 
-    void set_diagonal(const Vector& diag);
-    void set_diagonal(const value_type value);
+    void set_diag(const Vector& diag);
+    void set_diag(const value_type value);
 
     // @}
 
-    //================================================== Linear Algebra
+    //################################################## Linear Algebra
 
     /** \name Linear Algebra */
     // @{
@@ -259,32 +262,16 @@ namespace Math
     void TTmult(const Matrix& B, Matrix& C,
                 const bool adding = false) const;
 
-    /**
-     * Return a matrix-matrix product.
-     *
-     * \see Matrix::mmult
-     */
+    /** Return a matrix-matrix product. */
     Matrix mmult(const Matrix& B) const;
 
-    /**
-     * Return a transpose matrix-matrix product.
-     *
-     * \see Matrix::Tmmult
-     */
+    /** Return a transpose matrix-matrix product. */
     Matrix Tmmult(const Matrix& B) const;
 
-    /**
-     * Return a matrix-transpose matrix product.
-     *
-     * \see Matrix::mTmult
-     */
+    /** Return a matrix-transpose matrix product. */
     Matrix mTmult(const Matrix& B) const;
 
-    /**
-     * Return a transpose matrix-transpose matrix product.
-     *
-     * \see Matrix::TTmult
-     */
+    /** Return a transpose matrix-transpose matrix product. */
     Matrix TTmult(const Matrix& B) const;
 
     /**
@@ -298,25 +285,17 @@ namespace Math
 
     /**
      * Compute a transpose matrix-vector product. This is computed via \f$
-     * \vec{y} = \boldsymbol{A}^T \vec{x} = \sum_{i=1}^{n} a_{ji} x_i, ~  \forall
+     * \vec{y} = \boldsymbol{A}^T \vec{x} = \sum_{i=1}^{n} a_{ji} x_i, ~ \forall
      * i \f$. If desired, setting the \p adding flag to \p true will add the
      * matrix-vector product to the destination vector \f$ \vec{y} \f$.
      */
     void Tvmult(const Vector& x, Vector& y,
                 const bool adding = false) const;
 
-    /**
-     * Return a matrix-vector product.
-     *
-     * \see Matrix::vmult
-     */
+    /** Return a matrix-vector product. */
     Vector vmult(const Vector& x) const;
 
-    /**
-     * Return a transpose matrix-vector product.
-     *
-     * \see Matrix::Tvmult
-     */
+    /** Return a transpose matrix-vector product. */
     Vector Tvmult(const Vector& x) const;
 
     /**
@@ -432,116 +411,52 @@ namespace Math
 
   //################################################## Methods
 
-  /**
-   * Add two matrices together.
-   *
-   * \see Matrix::add Matrix::operator+=
-   */
+  /** Add two matrices together. */
   Matrix operator+(const Matrix& A, const Matrix& B);
 
-  /**
-   * Subtract two matrices.
-   *
-   * \see Matrix::operator-=
-   */
+  /** Subtract two matrices. */
   Matrix operator-(const Matrix& A, const Matrix& B);
 
-  /**
-   * Return a matrix-matrix product.
-   *
-   * \see Matrix::mmult
-   */
+  /** Return a matrix-matrix product. */
   Matrix operator*(const Matrix& A, const Matrix& B);
 
-  /**
-   * Compute a matrix-matrix product.
-   *
-   * \see Matrix::mmult
-   */
+  /** Compute a matrix-matrix product. */
   void mmult(const Matrix& A, const Matrix& B, Matrix& C);
 
-  /**
-   * Compute a transpose matrix-matrix product.
-   *
-   * \see Matrix::Tmmult
-   */
+  /** Compute a transpose matrix-matrix product. */
   void Tmmult(const Matrix& A, const Matrix& B, Matrix& C);
 
-  /**
-   * Compute a matrix-transpose matrix product.
-   *
-   * \see Matrix::mTmult
-   */
+  /** Compute a matrix-transpose matrix product. */
   void mTmult(const Matrix& A, const Matrix& B, Matrix& C);
 
-  /**
-   * Compute a transpose matrix-transpose matrix product.
-   *
-   * \see Matrix::TTmmult
-   */
+  /** Compute a transpose matrix-transpose matrix product. */
   void TTmult(const Matrix& A, const Matrix& B, Matrix& C);
 
-  /**
-   * Return a matrix-matrix product.
-   *
-   * \see Matrix::mmult
-   */
+  /** Return a matrix-matrix product. */
   Matrix mmult(const Matrix& A, const Matrix& B);
 
-  /**
-   * Return a transpose matrix-matrix product.
-   *
-   * \see Matrix::Tmmult
-   */
+  /** Return a transpose matrix-matrix product. */
   Matrix Tmmult(const Matrix& A, const Matrix& B);
 
-  /**
-   * Return a matrix-transpose matrix product.
-   *
-   * \see Matrix::mTmult
-   */
+  /** Return a matrix-transpose matrix product. */
   Matrix mTmult(const Matrix& A, const Matrix& B);
 
-  /**
-   * Return a transpose matrix-transpose matrix product.
-   *
-   * \see Matrix::TTmmult
-   */
+  /** Return a transpose matrix-transpose matrix product. */
   Matrix TTmult(const Matrix& A, const Matrix& B);
 
-  /**
-   * Compute a matrix-vector product.
-   *
-   * \see Matrix::vmult
-   */
+  /** Compute a matrix-vector product. */
   void vmult(const Matrix& A, const Vector& x, Vector& y);
 
-  /**
-   * Compute a transpose matrix-vector product.
-   *
-   * \see Matrix::vmult
-   */
+  /** Compute a transpose matrix-vector product. */
   void Tvmult(const Matrix& A, const Vector& x, Vector& y);
 
-  /**
-   * Return a matrix-vector product.
-   *
-   * \see Matrix::vmult
-   */
+  /** Return a matrix-vector product. */
   Vector vmult(const Matrix& A, const Vector& x);
 
-  /**
-   * Return a transpose matrix-vector product.
-   *
-   * \see Matrix::Tvmult
-   */
+  /** Return a transpose matrix-vector product. */
   Vector Tvmult(const Matrix& A, const Vector& x);
 
-  /**
-   * Insert a matrix into an output stream.
-   *
-   * \see Matrix::str Matrix::print
-   */
+  /** Insert a matrix into an output stream. */
   std::ostream& operator<<(std::ostream& os, const Matrix& A);
 
 }

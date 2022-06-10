@@ -357,6 +357,45 @@ ConstIterator::operator<(const ConstIterator& other) const
 //######################################################################
 
 
+RowIterator::RowIterator(SparseMatrix* matrix,
+                         const size_t  row) :
+  matrix(matrix), row(row)
+{ assert(row < matrix->rows); }
+
+
+Iterator
+RowIterator::begin()
+{ return matrix->begin(row); }
+
+
+Iterator
+RowIterator::end()
+{ return matrix->end(row); }
+
+
+//######################################################################
+
+
+ConstRowIterator::
+ConstRowIterator(const SparseMatrix* matrix,
+                 const size_t        row) :
+  matrix(matrix), row(row)
+{ assert(row < matrix->rows); }
+
+
+ConstIterator
+ConstRowIterator::begin() const
+{ return matrix->begin(row); }
+
+
+ConstIterator
+ConstRowIterator::end() const
+{ return matrix->end(row); }
+
+
+//######################################################################
+
+
 SparseMatrix::SparseMatrix() :
   has_entries(false),
   rows(0),
@@ -565,6 +604,22 @@ SparseMatrix::end(const size_t row) const
 {
   assert(row < rows);
   return (row + 1 == rows)? end() : begin(row + 1);
+}
+
+
+RowIterator
+SparseMatrix::row_iterator(const size_t row)
+{
+  assert(row < rows);
+  return {this, row};
+}
+
+
+ConstRowIterator
+SparseMatrix::row_iterator(const size_t row) const
+{
+  assert(row < rows);
+  return {this, row};
 }
 
 

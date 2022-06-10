@@ -201,12 +201,12 @@ Matrix::at(const size_t i, const size_t j) const
 
 
 double&
-Matrix::diagonal(const size_t i)
+Matrix::diag(const size_t i)
 { return vals.at(i).at(i); }
 
 
 const double&
-Matrix::diagonal(const size_t i) const
+Matrix::diag(const size_t i) const
 { return vals.at(i).at(i); }
 
 
@@ -351,7 +351,7 @@ Matrix::swap(Matrix& other)
 
 
 void
-Matrix::set_diagonal(const Vector& diag)
+Matrix::set_diag(const Vector& diag)
 {
   if (vals.empty())
   {
@@ -371,7 +371,7 @@ Matrix::set_diagonal(const Vector& diag)
 
 
 void
-Matrix::set_diagonal(const double value)
+Matrix::set_diag(const double value)
 {
   Assert(!vals.empty(), "Cannot set an empty matrix with a scalar.")
 
