@@ -13,7 +13,6 @@ namespace Math::LinearSolver
   /** Implementation of a PETSc solver. */
   class PETScSolver : public LinearSolverBase<SparseMatrix>
   {
-
   protected:
     //========== Solver parameters
     size_t verbosity = 0;
@@ -42,6 +41,13 @@ namespace Math::LinearSolver
 
 
     using LinearSolverBase::solve;
+
+  private:
+
+    static PetscErrorCode
+    KSPMonitor(KSP solver, PetscInt it,
+               PetscReal rnorm,
+               void* monitordestroy);
   };
 }
 
