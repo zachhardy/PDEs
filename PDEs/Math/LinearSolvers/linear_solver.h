@@ -59,6 +59,8 @@ namespace Math::LinearSolver
 
     /** Attach a matrix to the solver. */
     virtual void set_matrix(const MatrixType& matrix) override;
+
+    const MatrixType& get_matrix() const;
   };
 
 

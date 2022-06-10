@@ -8,22 +8,17 @@
 #include <cmath>
 
 
-using namespace Math;
+using namespace Math::LinearSolver;
 
 
 //################################################## Constructors
 
 
-LinearSolver::Cholesky::
-Cholesky() : DirectSolverBase<Matrix>()
-{}
-
-
-//################################################## Methods
+Cholesky::Cholesky() : DirectSolverBase<Matrix>() {}
 
 
 void
-LinearSolver::Cholesky::factorize()
+Cholesky::factorize()
 {
   if (factorized) return;
 
@@ -55,7 +50,7 @@ LinearSolver::Cholesky::factorize()
 
 
 void
-LinearSolver::Cholesky::solve(Vector& x, const Vector& b) const
+Cholesky::solve(Vector& x, const Vector& b) const
 {
   size_t n = A.n_rows();
   Assert(factorized, "Matrix must be factorized before solving.");

@@ -27,11 +27,10 @@ set_source(Groupset& groupset, SourceFlags source_flags)
   switch (discretization_method)
   {
     case DiscretizationMethod::FINITE_VOLUME:
-    {
       fv_set_source(groupset, source_flags);
       break;
-    }
-    default:throw std::runtime_error("Invalid discretization method.");
+    default:
+      throw std::runtime_error("Invalid discretization method.");
   }
 }
 

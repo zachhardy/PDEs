@@ -7,22 +7,20 @@
 #include <cassert>
 
 
-using namespace Math;
+using namespace Math::LinearSolver;
 
 
 //################################################## Setup
 
 
-LinearSolver::SparseLU::
-SparseLU(const bool pivot) : pivot_flag(pivot)
-{}
+SparseLU::SparseLU(const bool pivot) : pivot_flag(pivot) {}
 
 
 void
-LinearSolver::SparseLU::set_matrix(const SparseMatrix& matrix)
+SparseLU::set_matrix(const SparseMatrix& matrix)
 {
-  DirectSolverBase<SparseMatrix>::set_matrix(matrix);
   row_pivots.resize(matrix.n_rows());
+  DirectSolverBase<SparseMatrix>::set_matrix(matrix);
 }
 
 
@@ -30,7 +28,7 @@ LinearSolver::SparseLU::set_matrix(const SparseMatrix& matrix)
 
 
 void
-LinearSolver::SparseLU::factorize()
+SparseLU::factorize()
 {
   size_t n = A.n_rows();
 
@@ -52,7 +50,7 @@ LinearSolver::SparseLU::factorize()
       for (size_t k = j + 1; k < n; ++k)
       {
         const double a_kj = A.el(k, j);
-        if (a_kj > max)
+        if (std::fabs(a_kj) > max)
         {
           argmax = k;
           max = std::fabs(a_kj);
@@ -67,8 +65,16 @@ LinearSolver::SparseLU::factorize()
        * the numerical stability of the algorithm. */
       if (argmax != j)
       {
+        std::cout << "Swapping row " << j
+                  << " with row " << argmax << std::endl;
+        std::cout << "Pre-Swap:\n";
+        A.print_formatted();
+
         std::swap(row_pivots[j], row_pivots[argmax]);
         A.swap_row(j, argmax);
+
+        std::cout << "Post-Swap:\n";
+        A.print_formatted();
       }
     }//if pivot
 
@@ -77,9 +83,11 @@ LinearSolver::SparseLU::factorize()
     // Compute the elements of the LU decomposition
     for (size_t i = j + 1; i < n; ++i)
     {
-      double a_ij = A.el(i, j);
-      if (a_ij != 0.0)
+      if (A.exists(i, j))
       {
+        double& a_ij = A(i, j);
+
+        // Get the
         /* Lower triangular components. This represents the row operations
          * performed to attain the upper-triangular, row-echelon matrix. */
         a_ij /= a_jj;
@@ -97,7 +105,7 @@ LinearSolver::SparseLU::factorize()
 
 
 void
-LinearSolver::SparseLU::solve(Vector& x, const Vector& b) const
+SparseLU::solve(Vector& x, const Vector& b) const
 {
   size_t n = A.n_rows();
   assert(factorized);
@@ -130,10 +138,10 @@ LinearSolver::SparseLU::solve(Vector& x, const Vector& b) const
 
 
 void
-LinearSolver::SparseLU::pivot(const bool flag)
+SparseLU::pivot(const bool flag)
 { pivot_flag = flag; }
 
 
 bool
-LinearSolver::SparseLU::pivot() const
+SparseLU::pivot() const
 { return pivot_flag; }

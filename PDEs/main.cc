@@ -4,6 +4,10 @@
 #include "material.h"
 #include "CrossSections/cross_sections.h"
 
+#include "vector.h"
+#include "matrix.h"
+#include "Sparse/sparse_matrix.h"
+
 #include "LinearSolvers/DirectSolvers"
 #include "LinearSolvers/IterativeSolvers"
 #include "LinearSolvers/PETSc/petsc_solver.h"
@@ -71,10 +75,9 @@ int main(int argc, char** argv)
     opts.max_iterations = 10000;
 
     std::shared_ptr<LinearSolverBase<SparseMatrix>> linear_solver;
-
-    linear_solver = std::make_shared<PETScSolver>(KSPCG, PCSOR, opts);
-//    linear_solver = std::make_shared<CG>(opts);
-
+    linear_solver = std::make_shared<SparseCholesky>();
+//    linear_solver = std::make_shared<PETScSolver>(KSPGMRES, PCSOR, opts);
+\
     //================================================== Create the solver
     KEigenvalueSolver solver;
     solver.mesh = mesh;
@@ -103,12 +106,12 @@ int main(int argc, char** argv)
 
     //================================================== Run the problem
 
-    PetscInitialize(&argc,&argv,(char*)0,NULL);
+//    PetscInitialize(&argc,&argv,(char*)0,NULL);
 
     solver.initialize();
     solver.execute();
 
-    PetscFinalize();
+//    PetscFinalize();
   }
   catch (std::exception &exc) {
     std::cerr << std::endl

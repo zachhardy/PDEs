@@ -7,21 +7,16 @@
 #include <cassert>
 
 
-using namespace Math;
-
-//################################################## Constructors
+using namespace Math::LinearSolver;
 
 
-LinearSolver::SparseCholesky::
-SparseCholesky() : DirectSolverBase<SparseMatrix>()
+SparseCholesky::SparseCholesky() :
+  DirectSolverBase<SparseMatrix>()
 {}
 
 
-//################################################## Methods
-
-
 void
-LinearSolver::SparseCholesky::factorize()
+SparseCholesky::factorize()
 {
   size_t n = A.n_rows();
 
@@ -29,7 +24,7 @@ LinearSolver::SparseCholesky::factorize()
   for (size_t j = 0; j < n; ++j)
   {
     // Accessor for the diagonal element
-    double d = A.diag(j);
+    double& d = A.diag(j);
 
     // Compute the new diagonal term
     double sum = 0.0;
@@ -61,7 +56,7 @@ LinearSolver::SparseCholesky::factorize()
 
 
 void
-LinearSolver::SparseCholesky::solve(Vector& x, const Vector& b) const
+SparseCholesky::solve(Vector& x, const Vector& b) const
 {
   size_t n = A.n_rows();
   assert(factorized);

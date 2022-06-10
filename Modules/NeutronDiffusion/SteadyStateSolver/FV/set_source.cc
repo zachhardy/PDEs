@@ -71,7 +71,6 @@ fv_set_source(Groupset& groupset, SourceFlags source_flags)
           }
       }
 
-
       //==================== Fission terms
       if (xs->is_fissile && apply_wgs_fission_src || apply_ags_fission_src)
       {
@@ -94,7 +93,7 @@ fv_set_source(Groupset& groupset, SourceFlags source_flags)
             }
         }
 
-          //==================== Prompt + delayed fission
+        //==================== Prompt + delayed fission
         else
         {
           const double chi_p = xs->chi_prompt[g];
@@ -116,7 +115,7 @@ fv_set_source(Groupset& groupset, SourceFlags source_flags)
 
           if (apply_ags_fission_src)
           {
-            for (size_t gpr = 0; gpr <= n_groups; ++gpr)
+            for (size_t gpr = 0; gpr < n_groups; ++gpr)
             {
               const size_t gp = groups[gpr];
               if (gp < gs_i || gp > gs_f)
@@ -134,7 +133,6 @@ fv_set_source(Groupset& groupset, SourceFlags source_flags)
       b[ig] += rhs;
 
     }//for gr
-
 
     //================================================== Loop over faces
     for (const auto& face : cell.faces)

@@ -25,14 +25,21 @@ KEigenvalueSolver::power_method()
 
   for (nit = 0; nit < max_iterations; ++nit)
   {
+    std::cout << "ITERATION  " << nit << std::endl;
+
     //==================== Precompute the fission source
     for (auto& groupset : groupsets)
     {
+      std::cout << "STARTING SET SOURCE\n";
       groupset.b = 0.0;
+      std::cout << "ZERO RHS DONE\n";
       set_source(groupset, APPLY_WGS_FISSION_SOURCE |
                            APPLY_AGS_FISSION_SOURCE);
+      std::cout << "FISSION SOURCE DONE\n";
       groupset.b /= k_eff;
     }
+
+    std::cout << "SOURCE SET\n";
 
     //==================== Solve the system
     if (solution_technique == SolutionTechnique::GROUPSET_WISE)

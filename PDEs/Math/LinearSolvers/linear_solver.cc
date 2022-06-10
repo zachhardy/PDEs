@@ -9,6 +9,7 @@
 
 
 using namespace Math;
+using namespace LinearSolver;
 
 
 //################################################## LinearSolverBase
@@ -16,7 +17,7 @@ using namespace Math;
 
 template<class MatrixType>
 Vector
-LinearSolver::LinearSolverBase<MatrixType>::
+LinearSolverBase<MatrixType>::
 solve(const Vector& b) const
 {
   Vector x(b.size(), 0.0);
@@ -27,7 +28,7 @@ solve(const Vector& b) const
 
 template<class MatrixType>
 void
-LinearSolver::LinearSolverBase<MatrixType>::
+LinearSolverBase<MatrixType>::
 set_matrix(const MatrixType& matrix)
 { assert(matrix.n_rows() == matrix.n_cols()); }
 
@@ -41,19 +42,27 @@ template class LinearSolver::LinearSolverBase<SparseMatrix>;
 
 
 template<class MatrixType>
-LinearSolver::DirectSolverBase<MatrixType>::
+DirectSolverBase<MatrixType>::
 DirectSolverBase() : LinearSolverBase<MatrixType>()
 {}
 
 
 template<class MatrixType>
-void LinearSolver::DirectSolverBase<MatrixType>::
+void
+DirectSolverBase<MatrixType>::
 set_matrix(const MatrixType& matrix)
 {
   LinearSolverBase<MatrixType>::set_matrix(matrix);
   A = matrix;
   factorize();
 }
+
+
+template<typename MatrixType>
+const MatrixType&
+DirectSolverBase<MatrixType>::
+get_matrix() const
+{ return A; }
 
 
 template class LinearSolver::DirectSolverBase<Matrix>;
