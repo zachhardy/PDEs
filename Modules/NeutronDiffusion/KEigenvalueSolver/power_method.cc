@@ -64,22 +64,27 @@ KEigenvalueSolver::power_method()
       converged = true;
 
     // Print iteration information
-    std::stringstream iter_info;
-    iter_info << "Iteration: " << std::setw(3) << nit << "   "
-              << "k_eff: " << std::setw(6) << k_eff << "   "
-              << "k_eff Change: " << std::setw(6) << k_eff_change << "   "
-              << "Reactivity: " << std::setw(6) << rho * 1.0e5;
-    if (converged) iter_info << "   CONVERGED\n";
-    std::cout << iter_info.str() << "\n";
+    if (verbosity > 0)
+    {
+      std::stringstream iter_info;
+      iter_info
+        << std::left << "k-Eigenvalue::"
+        << "Step  " << std::setw(4) << nit
+        << "k_eff  " << std::setw(8) << k_eff
+        << "k_eff Change  " << std::setw(14) << k_eff_change
+        << "Reactivity  " << rho * 1.0e5;
+      if (converged) iter_info << "   CONVERGED";
+      std::cout << iter_info.str() << std::endl;
+    }
 
     if (converged) break;
   }
 
   std::stringstream summary;
   if (converged)
-    summary << "***** k-Eigenvalue Solver Converged! *****\n";
+    summary << "\n***** k-Eigenvalue Solver Converged! *****\n";
   else
-    summary << "!!*!! WARNING: k-Eigenvalue Solver NOT Converged !!*!!\n";
+    summary << "\n!!*!! WARNING: k-Eigenvalue Solver NOT Converged !!*!!\n";
 
   summary << "Final k-Eigenvalue:         "
           << std::left << std::setw(6) << k_eff << "\n"

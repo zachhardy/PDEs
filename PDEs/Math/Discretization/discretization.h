@@ -44,35 +44,20 @@ namespace Math
     {}
 
   public:
-    /**
-     * Return the number of nodes in the discretization.
-     */
-    virtual size_t
-    n_nodes() const
-    { return 0; }
+    /** Return the number of nodes in the discretization. */
+    virtual size_t n_nodes() const = 0;
 
-    /**
-     * Return the number of degrees of freedom in the spatial discretization.
-     */
-    virtual size_t
-    n_dofs(const size_t n_components) const
-    { return 0; }
+    /** Return the number of DoFs in the spatial discretization. */
+    virtual size_t n_dofs(const size_t n_components) const = 0;
 
-    /**
-     * Return the number of nodes per cell.
-     */
-    virtual size_t
-    nodes_per_cell() const
-    { return 0; }
+    /** Return the number of nodes per cell. */
+    virtual size_t nodes_per_cell() const = 0;
 
-    /**
-     * Return the number of degrees of freedom per cell.
-     */
+    /** Return the number of DoFs per cell. */
     virtual size_t
-    dofs_per_cell(const size_t n_components) const
-    { return 0; }
+    dofs_per_cell(const size_t n_components) const = 0;
 
-    /// Get the location of the nodes on a cell.
+    /** Get the location of the nodes on a cell. */
     virtual std::vector<Grid::Point>
     nodes(const Grid::Cell& cell) const = 0;
 

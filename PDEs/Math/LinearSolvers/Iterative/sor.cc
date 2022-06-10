@@ -22,8 +22,8 @@ void LinearSolver::SOR::
 solve(Vector& x, const Vector& b) const
 {
   size_t n = A->n_rows();
-  Assert(b.size() == n, "Dimension mismatch error.");
-  Assert(x.size() == n, "Dimension mismatrch error.");
+  assert(b.size() == n);
+  assert(x.size() == n);
 
   size_t nit;
   double change;
@@ -36,11 +36,11 @@ solve(Vector& x, const Vector& b) const
     {
       //==================== Compute element-wise update
       double value = 0.0;
-      for (const auto el : A->const_row(i))
-        if (el.column != i)
-          value += el.value * x[el.column];
+      for (const auto el : A->row_iterator(i))
+        if (el.column() != i)
+          value += el.value() * x[el.column()];
 
-      double a_ii = *A->diagonal(i);
+      double a_ii = A->diag(i);
       value = x[i] + omega * ((b[i] - value) / a_ii - x[i]);
 
       //==================== Increment difference

@@ -4,9 +4,8 @@
 #include "matrix.h"
 #include "Sparse/sparse_matrix.h"
 
-#include "macros.h"
-
 #include <iomanip>
+#include <cassert>
 
 
 using namespace Math;
@@ -30,10 +29,8 @@ template<class MatrixType>
 void
 LinearSolver::LinearSolverBase<MatrixType>::
 set_matrix(const MatrixType& matrix)
-{
-  Assert(matrix.n_rows() == matrix.n_cols(),
-         "Linear solvers require square matrices.")
-}
+{ assert(matrix.n_rows() == matrix.n_cols()); }
+
 
 
 template class LinearSolver::LinearSolverBase<Matrix>;
@@ -91,14 +88,14 @@ check(const size_t iteration, const double value) const
 
   if (verbosity > 1)
     std::cout << solver_name << "::"
-              << "Iteration:  " << std::setw(4) << iteration << "    "
-              << "Value:  " << value
+              << "Iteration   " << std::setw(4) << iteration << "    "
+              << "Value   " << value
               << (converged? "  CONVERGED\n" : "\n");
 
   if (converged && verbosity == 1)
-    std::cout << solver_name << "::CONVERGED:  "
-              << "Iteration:  " << iteration << "    "
-              << "Value:  " << value << std::endl;
+    std::cout << solver_name << "::  CONVERGED   "
+              << "Iteration   " << iteration << "    "
+              << "Value   " << value << std::endl;
 
   if (iteration == max_iterations && !converged)
     throw_convergence_error(iteration, value);

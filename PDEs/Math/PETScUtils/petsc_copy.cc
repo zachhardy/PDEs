@@ -34,7 +34,7 @@ PETScUtils::CopyToVector(Vec& x, Vector& vec)
 
 
 void
-PETScUtils::CopyToSTLVector(Vec& x, std::vector<double>& vec)
+PETScUtils::CopyToVector(Vec& x, std::vector<double>& vec)
 {
   PetscInt size;
   VecGetSize(x, &size);

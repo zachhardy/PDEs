@@ -13,14 +13,14 @@ using namespace Math;
 
 
 Matrix::Matrix(const size_t n_rows, const size_t n_cols) :
-  coeffs(n_rows, Vector(n_cols))
+  vals(n_rows, Vector(n_cols))
 {}
 
 
 Matrix::Matrix(const size_t n_rows,
                const size_t n_cols,
                const double value) :
-  coeffs(n_rows, Vector(n_cols, value))
+  vals(n_rows, Vector(n_cols, value))
 {}
 
 
@@ -30,7 +30,7 @@ Matrix::Matrix(const STLMatrix& other)
          "Invalid input. All rows must be the same length.")
 
   for (const auto& row : other)
-    coeffs.push_back(row);
+    vals.push_back(row);
 }
 
 
@@ -40,7 +40,7 @@ Matrix::Matrix(STLMatrix&& other)
          "Invalid input. All rows must be the same length.")
 
   for (auto& row : other)
-    coeffs.push_back(row);
+    vals.push_back(row);
 }
 
 
@@ -48,11 +48,11 @@ Matrix::Matrix(const InitializerMatrix list)
 {
   for (auto& row : list)
   {
-    if (!coeffs.empty())
-    Assert(row.size() == coeffs.front().size(),
+    if (!vals.empty())
+    Assert(row.size() == vals.front().size(),
            "Invalid input. All rows must be the same length.")
 
-    coeffs.push_back(row);
+    vals.push_back(row);
   }
 }
 
@@ -67,7 +67,7 @@ Matrix::operator=(const STLMatrix& other)
          "Invalid input. All rows must be the same length.")
 
   for (const auto& row : other)
-    coeffs.push_back(row);
+    vals.push_back(row);
   return *this;
 }
 
@@ -79,7 +79,7 @@ Matrix::operator=(STLMatrix&& other)
          "Invalid input. All rows must be the same length.")
 
   for (auto& row : other)
-    coeffs.push_back(row);
+    vals.push_back(row);
   return *this;
 }
 
@@ -87,9 +87,9 @@ Matrix::operator=(STLMatrix&& other)
 Matrix&
 Matrix::operator=(const double value)
 {
-  Assert(!coeffs.empty(), "Cannot set an empty matrix to a scalar.")
+  Assert(!vals.empty(), "Cannot set an empty matrix to a scalar.")
 
-  for (auto& row : coeffs)
+  for (auto& row : vals)
     row = value;
   return *this;
 }
@@ -100,12 +100,12 @@ Matrix::operator=(const double value)
 
 bool
 Matrix::operator==(const Matrix& other) const
-{ return (coeffs == other.coeffs); }
+{ return (vals == other.vals); }
 
 
 bool
 Matrix::operator!=(const Matrix& other) const
-{ return (coeffs != other.coeffs); }
+{ return (vals != other.vals); }
 
 
 //################################################## Characteristics
@@ -113,12 +113,12 @@ Matrix::operator!=(const Matrix& other) const
 
 size_t
 Matrix::n_rows() const
-{ return coeffs.size(); }
+{ return vals.size(); }
 
 
 size_t
 Matrix::n_cols() const
-{ return coeffs.front().size(); }
+{ return vals.front().size(); }
 
 
 size_t
@@ -130,7 +130,7 @@ size_t
 Matrix::nnz() const
 {
   size_t count = 0;
-  for (const auto& row : coeffs)
+  for (const auto& row : vals)
     for (const auto& el : row)
       if (el != 0.0) ++count;
   return count;
@@ -139,7 +139,7 @@ Matrix::nnz() const
 
 bool
 Matrix::empty() const
-{ return coeffs.empty(); }
+{ return vals.empty(); }
 
 
 bool
@@ -152,133 +152,122 @@ Matrix::all_zero() const
 
 Vector&
 Matrix::operator[](const size_t i)
-{ return coeffs[i]; }
+{ return vals[i]; }
 
 
 const Vector&
 Matrix::operator[](const size_t i) const
-{ return coeffs[i]; }
+{ return vals[i]; }
 
 
 Vector&
 Matrix::operator()(const size_t i)
-{ return coeffs[i]; }
+{ return vals[i]; }
 
 
 const Vector&
 Matrix::operator()(const size_t i) const
-{ return coeffs[i]; }
+{ return vals[i]; }
 
 
 Vector&
 Matrix::at(const size_t i)
-{ return coeffs.at(i); }
+{ return vals.at(i); }
 
 
 const Vector&
 Matrix::at(const size_t i) const
-{ return coeffs.at(i); }
+{ return vals.at(i); }
 
 
 double&
 Matrix::operator()(const size_t i, const size_t j)
-{ return coeffs[i][j]; }
+{ return vals[i][j]; }
 
 
 const double&
 Matrix::operator()(const size_t i, const size_t j) const
-{ return coeffs[i][j]; }
+{ return vals[i][j]; }
 
 
 double&
 Matrix::at(const size_t i, const size_t j)
-{ return coeffs.at(i).at(j); }
+{ return vals.at(i).at(j); }
 
 
 const double&
 Matrix::at(const size_t i, const size_t j) const
-{ return coeffs.at(i).at(j); }
+{ return vals.at(i).at(j); }
 
 
 double&
-Matrix::diagonal(const size_t i)
-{ return coeffs.at(i).at(i); }
+Matrix::diag(const size_t i)
+{ return vals.at(i).at(i); }
 
 
 const double&
-Matrix::diagonal(const size_t i) const
-{ return coeffs.at(i).at(i); }
-
-
-Vector
-Matrix::diagonal() const
-{
-  Vector diag;
-  size_t min_dim = std::min(n_rows(), n_cols());
-  for (size_t i = 0; i < min_dim; ++i)
-    diag.push_back(coeffs[i][i]);
-  return diag;
-}
+Matrix::diag(const size_t i) const
+{ return vals.at(i).at(i); }
 
 
 Vector*
 Matrix::data()
-{ return coeffs.data(); }
+{ return vals.data(); }
 
 
 const Vector*
 Matrix::data() const
-{ return coeffs.data(); }
+{ return vals.data(); }
 
 
 double*
 Matrix::data(const size_t i)
-{ return coeffs.at(i).data(); }
+{ return vals.at(i).data(); }
 
 
 const double*
 Matrix::data(const size_t i) const
-{ return coeffs.at(i).data(); }
+{ return vals.at(i).data(); }
 
 
 Matrix::iterator
 Matrix::begin()
-{ return coeffs.begin(); }
+{ return vals.begin(); }
 
 
 Matrix::iterator
 Matrix::end()
-{ return coeffs.end(); }
+{ return vals.end(); }
 
 
 Matrix::const_iterator
 Matrix::begin() const
-{ return coeffs.begin(); }
+{ return vals.begin(); }
 
 
 Matrix::const_iterator
 Matrix::end() const
-{ return coeffs.end(); }
+{ return vals.end(); }
 
 
 Vector::iterator
 Matrix::begin(const size_t i)
-{ return coeffs.at(i).begin(); }
+{ return vals.at(i).begin(); }
 
 
 Vector::iterator
 Matrix::end(const size_t i)
-{ return coeffs.at(i).end(); }
+{ return vals.at(i).end(); }
 
 
 Vector::const_iterator
 Matrix::begin(const size_t i) const
-{ return coeffs.at(i).begin(); }
+{ return vals.at(i).begin(); }
 
 
 Vector::const_iterator
 Matrix::end(const size_t i) const
-{ return coeffs.at(i).end(); }
+{ return vals.at(i).end(); }
 
 
 //################################################## Modifiers
@@ -286,19 +275,19 @@ Matrix::end(const size_t i) const
 
 void
 Matrix::clear()
-{ coeffs.clear(); }
+{ vals.clear(); }
 
 
 void
 Matrix::pop_back()
-{ coeffs.pop_back(); }
+{ vals.pop_back(); }
 
 
 void
 Matrix::push_back(const Vector& row)
 {
   Assert(row.size() == n_cols(), "Dimension mismatch error.")
-  coeffs.push_back(row);
+  vals.push_back(row);
 }
 
 
@@ -306,21 +295,21 @@ void
 Matrix::push_back(Vector&& row)
 {
   Assert(row.size() == n_cols(), "Dimension mismatch error.")
-  coeffs.push_back(row);
+  vals.push_back(row);
 }
 
 
 void
 Matrix::resize(const size_t n_rows,
                const size_t n_cols)
-{ coeffs.resize(n_rows, Vector(n_cols)); }
+{ vals.resize(n_rows, Vector(n_cols)); }
 
 
 void
 Matrix::resize(const size_t n_rows,
                const size_t n_cols,
                const double value)
-{ coeffs.resize(n_rows, Vector(n_cols, value)); }
+{ vals.resize(n_rows, Vector(n_cols, value)); }
 
 
 void
@@ -344,7 +333,7 @@ Matrix::reinit(const size_t n_rows,
 
 void
 Matrix::swap_row(const size_t i, const size_t k)
-{ coeffs.at(i).swap(coeffs.at(k)); }
+{ vals.at(i).swap(vals.at(k)); }
 
 
 void
@@ -352,23 +341,23 @@ Matrix::swap_column(const size_t j, const size_t k)
 {
   Assert(j < n_cols() && k < n_cols(), "Out of range error.")
   for (size_t i = 0; i < n_rows(); ++i)
-    std::swap(coeffs[i][j], coeffs[i][k]);
+    std::swap(vals[i][j], vals[i][k]);
 }
 
 
 void
 Matrix::swap(Matrix& other)
-{ coeffs.swap(other.coeffs); }
+{ vals.swap(other.vals); }
 
 
 void
-Matrix::set_diagonal(const Vector& diag)
+Matrix::set_diag(const Vector& diag)
 {
-  if (coeffs.empty())
+  if (vals.empty())
   {
     resize(diag.size(), diag.size());
     for (size_t i = 0; i < diag.size(); ++i)
-      coeffs[i][i] = diag[i];
+      vals[i][i] = diag[i];
   }
   else
   {
@@ -376,19 +365,19 @@ Matrix::set_diagonal(const Vector& diag)
     Assert(diag.size() == min_dim, "Dimension mismatch error.")
 
     for (size_t i = 0; i < min_dim; ++i)
-      coeffs[i][i] = diag[i];
+      vals[i][i] = diag[i];
   }
 }
 
 
 void
-Matrix::set_diagonal(const double value)
+Matrix::set_diag(const double value)
 {
-  Assert(!coeffs.empty(), "Cannot set an empty matrix with a scalar.")
+  Assert(!vals.empty(), "Cannot set an empty matrix with a scalar.")
 
   size_t min_dim = std::min(n_rows(), n_cols());
   for (size_t i = 0; i < min_dim; ++i)
-    coeffs[i][i] = value;
+    vals[i][i] = value;
 }
 
 
@@ -553,7 +542,7 @@ Matrix::Tmmult(const Matrix& B, Matrix& C,
     {
       double value = adding? *c_ij : 0.0;
       for (size_t k = 0; k < n_rows(); ++k)
-        value += coeffs[k][i] * B(k, j);
+        value += vals[k][i] * B(k, j);
       *c_ij = value;
     }
   }
@@ -604,7 +593,7 @@ Matrix::TTmult(const Matrix& B, Matrix& C,
 
       double value = adding? *c_ij : 0.0;
       for (size_t k = 0; k < n_rows(); ++k, ++b_jk)
-        value += coeffs[k][i] * *b_jk;
+        value += vals[k][i] * *b_jk;
       *c_ij = value;
     }
   }
@@ -761,7 +750,7 @@ Matrix::transpose() const
   Matrix A_T(n_cols(), n_rows());
   for (size_t i = 0; i < n_rows(); ++i)
   {
-    const double* a_ij = coeffs[i].data();
+    const double* a_ij = vals[i].data();
     for (size_t j = 0; j < n_cols(); ++j)
       A_T[j][i] = *a_ij++;
   }
@@ -795,7 +784,7 @@ Matrix::print(std::ostream& os,
 
   for (uint64_t i = 0; i < n_rows(); ++i)
   {
-    const double* a_ij = coeffs[i].data();
+    const double* a_ij = vals[i].data();
     for (uint64_t j = 0; j < n_cols(); ++j)
       os << std::setw(w) << *a_ij++;
     os << std::endl;

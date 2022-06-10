@@ -6,15 +6,17 @@
 #include "PETScUtils/petsc_utils.h"
 
 #include <iomanip>
+#include <algorithm>
+#include <cassert>
 
 
 using namespace Math;
+using namespace LinearSolver;
 
 
-LinearSolver::PETScSolver::
-PETScSolver(const std::string solver_type,
-            const std::string preconditioner_type,
-            const Options& opts) :
+PETScSolver::PETScSolver(const std::string solver_type,
+                         const std::string preconditioner_type,
+                         const Options& opts) :
   solver_type(solver_type),
   preconditioner_type(preconditioner_type),
   relative_residual_tolerance(opts.tolerance),
@@ -23,35 +25,8 @@ PETScSolver(const std::string solver_type,
 {}
 
 
-PetscErrorCode KSPMonitorAChiTech(
-  KSP ksp, PetscInt n, PetscReal rnorm, void *monitordestroy)
-{
-
-  Vec Rhs;
-  KSPGetRhs(ksp,&Rhs);
-  double rhs_norm;
-  VecNorm(Rhs,NORM_2,&rhs_norm);
-  if (rhs_norm < 1.0e-25)
-    rhs_norm = 1.0;
-
-  const auto ksp_name = "Diffusion";
-
-  std::stringstream buff;
-  buff
-    << ksp_name
-    << " iteration "
-    << std::setw(4) << n
-    << " - Residual "
-    << std::scientific << std::setprecision(7) << rnorm // / rhs_norm
-    << std::endl;
-
-  std::cout << buff.str();
-  return 0;
-}
-
-
 void
-LinearSolver::PETScSolver::set_matrix(const SparseMatrix& matrix)
+PETScSolver::set_matrix(const SparseMatrix& matrix)
 {
   PETScUtils::CreateMatrix(A, matrix);
 
@@ -65,14 +40,15 @@ LinearSolver::PETScSolver::set_matrix(const SparseMatrix& matrix)
   KSPSetTolerances(ksp, relative_residual_tolerance,
                    PETSC_DEFAULT, PETSC_DEFAULT, max_iterations);
 
-  KSPMonitorSet(ksp, &KSPMonitorAChiTech, NULL, NULL);
+  if (verbosity > 1)
+    KSPMonitorSet(ksp, &KSPMonitor, NULL, NULL);
 
   KSPSetUp(ksp);
 }
 
 
 void
-LinearSolver::PETScSolver::solve(Vector& x, const Vector& b) const
+PETScSolver::solve(Vector& x, const Vector& b) const
 {
   Vec rhs, solution;
   PETScUtils::CreateVector(rhs, b);
@@ -80,39 +56,42 @@ LinearSolver::PETScSolver::solve(Vector& x, const Vector& b) const
 
   KSPSolve(ksp, rhs, solution);
 
-  if (verbosity > 0)
+  // Check convergence
+  KSPConvergedReason reason;
+  KSPGetConvergedReason(ksp, &reason);
+
+  PetscInt it;
+  KSPGetIterationNumber(ksp, &it);
+
+  PetscReal res;
+  KSPGetResidualNorm(ksp, &res);
+
+  bool converged =
+    (reason == KSP_CONVERGED_RTOL)? true : false;
+
+  std::string solver_str = solver_type;
+  std::transform(solver_str.begin(), solver_str.end(),
+                 solver_str.begin(), ::toupper);
+
+  std::string pc_str = preconditioner_type;
+  std::transform(pc_str.begin(), pc_str.end(),
+                 pc_str.begin(), ::toupper);
+
+  if (converged && verbosity == 1)
+    std::cout << "PETSc::" << solver_str << "::"
+              << pc_str << "::  CONVERGED   "
+              << "Iteration:  " << it << "   "
+              << "Value:  " << res << std::endl;
+
+  if (!converged)
   {
-    KSPConvergedReason reason;
-    KSPGetConvergedReason(ksp,&reason);
-
-    PetscInt its;
-    KSPGetIterationNumber(ksp, &its);
-
-
-    std::stringstream ostr;
-    switch (reason)
-    {
-      case KSP_CONVERGED_RTOL_NORMAL     :
-        ostr << "KSP_CONVERGED_RTOL_NORMAL";
-        break;
-      case KSP_CONVERGED_ATOL_NORMAL     :
-        ostr << "KSP_CONVERGED_ATOL_NORMAL";
-        break;
-      case KSP_CONVERGED_RTOL            :
-        ostr << "KSP_CONVERGED_RTOL";
-        break;
-      case KSP_CONVERGED_ATOL            :
-        ostr << "KSP_CONVERGED_ATOL";
-        break;
-      case KSP_CONVERGED_ITS             :
-        ostr << "KSP_CONVERGED_ITS";
-        break;
-      default:
-        ostr << "UNRECOGNIZED";
-        break;
-    }
-    std::cout << ostr.str() << "   "
-              << "Iterations:  " << its << std::endl;
+    std::stringstream err;
+    err << "!!*!! " << "PETSc::"
+        << solver_str << "::"
+        << pc_str << " FAILURE !!*!!\n"
+        << "# of Iterations:   " << it << std::endl
+        << "Final Difference:  " << res << std::endl;
+    throw std::runtime_error(err.str());
   }
 
   PETScUtils::CopyToVector(solution, x);
@@ -120,3 +99,30 @@ LinearSolver::PETScSolver::solve(Vector& x, const Vector& b) const
   VecDestroy(&rhs);
   VecDestroy(&solution);
 }
+
+
+
+PetscErrorCode
+PETScSolver::KSPMonitor(KSP solver, PetscInt it,
+                        PetscReal rnorm,
+                        void* monitordestroy)
+{
+  Vec rhs;
+  KSPGetRhs(solver, &rhs);
+
+  double rhs_norm;
+  VecNorm(rhs, NORM_2, &rhs_norm);
+  if (rhs_norm < 1.0e-25)
+    rhs_norm = 1.0;
+
+  std::stringstream ss;
+  ss << "PETSc::"
+     << "Iteration:  " << std::setw(4) << it << "   "
+     << "Value:   " << std::scientific
+     << std::setprecision(7) << rnorm
+     << std::endl;
+
+  std::cout << ss.str();
+  return 0;
+}
+

@@ -3,8 +3,7 @@
 #include "vector.h"
 #include "Sparse/sparse_matrix.h"
 
-#include "macros.h"
-
+#include <cassert>
 #include <cmath>
 
 
@@ -21,8 +20,8 @@ LinearSolver::Jacobi::
 solve(Vector& x, const Vector& b) const
 {
   size_t n = A->n_rows();
-  Assert(b.size() == n, "Dimension mismatch error.");
-  Assert(x.size() == n, "Dimension mismatrch error.");
+  assert(b.size() == n);
+  assert(x.size() == n);
 
   size_t nit;
   double change;
@@ -36,10 +35,10 @@ solve(Vector& x, const Vector& b) const
     {
       //==================== Compute element-wise update
       double value = b[i];
-      for (const auto el : A->const_row(i))
-        if (el.column != i)
-          value -= el.value * x_ell[el.column];
-      value /= *A->diagonal(i);
+      for (const auto el : A->row_iterator(i))
+        if (el.column() != i)
+          value -= el.value() * x_ell[el.column()];
+      value /= A->diag(i);
 
       //==================== Increment difference
       change += std::fabs(value - x_ell[i]) / std::fabs(b[i]);

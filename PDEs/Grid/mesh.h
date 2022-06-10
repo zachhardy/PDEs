@@ -11,10 +11,6 @@
 
 namespace Grid
 {
-
-  /**
-   * Available coordinate system types.
-   */
   enum class CoordinateSystem
   {
     CARTESIAN = 0,  ///< \f$(x, y, z)\f$ coordinates.
@@ -22,11 +18,8 @@ namespace Grid
     SPHERICAL = 2   ///< \f$(r, \varphi, \theta)\f$ coordinates.
   };
 
-  /**
-   * Return the coordinate system type as a string.
-   */
-  std::string
-  coordinate_system_str(const CoordinateSystem coord_sys);
+  /** Return the coordinate system type as a string. */
+  std::string coordinate_system_str(const CoordinateSystem coord_sys);
 
   //###########################################################################
 
@@ -58,9 +51,8 @@ namespace Grid
      * \param dimension The spatial dimension of the mesh.
      * \param coordinate_system The coordinate system of the mesh.
      */
-    explicit
-    Mesh(const size_t dimension,
-         const CoordinateSystem coordinate_system);
+    explicit Mesh(const size_t dimension,
+                  const CoordinateSystem coordinate_system);
 
   public:
 
@@ -77,13 +69,10 @@ namespace Grid
      *       cannot be established a-priori. Generally, this routine should only be
      *       utilized for unstructured meshes.
      */
-    void
-    compute_geometric_info();
+    void compute_geometric_info();
 
 
-    /**
-     * Compute the geometric properties of the cells and faces.
-     */
+    /** Compute the geometric properties of the cells and faces. */
     void establish_connectivity();
   };
 
