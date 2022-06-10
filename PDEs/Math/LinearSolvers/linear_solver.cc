@@ -88,14 +88,14 @@ check(const size_t iteration, const double value) const
 
   if (verbosity > 1)
     std::cout << solver_name << "::"
-              << "Iteration:  " << std::setw(4) << iteration << "    "
-              << "Value:  " << value
+              << "Iteration   " << std::setw(4) << iteration << "    "
+              << "Value   " << value
               << (converged? "  CONVERGED\n" : "\n");
 
   if (converged && verbosity == 1)
-    std::cout << solver_name << "::CONVERGED:  "
-              << "Iteration:  " << iteration << "    "
-              << "Value:  " << value << std::endl;
+    std::cout << solver_name << "::  CONVERGED   "
+              << "Iteration   " << iteration << "    "
+              << "Value   " << value << std::endl;
 
   if (iteration == max_iterations && !converged)
     throw_convergence_error(iteration, value);
