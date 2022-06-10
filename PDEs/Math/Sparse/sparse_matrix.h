@@ -1,19 +1,133 @@
 #ifndef SPARSE_MATRIX_H
 #define SPARSE_MATRIX_H
 
+#include "utilities.h"
+
 #include <iostream>
 #include <sstream>
-
 #include <cstddef>
 #include <vector>
 
 
 namespace Math
 {
-
   //########## Forward declarations
   class Vector;
   class Matrix;
+  class SparseMatrix;
+
+
+  namespace SparseMatrixIterators
+  {
+    class Iterator
+    {
+    private:
+      class Accessor
+      {
+      public:
+
+        Accessor(SparseMatrix*  matrix,
+                 const size_t   row,
+                 const size_t   index);
+
+        Accessor(SparseMatrix*  matrix);
+
+        size_t row() const;
+        size_t column() const;
+        size_t index() const;
+        double& value() const;
+
+        bool operator==(const Accessor& other) const;
+        bool operator!=(const Accessor& other) const;
+        bool operator<(const Accessor& other) const;
+
+      protected:
+        void advance();
+
+
+        SparseMatrix* matrix;
+        size_t        current_row;
+        size_t        current_index;
+
+        friend class Iterator;
+      };
+
+    public:
+      Iterator(SparseMatrix*  matrix,
+               const size_t   row,
+               const size_t   index);
+
+      Iterator(SparseMatrix*  matrix);
+
+      Iterator& operator++();
+      Iterator operator++(int);
+
+      const Accessor& operator*() const;
+      const Accessor* operator->() const;
+
+      bool operator==(const Iterator& other) const;
+      bool operator!=(const Iterator& other) const;
+      bool operator<(const Iterator& other) const;
+
+    private:
+      Accessor accessor;
+    };
+
+
+    class ConstIterator
+    {
+    private:
+      class Accessor
+      {
+      public:
+        Accessor(const SparseMatrix*  matrix,
+                 const size_t         row,
+                 const size_t         index);
+
+        Accessor(const SparseMatrix*  matrix);
+
+        size_t row() const;
+        size_t column() const;
+        size_t index() const;
+        const double & value() const;
+
+        bool operator==(const Accessor& other) const;
+        bool operator!=(const Accessor& other) const;
+        bool operator<(const Accessor& other) const;
+
+      protected:
+        void advance();
+
+
+        const SparseMatrix* matrix;
+        size_t              current_row;
+        size_t              current_index;
+
+        friend class ConstIterator;
+      };
+
+    public:
+      ConstIterator(const SparseMatrix*  matrix,
+                    const size_t         row,
+                    const size_t         index);
+
+      ConstIterator(const SparseMatrix*  matrix);
+
+      ConstIterator& operator++();
+      ConstIterator operator++(int);
+
+      const Accessor& operator*() const;
+      const Accessor* operator->() const;
+
+      bool operator==(const ConstIterator& other) const;
+      bool operator!=(const ConstIterator& other) const;
+      bool operator<(const ConstIterator& other) const;
+
+    private:
+      Accessor accessor;
+    };
+
+  }
 
 
   /**
@@ -23,638 +137,130 @@ namespace Math
   {
   public:
     using value_type = double;
-    using SparsityPattern = std::vector<std::vector<size_t>>;
+    using iterator = SparseMatrixIterators::Iterator;
+    using const_iterator = SparseMatrixIterators::ConstIterator;
 
-  private:
-    size_t rows;  ///< The number of rows.
-    size_t cols;  ///< The number of columns.
-
-    /**
-     * Row-wise nonzero column indices.
-     */
-    std::vector<std::vector<size_t>> colnums;
-
-    /**
-     * Row-wise nonzero data entries.
-     */
-    std::vector<std::vector<value_type>> coeffs;
+    static const size_t invalid_entry = numbers::invalid_size_t;
 
   public:
 
-    //================================================== Constructors
+    //################################################## Constructors
 
     /** \name Constructors and Initializers */
     // @{
 
-    /**
-     * Default contructor.
-     */
+    /** Construct an empty sparse matrix. */
     SparseMatrix();
 
-    /**
-     * Construct a sparse matrix with \p n_rows and \p n_cols with
-     * \p default_row_length nonzero entries per row.
-     */
-    explicit
-    SparseMatrix(const size_t n_rows,
-                 const size_t n_cols,
-                 const size_t default_row_length);
+    /** Construct a square sparse matrix with dimension \p n. */
+    SparseMatrix(const size_t n);
 
-    /**
-     * Construct a square sparse matrix with dimension \p n with
-     * \p default_row_length nonzero entries per row.
-     */
-    explicit
-    SparseMatrix(const size_t n,
-                 const size_t default_row_length);
+    /** Construct a sparse matrix with \p n_rows and \p n_cols. */
+    SparseMatrix(const size_t n_rows, const size_t n_cols);
 
-    /**
-     * Construct a sparse matrix from a sparsity pattern. In this context, a
-     * sparsity pattern is defined by a list of lists. Each inner list stores
-     * the nonzero column indices for a given row.
-     */
-    SparseMatrix(SparsityPattern sparsity_pattern);
+    /** Reinitialize the sparse matrix with \p n_rows and \p n_cols. */
+    void reinit(const size_t n_rows, const size_t n_cols);
 
+    /** Copy the non-zero contents of a dense matrix. */
+    void copy_from(const Matrix& matrix);
 
-    /**
-     * Copy construction from a dense matrix.
-     */
-    SparseMatrix(const Matrix& other);
-
-    /**
-     * Assignment with a dense matrix.
-     */
-    SparseMatrix&
-    operator=(const Matrix& other);
-
-    /**
-     * Assignment with a scalar value. This routine sets all allocated data
-     * to the specified value.
-     */
-    SparseMatrix&
-    operator=(const value_type value);
+    /** Assign all entries in the sparse matrix to a scalar value. */
+    SparseMatrix& operator=(const value_type value);
 
     // @}
 
-    //================================================== Comparison
+    //################################################## Information
 
-    /** \name Comparison */
+    /** \name Information */
     // @{
 
-    /**
-     * Test the equality of two sparse matrices. Two sparse matrices are
-     * equal if all their elements are equal.
-     */
-    bool
-    operator==(const SparseMatrix& other) const;
+    size_t n_rows() const;
+    size_t n_cols() const;
+    size_t nnz() const;
+
+    size_t row_length(const size_t row) const;
+
+    size_t column(const size_t row, const size_t index) const;
 
     /**
-     * Test the inequality of two sparse matrices. Two sparse matrices are not
-     * equal if any of their elements are not equal.
+     * Return the relative index within the \p row of the specified \p col.
+     * If the column does not exist, then the invalid entry value is returned.
      */
-    bool
-    operator!=(const SparseMatrix& other) const;
+    size_t index(const size_t row, const size_t col) const;
+
+    bool empty() const;
+    bool exists(const size_t row, const size_t col) const;
+
+    bool operator==(const SparseMatrix& other) const;
+    bool operator!=(const SparseMatrix& other) const;
 
     // @}
 
-    //================================================== Characteristics
-
-    /** \name Characteristics */
-    // @{
-
-    /**
-     * Return the number of rows.
-     */
-    size_t
-    n_rows() const;
-
-    /**
-     * Return the number of columns.
-     */
-    size_t
-    n_cols() const;
-
-    /**
-     * Return the number of non-zero entries.
-     */
-    size_t
-    nnz() const;
-
-    /**
-     * Return the length of row \p i.
-     */
-    size_t
-    row_length(const size_t i) const;
-
-    /**
-     * Return whether the sparse matrix is empty.
-     */
-    bool
-    empty() const;
-
-    // @}
-
-    //================================================== Iterators
+    //################################################## Iterators
 
     /** \name Iterators */
     // @{
 
-    /**
-     * A struct defining a mutable entry in the sparse matrix. This acts as a
-     * triplet containing a row, column, and value.
-     */
-    struct entry
-    {
-      const size_t& row, column;
-      value_type& value;
+    iterator begin();
+    iterator end();
 
-      /**
-       * Default constructor.
-       */
-      entry(const size_t& i,
-            const size_t& j,
-            value_type& val);
+    iterator begin(const size_t row);
+    iterator end(const size_t row);
 
-      /**
-       * Return the entry as a string.
-       */
-      std::string
-      str() const;
-    };
+    const_iterator begin() const;
+    const_iterator end() const;
 
-
-    /**
-     * A struct defining a constant entry in the sparse matrix.
-     *
-     * \see SparseMatrix::entry
-     */
-    struct const_entry
-    {
-      const size_t& row, column;
-      const value_type& value;
-
-      /**
-       * Default constructor.
-       */
-      const_entry(const size_t& i, const size_t& j, const value_type& val);
-
-      /**
-       * Return the constant entry as a string.
-       */
-      std::string
-      str() const;
-    };
-
-
-    /**
-     * A custom mutable iterator over the sparse matrix entries. This iterator
-     * essentially marches through each entry by storing iterators to the column
-     * indices and values. Each increment advances each iterator and when the
-     * end of a row is encountered, the pointers are reset to the start of the
-     * subsequent row. When the end of the matrix is reached, an invalid iterator
-     * with empty column and data iterators is returned.
-     */
-    class iterator
-    {
-    private:
-      using ConstColumnIterator = std::vector<size_t>::const_iterator;
-      using CoeffIterator = std::vector<value_type>::iterator;
-
-    private:
-      SparseMatrix* sparse_matrix_ptr;
-      size_t current_row;
-      ConstColumnIterator col_ptr;
-      CoeffIterator val_ptr;
-
-      /**
-       * A convenience function to advance the iterator one element forward.
-       */
-      void
-      advance();
-
-    public:
-      /**
-       * Default constructor. This will point to the first column index and
-       * value of the specified \p row.
-       */
-      iterator(SparseMatrix* sparse_matrix, const size_t row);
-
-      /**
-       * Construct an invalid iterator used to designate the end of the
-       * sparse matrix.
-       */
-      iterator(SparseMatrix* sparse_matrix);
-
-      /**
-       * Prefix increment operator.
-       */
-      iterator&
-      operator++();
-
-      /**
-       * Postfix increment operator.
-       */
-      iterator
-      operator++(int);
-
-      /**
-       * Dereference operator. Return an entry object corresponding to the
-       * current element the iterator describes.
-       */
-      entry
-      operator*();
-
-      /**
-       * Test the equality of two iterators.
-       */
-      bool
-      operator==(const iterator& other) const;
-
-      /**
-       * Test the inequality of two iterators.
-       */
-      bool
-      operator!=(const iterator& other) const;
-    };
-
-
-    /**
-     * A constant iterator over the elements of the sparse matrix.
-     *
-     * \see SparseMatrix::iterator
-     */
-    class const_iterator
-    {
-    private:
-      using ConstColumnIterator = std::vector<size_t>::const_iterator;
-      using ConstCoeffIterator = std::vector<value_type>::const_iterator;
-
-    private:
-      const SparseMatrix* sparse_matrix_ptr;
-      size_t current_row;
-      ConstColumnIterator col_ptr;
-      ConstCoeffIterator val_ptr;
-
-      /**
-       * A convenience function to advance the iterator one element forward.
-       */
-      void
-      advance();
-
-    public:
-      /**
-       * Default constructor. This will point to the first column index and
-       * value of the specified \p row.
-       */
-      const_iterator(const SparseMatrix* sparse_matrix, const size_t row);
-
-      /**
-       * Construct an invalid iterator used to designate the end of the
-       * sparse matrix.
-       */
-      const_iterator(const SparseMatrix* sparse_matrix);
-
-      /**
-       * Prefix increment operator.
-       */
-      const_iterator&
-      operator++();
-
-      /**
-       * Postfix increment operator.
-       */
-      const_iterator
-      operator++(int);
-
-      /**
-       * Dereference operator. Return a constant entry object corresponding to
-       * the current element the iterator describes.
-       */
-      const_entry operator*();
-
-      /**
-       * Test the equality of two iterators.
-       */
-      bool
-      operator==(const const_iterator& other) const;
-
-      /**
-       * Test the inequality of two iterators.
-       */
-      bool
-      operator!=(const const_iterator& other) const;
-    };
-
-
-    /**
-     * Accessor for a row of the sparse matrix. This class implements an
-     * iterator which can be used to go through a single row of the sparse
-     * matrix.
-     */
-    class row_accessor
-    {
-    private:
-      const size_t row_num;
-      const std::vector<size_t>& colnums;
-      std::vector<value_type>& coeffs;
-
-    public:
-      /**
-       * Default constructor.
-       */
-      row_accessor(SparseMatrix& sparse_matrix, const size_t i);
-
-      /**
-       * An iterator over the elements of a row.
-       */
-      class iterator
-      {
-      private:
-        const size_t current_row;
-        std::vector<size_t>::const_iterator col_ptr;
-        std::vector<value_type>::iterator val_ptr;
-
-      public:
-        /**
-         * Default constructor.
-         */
-        iterator(row_accessor& accessor, const size_t elem);
-
-        /**
-         * Prefix increment operator.
-         */
-        iterator&
-        operator++();
-
-        /**
-         * Postfix increment operator.
-         */
-        iterator
-        operator++(int);
-
-        /**
-         * Dereference operator. Return an entry object describing the element
-         * the iterator is pointing to.
-         */
-        entry
-        operator*();
-
-        /**
-         * Test the equality of two iterators.
-         */
-        bool
-        operator==(const iterator& other) const;
-
-        /**
-         * Test the inequality of two iterators.
-         */
-        bool
-        operator!=(const iterator& other) const;
-      };
-
-      /**
-       * Return an iterator to the start of the row.
-       */
-      iterator
-      begin();
-
-      /**
-       * Return an iterator to the end of the row.
-       */
-      iterator
-      end();
-    };
-
-
-    /**
-     * Constant accessor for a row of the sparse matrix. This class implements
-     * an iterator which can be used to go through a single row of the sparse
-     * matrix.
-     */
-    class const_row_accessor
-    {
-    private:
-      const size_t row_num;
-      const std::vector<size_t>& colnums;
-      const std::vector<value_type>& coeffs;
-
-    public:
-      /**
-       * Default constructor.
-       */
-      const_row_accessor(const SparseMatrix& sparse_matrix, const size_t i);
-
-      /**
-       * An constant iterator over the elements of a row.
-       */
-      class const_iterator
-      {
-      private:
-        const size_t current_row;
-        std::vector<size_t>::const_iterator col_ptr;
-        std::vector<value_type>::const_iterator val_ptr;
-
-      public:
-        /**
-         * Default constructor.
-         */
-        const_iterator(const const_row_accessor& accessor, const size_t elem);
-
-        /**
-         * Prefix increment operator.
-         */
-        const_iterator&
-        operator++();
-
-        /**
-         * Postfix increment operator.
-         */
-        const_iterator
-        operator++(int);
-
-        /**
-         * Dereference operator. Return a constant entry object describing the
-         * element the iterator is pointing to.
-         */
-        const_entry
-        operator*();
-
-        /**
-         * Test the equality of two iterators.
-         */
-        bool
-        operator==(const const_iterator& other) const;
-
-        /**
-         * Test the inequality of two iterators.
-         */
-        bool
-        operator!=(const const_iterator& other) const;
-      };
-
-      /**
-       * Return a constant iterator to the start of the row.
-       */
-      const_iterator
-      begin() const;
-
-      /**
-       * Return a constant iterator to the end of the row.
-       */
-      const_iterator
-      end() const;
-    };
+    const_iterator begin(const size_t row) const;
+    const_iterator end(const size_t row) const;
 
     // @}
 
-    //================================================== Accessors
+    //################################################## Accessors
 
     /** \name Accessors */
     // @{
 
     /**
-     * Return the column index located at relative position \p jr of row \p i.
+     * Return a reference to the value of the sparse matrix at row \p i and
+     * column \p j. If the entry does not exist, an error is thrown. When
+     * potential uninitialized elements may be encountered, the \ref el method should
+     * be used.
      */
-    const size_t&
-    column(const size_t i, const size_t jr) const;
-
+    value_type& operator()(const size_t i, const size_t j);
 
     /**
-     * Read and write access to the element located at relative position \p jr
-     * of row \p i.
+     * Return a const reference to the value of the sparse matrix at row \p i
+     * and column \p j. If the entry does not exist, an error is thrown. When
+     * potential uninitialized elements may be encountered, the \ref el method
+     * should be used.
      */
-    value_type&
-    value(const size_t i, const size_t jr);
+    const value_type& operator()(const size_t i, const size_t j) const;
 
     /**
-     * Read access to the element located at relative position \p jr of row \p i.
+     * Return the value of the sparse matrix at row \p i and column \p j. If
+     * the entry is uninitialized, zero is returned.
      */
-    const value_type&
-    value(const size_t i, const size_t jr) const;
+    value_type el(const size_t i, const size_t j);
 
     /**
-     * Return a pointer to element <tt>(i, j)</tt>. If no element exists,
-     * \p nullptr is returned.
+     * Return a reference to the <tt>i</tt>'th diagonal entry of the sparse
+     * matrix. If the entry does not exist, an error is thrown. The \ref
+     * diag_el method should be used if the diagonal may be zero.
      */
-    value_type*
-    locate(const size_t i, const size_t j);
+    value_type& diag(const size_t i);
 
     /**
-     * Return a constant pointer to element <tt>(i, j)</tt>. If no element
-     * exists, \p nullptr is returned.
+     * Return a const reference to the <tt>i</tt>'th diagonal entry of the
+     * sparse matrix. If the entry does not exist, an error is thrown. The \ref
+     * diag_el method should be used if the diagonal may be zero.
      */
-    const value_type*
-    locate(const size_t i, const size_t j) const;
-
-
-    /**
-     * Read and write access to element <tt>(i, j)</tt>.
-     * \throw If column \p j does not exist on row \p i.
-     */
-    value_type&
-    operator()(const size_t i, const size_t j);
+    const value_type& diag(const size_t i) const;
 
     /**
-     * Read access to element <tt>(i, j)</tt>.
-     * \throw If column \p j does not exist on row \p i.
+     * Return the value of the <tt>i</tt>'th diagonal entry of the sparse
+     * matrix. If the entry does not exist, zero is returned.
      */
-    const value_type&
-    operator()(const size_t i, const size_t j) const;
-
-    /**
-     * Return a pointer to the diagonal element of row \p i. If no diagonal
-     * element exists, \p nullptr is returned.
-     */
-    value_type*
-    diagonal(const size_t i);
-
-    /**
-     * Return a constant pointer to the diagonal element of row \p i. If no
-     * diagonal element exists, \p nullptr is returned.
-     */
-    const value_type*
-    diagonal(const size_t i) const;
-
-    /**
-     * Return a vector of pointers to the diagonal elements of the sparse matrix.
-     * If any particular diagonal is not present, its value is \p nullptr.
-     */
-    std::vector<value_type*>
-    diagonal();
-
-    /**
-     * Return a vector of constant pointers to the diagonal elements of the
-     * sparse matrix. If any particular diagonal is not present, its value is
-     * \p nullptr.
-     */
-    std::vector<const value_type*>
-    diagonal() const;
-
-    /**
-     * Return an iterator to the first row of the sparse matrix.
-     */
-    iterator
-    begin();
-
-    /**
-     * Return an iterator to the end of the sparse matrix.
-     */
-    iterator
-    end();
-
-    /**
-     * Return an iterator to the start of row \p i.
-     */
-    iterator
-    begin(const size_t i);
-
-    /**
-     * Return an iterator to the end of row \p i.
-     */
-    iterator
-    end(const size_t i);
-
-    /**
-     * A convenience function which allows for range-based iteration
-     * over the specified row \p i.
-     *
-     * \see SparseMatrix::const_row_iterator
-     */
-    row_accessor
-    row(const size_t i);
-
-    /**
-     * Return a constant iterator to the start of the sparse matrix.
-     */
-    const_iterator
-    begin() const;
-
-    /**
-     * Return a constant iterator to the end of the sparse matrix.
-     */
-    const_iterator
-    end() const;
-
-    /**
-     * Return a constant iterator to the start of row \p i.
-     */
-    const_iterator
-    begin(const size_t i) const;
-
-    /**
-     * Return a constant iterator to the end of row \p i.
-     */
-    const_iterator
-    end(const size_t i) const;
-
-    /**
-     * A convenience function which allows for constant range-based iteration
-     * over the specified row \p i.
-     *
-     * \see SparseMatrix::row_iterator
-     */
-    const_row_accessor
-    const_row(const size_t i) const;
+    value_type diag_el(const size_t i) const;
 
     // @}
 
@@ -663,59 +269,27 @@ namespace Math
     /** \name Modifiers */
     // @{
 
-    /**
-     * Return the sparse matrix to an uninitialized state.
-     */
-    void
-    clear();
+    void clear();
 
     /**
-     * Reinitialize the sparse matrix with \p n_rows and \p n_cols with
-     * \p default_row_length nonzero entries per row.
+     * Set element <tt>(row, col)</tt> to \p value. If the element is
+     * initialized, override the value. If it is not, initialize it.
      */
-    void
-    reinit(const size_t n_rows,
-           const size_t n_cols,
-           const size_t default_row_length);
+    void set(const size_t     row,
+             const size_t     col,
+             const value_type value);
 
     /**
-     * Reinitialize the sparse matrix with dimension \p n with
-     * \p default_row_length nonzero entries per row.
+     * Add \p value to element <tt>(row, col)</tt>. If the element is not
+     * initialized, then set it, otherwise perform an add operation.
      */
-    void
-    reinit(const size_t n, const size_t default_row_length);
+    void add(const size_t     row,
+             const size_t     col,
+             const value_type value);
 
-    /**
-     * Set element <tt>(i, j)</tt> to \p value. If the element is initialized,
-     * override the value. If it is not, initialize it.
-     */
-    void
-    set(const size_t i, const size_t j, const value_type value);
 
-    /**
-     * Add \p value to element <tt>(i, j)</tt>. If the element is not initialized,
-     * the <code> set(const size_t i, const size_t j) </code> is called.
-     */
-    void
-    add(const size_t i, const size_t j, const value_type value);
-
-    /**
-     * Swap the elements of two rows.
-     */
-    void
-    swap_row(const size_t i, const size_t k);
-
-    /**
-     * Swap the elements of this sparse matrix with another.
-     */
-    void
-    swap(SparseMatrix& other);
-
-    /**
-     * Eliminate zeros from the sparse matrix.
-     */
-    void
-    eliminate_zeros();
+    void swap_row(const size_t i, const size_t k);
+    void swap(SparseMatrix& other);
 
     // @}
 
@@ -724,165 +298,103 @@ namespace Math
     /** \name Linear Algebra */
     // @{
 
-    /**
-     * Scale the elements by a scalar value. This is computed via \f$
-     * \boldsymbol{A} = \alpha \boldymbol{A} = \alpha a_{ij}, ~ \forall i, j \f$.
-     */
-    SparseMatrix&
-    scale(const value_type factor);
+    /** Multiply the entries of the matrix by a scalar \p factor. */
+    SparseMatrix& scale(const value_type factor);
 
     /**
-     * Add a multiple of another sparse matrix. This is computed via
-     * \f$ \boldsymbol{A} = \boldsymbol{A} + \alpha \boldsymbol{B} =
-     * a_{ij} + \alpha b_{ij}, ~ \forall i,j \f$.
+     * Add another sparse matrix scaled by a scalar \p factor.
      *
-     * \note This is only allowed for sparse matrices with the same sparsity
-     *       pattern.
+     * \note To avoid expensive modifications to underlying structrue, the
+     *       matrices must have the same sparsity pattern.
      */
-    SparseMatrix&
-    add(const SparseMatrix& B, const value_type a = 1.0);
+    SparseMatrix& add(const SparseMatrix& B,
+                      const value_type    factor = 1.0);
 
     /**
-     * Scale this sparse matrix and add another. This is computed via \f$
-     * \boldsymbol{A} = \alpha \boldsymbol{A} + \boldymbol{B} = \alpha a_{ij}
-     * + b_{ij}, ~ \forall i, j \f$.
+     * Scale this sparse matrix by the scalar value \p a and add another
+     * sparse matrix.
      *
-     * \note This is only allowed for sparse matrices with the same sparsity
-     *       pattern.
+     * \note To avoid expensive modifications to underlying structrue, the
+     *       matrices must have the same sparsity pattern.
      */
-    SparseMatrix&
-    sadd(const value_type a, const SparseMatrix& B);
+    SparseMatrix& sadd(const value_type a, const SparseMatrix& B);
 
     /**
-    * Scale this sparse matrix and add a multiple of another. This is computed
-     * via \f$ \boldsymbol{A} = \alpha \boldsymbol{A} + \boldymbol{B} = \alpha
-     * a_{ij} + \beta b_{ij}, ~ \forall i, j \f$.
-    *
-    * \note This is only allowed for sparse matrices with the same sparsity
-    *       pattern.
-    */
-    SparseMatrix&
-    sadd(const value_type a, const value_type b, const SparseMatrix& B);
-
-    /**
-     * Compute a matrix-vector product. This is computed via \f$ \vec{y} =
-     * \boldsymbol{A} \vec{x} = \sum_{j=1}^{n} a_{ij} x_j, ~ \forall i \f$. If
-     * the \p adding flag is set to \p true, the matrix-vector product is added
-     * to the existing data within the destination vector \f$ \vec{y} \f$.
-     */
-    void
-    vmult(const Vector& x, Vector& y,
-          const bool adding = false) const;
-
-    /**
-     * Compute a transpose matrix-vector product. This is computed via \f$
-     * \vec{y} = \boldsymbol{A}^T \vec{x} = \sum_{i=1}^{n} a_{ji} x_i, ~ \forall i
-     * \f$. If the \p adding flag is set to \p true, the matrix-vector product is
-     * added to the existing data within the destination vector \f$ \vec{y} \f$.
-     */
-    void
-    Tvmult(const Vector& x, Vector& y,
-           const bool adding = false) const;
-
-    /**
-     * Return a matrix-vector product.
+     * Scale this sparse matrix by the scalar value \p a and add another
+     * sparse matrix scaled by the scalar value \p b.
      *
-     * \see SparseMatrix::vmult
+     * \note To avoid expensive modifications to underlying structrue, the
+     *       matrices must have the same sparsity pattern.
      */
-    Vector
-    vmult(const Vector& x) const;
+    SparseMatrix& sadd(const value_type    a,
+                       const value_type    b,
+                       const SparseMatrix& B);
 
     /**
-     * Return a transpose matrix-vector product.
-     *
-     * \see SparseMatrix::Tvmult
+     * Compute a matrix-vector product. If the \p adding flag is set to \p true,
+     * the matrix-vector product is added to the existing data within the
+     * destination vector \f$ \vec{y} \f$.
      */
-    Vector
-    Tvmult(const Vector& x) const;
+    void vmult(const Vector& x,
+               Vector&       y,
+               const bool    adding = false) const;
 
     /**
-     * Compute a matrix-vector product and add to the destination vector \f$
-     * \vec{y} \f$.
-     *
-     * \see SparseMatrix::vmult
+     * Compute a transpose matrix-vector product. If the \p adding flag is set
+     * to \p true, the matrix-vector product is added to the existing data
+     * within the destination vector \f$ \vec{y} \f$.
      */
-    void
-    vmult_add(const Vector& x, Vector& y) const;
+    void Tvmult(const Vector& x,
+                Vector&       y,
+                const bool    adding = false) const;
+
+
+    /** Return the result of a matrix-vector product. */
+    Vector vmult(const Vector& x) const;
+
+    /** Return the result of a transpose matrix-vector product. */
+    Vector Tvmult(const Vector& x) const;
 
     /**
-     * Compute a transpose matrix-vector product and to the destination vector
-     * \f$ \vec{y} \f$.
-     *
-     * \see SparseMatrix::Tvmult
+     * Add the result of a matrix-vector product to the destination vector
+     * \f$ \vec{y} \f$ such that \f$ \vec{y} += \boldsymbol{A} \vec{x} \f$.
      */
-    void
-    Tvmult_add(const Vector& x, Vector& y) const;
+    void vmult_add(const Vector& x, Vector& y) const;
 
     /**
-     * Negate the elements. This is computed via  \f$ \boldsymbol{A} =
-     * -\boldsymbol{A} = -a_{ij}, ~ \forall i, j \f$.
-     *
-     * \see SparseMatrix::scale
+     * Add the result of a transpose matrix-vector product to the destination
+     * vector \f$ \vec{y} \f$ such that \f$ \vec{y} += \boldsymbol{A}^T \vec{x}
+     * \f$.
      */
-    SparseMatrix&
-    operator-();
+    void Tvmult_add(const Vector& x, Vector& y) const;
 
-    /**
-     * Return a sparse matrix with the negated elements.
-     *
-     * \see SparseMatrix::operator-() SparseMatrix::scale
-     */
-    SparseMatrix
-    operator-() const;
+    /** Negate the entries of the sparse matrix. */
+    SparseMatrix& operator-();
 
-    /**
-     * Multiply the elements of the sparse matrix by a scalar factor. This is
-     * computed via \f$ \boldsymbol{A} = \alpha \boldsymbol{A} = \alpha a_{ij},
-     * ~ \forall i, j \f$.
-     *
-     * \see SparseMatrix::scale
-     */
-    SparseMatrix&
-    operator*=(const value_type factor);
+    /** Multiply the entries of the sparse matrix by a scalar \p factor. */
+    SparseMatrix& operator*=(const value_type factor);
 
-    /**
-     * Divide the all of the elements by a scalar factor. This is
-     * computed via \f$ \boldsymbol{A} = \frac{1}{\alpha} \boldsymbol{A} =
-     * \frac{\alpha}{a_{ij}}, ~ \forall i, j \f$.
-     *
-     * \see SparseMatrix::scale
-     */
-    SparseMatrix&
-    operator/=(const value_type factor);
+    /** Divide the entries of the sparse matrix by a scalar \p factor. */
+    SparseMatrix& operator/=(const value_type factor);
 
     /**
      * Add another sparse matrix.
      *
-     * \note This is only allowed for sparse matrices with the same sparsity
-     *       pattern.
-     *
-     * \see SparseMatrix::add(const SparseMatrix& const value_type)
+     * \note To avoid expensive modifications to underlying structrue, the
+     *       matrices must have the same sparsity pattern.
      */
-    SparseMatrix&
-    operator+=(const SparseMatrix& B);
+    SparseMatrix& operator+=(const SparseMatrix& B);
 
     /**
-     * Subtract another matrix. This is computed via \f$ \boldsymbol{A} =
-     * \boldsymbol{A} - \boldsymbol{B} = a_{ij} - b_{ij}, ~ \forall i, j \f$.
+     * Subtract another sparse matrix.
      *
-     * \note This is only allowed for sparse matrices with the same sparsity
-     *       pattern.
+     * \note To avoid expensive modifications to underlying structrue, the
+     *       matrices must have the same sparsity pattern.
      */
-    SparseMatrix&
-    operator-=(const SparseMatrix& B);
+    SparseMatrix& operator-=(const SparseMatrix& B);
 
-    /**
-     * Compute a matrix-vector product.
-     *
-     * \see SparseMatrix::vmult
-     */
-    Vector
-    operator*(const Vector& x) const;
+    /** Compute a matrix-vector product. */
+    Vector operator*(const Vector& x) const;
 
     // @}
 
@@ -898,10 +410,9 @@ namespace Math
      * \param scientific A flag for scientific notation.
      * \param precision The precision to display to sparse matrix elements.
      */
-    void
-    print(std::ostream& os = std::cout,
-          const bool scientific = false,
-          const unsigned int precision = 3) const;
+    void print(std::ostream& os = std::cout,
+               const bool scientific = false,
+               const unsigned int precision = 3) const;
 
     /**
      * Print the matrix as if it were dense, filling in zero values.
@@ -911,101 +422,40 @@ namespace Math
      * \param precision The precision to display to sparse matrix elements.
      * \param width The spacing between entries.
      */
-    void
-    print_formatted(std::ostream& os = std::cout,
-                    const bool scientific = false,
-                    const unsigned int precision = 3,
-                    const unsigned int width = 0) const;
+    void print_formatted(std::ostream& os = std::cout,
+                         const bool scientific = false,
+                         const unsigned int precision = 3,
+                         const unsigned int width = 0) const;
 
     /**
      * Return the sparse matrix as a string.
+     *
      * \param scientific A flag for scientific notation.
      * \param precision The precision to display to sparse matrix elements.
      * \param width The spacing between entries.
      */
-    std::string
-    str(const bool scientific = false,
-        const unsigned int precision = 3,
-        const unsigned int width = 0) const;
+    std::string str(const bool scientific = false,
+                    const unsigned int precision = 3,
+                    const unsigned int width = 0) const;
+
+    friend std::ostream&
+    operator<<(std::ostream& os, const SparseMatrix& A);
 
     // @}
+
+  private:
+    bool   has_entries;
+
+    size_t rows;
+    size_t cols;
+
+    std::vector<std::vector<size_t>> colnums;
+    std::vector<std::vector<value_type>> vals;
+
+    friend class SparseMatrixIterators::Iterator;
+    friend class SparseMatrixIterators::ConstIterator;
   };
 
-  //================================================== Methods
-
-  /**
-   * Multiply a sparse matrix by a scalar factor.
-   *
-   * \see SparseMatrix::scale SparseMatrix::operator*=
-   */
-  SparseMatrix
-  operator*(const double factor, const SparseMatrix& A);
-
-  /**
-   * Multiply a sparse matrix by a scalar factor.
-   *
-   * \see SparseMatrix::scale SparseMatrix::operator*=
-   */
-  SparseMatrix
-  operator*(const SparseMatrix& A, const double factor);
-
-  /**
-   * Divide a sparse matrix by a scalar factor.
-   *
-   * \see SparseMatrix::scale SparseMatrix::operator/=
-   */
-  SparseMatrix
-  operator/(const SparseMatrix& A, const double factor);
-
-  /**
-   * Add two sparse matrices together.
-   *
-   * \see SparseMatrix::operator+=
-   *      SparseMatrix::add(const SparseMatrix&, const double)
-   */
-  SparseMatrix
-  operator+(const SparseMatrix& A, const SparseMatrix& B);
-
-  /**
-   * Subtract two sparse matrices.
-   *
-   * \see SparseMatrix::operator-=
-   *      SparseMatrix::add(const SparseMatrix&, const double)
-   */
-  SparseMatrix
-  operator-(const SparseMatrix& A, const SparseMatrix& B);
-
-  /**
-   * Compute a matrix-vector product.
-   *
-   * \see SparseMatrix::vmult
-   */
-  void
-  vmult(const SparseMatrix& A, const Vector& x, Vector& y);
-
-  /**
-   * Compute a transpose matrix-vector product.
-   *
-   * \see SparseMatrix::Tvmult
-   */
-  void
-  Tvmult(const SparseMatrix& A, const Vector& x, Vector& y);
-
-  /**
-   * Return a matrix-vector product.
-   *
-   * \see SparseMatrix::vmult
-   */
-  Vector
-  vmult(const SparseMatrix& A, const Vector& x);
-
-  /**
-   * Return a transpose matrix-vector product.
-   *
-   * \see SparseMatrix::Tvmult
-   */
-  Vector
-  Tvmult(const SparseMatrix& A, const Vector& x);
 
   /**
    * Insert a sparse matrix into an output stream
