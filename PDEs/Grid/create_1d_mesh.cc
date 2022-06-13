@@ -42,20 +42,17 @@ Grid::create_1d_mesh(const std::vector<double> vertices,
   switch (coordinate_system)
   {
     case CoordinateSystem::CARTESIAN:
-    {
       cell_type = CellType::SLAB;
       break;
-    }
+
     case CoordinateSystem::CYLINDRICAL:
-    {
       cell_type = CellType::ANNULUS;
       break;
-    }
+
     case CoordinateSystem::SPHERICAL:
-    {
       cell_type = CellType::SHELL;
       break;
-    }
+
   }
 
   // Create the cells
@@ -154,20 +151,17 @@ Grid::create_1d_mesh(const std::vector<double> zone_edges,
   switch (coordinate_system)
   {
     case CoordinateSystem::CARTESIAN:
-    {
       cell_type = CellType::SLAB;
       break;
-    }
+
     case CoordinateSystem::CYLINDRICAL:
-    {
       cell_type = CellType::ANNULUS;
       break;
-    }
+
     case CoordinateSystem::SPHERICAL:
-    {
       cell_type = CellType::SHELL;
       break;
-    }
+
   }
 
   // Create the cells, loop over zones, then cells per zone

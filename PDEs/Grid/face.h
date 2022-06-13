@@ -27,17 +27,16 @@ namespace Grid
   public:
     std::vector<size_t> vertex_ids;
 
-    bool has_neighbor = false;
-
     /**
      * If an interior face, this stores the global ID of the neighboring cell.
      * If a boundary face, this stores the boundary ID.
      */
-    size_t neighbor_id = 0;
+    size_t  neighbor_id = 0;
+    bool    has_neighbor = false;
 
-    Normal normal;
-    Centroid centroid;
-    double area = 0.0;
+    Normal    normal;
+    Centroid  centroid;
+    double    area = 0.0;
 
     /** Return the face as a string. */
     std::string str() const;
@@ -46,6 +45,5 @@ namespace Grid
 
   /** Insert a face into an output stream. */
   std::ostream& operator<<(std::ostream&, const Face& face);
-
 }
 #endif //FACE_H

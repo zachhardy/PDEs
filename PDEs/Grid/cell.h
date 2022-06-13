@@ -12,9 +12,9 @@ namespace Grid
 {
   enum class CellType
   {
-    SLAB = 0,  ///< 1D Cartesian geometry.
+    SLAB    = 0,  ///< 1D Cartesian geometry.
     ANNULUS = 1,  ///< 1D cylindrical geometry.
-    SHELL = 2   ///< 1D spherical geometry.
+    SHELL   = 2   ///< 1D spherical geometry.
   };
 
 
@@ -50,14 +50,15 @@ namespace Grid
   {
   public:
     const CellType type;
-    size_t id;
-    int material_id = -1;
 
-    Centroid centroid;
-    double volume = 0.0;
+    size_t  id;
+    int     material_id = -1;
+
+    Centroid  centroid;
+    double    volume = 0.0;
 
     std::vector<size_t> vertex_ids;
-    std::vector<Face> faces;
+    std::vector<Face>   faces;
 
   public:
     /** Construct an empty cell of the specified type. */
@@ -69,8 +70,6 @@ namespace Grid
 
 
   /** Insert a cell into an output stream. */
-  std::ostream&
-  operator<<(std::ostream& os, const Cell& cell);
-
+  std::ostream& operator<<(std::ostream& os, const Cell& cell);
 }
 #endif //CELL_H

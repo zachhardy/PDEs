@@ -8,8 +8,6 @@
 namespace Grid
 {
 
-  using CoordSys = CoordinateSystem;
-
   /**
    * Create a 1D mesh from a list of vertices.
    *
@@ -19,7 +17,8 @@ namespace Grid
    */
   std::shared_ptr<Mesh>
   create_1d_mesh(const std::vector<double> vertices,
-                 const CoordSys coordinate_system = CoordSys::CARTESIAN,
+                 const CoordinateSystem coordinate_system =
+                   CoordinateSystem::CARTESIAN,
                  const bool verbose = false);
 
 
@@ -40,7 +39,8 @@ namespace Grid
   create_1d_mesh(const std::vector<double> zone_edges,
                  const std::vector<size_t> zone_subdivisions,
                  const std::vector<int> material_ids,
-                 const CoordSys coordinate_system = CoordSys::CARTESIAN,
+                 const CoordinateSystem coordinate_system =
+                   CoordinateSystem::CARTESIAN,
                  const bool verbose = false);
 
 }

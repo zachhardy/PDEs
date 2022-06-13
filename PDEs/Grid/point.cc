@@ -105,7 +105,7 @@ Point::operator()(const size_t i) const
 { return (*this)[i]; }
 
 
-//################################################## Characteristics
+//################################################## Information
 
 
 double

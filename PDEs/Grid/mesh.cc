@@ -132,20 +132,16 @@ Mesh::compute_geometric_info()
       switch (cell_type)
       {
         case CellType::SLAB:
-        {
           cell.volume = v1 - v0;
           break;
-        }
+
         case CellType::ANNULUS:
-        {
-          cell.volume = M_PI * (v1 * v1 - v0 * v0);
+          cell.volume = M_PI*(v1*v1 - v0*v0);
           break;
-        }
+
         case CellType::SHELL:
-        {
-          cell.volume = 4.0 / 3.0 * M_PI * (v1 * v1 * v1 - v0 * v0 * v0);
+          cell.volume = 4.0/3.0 * M_PI*(v1*v1*v1 - v0*v0*v0);
           break;
-        }
       }
     }//if 1D
 
@@ -166,20 +162,16 @@ Mesh::compute_geometric_info()
         switch (coord_sys)
         {
           case CoordinateSystem::CARTESIAN:
-          {
             face.area = 1.0;
             break;
-          }
+
           case CoordinateSystem::CYLINDRICAL:
-          {
             face.area = 2.0 * M_PI * v;
             break;
-          }
+
           case CoordinateSystem::SPHERICAL:
-          {
             face.area = 4.0 * M_PI * v * v;
             break;
-          }
         }
       }// if 1D
     }//for faces

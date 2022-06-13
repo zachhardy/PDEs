@@ -36,11 +36,11 @@ namespace Grid
   class Mesh
   {
   public:
-    const size_t dim;
+    const size_t           dim;
     const CoordinateSystem coord_sys;
 
     std::vector<Vertex> vertices;
-    std::vector<Cell> cells;
+    std::vector<Cell>   cells;
 
     std::vector<size_t> boundary_cell_ids;
 
