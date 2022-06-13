@@ -123,7 +123,7 @@ Matrix::n_cols() const
 
 size_t
 Matrix::size() const
-{ return n_rows() * n_cols(); }
+{ return n_rows()*n_cols(); }
 
 
 size_t
@@ -407,7 +407,7 @@ Matrix::add(const Matrix& B, const double a)
     const double* b_ij = B.data(i);
 
     for (size_t j = 0; j < n_cols(); ++j, ++a_ij, ++b_ij)
-      *a_ij += a * *b_ij;
+      *a_ij += a**b_ij;
   }
   return *this;
 }
@@ -424,7 +424,7 @@ Matrix::Tadd(const Matrix& B, const double a)
   {
     double* a_ij = data(i);
     for (size_t j = 0; j < n_cols(); ++j, ++a_ij)
-      *a_ij += a * B(j, i);
+      *a_ij += a*B(j, i);
   }
   return *this;
 }
@@ -443,7 +443,7 @@ Matrix::sadd(const double a, const Matrix& B)
     const double* b_ij = B.data(i);
 
     for (size_t j = 0; j < n_cols(); ++j, ++a_ij, ++b_ij)
-      *a_ij = a * *a_ij + *b_ij;
+      *a_ij = a**a_ij + *b_ij;
   }
   return *this;
 }
@@ -462,7 +462,7 @@ Matrix::sadd(const double a, const double b, const Matrix& B)
     const double* b_ij = B.data(i);
 
     for (size_t j = 0; j < n_cols(); ++j, ++a_ij, ++b_ij)
-      *a_ij = a * *a_ij + b * *b_ij;
+      *a_ij = a**a_ij + b**b_ij;
   }
   return *this;
 }
@@ -479,7 +479,7 @@ Matrix::sTadd(const double a, const Matrix& B)
   {
     double* a_ij = data(i);
     for (size_t j = 0; j < n_cols(); ++j, ++a_ij)
-      *a_ij = a * *a_ij * B(j, i);
+      *a_ij = a**a_ij*B(j, i);
   }
   return *this;
 }
@@ -496,7 +496,7 @@ Matrix::sTadd(const double a, const double b, const Matrix& B)
   {
     double* a_ij = data(i);
     for (size_t j = 0; j < n_cols(); ++j, ++a_ij)
-      *a_ij = a * *a_ij * b * B(j, i);
+      *a_ij = a**a_ij*b*B(j, i);
   }
   return *this;
 }
@@ -519,7 +519,7 @@ Matrix::mmult(const Matrix& B, Matrix& C,
     {
       double value = adding? *c_ij : 0.0;
       for (size_t k = 0; k < n_cols(); ++k)
-        value += a_i[k] * B(k, j);
+        value += a_i[k]*B(k, j);
       *c_ij = value;
     }
   }
@@ -542,7 +542,7 @@ Matrix::Tmmult(const Matrix& B, Matrix& C,
     {
       double value = adding? *c_ij : 0.0;
       for (size_t k = 0; k < n_rows(); ++k)
-        value += vals[k][i] * B(k, j);
+        value += vals[k][i]*B(k, j);
       *c_ij = value;
     }
   }
@@ -568,7 +568,7 @@ Matrix::mTmult(const Matrix& B, Matrix& C,
 
       double value = adding? *c_ij : 0.0;
       for (size_t k = 0; k < n_cols(); ++k, ++b_jk)
-        value += a_i[k] * *b_jk;
+        value += a_i[k]**b_jk;
       *c_ij = value;
     }
   }
@@ -593,7 +593,7 @@ Matrix::TTmult(const Matrix& B, Matrix& C,
 
       double value = adding? *c_ij : 0.0;
       for (size_t k = 0; k < n_rows(); ++k, ++b_jk)
-        value += vals[k][i] * *b_jk;
+        value += vals[k][i]**b_jk;
       *c_ij = value;
     }
   }
@@ -652,7 +652,7 @@ Matrix::vmult(const Vector& x, Vector& y,
 
     double v = adding? *y_i : 0.0;
     for (size_t j = 0; j < n_cols(); ++j, ++a_ij, ++x_j)
-      v += *a_ij * *x_j;
+      v += *a_ij**x_j;
     *y_i = v;
   }
 }
@@ -673,7 +673,7 @@ Matrix::Tvmult(const Vector& x, Vector& y,
     double* y_j = y.data();
 
     for (size_t j = 0; j < n_cols(); ++j, ++a_ij, ++y_j)
-      *y_j += *a_ij * x_i;
+      *y_j += *a_ij*x_i;
   }
 }
 
@@ -725,7 +725,7 @@ Matrix&
 Matrix::operator/=(const double factor)
 {
   Assert(factor != 0.0, "Zero division error!")
-  return scale(1.0 / factor);
+  return scale(1.0/factor);
 }
 
 

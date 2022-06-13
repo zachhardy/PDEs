@@ -22,7 +22,7 @@ fv_assemble_matrix(Groupset& groupset, AssemblerFlags assembler_flags)
   {
     const double volume = cell.volume;
     const auto& xs = material_xs[matid_to_xs_map[cell.material_id]];
-    const size_t i = cell.id * n_gsg;
+    const size_t i = cell.id*n_gsg;
 
     //============================== Loop over groups
     for (size_t gr = 0; gr < n_gsg; ++gr)
@@ -31,7 +31,7 @@ fv_assemble_matrix(Groupset& groupset, AssemblerFlags assembler_flags)
       const size_t g = groupset.groups[gr];
 
       //==================== Total interaction term
-      A.add(ig, ig, xs->sigma_t[g] * volume);
+      A.add(ig, ig, xs->sigma_t[g]*volume);
 
       if (assemble_scatter)
       {
@@ -42,7 +42,7 @@ fv_assemble_matrix(Groupset& groupset, AssemblerFlags assembler_flags)
         {
           const size_t igp = i + gpr;
           const size_t gp = groupset.groups[gpr];
-          A.add(ig, igp, -sig_s[gp] * volume);
+          A.add(ig, igp, -sig_s[gp]*volume);
         }
       }
 
@@ -60,7 +60,7 @@ fv_assemble_matrix(Groupset& groupset, AssemblerFlags assembler_flags)
           {
             const size_t igp = i + gpr;
             const size_t gp = groupset.groups[gpr];
-            A.add(ig, igp, -chi * nu_sigf[gp] * volume);
+            A.add(ig, igp, -chi*nu_sigf[gp]*volume);
           }
         }
 
@@ -78,10 +78,10 @@ fv_assemble_matrix(Groupset& groupset, AssemblerFlags assembler_flags)
             const size_t igp = i + gpr;
             const size_t gp = groupset.groups[gpr];
 
-            double f = chi_p * nup_sigf[gp];
+            double f = chi_p*nup_sigf[gp];
             for (size_t j = 0; j < xs->n_precursors; ++j)
-              f += chi_d[j] * gamma[j] * nud_sigf[gp];
-            A.add(ig, igp, -f * volume);
+              f += chi_d[j]*gamma[j]*nud_sigf[gp];
+            A.add(ig, igp, -f*volume);
           }
         }
       }//if fissile
@@ -98,12 +98,12 @@ fv_assemble_matrix(Groupset& groupset, AssemblerFlags assembler_flags)
         const int nbr_xs_id = matid_to_xs_map[nbr_cell.material_id];
         const auto& nbr_xs = material_xs[nbr_xs_id];
 
-        const size_t j = nbr_cell.id * n_gsg;
+        const size_t j = nbr_cell.id*n_gsg;
 
         // Geometric quantities
         const double d_pf = cell.centroid.distance(face.centroid);
         const double d_pn = cell.centroid.distance(nbr_cell.centroid);
-        const double w = d_pf / d_pn; // harmonic mean weighting factor
+        const double w = d_pf/d_pn; // harmonic mean weighting factor
 
         //==================== Diffusion term
         const double* D = &xs->diffusion_coeff[0];
@@ -115,8 +115,8 @@ fv_assemble_matrix(Groupset& groupset, AssemblerFlags assembler_flags)
           const size_t jg = j + gr;
           const size_t g = groupset.groups[gr];
 
-          const double D_eff = 1.0 / (w / D[g] + (1.0 - w) / D_nbr[g]);
-          const double value = D_eff / d_pn * face.area;
+          const double D_eff = 1.0/(w/D[g] + (1.0 - w)/D_nbr[g]);
+          const double value = D_eff/d_pn*face.area;
 
           A.add(ig, ig, value);
           A.add(ig, jg, -value);
@@ -140,7 +140,7 @@ fv_assemble_matrix(Groupset& groupset, AssemblerFlags assembler_flags)
           {
             const size_t ig = i + gr;
             const size_t g = groupset.groups[gr];
-            A.add(ig, ig, D[g] / d_pf * face.area);
+            A.add(ig, ig, D[g]/d_pf*face.area);
           }
         }
 
@@ -160,8 +160,8 @@ fv_assemble_matrix(Groupset& groupset, AssemblerFlags assembler_flags)
             const auto& bndry = boundaries[bndry_id][g];
             const auto bc = std::static_pointer_cast<RobinBoundary>(bndry);
 
-            double value = bc->a * D[g] / (bc->b * D[g] + bc->a * d_pf);
-            A.add(ig, ig, value * face.area);
+            double value = bc->a*D[g]/(bc->b*D[g] + bc->a*d_pf);
+            A.add(ig, ig, value*face.area);
           }
         }
       }//if boundary face

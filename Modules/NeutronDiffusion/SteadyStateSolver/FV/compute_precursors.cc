@@ -27,17 +27,17 @@ SteadyStateSolver::fv_compute_precursors()
     const double* lambda = xs->precursor_lambda.data();
     const double* gamma = xs->precursor_yield.data();
     const double* nud_sigf = xs->nu_delayed_sigma_f.data();
-    const double* x = &phi[cell.id * n_groups];
-    const size_t uk_map = cell.id * max_precursors;
+    const double* x = &phi[cell.id*n_groups];
+    const size_t uk_map = cell.id*max_precursors;
 
     for (size_t j = 0; j < xs->n_precursors; ++j)
     {
       double value = 0.0;
-      const double coeff = gamma[j] / lambda[j];
+      const double coeff = gamma[j]/lambda[j];
       for (size_t gr = 0; gr < n_groups; ++gr)
       {
         const size_t g = groups[gr];
-        value += coeff * nud_sigf[g] * x[g];
+        value += coeff*nud_sigf[g]*x[g];
       }
       precursors[uk_map + j] = value;
     }

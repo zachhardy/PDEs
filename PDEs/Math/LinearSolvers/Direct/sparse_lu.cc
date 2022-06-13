@@ -13,7 +13,8 @@ using namespace Math::LinearSolver;
 //################################################## Setup
 
 
-SparseLU::SparseLU(const bool pivot) : pivot_flag(pivot) {}
+SparseLU::SparseLU(const bool pivot) : pivot_flag(pivot)
+{}
 
 
 void
@@ -96,7 +97,7 @@ SparseLU::factorize()
          * of the original matrix. */
         for (const auto el : A.row_iterator(j))
           if (el.column() > j)
-            A.add(i, el.column(), -a_ij * el.value());
+            A.add(i, el.column(), -a_ij*el.value());
       }//if a_ij exists
     }//for rows > j
   }//for j
@@ -118,7 +119,7 @@ SparseLU::solve(Vector& x, const Vector& b) const
     double value = b[row_pivots[i]];
     for (const auto el : A.row_iterator(i))
       if (el.column() < i)
-        value -= el.value() * x[el.column()];
+        value -= el.value()*x[el.column()];
     x[i] = value;
   }
 
@@ -128,8 +129,8 @@ SparseLU::solve(Vector& x, const Vector& b) const
     double value = x[i];
     for (const auto el : A.row_iterator(i))
       if (el.column() > i)
-        value -= el.value() * x[el.column()];
-    x[i] = value / A.diag(i);
+        value -= el.value()*x[el.column()];
+    x[i] = value/A.diag(i);
   }
 }
 

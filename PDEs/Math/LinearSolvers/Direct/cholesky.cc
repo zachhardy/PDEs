@@ -14,7 +14,8 @@ using namespace Math::LinearSolver;
 //################################################## Constructors
 
 
-Cholesky::Cholesky() : DirectSolverBase<Matrix>() {}
+Cholesky::Cholesky() : DirectSolverBase<Matrix>()
+{}
 
 
 void
@@ -31,7 +32,7 @@ Cholesky::factorize()
     // Compute the diagonal term
     double sum = 0.0;
     for (size_t k = 0; k < j; ++k)
-      sum += a_j[k] * a_j[k];
+      sum += a_j[k]*a_j[k];
     a_j[j] = std::sqrt(a_j[j] - sum);
 
     // Compute the lower diagonal terms
@@ -41,8 +42,8 @@ Cholesky::factorize()
 
       sum = 0.0;
       for (size_t k = 0; k < j; ++k)
-        sum += a_i[k] * a_j[k];
-      a_i[j] = (a_i[j] - sum) / a_j[j];
+        sum += a_i[k]*a_j[k];
+      a_i[j] = (a_i[j] - sum)/a_j[j];
     }
   }
   factorized = true;
@@ -65,8 +66,8 @@ Cholesky::solve(Vector& x, const Vector& b) const
 
     double value = b[i];
     for (size_t j = 0; j < i; ++j)
-      value -= *a_i++ * x[j];
-    x[i] = value / a_ii;
+      value -= *a_i++*x[j];
+    x[i] = value/a_ii;
   }
 
   //======================================== Backward solve
@@ -79,6 +80,6 @@ Cholesky::solve(Vector& x, const Vector& b) const
 
     x_i /= a_ii;
     for (size_t j = 0; j < i; ++j)
-      x[j] -= *a_i++ * x_i;
+      x[j] -= *a_i++*x_i;
   }
 }

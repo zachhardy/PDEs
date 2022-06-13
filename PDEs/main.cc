@@ -12,7 +12,7 @@
 #include "LinearSolvers/IterativeSolvers"
 #include "LinearSolvers/PETSc/petsc_solver.h"
 
-#include "NeutronDiffusion/Groupset/groupset.h"
+#include "NeutronDiffusion/groupset.h"
 #include "NeutronDiffusion/SteadyStateSolver/steadystate_solver.h"
 #include "NeutronDiffusion/KEigenvalueSolver/keigenvalue_solver.h"
 
@@ -49,7 +49,8 @@ int main(int argc, char** argv)
     for (size_t i = 0; i < n_cells; ++i)
       vertices.emplace_back(vertices.back() + cell_width);
 
-    auto mesh = create_1d_mesh(vertices, CoordinateSystem::SPHERICAL);
+    auto coord_sys = CoordinateSystemType::SPHERICAL;
+    auto mesh = create_1d_mesh(vertices, coord_sys);
 
     //================================================== Materials
 
@@ -101,7 +102,7 @@ int main(int argc, char** argv)
     solver.boundary_info.emplace_back(BoundaryType::REFLECTIVE, -1);
     solver.boundary_info.emplace_back(BoundaryType::ZERO_FLUX, -1);
 
-    solver.solution_technique = SolutionTechnique::GROUPSET_WISE;
+    solver.solution_technique = SteadyStateSolver::GROUPSET_WISE;
 
 
     //================================================== Run the problem

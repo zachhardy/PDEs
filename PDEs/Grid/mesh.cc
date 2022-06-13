@@ -10,13 +10,13 @@ using namespace Grid;
 
 
 std::string
-coordinate_system_str(const CoordinateSystem coord_sys)
+coordinate_system_str(const CoordinateSystemType coord_sys)
 {
   switch (coord_sys)
   {
-    case CoordinateSystem::CARTESIAN: return "CARTESIAN";
-    case CoordinateSystem::CYLINDRICAL: return "CYLINDRICAL";
-    case CoordinateSystem::SPHERICAL: return "SPHERICAL";
+    case CoordinateSystemType::CARTESIAN: return "CARTESIAN";
+    case CoordinateSystemType::CYLINDRICAL: return "CYLINDRICAL";
+    case CoordinateSystemType::SPHERICAL: return "SPHERICAL";
     default: return "UNDEFINED";
   }
 }
@@ -26,9 +26,10 @@ coordinate_system_str(const CoordinateSystem coord_sys)
 
 
 Mesh::Mesh(const size_t dimension,
-           const CoordinateSystem coordinate_system)
+           const CoordinateSystemType coordinate_system)
   : dim(dimension), coord_sys(coordinate_system)
 {}
+
 
 void
 Mesh::establish_connectivity()
@@ -131,16 +132,13 @@ Mesh::compute_geometric_info()
 
       switch (cell_type)
       {
-        case CellType::SLAB:
-          cell.volume = v1 - v0;
+        case CellType::SLAB:cell.volume = v1 - v0;
           break;
 
-        case CellType::ANNULUS:
-          cell.volume = M_PI*(v1*v1 - v0*v0);
+        case CellType::ANNULUS:cell.volume = M_PI*(v1*v1 - v0*v0);
           break;
 
-        case CellType::SHELL:
-          cell.volume = 4.0/3.0 * M_PI*(v1*v1*v1 - v0*v0*v0);
+        case CellType::SHELL:cell.volume = 4.0/3.0*M_PI*(v1*v1*v1 - v0*v0*v0);
           break;
       }
     }//if 1D
@@ -161,16 +159,13 @@ Mesh::compute_geometric_info()
 
         switch (coord_sys)
         {
-          case CoordinateSystem::CARTESIAN:
-            face.area = 1.0;
+          case CoordinateSystemType::CARTESIAN:face.area = 1.0;
             break;
 
-          case CoordinateSystem::CYLINDRICAL:
-            face.area = 2.0 * M_PI * v;
+          case CoordinateSystemType::CYLINDRICAL:face.area = 2.0*M_PI*v;
             break;
 
-          case CoordinateSystem::SPHERICAL:
-            face.area = 4.0 * M_PI * v * v;
+          case CoordinateSystemType::SPHERICAL:face.area = 4.0*M_PI*v*v;
             break;
         }
       }// if 1D

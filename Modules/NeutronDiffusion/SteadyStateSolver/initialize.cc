@@ -1,5 +1,5 @@
 #include "steadystate_solver.h"
-#include "NeutronDiffusion/Groupset/groupset.h"
+#include "../groupset.h"
 
 #include "Discretization/FiniteVolume/fv.h"
 
@@ -38,7 +38,7 @@ SteadyStateSolver::initialize()
 
   //================================================== Initialize objects
 
-  if (discretization_method == SDMethod::FINITE_VOLUME)
+  if (discretization_method == DiscretizationMethod::FINITE_VOLUME)
     discretization = std::make_shared<FiniteVolume>(mesh);
   else
     throw std::runtime_error("Invalid spatial discretization method.");
@@ -49,16 +49,16 @@ SteadyStateSolver::initialize()
   //================================================== Initialize data storage
   size_t n_nodes = discretization->n_nodes();
 
-  phi.resize(n_groups * n_nodes, 0.0);
+  phi.resize(n_groups*n_nodes, 0.0);
   phi_ell.resize(phi.size(), 0.0);
-  precursors.resize(max_precursors * n_nodes, 0.0);
+  precursors.resize(max_precursors*n_nodes, 0.0);
 
   //================================================== Initialize groupsets
   for (auto& groupset : groupsets)
   {
     const size_t n_gsg = groupset.groups.size();
-    groupset.A.reinit(n_gsg * n_nodes, n_gsg * n_nodes);
-    groupset.b.resize(n_gsg * n_nodes, 0.0);
+    groupset.A.reinit(n_gsg*n_nodes, n_gsg*n_nodes);
+    groupset.b.resize(n_gsg*n_nodes, 0.0);
   }//for groupset
 }
 

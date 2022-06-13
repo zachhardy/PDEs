@@ -107,7 +107,7 @@ read_xs_file(const std::string file_name, const bool verbose)
     if (word == "VELOCITY_BEGIN" and !found_inv_velocity)
     {
       read_cross_section("VELOCITY", inv_velocity, f, ls, ln);
-      for (auto& v : inv_velocity) v = 1.0 / v;
+      for (auto& v : inv_velocity) v = 1.0/v;
     }
     if (word == "INV_VELOCITY_BEGIN")
     {

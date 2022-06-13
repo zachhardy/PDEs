@@ -61,7 +61,7 @@ solve(Vector& x, const Vector& b) const
 
     // Recompute alpha factor
     timer.start();
-    alpha = res_prev / p.dot(q);
+    alpha = res_prev/p.dot(q);
     timer.stop();
     times.push_back(timer.get_time());
 
@@ -93,7 +93,7 @@ solve(Vector& x, const Vector& b) const
 
     // If not converged, prep for next iteration
     timer.start();
-    p.sadd(res / res_prev, r);
+    p.sadd(res/res_prev, r);
     timer.stop();
     times.push_back(timer.get_time());
 

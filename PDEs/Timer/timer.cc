@@ -24,10 +24,10 @@ double Timer::get_time()
 
 std::string Timer::get_time_string()
 {
-  double dt      = get_time()/1000.0;
-  int hours      = std::floor(dt/3600.0);
-  int minutes    = std::floor((dt - 3600.0*hours)/60.0);
-  int seconds    = (int)dt - 3600*hours - 60*minutes;
+  double dt = get_time()/1000.0;
+  int hours = std::floor(dt/3600.0);
+  int minutes = std::floor((dt - 3600.0*hours)/60.0);
+  int seconds = (int)dt - 3600*hours - 60*minutes;
 
   char buff[100];
   sprintf(buff, "%02d:%02d:%02d", hours, minutes, seconds);

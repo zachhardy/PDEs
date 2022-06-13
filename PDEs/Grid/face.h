@@ -31,12 +31,12 @@ namespace Grid
      * If an interior face, this stores the global ID of the neighboring cell.
      * If a boundary face, this stores the boundary ID.
      */
-    size_t  neighbor_id = 0;
-    bool    has_neighbor = false;
+    size_t neighbor_id = 0;
+    bool has_neighbor = false;
 
-    Normal    normal;
-    Centroid  centroid;
-    double    area = 0.0;
+    Normal normal;
+    Centroid centroid;
+    double area = 0.0;
 
     /** Return the face as a string. */
     std::string str() const;

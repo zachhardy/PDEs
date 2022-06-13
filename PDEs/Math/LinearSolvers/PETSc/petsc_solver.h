@@ -24,9 +24,9 @@ namespace Math::LinearSolver
     size_t max_iterations = 200;
 
     //========== PETSc solver objects
-    Mat   A;
-    KSP   ksp;
-    PC    pc;
+    Mat A;
+    KSP ksp;
+    PC pc;
 
   public:
     PETScSolver(const std::string solver_type = KSPCG,

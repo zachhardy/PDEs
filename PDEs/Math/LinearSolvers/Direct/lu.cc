@@ -82,7 +82,7 @@ LU::factorize()
       /* Upper triangular components. This represents the row-echelon form of
        * the original matrix. */
       for (size_t k = j + 1; k < n; ++k)
-        *a_i++ -= a_ij * a_j[k];
+        *a_i++ -= a_ij*a_j[k];
     }
   }
   factorized = true;
@@ -104,7 +104,7 @@ LU::solve(Vector& x, const Vector& b) const
 
     double value = b[row_pivots[i]];
     for (size_t j = 0; j < i; ++j)
-      value -= *a_i++ * x[j];
+      value -= *a_i++*x[j];
     x[i] = value;
   }
 
@@ -117,8 +117,8 @@ LU::solve(Vector& x, const Vector& b) const
 
     double value = x[i];
     for (size_t j = i + 1; j < n; ++j)
-      value -= *a_i++ * x[j];
-    x[i] = value / a_ii;
+      value -= *a_i++*x[j];
+    x[i] = value/a_ii;
   }
 }
 

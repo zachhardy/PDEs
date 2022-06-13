@@ -56,10 +56,10 @@ KEigenvalueSolver::power_method()
 
     //==================== Recompute the k-eigenvalue
     production = compute_production();
-    k_eff *= production / production_ell;
+    k_eff *= production/production_ell;
     rho = (k_eff - 1.0)/k_eff;
 
-    k_eff_change = std::fabs(k_eff - k_eff_ell) / k_eff;
+    k_eff_change = std::fabs(k_eff - k_eff_ell)/k_eff;
     phi_change = l2_norm(phi - phi_ell);
 
     production_ell = production;
@@ -79,7 +79,7 @@ KEigenvalueSolver::power_method()
         << "Step  " << std::setw(4) << nit
         << "k_eff  " << std::setw(8) << k_eff
         << "k_eff Change  " << std::setw(14) << k_eff_change
-        << "Reactivity  " << rho * 1.0e5;
+        << "Reactivity  " << rho*1.0e5;
       if (converged) iter_info << "   CONVERGED";
       std::cout << iter_info.str() << std::endl;
     }

@@ -25,7 +25,7 @@ PETScUtils::CopyToVector(Vec& x, Vector& vec)
 
   // Perform the copying
   const double* end_ptr = x_ptr + size;
-  while(x_ptr != end_ptr)
+  while (x_ptr != end_ptr)
     *v_ptr++ = *x_ptr++;
 
   // Remove access to PETSc data
@@ -51,7 +51,7 @@ PETScUtils::CopyToVector(Vec& x, std::vector<double>& vec)
 
   // Perform the copying
   const double* end_ptr = x_ptr + size;
-  while(x_ptr != end_ptr)
+  while (x_ptr != end_ptr)
     *v_ptr++ = *x_ptr++;
 
   // Remove access to PETSc data

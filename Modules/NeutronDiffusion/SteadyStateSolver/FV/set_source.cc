@@ -31,8 +31,8 @@ fv_set_source(Groupset& groupset, SourceFlags source_flags)
     const double volume = cell.volume;
     const auto& xs = material_xs[matid_to_xs_map[cell.material_id]];
 
-    const size_t i = cell.id * n_gsg;
-    const size_t uk_map = cell.id * n_groups;
+    const size_t i = cell.id*n_gsg;
+    const size_t uk_map = cell.id*n_groups;
 
     const double* x = &phi[uk_map];
 
@@ -51,7 +51,7 @@ fv_set_source(Groupset& groupset, SourceFlags source_flags)
       double rhs = 0.0;
 
       //==================== Inhomogeneous source term
-      if (src) rhs += src[g] * volume;
+      if (src) rhs += src[g]*volume;
 
       //==================== Scattering terms
       if (apply_wgs_scatter_src || apply_ags_scatter_src)
@@ -60,14 +60,14 @@ fv_set_source(Groupset& groupset, SourceFlags source_flags)
 
         if (apply_wgs_scatter_src)
           for (const auto& gp : groupset.groups)
-            rhs += sig_s[gp] * x[gp] * volume;
+            rhs += sig_s[gp]*x[gp]*volume;
 
         if (apply_ags_scatter_src)
           for (size_t gpr = 0; gpr < n_groups; ++gpr)
           {
             const size_t gp = groups[gpr];
             if (gp < gs_i || gp > gs_f)
-              rhs += sig_s[gp] * x[gp] * volume;
+              rhs += sig_s[gp]*x[gp]*volume;
           }
       }
 
@@ -82,18 +82,18 @@ fv_set_source(Groupset& groupset, SourceFlags source_flags)
 
           if (apply_wgs_fission_src)
             for (const auto& gp : groupset.groups)
-              rhs += chi * nu_sigf[gp] * x[gp] * volume;
+              rhs += chi*nu_sigf[gp]*x[gp]*volume;
 
           if (apply_ags_fission_src)
             for (size_t gpr = 0; gpr < n_groups; ++gpr)
             {
               const size_t gp = groups[gpr];
               if (gp < gs_i || gp > gs_f)
-                rhs += chi * nu_sigf[gp] * x[gp] * volume;
+                rhs += chi*nu_sigf[gp]*x[gp]*volume;
             }
         }
 
-        //==================== Prompt + delayed fission
+          //==================== Prompt + delayed fission
         else
         {
           const double chi_p = xs->chi_prompt[g];
@@ -106,10 +106,10 @@ fv_set_source(Groupset& groupset, SourceFlags source_flags)
           {
             for (const auto& gp : groupset.groups)
             {
-              double value = chi_p * nup_sigf[gp];
+              double value = chi_p*nup_sigf[gp];
               for (size_t j = 0; j < xs->n_precursors; ++j)
-                value += chi_d[j] * gamma[j] * nud_sigf[gp];
-              rhs += value * x[gp] * volume;
+                value += chi_d[j]*gamma[j]*nud_sigf[gp];
+              rhs += value*x[gp]*volume;
             }
           }
 
@@ -120,10 +120,10 @@ fv_set_source(Groupset& groupset, SourceFlags source_flags)
               const size_t gp = groups[gpr];
               if (gp < gs_i || gp > gs_f)
               {
-                double value = chi_p * nup_sigf[gp];
+                double value = chi_p*nup_sigf[gp];
                 for (size_t j = 0; j < xs->n_precursors; ++j)
-                  value += chi_d[j] * gamma[j] * nud_sigf[gp];
-                rhs += value * x[gp] * volume;
+                  value += chi_d[j]*gamma[j]*nud_sigf[gp];
+                rhs += value*x[gp]*volume;
               }
             }//for gpr
           }
@@ -157,7 +157,7 @@ fv_set_source(Groupset& groupset, SourceFlags source_flags)
             const auto& bndry = boundaries[bndry_id][g];
             const auto bc = std::static_pointer_cast<DirichletBoundary>(bndry);
 
-            b[ig] += D[g] / d_pf * bc->value * face.area;
+            b[ig] += D[g]/d_pf*bc->value*face.area;
           }
         }
 
@@ -172,7 +172,7 @@ fv_set_source(Groupset& groupset, SourceFlags source_flags)
             const auto& bndry = boundaries[bndry_id][g];
             const auto bc = std::static_pointer_cast<NeumannBoundary>(bndry);
 
-            b[ig] += bc->value * face.area;
+            b[ig] += bc->value*face.area;
           }
         }
 
@@ -191,7 +191,7 @@ fv_set_source(Groupset& groupset, SourceFlags source_flags)
             const auto& bndry = boundaries[bndry_id][g];
             const auto bc = std::static_pointer_cast<RobinBoundary>(bndry);
 
-            b[ig] += D[g]/(bc->b*D[g] + bc->a*d_pf) * bc->f * face.area;
+            b[ig] += D[g]/(bc->b*D[g] + bc->a*d_pf)*bc->f*face.area;
           }
         }
       }//if boundary face

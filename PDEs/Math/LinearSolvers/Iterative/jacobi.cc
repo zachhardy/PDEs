@@ -37,11 +37,11 @@ solve(Vector& x, const Vector& b) const
       double value = b[i];
       for (const auto el : A->row_iterator(i))
         if (el.column() != i)
-          value -= el.value() * x_ell[el.column()];
+          value -= el.value()*x_ell[el.column()];
       value /= A->diag(i);
 
       //==================== Increment difference
-      change += std::fabs(value - x_ell[i]) / std::fabs(b[i]);
+      change += std::fabs(value - x_ell[i])/std::fabs(b[i]);
       x[i] = value;
     }
 

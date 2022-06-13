@@ -27,7 +27,7 @@ FiniteVolume::n_nodes() const
 
 size_t
 FiniteVolume::n_dofs(const size_t n_components) const
-{ return n_components * mesh->cells.size(); }
+{ return n_components*mesh->cells.size(); }
 
 
 std::vector<Grid::Point>

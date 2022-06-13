@@ -101,7 +101,6 @@ PETScSolver::solve(Vector& x, const Vector& b) const
 }
 
 
-
 PetscErrorCode
 PETScSolver::KSPMonitor(KSP solver, PetscInt it,
                         PetscReal rnorm,

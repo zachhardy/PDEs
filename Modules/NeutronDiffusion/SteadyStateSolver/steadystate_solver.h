@@ -1,8 +1,8 @@
 #ifndef STEADYSTATE_SOLVER_H
 #define STEADYSTATE_SOLVER_H
 
-#include "NeutronDiffusion/boundaries.h"
-#include "NeutronDiffusion/Groupset/groupset.h"
+#include "../boundaries.h"
+#include "../groupset.h"
 
 #include "mesh.h"
 #include "Discretization/discretization.h"
@@ -20,21 +20,9 @@ using namespace Math;
 namespace NeutronDiffusion
 {
 
-  /**
-   * Algorithms to solve the multigroup diffusion problem.
-   */
-  enum class SolutionTechnique
-  {
-    FULL_SYSTEM = 0,   ///< Solve the full multigroup system.
-    GROUPSET_WISE = 1  ///< Iteratively solve by groupset.
-  };
-
-
   //######################################################################
 
-  /**
-   * Bitwise source flags.
-   */
+  /** Bitwise source flags. */
   enum SourceFlags : int
   {
     NO_SOURCE_FLAGS = 0,
@@ -45,6 +33,7 @@ namespace NeutronDiffusion
     APPLY_AGS_FISSION_SOURCE = (1 << 4)
   };
 
+
   inline SourceFlags operator|(const SourceFlags f1,
                                const SourceFlags f2)
   {
@@ -53,15 +42,14 @@ namespace NeutronDiffusion
   }
 
 
-  /**
-   * Bitwise assembler flags
-   */
+  /** Bitwise assembler flags */
   enum AssemblerFlags : int
   {
     NO_ASSEMBLER_FLAGS = 0,
     ASSEMBLE_SCATTER = (1 << 0),
     ASSEMBLE_FISSION = (1 << 1)
   };
+
 
   inline AssemblerFlags operator|(const AssemblerFlags f1,
                                   const AssemblerFlags f2)
@@ -72,15 +60,20 @@ namespace NeutronDiffusion
 
   //######################################################################
 
-  /**
-   * A steady state solver for multigroup neutron diffusion applications.
-   */
+  /** A steady state solver for multigroup neutron diffusion applications. */
   class SteadyStateSolver
   {
+  public:
+    /** Algorithms to solve the multigroup diffusion problem. */
+    enum SolutionTechnique
+    {
+      FULL_SYSTEM = 0,   ///< Solve the full multigroup system.
+      GROUPSET_WISE = 1  ///< Iteratively solve by groupset.
+    };
+
   protected:
     typedef Grid::Mesh Mesh;
-
-    typedef DiscretizationMethod SDMethod;
+    typedef DiscretizationMethod SDM;
 
     typedef Physics::Material Material;
     typedef Physics::MaterialPropertyType MaterialPropertyType;
@@ -105,7 +98,7 @@ namespace NeutronDiffusion
 
     /*-------------------- Solver Information --------------------*/
 
-    SolutionTechnique solution_technique = SolutionTechnique::GROUPSET_WISE;
+    SolutionTechnique solution_technique = GROUPSET_WISE;
 
     std::shared_ptr<LinearSolverBase> linear_solver;
 
@@ -118,7 +111,7 @@ namespace NeutronDiffusion
 
     std::shared_ptr<Mesh> mesh;
 
-    SDMethod discretization_method = SDMethod::FINITE_VOLUME;
+    DiscretizationMethod discretization_method = DiscretizationMethod::FINITE_VOLUME;
     std::shared_ptr<Discretization> discretization;
 
     /*-------------------- Physics Information --------------------*/

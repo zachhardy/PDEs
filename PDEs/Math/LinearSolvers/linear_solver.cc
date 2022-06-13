@@ -33,7 +33,6 @@ set_matrix(const MatrixType& matrix)
 { assert(matrix.n_rows() == matrix.n_cols()); }
 
 
-
 template class LinearSolver::LinearSolverBase<Matrix>;
 template class LinearSolver::LinearSolverBase<SparseMatrix>;
 

@@ -7,14 +7,14 @@
 
 
 std::string
-Grid::coordinate_system_str(const CoordinateSystem coord_sys)
+Grid::coordinate_system_str(const CoordinateSystemType coord_sys)
 {
   switch (coord_sys)
   {
-    case CoordinateSystem::CARTESIAN:   return "CARTESIAN";
-    case CoordinateSystem::CYLINDRICAL: return "CYLINDRICAL";
-    case CoordinateSystem::SPHERICAL:   return "SPHERICAL";
-    default:                            return "UNDEFINED";
+    case CoordinateSystemType::CARTESIAN: return "CARTESIAN";
+    case CoordinateSystemType::CYLINDRICAL: return "CYLINDRICAL";
+    case CoordinateSystemType::SPHERICAL: return "SPHERICAL";
+    default: return "UNDEFINED";
   }
 }
 
@@ -24,15 +24,16 @@ Grid::cell_type_str(const CellType cell_type)
 {
   switch (cell_type)
   {
-    case CellType::SLAB:    return "SLAB";
+    case CellType::SLAB: return "SLAB";
     case CellType::ANNULUS: return "ANNULUS";
-    case CellType::SHELL:   return "SHELL";
-    default:                return "UNDEFINED";
+    case CellType::SHELL: return "SHELL";
+    default: return "UNDEFINED";
   }
 }
 
 
-Grid::Cell::Cell(const CellType cell_type) : type(cell_type) {}
+Grid::Cell::Cell(const CellType cell_type) : type(cell_type)
+{}
 
 
 std::string

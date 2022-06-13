@@ -30,7 +30,7 @@ SparseCholesky::factorize()
     double sum = 0.0;
     for (const auto el : A.row_iterator(j))
       if (el.column() < j)
-        sum += el.value() * el.value();
+        sum += el.value()*el.value();
     d = std::sqrt(d - sum);
 
     // Set the lower-diagonal components
@@ -41,12 +41,12 @@ SparseCholesky::factorize()
       for (const auto a_ik : A.row_iterator(i))
         if (a_ik.column() < j)
           for (const auto a_jk : A.row_iterator(j))
-            if (a_jk.column()== a_ik.column())
-              sum += a_ik.value() * a_jk.value();
+            if (a_jk.column() == a_ik.column())
+              sum += a_ik.value()*a_jk.value();
 
       // Set element i, j
       double a_ij = A.el(i, j);
-      double value = (a_ij)? (a_ij - sum) / d : -sum / d;
+      double value = (a_ij)? (a_ij - sum)/d : -sum/d;
       if (std::fabs(value) != 0.0)
         A.set(i, j, value);
     }
@@ -69,8 +69,8 @@ SparseCholesky::solve(Vector& x, const Vector& b) const
     double value = b[i];
     for (const auto el : A.row_iterator(i))
       if (el.column() < i)
-        value -= el.value() * x[el.column()];
-    x[i] = value / A.diag(i);
+        value -= el.value()*x[el.column()];
+    x[i] = value/A.diag(i);
   }
 
   //======================================== Backward solve
@@ -79,6 +79,6 @@ SparseCholesky::solve(Vector& x, const Vector& b) const
     x[i] /= A.diag(i);
     for (const auto a_ij : A.row_iterator(i))
       if (a_ij.column() < i)
-        x[a_ij.column()] -= a_ij.value() * x[i];
+        x[a_ij.column()] -= a_ij.value()*x[i];
   }
 }
