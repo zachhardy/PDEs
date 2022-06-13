@@ -3,21 +3,36 @@
 
 #include <cmath>
 #include <iomanip>
+#include <algorithm>
 
 
 using namespace Math;
 
 //################################################## Constructors
 
-Vector::Vector(const size_t n) : vals(n) {}
+Vector::Vector(const size_t n) :
+  vals(n)
+{}
 
-Vector::Vector(const size_t n, const double value) : vals(n, value) {}
 
-Vector::Vector(const std::vector<double>& other) : vals(other) {}
+Vector::Vector(const size_t n, const double value) :
+  vals(n, value)
+{}
 
-Vector::Vector(std::vector<double>&& other) : vals(other) {}
 
-Vector::Vector(const std::initializer_list<double> list) : vals(list) {}
+Vector::Vector(const std::vector<double>& other) :
+  vals(other)
+{}
+
+
+Vector::Vector(std::vector<double>&& other) :
+  vals(other)
+{}
+
+
+Vector::Vector(const std::initializer_list<double> list) :
+  vals(list)
+{}
 
 
 //################################################## Assignment
@@ -62,6 +77,14 @@ Vector::operator=(const double value)
 size_t
 Vector::size() const
 { return vals.size(); }
+
+
+size_t
+Vector::nnz() const
+{
+  return std::count_if(vals.begin(), vals.end(),
+                       [](const value_type v) { return v != 0.0; });
+}
 
 
 bool
