@@ -459,6 +459,18 @@ SparseMatrix::copy_from(const Matrix& matrix)
 }
 
 
+void
+SparseMatrix::copy_from(const SparseMatrix& matrix)
+{
+  rows = matrix.n_rows();
+  cols = matrix.n_cols();
+
+  colnums = matrix.colnums;
+  vals = matrix.vals;
+  has_entries = matrix.has_entries;
+}
+
+
 size_t
 SparseMatrix::n_rows() const
 { return rows; }

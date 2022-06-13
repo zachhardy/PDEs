@@ -15,6 +15,7 @@
 #include "NeutronDiffusion/groupset.h"
 #include "NeutronDiffusion/SteadyStateSolver/steadystate_solver.h"
 #include "NeutronDiffusion/KEigenvalueSolver/keigenvalue_solver.h"
+#include "NeutronDiffusion/TransientSolver/transient_solver.h"
 
 #include "macros.h"
 
@@ -78,14 +79,14 @@ int main(int argc, char** argv)
     std::shared_ptr<LinearSolverBase<SparseMatrix>> linear_solver;
     linear_solver = std::make_shared<SparseCholesky>();
 //    linear_solver = std::make_shared<PETScSolver>(KSPGMRES, PCSOR, opts);
-\
+
     //================================================== Create the solver
-    KEigenvalueSolver solver;
+    TransientSolver solver;
     solver.mesh = mesh;
     solver.materials.emplace_back(material);
     solver.linear_solver = linear_solver;
 
-    solver.verbosity = 2;
+    solver.verbosity = 1;
     solver.use_precursors = true;
 
     // Initialize groups
@@ -102,7 +103,7 @@ int main(int argc, char** argv)
     solver.boundary_info.emplace_back(BoundaryType::REFLECTIVE, -1);
     solver.boundary_info.emplace_back(BoundaryType::ZERO_FLUX, -1);
 
-    solver.solution_technique = SteadyStateSolver::GROUPSET_WISE;
+    solver.solution_technique = SolutionTechnique::GROUPSET_WISE;
 
 
     //================================================== Run the problem

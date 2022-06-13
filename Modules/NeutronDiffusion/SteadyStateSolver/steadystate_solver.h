@@ -20,6 +20,13 @@ using namespace Math;
 namespace NeutronDiffusion
 {
 
+  /** Algorithms to solve the multigroup diffusion problem. */
+  enum class SolutionTechnique
+  {
+    FULL_SYSTEM = 0,   ///< Solve the full multigroup system.
+    GROUPSET_WISE = 1  ///< Iteratively solve by groupset.
+  };
+
   //######################################################################
 
   /** Bitwise source flags. */
@@ -63,14 +70,6 @@ namespace NeutronDiffusion
   /** A steady state solver for multigroup neutron diffusion applications. */
   class SteadyStateSolver
   {
-  public:
-    /** Algorithms to solve the multigroup diffusion problem. */
-    enum SolutionTechnique
-    {
-      FULL_SYSTEM = 0,   ///< Solve the full multigroup system.
-      GROUPSET_WISE = 1  ///< Iteratively solve by groupset.
-    };
-
   protected:
     typedef Grid::Mesh Mesh;
     typedef DiscretizationMethod SDM;
@@ -98,7 +97,7 @@ namespace NeutronDiffusion
 
     /*-------------------- Solver Information --------------------*/
 
-    SolutionTechnique solution_technique = GROUPSET_WISE;
+    SolutionTechnique solution_technique = SolutionTechnique::GROUPSET_WISE;
 
     std::shared_ptr<LinearSolverBase> linear_solver;
 
@@ -231,12 +230,14 @@ namespace NeutronDiffusion
      *
      * \param groupset The groupset to construct the matrix for.
      */
-    void assemble_matrix(Groupset& groupset,
-                         AssemblerFlags assembler_flags = NO_ASSEMBLER_FLAGS);
+    void
+    assemble_matrix(Groupset& groupset,
+                    AssemblerFlags assembler_flags = NO_ASSEMBLER_FLAGS);
 
     /** \see assemble_matrix */
-    void fv_assemble_matrix(Groupset& groupset,
-                            AssemblerFlags assembler_flags = NO_ASSEMBLER_FLAGS);
+    void
+    fv_assemble_matrix(Groupset& groupset,
+                       AssemblerFlags assembler_flags = NO_ASSEMBLER_FLAGS);
 
     /**
      * Set the right-hand side source vector for the specified groupset.

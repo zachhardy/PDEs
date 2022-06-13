@@ -316,6 +316,9 @@ namespace Math
     /** Copy the non-zero contents of a dense matrix. */
     void copy_from(const Matrix& matrix);
 
+    /** Copy from another sparse matrix. */
+    void copy_from(const SparseMatrix& matrix);
+
     /**
      * Set element <tt>(row, col)</tt> to \p value. If the element is
      * initialized, override the value. If it is not, initialize it.
@@ -502,6 +505,8 @@ namespace Math
    * \see SparseMatrix::str SparseMatrix::print
    */
   std::ostream& operator<<(std::ostream& os, const SparseMatrix& A);
+
+
 
 }
 #endif //SPARSE_MATRIX_H

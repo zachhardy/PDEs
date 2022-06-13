@@ -17,25 +17,17 @@ namespace NeutronDiffusion
     size_t max_iterations = 1000;
 
   public:
-    /**
-     * Execute the k-eigenvalue solver.
-     */
+    /** Execute the k-eigenvalue solver. */
     virtual void execute() override;
 
   protected:
-    /**
-     * Implementation of the power method algorithm.
-     */
+    /** Implementation of the power method algorithm. */
     void power_method();
 
-    /**
-     * Compute the total neutron production rate.
-     */
+    /** Compute the total neutron production rate. */
     double compute_production();
 
-    /**
-     * \see compute_production
-     */
+    /** \see compute_production */
     double fv_compute_production();
 
   };
