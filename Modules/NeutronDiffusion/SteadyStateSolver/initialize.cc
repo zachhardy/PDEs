@@ -4,6 +4,7 @@
 #include "Discretization/FiniteVolume/fv.h"
 
 #include "LinearSolvers/Direct/sparse_lu.h"
+#include "LinearSolvers/PETSc/petsc_solver.h"
 
 #include "macros.h"
 
@@ -31,7 +32,7 @@ SteadyStateSolver::initialize()
     for (const size_t group : groups)
       groupsets[0].groups.emplace_back(group);
 
-    linear_solver = std::make_shared<SparseLU>();
+    linear_solver = std::make_shared<PETScSolver>(KSPGMRES, PCLU);
   }
 
   input_checks();
