@@ -5,7 +5,8 @@ using namespace NeutronDiffusion;
 
 
 void
-SteadyStateSolver::set_source(Groupset& groupset, SourceFlags source_flags)
+SteadyStateSolver::set_source(Groupset& groupset,
+                              SourceFlags source_flags)
 {
   if (source_flags == NO_SOURCE_FLAGS)
     return;
@@ -24,165 +25,198 @@ SteadyStateSolver::set_source(Groupset& groupset, SourceFlags source_flags)
   // Get groupset vector
   auto& b = groupset.b;
 
-  //================================================== Loop over cells
+  //======================================== Loop over cells
   for (const auto& cell : mesh->cells)
   {
     const double volume = cell.volume;
     const auto& xs = material_xs[matid_to_xs_map[cell.material_id]];
 
-    const size_t i = cell.id*n_gsg;
-    const size_t uk_map = cell.id*n_groups;
+    size_t uk_map = cell.id * n_groups;
+    size_t gs_uk_map = cell.id * n_gsg;
 
-    const int src_id = matid_to_src_map[cell.material_id];
+    const auto src_id = matid_to_src_map[cell.material_id];
     const double* src = nullptr;
-    if (src_id >= 0 and apply_mat_src)
-      src = &material_src[src_id]->values[0];
+    if (src_id >= 0 && apply_mat_src)
+      src = material_src[src_id]->values.data();
 
-    //======================================== Loop over groups
+    //============================== Loop over groups
     for (size_t gr = 0; gr < n_gsg; ++gr)
     {
       double rhs = 0.0;
       const size_t g = groupset.groups[gr];
 
       //==================== Inhomogeneous source term
-      if (src) rhs += src[g];
+      rhs += (src)? src[g] : 0.0;
 
-      //==================== Scattering terms
-      if (apply_wgs_scatter_src || apply_ags_scatter_src)
+      //==================== Within-groupset scattering
+      if (apply_wgs_scatter_src)
       {
-        const double* sig_s = &xs->transfer_matrices[0][gr][0];
+        const double* sig_s = xs->transfer_matrices[0][g].data();
 
-        if (apply_wgs_scatter_src)
-          for (const auto& gp : groupset.groups)
+        for (const auto& gp : groupset.groups)
+          rhs += sig_s[gp] * phi[uk_map + gp];
+      }//if within-groupset scattering
+
+      //==================== Across-groupset scattering
+      if (apply_ags_scatter_src)
+      {
+        const double* sig_s = xs->transfer_matrices[0][g].data();
+
+        for (size_t gpr = 0; gpr < n_groups; ++gpr)
+        {
+          const size_t gp = groups[gpr];
+          if (gp < gs_i || gp > gs_f)
             rhs += sig_s[gp] * phi[uk_map + gp];
+        }//for gprime
+      }//if across-groupset scattering
 
-        if (apply_ags_scatter_src)
-          for (size_t gpr = 0; gpr < n_groups; ++gpr)
-          {
-            const size_t gp = groups[gpr];
-            if (gp < gs_i || gp > gs_f)
-              rhs += sig_s[gp] * phi[uk_map + gp];
-          }
-      }
-
-      //==================== Fission terms
-      if (xs->is_fissile && apply_wgs_fission_src || apply_ags_fission_src)
+      //==================== Within-groupset fission
+      if (xs->is_fissile && apply_wgs_fission_src)
       {
         //==================== Total fission
         if (not use_precursors)
         {
           const double chi = xs->chi[g];
-          const double* nu_sigf = &xs->nu_sigma_f[0];
+          const double* nu_sigf = xs->nu_sigma_f.data();
 
-          if (apply_wgs_fission_src)
-            for (const auto& gp : groupset.groups)
-              rhs += chi * nu_sigf[gp] * phi[uk_map + gp];
-
-          if (apply_ags_fission_src)
-            for (size_t gpr = 0; gpr < n_groups; ++gpr)
-            {
-              const size_t gp = groups[gpr];
-              if (gp < gs_i || gp > gs_f)
-                rhs += chi * nu_sigf[gp] * phi[uk_map + gp];
-            }
-        }
+          for (const auto& gp : groupset.groups)
+            rhs += chi * nu_sigf[gp] * phi[uk_map + gp];
+        }//if total fission
 
         //==================== Prompt + delayed fission
         else
         {
           const double chi_p = xs->chi_prompt[g];
-          const double* chi_d = &xs->chi_delayed[g][0];
-          const double* nup_sigf = &xs->nu_prompt_sigma_f[0];
-          const double* nud_sigf = &xs->nu_delayed_sigma_f[0];
-          const double* gamma = &xs->precursor_yield[0];
+          const double* chi_d = xs->chi_delayed[g].data();
+          const double* nup_sigf = xs->nu_prompt_sigma_f.data();
+          const double* nud_sigf = xs->nu_delayed_sigma_f.data();
+          const double* gamma = xs->precursor_yield.data();
 
-          if (apply_wgs_fission_src)
-            for (const auto& gp : groupset.groups)
-            {
-              double value = chi_p * nup_sigf[gp];
-              for (size_t j = 0; j < xs->n_precursors; ++j)
-                value += chi_d[j] * gamma[j] * nud_sigf[gp];
-              rhs += value * phi[uk_map + gp];
-            }
+          //===== Prompt fission
+          for (const auto& gp : groupset.groups)
+            rhs += chi_p * nup_sigf[gp] * phi[uk_map + gp];
 
-          if (apply_ags_fission_src)
-            for (size_t gpr = 0; gpr < n_groups; ++gpr)
-            {
-              const size_t gp = groups[gpr];
-              if (gp < gs_i || gp > gs_f)
-              {
-                double value = chi_p * nup_sigf[gp];
-                for (size_t j = 0; j < xs->n_precursors; ++j)
-                  value += chi_d[j] * gamma[j] * nud_sigf[gp];
-                rhs += value * phi[uk_map + gp];
-              }
-            }//for gpr
+          //===== Delayed fission
+          double coeff = 0.0;
+          for (size_t j = 0; j < xs->n_precursors; ++j)
+            coeff += chi_d[j] * gamma[j];
 
-        }//prompt + delayed fission
-      }//if fissile
+          for (const auto& gp : groupset.groups)
+            rhs += coeff * nud_sigf[gp] * phi[uk_map + gp];
+        }//if prompt+delayed fission
+      }//if within-groupset fission
 
-      b[i + gr] += rhs * volume;
+      if (xs->is_fissile && apply_ags_fission_src)
+      {
+        //==================== Total fission
+        if (not use_precursors)
+        {
+          const double chi = xs->chi[g];
+          const double* nu_sigf = xs->nu_sigma_f.data();
 
-    }//for gr
+          for (size_t gpr = 0; gpr < n_groups; ++gpr)
+          {
+            const size_t gp = groups[gpr];
+            if (gp < gs_i || gp > gs_f)
+              rhs += chi * nu_sigf[gp] * phi[uk_map + gp];
+          }//for gprime
+        }//if total fission
 
-    //================================================== Loop over faces
+          //==================== Prompt + delayed fission
+        else
+        {
+          const double chi_p = xs->chi_prompt[g];
+          const double* chi_d = xs->chi_delayed[g].data();
+          const double* nup_sigf = xs->nu_prompt_sigma_f.data();
+          const double* nud_sigf = xs->nu_delayed_sigma_f.data();
+          const double* gamma = xs->precursor_yield.data();
+
+          //===== Prompt fission
+          for (size_t gpr = 0; gpr < n_groups; ++gpr)
+          {
+            const size_t gp = groups[gpr];
+            if (gp < gs_i || gp > gs_f)
+              rhs += chi_p * nup_sigf[gp] * phi[uk_map + gp];
+          }//for gprime
+
+          //===== Delayed fission
+          double coeff = 0.0;
+          for (size_t j = 0; j < xs->n_precursors; ++j)
+            coeff += chi_d[j] * gamma[j];
+
+          for (size_t gpr = 0; gpr < n_groups; ++gpr)
+          {
+            const size_t gp = groups[gpr];
+            if (gp < gs_i || gp > gs_f)
+              rhs += coeff * nud_sigf[gp] * phi[uk_map + gp];
+          }//for gprime
+        }//if prompt+delayed fission
+      }//if across-groupset fission
+
+      b[gs_uk_map + gr] += rhs * volume;
+
+    }//for group
+
+    //======================================== Loop over faces
     for (const auto& face : cell.faces)
     {
-      //============================== Boundary faces
-      if (not face.neighbor_id)
+      // Skip interior faces
+      if (face.has_neighbor)
+        continue;
+
+      const auto bndry_id = face.neighbor_id;
+      const auto& bndry_type = boundary_info[bndry_id].first;
+
+      //==================== Dirichlet term
+      if (bndry_type == BoundaryType::DIRICHLET)
       {
-        const auto bndry_id = face.neighbor_id;
-        const auto& bndry_type = boundary_info[bndry_id].first;
+        const double* D = xs->diffusion_coeff.data();
+        const double d_pf = cell.centroid.distance(face.centroid);
 
-        //==================== Dirichlet boundary term
-        if (bndry_type == BoundaryType::DIRICHLET)
+        for (size_t gr = 0; gr < n_gsg; ++gr)
         {
-          const double* D = &xs->diffusion_coeff[0];
-          const double d_pf = cell.centroid.distance(face.centroid);
+          const size_t g = groupset.groups[gr];
 
-          for (size_t gr = 0; gr < n_gsg; ++gr)
-          {
-            const size_t g = groupset.groups[gr];
+          const auto& bndry = boundaries[bndry_id][gr];
+          const auto bc = std::static_pointer_cast<DirichletBoundary>(bndry);
 
-            const auto& bndry = boundaries[bndry_id][g];
-            const auto bc = std::static_pointer_cast<DirichletBoundary>(bndry);
-
-            b[i + g] += D[g]/d_pf * bc->value * face.area;
-          }
+          b[gs_uk_map + gr] += D[g]/d_pf * bc->value * face.area;
         }
+      }//if Dirichlet
 
-          //==================== Neumann boundary term
-        else if (bndry_type == BoundaryType::NEUMANN)
+      //==================== Neumann term
+      if (bndry_type == BoundaryType::NEUMANN)
+      {
+        for (size_t gr = 0; gr < n_gsg; ++gr)
         {
-          for (size_t gr = 0; gr < n_gsg; ++gr)
-          {
-            const size_t g = groupset.groups[gr];
+          const size_t g = groupset.groups[gr];
 
-            const auto& bndry = boundaries[bndry_id][g];
-            const auto bc = std::static_pointer_cast<NeumannBoundary>(bndry);
+          const auto& bndry = boundaries[bndry_id][gr];
+          const auto bc = std::static_pointer_cast<NeumannBoundary>(bndry);
 
-            b[i + gr] += bc->value * face.area;
-          }
+          b[gs_uk_map + gr] += bc->value*face.area;
         }
+      }//if Neumann
 
-          //==================== Robin boundary term
-        else if (bndry_type == BoundaryType::MARSHAK or
-                 bndry_type == BoundaryType::ROBIN)
+
+        //==================== Robin term
+      else if (bndry_type == BoundaryType::MARSHAK ||
+               bndry_type == BoundaryType::ROBIN)
+      {
+        const double* D = &xs->diffusion_coeff[0];
+        const double d_pf = cell.centroid.distance(face.centroid);
+
+        for (size_t gr = 0; gr < n_gsg; ++gr)
         {
-          const double* D = &xs->diffusion_coeff[0];
-          const double d_pf = cell.centroid.distance(face.centroid);
+          const size_t g = groupset.groups[gr];
 
-          for (size_t gr = 0; gr < n_gsg; ++gr)
-          {
-            const size_t g = groupset.groups[gr];
+          const auto& bndry = boundaries[bndry_id][gr];
+          const auto bc = std::static_pointer_cast<RobinBoundary>(bndry);
 
-            const auto& bndry = boundaries[bndry_id][g];
-            const auto bc = std::static_pointer_cast<RobinBoundary>(bndry);
-
-            b[i + g] += D[g]/(bc->b*D[g] + bc->a*d_pf) * bc->f * face.area;
-          }
+          const double coeff = D[g]/(bc->b*D[g] + bc->a*d_pf);
+          b[gs_uk_map + gr] += coeff * bc->f * face.area;
         }
-      }//if boundary face
-    }//for faces
-  }//for cells
+      }//if Robin
+    }//for face
+  }//for cell
 }
