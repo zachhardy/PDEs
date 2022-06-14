@@ -459,7 +459,7 @@ namespace Math
      * \param precision The precision to display to sparse matrix elements.
      */
     void print(std::ostream& os = std::cout,
-               const bool scientific = false,
+               const bool scientific = true,
                const unsigned int precision = 3) const;
 
     /**
@@ -471,7 +471,7 @@ namespace Math
      * \param width The spacing between entries.
      */
     void print_formatted(std::ostream& os = std::cout,
-                         const bool scientific = false,
+                         const bool scientific = true,
                          const unsigned int precision = 3,
                          const unsigned int width = 0) const;
 
@@ -482,7 +482,7 @@ namespace Math
      * \param precision The precision to display to sparse matrix elements.
      * \param width The spacing between entries.
      */
-    std::string str(const bool scientific = false,
+    std::string str(const bool scientific = true,
                     const unsigned int precision = 3,
                     const unsigned int width = 0) const;
 

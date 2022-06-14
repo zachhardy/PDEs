@@ -388,7 +388,7 @@ namespace Math
      * \param width The spacing between entries.
      */
     void print(std::ostream& os = std::cout,
-               const bool scientific = false,
+               const bool scientific = true,
                const unsigned int precision = 3,
                const unsigned int width = 0) const;
 
@@ -399,7 +399,7 @@ namespace Math
      * \param precision The precision of the digits to display.
      * \param width The spacing between entries.
      */
-    std::string str(const bool scientific = false,
+    std::string str(const bool scientific = true,
                     const unsigned int precision = 3,
                     const unsigned int width = 0) const;
 
