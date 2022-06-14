@@ -55,7 +55,7 @@ compute_change(const Groupset& groupset)
   const auto gs_f = groupset.groups.back();
   const auto npc = discretization->nodes_per_cell();
 
-  double norm = 0.0;
+  double diff_norm = 0.0, ref_norm = 0.0;
   for (const auto& cell : mesh->cells)
     for (size_t i = 0; i < npc; ++i)
     {
@@ -64,8 +64,9 @@ compute_change(const Groupset& groupset)
       {
         const size_t dof = uk_map + g;
         double delta = std::fabs(phi[dof] - phi_ell[dof]);
-        norm += delta*delta;
+        diff_norm += delta*delta;
+        ref_norm += std::fabs(phi[dof]*phi[dof]);
       }
     }
-  return std::sqrt(norm);
+  return std::sqrt(diff_norm) / std::sqrt(ref_norm);
 }
