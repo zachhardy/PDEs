@@ -15,9 +15,11 @@ KEigenvalueSolver::power_method()
 
   phi = phi_ell = 1.0;
 
-  double production_ell = 1.0;
+  double production = compute_production();
+  double production_ell = production;
   double k_eff_ell = k_eff;
-  double production, rho;
+
+  double rho;
   double k_eff_change, phi_change;
 
   size_t nit;
@@ -70,7 +72,7 @@ KEigenvalueSolver::power_method()
       iter_info
         << std::left << "k-Eigenvalue::"
         << "Step  " << std::setw(4) << nit
-        << "k_eff  " << std::setw(8) << k_eff
+        << "k_eff  " << std::setw(10) << k_eff
         << "k_eff Change  " << std::setw(14) << k_eff_change
         << "Reactivity  " << rho*1.0e5;
       if (converged) iter_info << "   CONVERGED";
