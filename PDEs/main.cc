@@ -86,7 +86,7 @@ int main(int argc, char** argv)
     solver.materials.emplace_back(material);
     solver.linear_solver = linear_solver;
 
-    solver.verbosity = 1;
+    solver.verbosity = 2;
     solver.use_precursors = true;
 
     // Initialize groups

@@ -1,4 +1,4 @@
-#include "../steadystate_solver.h"
+#include "steadystate_solver.h"
 
 
 using namespace Math;
@@ -6,8 +6,8 @@ using namespace NeutronDiffusion;
 
 
 void
-SteadyStateSolver::
-fv_assemble_matrix(Groupset& groupset, AssemblerFlags assembler_flags)
+SteadyStateSolver::assemble_matrix(Groupset& groupset,
+                                   AssemblerFlags assembler_flags)
 {
   const bool assemble_scatter = (assembler_flags & ASSEMBLE_SCATTER);
   const bool assemble_fission = (assembler_flags & ASSEMBLE_FISSION);

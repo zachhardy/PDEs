@@ -7,19 +7,6 @@ using namespace NeutronDiffusion;
 double
 KEigenvalueSolver::compute_production()
 {
-  switch (discretization_method)
-  {
-    case DiscretizationMethod::FINITE_VOLUME:
-      return fv_compute_production();
-    default:
-      throw std::runtime_error("Invalid discretization method.");
-  }
-}
-
-
-double
-KEigenvalueSolver::fv_compute_production()
-{
   double production = 0.0;
   for (const auto& cell : mesh->cells)
   {
@@ -39,4 +26,5 @@ KEigenvalueSolver::fv_compute_production()
     }
   }
   return production;
+
 }

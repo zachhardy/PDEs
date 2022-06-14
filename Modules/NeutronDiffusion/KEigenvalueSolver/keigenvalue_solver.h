@@ -26,10 +26,6 @@ namespace NeutronDiffusion
 
     /** Compute the total neutron production rate. */
     double compute_production();
-
-    /** \see compute_production */
-    double fv_compute_production();
-
   };
 
 }

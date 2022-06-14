@@ -234,11 +234,6 @@ namespace NeutronDiffusion
     assemble_matrix(Groupset& groupset,
                     AssemblerFlags assembler_flags = NO_ASSEMBLER_FLAGS);
 
-    /** \see assemble_matrix */
-    void
-    fv_assemble_matrix(Groupset& groupset,
-                       AssemblerFlags assembler_flags = NO_ASSEMBLER_FLAGS);
-
     /**
      * Set the right-hand side source vector for the specified groupset.
      *
@@ -251,15 +246,8 @@ namespace NeutronDiffusion
      */
     void set_source(Groupset& groupset, SourceFlags source_flags);
 
-    /** \see set_source */
-    void fv_set_source(Groupset& groupset, SourceFlags source_flags);
-
     /** Compute the steady-state delayed neutron precursor concentrations. */
     void compute_precursors();
-
-    /** \see compute_precursors */
-    void fv_compute_precursors();
-
 
     //@}
 

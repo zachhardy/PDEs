@@ -1,12 +1,11 @@
-#include "../steadystate_solver.h"
+#include "steadystate_solver.h"
 
 
 using namespace NeutronDiffusion;
 
 
 void
-SteadyStateSolver::
-fv_set_source(Groupset& groupset, SourceFlags source_flags)
+SteadyStateSolver::set_source(Groupset& groupset, SourceFlags source_flags)
 {
   if (source_flags == NO_SOURCE_FLAGS)
     return;
@@ -42,10 +41,8 @@ fv_set_source(Groupset& groupset, SourceFlags source_flags)
     //======================================== Loop over groups
     for (size_t gr = 0; gr < n_gsg; ++gr)
     {
-      const size_t ig = i + gr;
-      const size_t g = groupset.groups[gr];
-
       double rhs = 0.0;
+      const size_t g = groupset.groups[gr];
 
       //==================== Inhomogeneous source term
       if (src) rhs += src[g];
