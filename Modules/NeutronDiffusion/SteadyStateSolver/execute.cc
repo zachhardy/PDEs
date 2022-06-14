@@ -104,10 +104,9 @@ void
 NeutronDiffusion::SteadyStateSolver::
 solve_full_system(SourceFlags source_flags)
 {
-  if (verbosity > 0)
+  if (verbosity > 1)
     std::cout << "\n***** Solving Full System\n";
 
-  linear_solver->set_matrix(groupsets.front().A);
   set_source(groupsets.front(), source_flags);
   phi = linear_solver->solve(groupsets.front().b);
 }
