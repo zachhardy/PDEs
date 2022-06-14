@@ -66,16 +66,8 @@ SparseLU::factorize()
        * the numerical stability of the algorithm. */
       if (argmax != j)
       {
-        std::cout << "Swapping row " << j
-                  << " with row " << argmax << std::endl;
-        std::cout << "Pre-Swap:\n";
-        A.print_formatted();
-
         std::swap(row_pivots[j], row_pivots[argmax]);
         A.swap_row(j, argmax);
-
-        std::cout << "Post-Swap:\n";
-        A.print_formatted();
       }
     }//if pivot
 
