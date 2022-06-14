@@ -47,63 +47,29 @@ solve(Vector& x, const Vector& b) const
 
   //======================================== Iteration loop
   size_t nit;
-  Timer timer;
-  std::vector<double> times;
   for (nit = 0; nit < max_iterations; ++nit)
   {
-    times.clear();
-
     // Precompute necessary matrix-vector product q = Ap
-    timer.start();
     A->vmult(p, q);
-    timer.stop();
-    times.push_back(timer.get_time());
 
     // Recompute alpha factor
-    timer.start();
     alpha = res_prev/p.dot(q);
-    timer.stop();
-    times.push_back(timer.get_time());
 
     // Update solution and residual vector
-    timer.start();
     x.add(p, alpha);
-    timer.stop();
-    times.push_back(timer.get_time());
 
-    timer.start();
     r.add(q, -alpha);
-    timer.stop();
-    times.push_back(timer.get_time());
 
     // Update residual norm
-    timer.start();
     res = r.dot(r);
-    timer.stop();
-    times.push_back(timer.get_time());
 
     // Check convergence
-    timer.start();
-    bool converged = check(nit + 1, std::sqrt(res));
-    timer.stop();
-    times.push_back(timer.get_time());
-
+    bool converged = check(nit + 1, std::sqrt(res)/norm);
     if (converged)
       break;
 
     // If not converged, prep for next iteration
-    timer.start();
     p.sadd(res/res_prev, r);
-    timer.stop();
-    times.push_back(timer.get_time());
-
-    timer.start();
     res_prev = res;
-    timer.stop();
-    times.push_back(timer.get_time());
-
-    double total_time = 0.0;
-    for (const auto& time : times)
-      total_time += time;
   }
 }
