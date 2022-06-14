@@ -15,13 +15,13 @@ namespace Math::LinearSolver
   {
   protected:
     //========== Solver parameters
-    size_t verbosity = 0;
+    size_t verbosity;
+
+    double relative_residual_tolerance;
+    size_t max_iterations;
 
     std::string solver_type = KSPCG;
     std::string preconditioner_type = PCNONE;
-
-    double relative_residual_tolerance = 1.0e-6;
-    size_t max_iterations = 200;
 
     //========== PETSc solver objects
     Mat A;
@@ -48,6 +48,11 @@ namespace Math::LinearSolver
     KSPMonitor(KSP solver, PetscInt it,
                PetscReal rnorm,
                void* monitordestroy);
+
+    static PetscErrorCode
+    KSPConvergenceTest(KSP solver, PetscInt it,
+                       PetscReal rnorm,
+                       KSPConvergedReason* reason, void*);
   };
 }
 
