@@ -55,7 +55,7 @@ solve(Vector& x, const Vector& b) const
 
       double a_ii = A->diag(i);
       x[i] += omega*((b[i] - s)/a_ii - x[i]);
-      change += std::fabs(x[i] - x_ell[i])/std::fabs(x[i]);
+      change += std::fabs(x[i] - x_ell[i])/std::fabs(b[i]);
     }
 
     //==================== Check convergence
