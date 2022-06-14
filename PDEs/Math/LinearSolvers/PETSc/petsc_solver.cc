@@ -37,10 +37,10 @@ PETScSolver::set_matrix(const SparseMatrix& matrix)
   KSPGetPC(ksp, &pc);
   PCSetType(pc, preconditioner_type.c_str());
 
+  KSPSetConvergenceTest(ksp, &KSPConvergenceTest, NULL, NULL);
+
   KSPSetTolerances(ksp, relative_residual_tolerance,
                    PETSC_DEFAULT, PETSC_DEFAULT, max_iterations);
-
-  KSPSetConvergenceTest(ksp, &KSPConvergenceTest, NULL, NULL);
 
   if (verbosity > 1)
     KSPMonitorSet(ksp, &KSPMonitor, NULL, NULL);
@@ -113,11 +113,11 @@ PETScSolver::KSPConvergenceTest(KSP solver,
   KSPGetRhs(solver, &rhs);
   double rhs_norm;
   VecNorm(rhs, NORM_2, &rhs_norm);
-  rhs_norm = (rhs_norm < 1.0e-25)? 1.0 : rhs_norm;
+  rhs_norm = (rhs_norm < 1.0e-12)? 1.0 : rhs_norm;
 
   double tol;
   PetscInt its;
-  KSPGetTolerances(solver, NULL, &tol, NULL, &its);
+  KSPGetTolerances(solver, &tol, NULL, NULL, &its);
 
   double relative_residual = rnorm / rhs_norm;
   if (relative_residual < tol)
