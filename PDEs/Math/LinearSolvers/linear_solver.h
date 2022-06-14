@@ -21,6 +21,10 @@ namespace Math::LinearSolver
 
     double tolerance = 1.0e-6;
     size_t max_iterations = 500;
+
+    Options(const double tolerance = 1.0e-6,
+            const size_t max_iterations = 500,
+            const size_t verbosity = 0);
   };
 
 
@@ -92,6 +96,9 @@ namespace Math::LinearSolver
 
     /** Attach a matrix to the solver. */
     void set_matrix(const SparseMatrix& matrix) override;
+
+    /** Get the solver options. */
+    Options get_options() const;
 
   protected:
     /** Check whether the solver has converged. */

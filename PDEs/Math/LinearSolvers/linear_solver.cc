@@ -71,7 +71,16 @@ template class LinearSolver::DirectSolverBase<SparseMatrix>;
 //################################################## IterativeSolverBase
 
 
-LinearSolver::IterativeSolverBase::
+Options::Options(const double tolerance,
+                 const size_t max_iterations,
+                 const size_t verbosity) :
+  tolerance(tolerance),
+  max_iterations(max_iterations),
+  verbosity(verbosity)
+{}
+
+
+IterativeSolverBase::
 IterativeSolverBase(const Options& opts, const std::string name) :
   tolerance(opts.tolerance),
   max_iterations(opts.max_iterations),
@@ -80,7 +89,8 @@ IterativeSolverBase(const Options& opts, const std::string name) :
 {}
 
 
-void LinearSolver::IterativeSolverBase::
+void
+IterativeSolverBase::
 set_matrix(const SparseMatrix& matrix)
 {
   LinearSolverBase<SparseMatrix>::set_matrix(matrix);
@@ -88,8 +98,14 @@ set_matrix(const SparseMatrix& matrix)
 }
 
 
+Options
+IterativeSolverBase::get_options() const
+{ return Options(tolerance, max_iterations, verbosity); }
+
+
+
 bool
-LinearSolver::IterativeSolverBase::
+IterativeSolverBase::
 check(const size_t iteration, const double value) const
 {
   bool converged = value <= tolerance;
@@ -113,7 +129,7 @@ check(const size_t iteration, const double value) const
 
 
 void
-LinearSolver::IterativeSolverBase::
+IterativeSolverBase::
 throw_convergence_error(const size_t iteration,
                         const double value) const
 {
