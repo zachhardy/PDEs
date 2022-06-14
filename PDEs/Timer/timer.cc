@@ -12,13 +12,11 @@ void Timer::stop()
 { end_time = std::chrono::steady_clock::now(); }
 
 
-double Timer::get_time()
+double
+Timer::get_time()
 {
   using namespace std::chrono;
-  duration<double> dt =
-    duration_cast<duration<double>>(end_time - start_time);
-
-  return dt.count();
+  return duration<double, std::milli>(end_time - start_time).count();
 }
 
 
