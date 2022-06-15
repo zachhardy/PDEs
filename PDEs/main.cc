@@ -39,7 +39,7 @@ int main(int argc, char** argv)
 
     //================================================== Mesh
 
-    size_t n_cells = 10;
+    size_t n_cells = 200;
     double slab_width = 6.0;
     double cell_width = slab_width / n_cells;
 
@@ -62,7 +62,7 @@ int main(int argc, char** argv)
     size_t n_groups = xs->n_groups;
 
     // Create the multigroup source
-    std::vector<double> mg_source(n_groups, 0.0);
+    std::vector<double> mg_source(n_groups, 1.0);
     auto src = std::make_shared<IsotropicMultiGroupSource>(mg_source);
     material->properties.emplace_back(src);
 
@@ -83,7 +83,6 @@ int main(int argc, char** argv)
     solver.mesh = mesh;
     solver.materials.emplace_back(material);
     solver.linear_solver = linear_solver;
-    solver.time_stepping_method = TimeSteppingMethod::CRANK_NICHOLSON;
 
     solver.verbosity = 1;
     solver.use_precursors = true;
@@ -106,11 +105,16 @@ int main(int argc, char** argv)
 
     solver.t_end = 0.1;
     solver.dt = solver.t_end / 50;
+    solver.time_stepping_method = TimeSteppingMethod::CRANK_NICHOLSON;
+    solver.normalization_method = NormalizationMethod::TOTAL_POWER;
 
-    auto ic = [slab_width](const Point p)
-              { return 1.0 - p.z*p.z/(slab_width*slab_width); };
-    solver.initial_conditions[0] = ic;
-    solver.initial_conditions[1] = ic;
+    solver.write_outputs = true;
+    solver.output_directory = "outputs";
+
+//    auto ic = [slab_width](const Point p)
+//              { return 1.0 - p.z*p.z/(slab_width*slab_width); };
+//    solver.initial_conditions[0] = ic;
+//    solver.initial_conditions[1] = ic;
 
 
     //================================================== Run the problem
@@ -120,9 +124,6 @@ int main(int argc, char** argv)
     PetscInitialize(&argc,&argv,(char*)0,NULL);
 
     solver.initialize();
-
-    solver.phi.print();
-    exit(0);
 
     timer.start();
     solver.execute();

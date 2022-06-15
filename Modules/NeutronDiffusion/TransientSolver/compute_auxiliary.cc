@@ -34,7 +34,7 @@ TransientSolver::compute_power()
     const auto& xs = material_xs[matid_to_xs_map[cell.material_id]];
     if (xs->is_fissile)
     {
-      p += fission_rate[cell.id]*cell.volume;
+      p += fission_rate[cell.id] * cell.volume;
       volume += cell.volume;
       p_max = std::max(p_max, fission_rate[cell.id]);
     }

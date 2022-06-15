@@ -56,8 +56,9 @@ TransientSolver::compute_initial_values()
   // Normalize the scalar flux
   if (normalization_method != NormalizationMethod::NONE)
   {
-    compute_fission_rate();
     double initial_power = power;
+    compute_fission_rate();
+    compute_power();
 
     if (normalization_method == NormalizationMethod::TOTAL_POWER)
       phi.scale(initial_power / power);

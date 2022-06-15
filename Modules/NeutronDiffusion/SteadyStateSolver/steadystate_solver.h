@@ -13,6 +13,8 @@
 #include "material.h"
 #include "CrossSections/cross_sections.h"
 
+#include <string>
+
 
 using namespace Math;
 
@@ -72,7 +74,6 @@ namespace NeutronDiffusion
   {
   protected:
     typedef Grid::Mesh Mesh;
-    typedef DiscretizationMethod SDM;
 
     typedef Physics::Material Material;
     typedef Physics::MaterialPropertyType MaterialPropertyType;
@@ -310,6 +311,16 @@ namespace NeutronDiffusion
     double compute_change(const Groupset& groupset);
 
     // @}
+
+    /*-------------------- File I/O --------------------*/
+
+    /** Write the solution data to a binary file. */
+    void write(const std::string& file_base) const;
+
+  protected:
+    void write_discretization(std::ofstream& file) const;
+    void write_scalar_flux(std::ofstream& file) const;
+    void write_precursors(std::ofstream& file) const;
   };
 
 }

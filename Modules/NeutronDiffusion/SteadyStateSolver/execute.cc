@@ -21,7 +21,7 @@ using namespace Math::LinearSolver;
 void
 NeutronDiffusion::SteadyStateSolver::execute()
 {
-  //======================================== Initialize matrices
+  // Initialize matrices
   for (auto& groupset : groupsets)
   {
     if (solution_technique == SolutionTechnique::GROUPSET_WISE)
@@ -32,7 +32,7 @@ NeutronDiffusion::SteadyStateSolver::execute()
     linear_solver->set_matrix(groupset.A);
   }
 
-  //======================================== Solve
+  // Solve
   if (solution_technique == SolutionTechnique::FULL_SYSTEM)
     solve_full_system(APPLY_MATERIAL_SOURCE);
   else
@@ -42,9 +42,11 @@ NeutronDiffusion::SteadyStateSolver::execute()
                      APPLY_WGS_SCATTER_SOURCE | APPLY_AGS_SCATTER_SOURCE |
                      APPLY_WGS_FISSION_SOURCE | APPLY_AGS_FISSION_SOURCE);
 
-  //======================================== Compute precursors
+  // Compute precursors
   if (use_precursors)
     compute_precursors();
+
+  write("output");
 }
 
 //######################################################################
@@ -64,7 +66,7 @@ solve_groupset(Groupset& groupset, SourceFlags source_flags)
   double change;
   bool converged = false;
 
-  //======================================== Start iterations
+  // Start iterations
   for (nit = 0; nit < groupset.max_iterations; ++nit)
   {
     // Compute the RHS and solve

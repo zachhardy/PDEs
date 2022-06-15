@@ -182,6 +182,10 @@ namespace NeutronDiffusion
     void update_precursors();
 
     double effective_time_step();
+
+    /*-------------------- File I/O --------------------*/
+
+    void write(const size_t output_index) const;
   };
 }
 
