@@ -206,5 +206,4 @@ TransientSolver::assemble_matrices()
 
     linear_solver->set_matrix(groupset.A);
   }
-  rebuild_matrices = false;
 }
