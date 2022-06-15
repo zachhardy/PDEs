@@ -3,6 +3,8 @@
 
 #include "../KEigenvalueSolver/keigenvalue_solver.h"
 
+#include <functional>
+
 
 namespace Math
 {
@@ -27,6 +29,9 @@ namespace NeutronDiffusion
   class TransientSolver : public KEigenvalueSolver
   {
   public:
+
+    typedef std::function<double(const Grid::Point p)> InitialCondition;
+    typedef TimeSteppingMethod SteppingMethod;
 
     /*-------------------- Constants --------------------*/
 
@@ -56,16 +61,14 @@ namespace NeutronDiffusion
     /*-------------------- Time Stepping --------------------*/
 
     double time = 0.0;
+    double dt = 0.1;
 
     double t_start = 0.0;
     double t_end = 1.0;
 
-    double dt = 0.1;
+    SteppingMethod time_stepping_method = SteppingMethod::BACKWARD_EULER;
 
-    TimeSteppingMethod time_stepping_method =
-      TimeSteppingMethod::BACKWARD_EULER;
-
-    bool rebuild_matrices = false;
+    std::vector<InitialCondition> initial_conditions;
 
     /*-------------------- Outputting Options --------------------*/
 
@@ -146,7 +149,6 @@ namespace NeutronDiffusion
     void compute_power();
 
     void update_precursors();
-
 
     double effective_time_step();
   };
