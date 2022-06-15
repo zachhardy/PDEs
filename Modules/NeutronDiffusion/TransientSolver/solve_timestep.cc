@@ -94,6 +94,7 @@ TransientSolver::step_solutions()
 {
   power_old = power;
   phi_old = phi_ell = phi;
+  temperature_old = temperature;
   if (use_precursors)
     precursor_old = precursors;
 }

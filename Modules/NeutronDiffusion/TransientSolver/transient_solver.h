@@ -3,6 +3,9 @@
 
 #include "../KEigenvalueSolver/keigenvalue_solver.h"
 
+#include <map>
+#include <functional>
+
 
 namespace Math
 {
@@ -23,6 +26,16 @@ using namespace Math;
 
 namespace NeutronDiffusion
 {
+
+  /** Normalization method for the initial condition. */
+  enum class NormalizationMethod
+  {
+    NONE = 0,
+    TOTAL_POWER = 1,
+    AVERAGE_POWER = 2
+  };
+
+
   /** Implementation of a transient neutron diffusion solver. */
   class TransientSolver : public KEigenvalueSolver
   {
@@ -56,16 +69,36 @@ namespace NeutronDiffusion
     /*-------------------- Time Stepping --------------------*/
 
     double time = 0.0;
+    double dt = 0.1;
 
     double t_start = 0.0;
     double t_end = 1.0;
 
-    double dt = 0.1;
+    typedef TimeSteppingMethod SteppingMethod;
+    SteppingMethod time_stepping_method = SteppingMethod::BACKWARD_EULER;
 
-    TimeSteppingMethod time_stepping_method =
-      TimeSteppingMethod::BACKWARD_EULER;
+    /**
+     * A convenient typedef for group-wise initial condition functions. Each
+     * function should take a point object as input and returns a the
+     * evaluated initial condition.
+     */
+    typedef std::function<double(const Grid::Point p)> InitialCondition;
 
-    bool rebuild_matrices = false;
+    /**
+     * A map holding the initial condition functions used to initialize
+     * the transient solver. If the map is empty, a k-eigenvalue solver is
+     * used for the initial condition. Otherwise, the provided initial
+     * conditions are evaluated. Groups which do not have a specified initial
+     * condition are assumed to be uniformly zero.
+     */
+    std::map<size_t, InitialCondition> initial_conditions;
+
+    /**
+     * The normalization method for the initial condition. This is used to map
+     * the magnitude of the flux profile to a specified reactor power or
+     * average power density.
+     */
+    NormalizationMethod normalization_method = NormalizationMethod::TOTAL_POWER;
 
     /*-------------------- Outputting Options --------------------*/
 
@@ -120,6 +153,7 @@ namespace NeutronDiffusion
   private:
 
     void compute_initial_values();
+    void evaluate_initial_conditions();
 
     /*-------------------- Time Step Routines --------------------*/
 
@@ -146,7 +180,6 @@ namespace NeutronDiffusion
     void compute_power();
 
     void update_precursors();
-
 
     double effective_time_step();
   };

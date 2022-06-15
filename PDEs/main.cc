@@ -17,6 +17,7 @@
 
 #include <iostream>
 #include <vector>
+#include <map>
 
 #include <petsc.h>
 
@@ -38,7 +39,7 @@ int main(int argc, char** argv)
 
     //================================================== Mesh
 
-    size_t n_cells = 200;
+    size_t n_cells = 10;
     double slab_width = 6.0;
     double cell_width = slab_width / n_cells;
 
@@ -77,6 +78,7 @@ int main(int argc, char** argv)
     linear_solver = std::make_shared<PETScSolver>(KSPCG, PCLU, opts);
 
     //================================================== Create the solver
+
     TransientSolver solver;
     solver.mesh = mesh;
     solver.materials.emplace_back(material);
@@ -105,14 +107,23 @@ int main(int argc, char** argv)
     solver.t_end = 0.1;
     solver.dt = solver.t_end / 50;
 
+    auto ic = [slab_width](const Point p)
+              { return 1.0 - p.z*p.z/(slab_width*slab_width); };
+    solver.initial_conditions[0] = ic;
+    solver.initial_conditions[1] = ic;
+
 
     //================================================== Run the problem
+
+    Timer timer;
 
     PetscInitialize(&argc,&argv,(char*)0,NULL);
 
     solver.initialize();
 
-    Timer timer;
+    solver.phi.print();
+    exit(0);
+
     timer.start();
     solver.execute();
     timer.stop();
