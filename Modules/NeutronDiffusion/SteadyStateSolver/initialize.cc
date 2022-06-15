@@ -6,9 +6,9 @@
 #include "LinearSolvers/Direct/sparse_lu.h"
 #include "LinearSolvers/PETSc/petsc_solver.h"
 
-#include "macros.h"
-
+#include <algorithm>
 #include <set>
+#include <cassert>
 
 
 using namespace Math;
@@ -30,7 +30,7 @@ SteadyStateSolver::initialize()
     groupsets.clear();
     groupsets.emplace_back(0);
     for (const size_t group : groups)
-      groupsets[0].groups.emplace_back(group);
+      groupsets.front().groups.emplace_back(group);
 
     linear_solver = std::make_shared<PETScSolver>(KSPGMRES, PCLU);
   }
@@ -54,10 +54,13 @@ SteadyStateSolver::initialize()
   phi_ell.resize(phi.size(), 0.0);
   precursors.resize(max_precursors*n_nodes, 0.0);
 
-  //================================================== Initialize groupsets
+  //================================================== Initialize groups
+
+  // Initialize the groupsets
   for (auto& groupset : groupsets)
   {
     const size_t n_gsg = groupset.groups.size();
+
     groupset.A.reinit(n_gsg*n_nodes, n_gsg*n_nodes);
     groupset.b.resize(n_gsg*n_nodes, 0.0);
   }//for groupset
@@ -71,31 +74,36 @@ SteadyStateSolver::input_checks()
 {
   //================================================== Check the groups
   // Ensure groups and groupsets were added
-  Assert(!groups.empty(), "Groups must be added to the solver.");
-  Assert(!groupsets.empty(), "Groupsets must be added to the solver.");
+  assert(!groups.empty());
+  assert(!groupsets.empty());
+
+  // Sort the groups
+  std::sort(groups.begin(), groups.end());
+  for (size_t g = 1; g < n_groups; ++g)
+    assert(groups[g] - groups[g - 1] == 1);
 
   // Check that the groupsets contain all groups, no duplicates
   std::set<size_t> groupset_groups;
-  for (const auto& groupset : groupsets)
+  for (auto& groupset : groupsets)
   {
-    Assert(!groupset.groups.empty(),
-           "Groups must be added to each groupset.");
+    assert(!groupset.groups.empty());
+
+    // Sort the groupset
+    std::sort(groupset.groups.begin(), groupset.groups.end());
+    for (size_t g = 1; g < groupset.groups.size(); ++g)
+      assert(groupset.groups[g] - groupset.groups[g - 1] == 1);
 
     // Collect all groupset groups
     for (const auto& group : groupset.groups)
     {
-      Assert(groupset_groups.find(group) == groupset_groups.end(),
-             "Duplicate group found.");
-
+      assert(groupset_groups.find(group) == groupset_groups.end());
       groupset_groups.insert(group);
     }
   }
-
   std::set<size_t> groups_set(groups.begin(), groups.end());
-  Assert(groupset_groups == groups_set,
-         "The groupsets must contain all specified groups.");
+  assert(groupset_groups == groups_set);
 
   //================================================== Check the mesh
-  Assert(mesh != nullptr, "No mesh found.");
-  Assert(mesh->dim == 1, "Only 1D problems are implemented.");
+  assert(mesh != nullptr);
+  assert(mesh->dim == 1);
 }
