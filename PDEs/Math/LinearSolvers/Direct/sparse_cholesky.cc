@@ -7,21 +7,16 @@
 #include <cassert>
 
 
-using namespace Math;
-
-//################################################## Constructors
+using namespace Math::LinearSolver;
 
 
-LinearSolver::SparseCholesky::
-SparseCholesky() : DirectSolverBase<SparseMatrix>()
+SparseCholesky::SparseCholesky() :
+  DirectSolverBase<SparseMatrix>()
 {}
 
 
-//################################################## Methods
-
-
 void
-LinearSolver::SparseCholesky::factorize()
+SparseCholesky::factorize()
 {
   size_t n = A.n_rows();
 
@@ -29,13 +24,13 @@ LinearSolver::SparseCholesky::factorize()
   for (size_t j = 0; j < n; ++j)
   {
     // Accessor for the diagonal element
-    double d = A.diag(j);
+    double& d = A.diag(j);
 
     // Compute the new diagonal term
     double sum = 0.0;
     for (const auto el : A.row_iterator(j))
       if (el.column() < j)
-        sum += el.value() * el.value();
+        sum += el.value()*el.value();
     d = std::sqrt(d - sum);
 
     // Set the lower-diagonal components
@@ -46,12 +41,12 @@ LinearSolver::SparseCholesky::factorize()
       for (const auto a_ik : A.row_iterator(i))
         if (a_ik.column() < j)
           for (const auto a_jk : A.row_iterator(j))
-            if (a_jk.column()== a_ik.column())
-              sum += a_ik.value() * a_jk.value();
+            if (a_jk.column() == a_ik.column())
+              sum += a_ik.value()*a_jk.value();
 
       // Set element i, j
       double a_ij = A.el(i, j);
-      double value = (a_ij)? (a_ij - sum) / d : -sum / d;
+      double value = (a_ij)? (a_ij - sum)/d : -sum/d;
       if (std::fabs(value) != 0.0)
         A.set(i, j, value);
     }
@@ -61,7 +56,7 @@ LinearSolver::SparseCholesky::factorize()
 
 
 void
-LinearSolver::SparseCholesky::solve(Vector& x, const Vector& b) const
+SparseCholesky::solve(Vector& x, const Vector& b) const
 {
   size_t n = A.n_rows();
   assert(factorized);
@@ -74,8 +69,8 @@ LinearSolver::SparseCholesky::solve(Vector& x, const Vector& b) const
     double value = b[i];
     for (const auto el : A.row_iterator(i))
       if (el.column() < i)
-        value -= el.value() * x[el.column()];
-    x[i] = value / A.diag(i);
+        value -= el.value()*x[el.column()];
+    x[i] = value/A.diag(i);
   }
 
   //======================================== Backward solve
@@ -84,6 +79,6 @@ LinearSolver::SparseCholesky::solve(Vector& x, const Vector& b) const
     x[i] /= A.diag(i);
     for (const auto a_ij : A.row_iterator(i))
       if (a_ij.column() < i)
-        x[a_ij.column()] -= a_ij.value() * x[i];
+        x[a_ij.column()] -= a_ij.value()*x[i];
   }
 }

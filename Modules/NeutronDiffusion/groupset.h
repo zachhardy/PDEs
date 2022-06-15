@@ -19,7 +19,7 @@ namespace NeutronDiffusion
   class Groupset
   {
   public:
-    int id;
+    int id = -1;
     std::vector<size_t> groups;
 
     /*---------- Options ----------*/
@@ -27,14 +27,11 @@ namespace NeutronDiffusion
     double tolerance = 1.0e-8;
 
     /*---------- System Storage ----------*/
-    SparseMatrix  A;
-    Vector        b;
+    SparseMatrix A;
+    Vector b;
 
-    Groupset() : id(-1)
-    {}
 
-    explicit Groupset(int groupset_num) : id(groupset_num)
-    {}
+    explicit Groupset(int groupset_num) : id(groupset_num) {}
   };
 
 }

@@ -105,7 +105,7 @@ Point::operator()(const size_t i) const
 { return (*this)[i]; }
 
 
-//################################################## Characteristics
+//################################################## Information
 
 
 double
@@ -115,7 +115,7 @@ Point::length() const
 
 double
 Point::length_squared() const
-{ return x * x + y * y + z * z; }
+{ return x*x + y*y + z*z; }
 
 
 //################################################## Scalar Operations
@@ -182,15 +182,15 @@ Point::operator-=(const Point& q)
 
 double
 Point::dot(const Point& q) const
-{ return x * q.x + y * q.y * z * q.z; }
+{ return x*q.x + y*q.y*z*q.z; }
 
 
 Point
 Point::cross(const Point& q) const
 {
-  return Point(y * q.z - z * q.y,
-               z * q.x - x * q.z,
-               x * q.y - y * q.x);
+  return Point(y*q.z - z*q.y,
+               z*q.x - x*q.z,
+               x*q.y - y*q.x);
 }
 
 
@@ -205,7 +205,7 @@ Point::distance_squared(const Point& q) const
   double dx = x - q.x;
   double dy = y - q.y;
   double dz = z - q.z;
-  return dx * dx + dy * dy + dz * dz;
+  return dx*dx + dy*dy + dz*dz;
 }
 
 

@@ -4,15 +4,16 @@
 #include "material.h"
 #include "CrossSections/cross_sections.h"
 
+#include "timer.h"
+
 #include "LinearSolvers/DirectSolvers"
 #include "LinearSolvers/IterativeSolvers"
 #include "LinearSolvers/PETSc/petsc_solver.h"
 
-#include "NeutronDiffusion/Groupset/groupset.h"
+#include "NeutronDiffusion/groupset.h"
 #include "NeutronDiffusion/SteadyStateSolver/steadystate_solver.h"
 #include "NeutronDiffusion/KEigenvalueSolver/keigenvalue_solver.h"
-
-#include "macros.h"
+#include "NeutronDiffusion/TransientSolver/transient_solver.h"
 
 #include <iostream>
 #include <vector>
@@ -37,7 +38,7 @@ int main(int argc, char** argv)
 
     //================================================== Mesh
 
-    size_t n_cells = 50;
+    size_t n_cells = 200;
     double slab_width = 6.0;
     double cell_width = slab_width / n_cells;
 
@@ -45,7 +46,8 @@ int main(int argc, char** argv)
     for (size_t i = 0; i < n_cells; ++i)
       vertices.emplace_back(vertices.back() + cell_width);
 
-    auto mesh = create_1d_mesh(vertices, CoordinateSystem::SPHERICAL);
+    auto coord_sys = CoordinateSystemType::SPHERICAL;
+    auto mesh = create_1d_mesh(vertices, coord_sys);
 
     //================================================== Materials
 
@@ -59,7 +61,7 @@ int main(int argc, char** argv)
     size_t n_groups = xs->n_groups;
 
     // Create the multigroup source
-    std::vector<double> mg_source(n_groups, 1.0);
+    std::vector<double> mg_source(n_groups, 0.0);
     auto src = std::make_shared<IsotropicMultiGroupSource>(mg_source);
     material->properties.emplace_back(src);
 
@@ -67,21 +69,21 @@ int main(int argc, char** argv)
 
     Options opts;
     opts.verbosity = 0;
-    opts.tolerance = 1.0e-6;
+    opts.tolerance = 1.0e-10;
     opts.max_iterations = 10000;
 
     std::shared_ptr<LinearSolverBase<SparseMatrix>> linear_solver;
-
-    linear_solver = std::make_shared<PETScSolver>(KSPCG, PCSOR, opts);
 //    linear_solver = std::make_shared<CG>(opts);
+    linear_solver = std::make_shared<PETScSolver>(KSPCG, PCLU, opts);
 
     //================================================== Create the solver
-    KEigenvalueSolver solver;
+    TransientSolver solver;
     solver.mesh = mesh;
     solver.materials.emplace_back(material);
     solver.linear_solver = linear_solver;
+    solver.time_stepping_method = TimeSteppingMethod::CRANK_NICHOLSON;
 
-    solver.verbosity = 2;
+    solver.verbosity = 1;
     solver.use_precursors = true;
 
     // Initialize groups
@@ -98,7 +100,10 @@ int main(int argc, char** argv)
     solver.boundary_info.emplace_back(BoundaryType::REFLECTIVE, -1);
     solver.boundary_info.emplace_back(BoundaryType::ZERO_FLUX, -1);
 
-    solver.solution_technique = SolutionTechnique::GROUPSET_WISE;
+    solver.solution_technique = SolutionTechnique::FULL_SYSTEM;
+
+    solver.t_end = 0.1;
+    solver.dt = solver.t_end / 50;
 
 
     //================================================== Run the problem
@@ -106,7 +111,13 @@ int main(int argc, char** argv)
     PetscInitialize(&argc,&argv,(char*)0,NULL);
 
     solver.initialize();
+
+    Timer timer;
+    timer.start();
     solver.execute();
+    timer.stop();
+
+    std::cout << timer.get_time() << " ms\n";
 
     PetscFinalize();
   }

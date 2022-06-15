@@ -28,13 +28,13 @@ void
 PETScUtils::CreateMatrix(Mat& A, const Matrix& mat)
 {
   CreateMatrix(A, static_cast<PetscInt>(mat.n_rows()),
-                  static_cast<PetscInt>(mat.n_cols()));
+               static_cast<PetscInt>(mat.n_cols()));
 
   for (PetscInt i = 0; i < mat.n_rows(); ++i)
     for (PetscInt j = 0; j < mat.n_cols(); ++j)
     {
       PetscScalar a_ij = static_cast<PetscScalar>(mat(i, j));
-      if (a_ij!= 0.0)
+      if (a_ij != 0.0)
         MatSetValue(A, i, j, a_ij, INSERT_VALUES);
     }
 
@@ -43,12 +43,11 @@ PETScUtils::CreateMatrix(Mat& A, const Matrix& mat)
 }
 
 
-
 void
 PETScUtils::CreateMatrix(Mat& A, const SparseMatrix& mat)
 {
   CreateMatrix(A, static_cast<PetscInt>(mat.n_rows()),
-                  static_cast<PetscInt>(mat.n_cols()));
+               static_cast<PetscInt>(mat.n_cols()));
 
   // Add data to the PETSc matrix
   for (const auto el : mat)

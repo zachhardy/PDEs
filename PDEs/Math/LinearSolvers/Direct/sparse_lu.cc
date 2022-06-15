@@ -7,22 +7,21 @@
 #include <cassert>
 
 
-using namespace Math;
+using namespace Math::LinearSolver;
 
 
 //################################################## Setup
 
 
-LinearSolver::SparseLU::
-SparseLU(const bool pivot) : pivot_flag(pivot)
+SparseLU::SparseLU(const bool pivot) : pivot_flag(pivot)
 {}
 
 
 void
-LinearSolver::SparseLU::set_matrix(const SparseMatrix& matrix)
+SparseLU::set_matrix(const SparseMatrix& matrix)
 {
-  DirectSolverBase<SparseMatrix>::set_matrix(matrix);
   row_pivots.resize(matrix.n_rows());
+  DirectSolverBase<SparseMatrix>::set_matrix(matrix);
 }
 
 
@@ -30,7 +29,7 @@ LinearSolver::SparseLU::set_matrix(const SparseMatrix& matrix)
 
 
 void
-LinearSolver::SparseLU::factorize()
+SparseLU::factorize()
 {
   size_t n = A.n_rows();
 
@@ -52,7 +51,7 @@ LinearSolver::SparseLU::factorize()
       for (size_t k = j + 1; k < n; ++k)
       {
         const double a_kj = A.el(k, j);
-        if (a_kj > max)
+        if (std::fabs(a_kj) > max)
         {
           argmax = k;
           max = std::fabs(a_kj);
@@ -77,9 +76,11 @@ LinearSolver::SparseLU::factorize()
     // Compute the elements of the LU decomposition
     for (size_t i = j + 1; i < n; ++i)
     {
-      double a_ij = A.el(i, j);
-      if (a_ij != 0.0)
+      if (A.exists(i, j))
       {
+        double& a_ij = A(i, j);
+
+        // Get the
         /* Lower triangular components. This represents the row operations
          * performed to attain the upper-triangular, row-echelon matrix. */
         a_ij /= a_jj;
@@ -88,7 +89,7 @@ LinearSolver::SparseLU::factorize()
          * of the original matrix. */
         for (const auto el : A.row_iterator(j))
           if (el.column() > j)
-            A.add(i, el.column(), -a_ij * el.value());
+            A.add(i, el.column(), -a_ij*el.value());
       }//if a_ij exists
     }//for rows > j
   }//for j
@@ -97,7 +98,7 @@ LinearSolver::SparseLU::factorize()
 
 
 void
-LinearSolver::SparseLU::solve(Vector& x, const Vector& b) const
+SparseLU::solve(Vector& x, const Vector& b) const
 {
   size_t n = A.n_rows();
   assert(factorized);
@@ -110,7 +111,7 @@ LinearSolver::SparseLU::solve(Vector& x, const Vector& b) const
     double value = b[row_pivots[i]];
     for (const auto el : A.row_iterator(i))
       if (el.column() < i)
-        value -= el.value() * x[el.column()];
+        value -= el.value()*x[el.column()];
     x[i] = value;
   }
 
@@ -120,8 +121,8 @@ LinearSolver::SparseLU::solve(Vector& x, const Vector& b) const
     double value = x[i];
     for (const auto el : A.row_iterator(i))
       if (el.column() > i)
-        value -= el.value() * x[el.column()];
-    x[i] = value / A.diag(i);
+        value -= el.value()*x[el.column()];
+    x[i] = value/A.diag(i);
   }
 }
 
@@ -130,10 +131,10 @@ LinearSolver::SparseLU::solve(Vector& x, const Vector& b) const
 
 
 void
-LinearSolver::SparseLU::pivot(const bool flag)
+SparseLU::pivot(const bool flag)
 { pivot_flag = flag; }
 
 
 bool
-LinearSolver::SparseLU::pivot() const
+SparseLU::pivot() const
 { return pivot_flag; }

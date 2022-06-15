@@ -66,6 +66,9 @@ namespace Math
 
     size_t size() const;
 
+    /** Return the number of nonzero elements in the vector. */
+    size_t nnz() const;
+
     bool empty() const;
     bool all_zero() const;
 
@@ -275,7 +278,7 @@ namespace Math
      * \see Vector::str
      */
     void print(std::ostream& os = std::cout,
-               const bool scientific = false,
+               const bool scientific = true,
                const unsigned int precision = 3,
                const unsigned int width = 0) const;
 
@@ -288,7 +291,7 @@ namespace Math
      *
      * \see Vector::print
      */
-    std::string str(const bool scientific = false,
+    std::string str(const bool scientific = true,
                     const unsigned int precision = 3,
                     const unsigned int width = 0) const;
 
@@ -302,33 +305,33 @@ namespace Math
   Vector operator*(const double factor, const Vector& x);
 
   /** Divide each element of the vector by a scalar value. */
-   Vector operator/(const Vector& x, const double factor);
+  Vector operator/(const Vector& x, const double factor);
 
   /** Add two vectors together. */
-   Vector operator+(const Vector& x, const Vector& y);
+  Vector operator+(const Vector& x, const Vector& y);
 
   /** Subtract two vectors. */
-   Vector operator-(const Vector& x, const Vector& y);
+  Vector operator-(const Vector& x, const Vector& y);
 
   /** Return the dot product of two vectors. */
-   double dot(const Vector& x, const Vector& y);
+  double dot(const Vector& x, const Vector& y);
 
   /** Return the absolute value of a vector. */
-   Vector fabs(const Vector& x);
+  Vector fabs(const Vector& x);
 
   /** Return the \f$\ell_{\infty}\f$-norm of a vector. */
-   double linfty_norm(const Vector& x);
+  double linfty_norm(const Vector& x);
 
   /** Return the \f$\ell_1\f$-norm of a vector. */
-   double l1_norm(const Vector& x);
+  double l1_norm(const Vector& x);
 
   /** Return the \f$\ell_2\f$-norm of a vector. */
-   double l2_norm(const Vector& x);
+  double l2_norm(const Vector& x);
 
   /** Return the \f$\ell_p\f$-norm of a vector. */
-   double lp_norm(const Vector& x, const double p);
+  double lp_norm(const Vector& x, const double p);
 
   /** Insert the vector into an output stream. */
-   std::ostream& operator<<(std::ostream& os, const Vector& x);
+  std::ostream& operator<<(std::ostream& os, const Vector& x);
 }
 #endif //VECTOR_H

@@ -8,29 +8,23 @@
 #include <cmath>
 
 
-using namespace Math;
-
-//################################################## Setp
+using namespace Math::LinearSolver;
 
 
-LinearSolver::LU::
-LU(const bool pivot) : pivot_flag(pivot)
+LU::LU(const bool pivot) : pivot_flag(pivot)
 {}
 
 
 void
-LinearSolver::LU::set_matrix(const Matrix& matrix)
+LU::set_matrix(const Matrix& matrix)
 {
   DirectSolverBase<Matrix>::set_matrix(matrix);
   row_pivots.resize(matrix.n_rows());
 }
 
 
-//################################################## Methods
-
-
 void
-LinearSolver::LU::factorize()
+LU::factorize()
 {
   size_t n = A.n_rows();
 
@@ -88,7 +82,7 @@ LinearSolver::LU::factorize()
       /* Upper triangular components. This represents the row-echelon form of
        * the original matrix. */
       for (size_t k = j + 1; k < n; ++k)
-        *a_i++ -= a_ij * a_j[k];
+        *a_i++ -= a_ij*a_j[k];
     }
   }
   factorized = true;
@@ -96,7 +90,7 @@ LinearSolver::LU::factorize()
 
 
 void
-LinearSolver::LU::solve(Vector& x, const Vector& b) const
+LU::solve(Vector& x, const Vector& b) const
 {
   size_t n = A.n_rows();
   Assert(factorized, "Matrix must be factorized before solving.")
@@ -110,7 +104,7 @@ LinearSolver::LU::solve(Vector& x, const Vector& b) const
 
     double value = b[row_pivots[i]];
     for (size_t j = 0; j < i; ++j)
-      value -= *a_i++ * x[j];
+      value -= *a_i++*x[j];
     x[i] = value;
   }
 
@@ -123,20 +117,17 @@ LinearSolver::LU::solve(Vector& x, const Vector& b) const
 
     double value = x[i];
     for (size_t j = i + 1; j < n; ++j)
-      value -= *a_i++ * x[j];
-    x[i] = value / a_ii;
+      value -= *a_i++*x[j];
+    x[i] = value/a_ii;
   }
 }
 
 
-//################################################## Properties
-
-
 void
-LinearSolver::LU::pivot(const bool flag)
+LU::pivot(const bool flag)
 { pivot_flag = flag; }
 
 
 bool
-LinearSolver::LU::pivot() const
+LU::pivot() const
 { return pivot_flag; }

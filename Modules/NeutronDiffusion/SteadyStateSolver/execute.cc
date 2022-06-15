@@ -28,6 +28,8 @@ NeutronDiffusion::SteadyStateSolver::execute()
       assemble_matrix(groupset);
     else
       assemble_matrix(groupset, ASSEMBLE_SCATTER | ASSEMBLE_FISSION);
+
+    linear_solver->set_matrix(groupset.A);
   }
 
   //======================================== Solve
@@ -55,11 +57,8 @@ solve_groupset(Groupset& groupset, SourceFlags source_flags)
     std::cout << "\n***** Solving Groupset "
               << groupset.id << std::endl << std::endl;
 
-  SparseMatrix& A = groupset.A;
   Vector& b = groupset.b;
   const Vector b_init = b;
-
-  linear_solver->set_matrix(A);
 
   size_t nit;
   double change;
@@ -105,11 +104,9 @@ void
 NeutronDiffusion::SteadyStateSolver::
 solve_full_system(SourceFlags source_flags)
 {
-  if (verbosity)
+  if (verbosity > 1)
     std::cout << "\n***** Solving Full System\n";
 
   set_source(groupsets.front(), source_flags);
-
-  Vector& b = groupsets.front().b;
-  phi = linear_solver->solve(b);
+  phi = linear_solver->solve(groupsets.front().b);
 }

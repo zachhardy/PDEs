@@ -39,10 +39,10 @@ solve(Vector& x, const Vector& b) const
       double s = 0.0;
       for (const auto el : A->row_iterator(i))
         if (el.column() != i)
-          s += el.value() * x[el.column()];
+          s += el.value()*x[el.column()];
 
       double a_ii = A->diag(i);
-      x[i] += omega * ((b[i] - s) / a_ii - x[i]);
+      x[i] += omega*((b[i] - s)/a_ii - x[i]);
     }
 
     //==================== Compute backward sweep
@@ -51,11 +51,11 @@ solve(Vector& x, const Vector& b) const
       double s = 0.0;
       for (const auto el : A->row_iterator(i))
         if (el.column() != i)
-          s += el.value() * x[el.column()];
+          s += el.value()*x[el.column()];
 
       double a_ii = A->diag(i);
-      x[i] += omega * ((b[i] - s) / a_ii - x[i]);
-      change += std::fabs(x[i] - x_ell[i]) / std::fabs(x[i]);
+      x[i] += omega*((b[i] - s)/a_ii - x[i]);
+      change += std::fabs(x[i] - x_ell[i])/std::fabs(b[i]);
     }
 
     //==================== Check convergence

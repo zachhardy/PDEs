@@ -7,4 +7,5 @@
 #include "Direct/sparse_lu.h"
 #include "Direct/sparse_cholesky.h"
 
+
 #endif //DIRECTSOLVERS_H

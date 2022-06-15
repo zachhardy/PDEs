@@ -11,7 +11,7 @@
 
 namespace Grid
 {
-  enum class CoordinateSystem
+  enum class CoordinateSystemType
   {
     CARTESIAN = 0,  ///< \f$(x, y, z)\f$ coordinates.
     CYLINDRICAL = 1,  ///< \f$(r, z, \varphi)\f$ coordinates.
@@ -19,7 +19,7 @@ namespace Grid
   };
 
   /** Return the coordinate system type as a string. */
-  std::string coordinate_system_str(const CoordinateSystem coord_sys);
+  std::string coordinate_system_str(const CoordinateSystemType coord_sys);
 
   //###########################################################################
 
@@ -27,17 +27,18 @@ namespace Grid
    * A class that represents a general computational mesh.
    *
    * A Mesh is characterized by a spatial dimension and coordinate system type
-   * and is defined by a collection geometric objects up to its dimension. At the
-   * lowest level, a Mesh is comprised of 0D vertices. Connections between
+   * and is defined by a collection geometric objects up to its dimension. At
+   * the lowest level, a Mesh comprises 0D vertices. Connections between
    * vertices define 1D edges. A closed collection of edges make up 2D surfaces.
    * Lastly, a bound collection of surfaces then make up 3D volumes. Of course,
-   * a <tt>dim</tt>-dimensional mesh only contains objects up to dimension \p dim.
+   * a <tt>dim</tt>-dimensional mesh only contains objects up to dimension
+   * \p dim.
    */
   class Mesh
   {
   public:
     const size_t dim;
-    const CoordinateSystem coord_sys;
+    const CoordinateSystemType coord_sys;
 
     std::vector<Vertex> vertices;
     std::vector<Cell> cells;
@@ -52,7 +53,7 @@ namespace Grid
      * \param coordinate_system The coordinate system of the mesh.
      */
     explicit Mesh(const size_t dimension,
-                  const CoordinateSystem coordinate_system);
+                  const CoordinateSystemType coordinate_system);
 
   public:
 

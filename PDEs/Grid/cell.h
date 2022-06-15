@@ -50,6 +50,7 @@ namespace Grid
   {
   public:
     const CellType type;
+
     size_t id;
     int material_id = -1;
 
@@ -69,8 +70,6 @@ namespace Grid
 
 
   /** Insert a cell into an output stream. */
-  std::ostream&
-  operator<<(std::ostream& os, const Cell& cell);
-
+  std::ostream& operator<<(std::ostream& os, const Cell& cell);
 }
 #endif //CELL_H

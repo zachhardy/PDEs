@@ -286,10 +286,10 @@ Physics::CrossSections::reconcile_fission_properties()
         // fission spectra is weighted by `1 - \beta` and the delayed emmission
         // spectra by \beta \gamma_j, where \gamma_j is the yield of precursor
         // species j.
-        double beta = nu_delayed[g] / nu[g];
-        chi[g] = (1.0 - beta) * chi_prompt[g];
+        double beta = nu_delayed[g]/nu[g];
+        chi[g] = (1.0 - beta)*chi_prompt[g];
         for (size_t j = 0; j < n_precursors; ++j)
-          chi[g] += beta * precursor_yield[j] * chi_delayed[g][j];
+          chi[g] += beta*precursor_yield[j]*chi_delayed[g][j];
       }
       has_total.first = true;
       has_total.second = true;
@@ -317,9 +317,9 @@ Physics::CrossSections::reconcile_fission_properties()
     // Compute nu_sigma_f terms
     for (size_t g = 0; g < n_groups; ++g)
     {
-      nu_sigma_f[g] = nu[g] * sigma_f[g];
-      nu_prompt_sigma_f[g] = nu_prompt[g] * sigma_f[g];
-      nu_delayed_sigma_f[g] = nu_delayed[g] * sigma_f[g];
+      nu_sigma_f[g] = nu[g]*sigma_f[g];
+      nu_prompt_sigma_f[g] = nu_prompt[g]*sigma_f[g];
+      nu_delayed_sigma_f[g] = nu_delayed[g]*sigma_f[g];
     }
   }//if fissile
 }
@@ -355,6 +355,6 @@ Physics::CrossSections::compute_macroscopic_cross_sections()
   if (sum < 1.0e-12)
   {
     for (size_t g = 0; g < n_groups; ++g)
-      diffusion_coeff[g] = 1.0 / (3.0 * sigma_t[g]);
+      diffusion_coeff[g] = 1.0/(3.0*sigma_t[g]);
   }
 }

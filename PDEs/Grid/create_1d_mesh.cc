@@ -6,7 +6,7 @@
 
 std::shared_ptr<Grid::Mesh>
 Grid::create_1d_mesh(const std::vector<double> vertices,
-                     const CoordinateSystem coordinate_system,
+                     const CoordinateSystemType coordinate_system,
                      const bool verbose)
 {
   std::cout << "Creating a 1D mesh from vertices.\n";
@@ -41,21 +41,15 @@ Grid::create_1d_mesh(const std::vector<double> vertices,
   CellType cell_type;
   switch (coordinate_system)
   {
-    case CoordinateSystem::CARTESIAN:
-    {
-      cell_type = CellType::SLAB;
+    case CoordinateSystemType::CARTESIAN:cell_type = CellType::SLAB;
       break;
-    }
-    case CoordinateSystem::CYLINDRICAL:
-    {
-      cell_type = CellType::ANNULUS;
+
+    case CoordinateSystemType::CYLINDRICAL:cell_type = CellType::ANNULUS;
       break;
-    }
-    case CoordinateSystem::SPHERICAL:
-    {
-      cell_type = CellType::SHELL;
+
+    case CoordinateSystemType::SPHERICAL:cell_type = CellType::SHELL;
       break;
-    }
+
   }
 
   // Create the cells
@@ -107,7 +101,7 @@ std::shared_ptr<Grid::Mesh>
 Grid::create_1d_mesh(const std::vector<double> zone_edges,
                      const std::vector<size_t> zone_subdivisions,
                      const std::vector<int> material_ids,
-                     const CoordinateSystem coordinate_system,
+                     const CoordinateSystemType coordinate_system,
                      const bool verbose)
 {
   std::cout << "Creating a 1D mesh from zones.\n";
@@ -140,7 +134,7 @@ Grid::create_1d_mesh(const std::vector<double> zone_edges,
     // Define the width of cells in this zone z
     double zone_width = zone_edges[z + 1] - zone_edges[z];
     double n_zone_cells = static_cast<double>(zone_subdivisions[z]);
-    double cell_width = zone_width / n_zone_cells;
+    double cell_width = zone_width/n_zone_cells;
 
     for (size_t c = 0; c < n_zone_cells; ++c)
     {
@@ -153,21 +147,15 @@ Grid::create_1d_mesh(const std::vector<double> zone_edges,
   CellType cell_type;
   switch (coordinate_system)
   {
-    case CoordinateSystem::CARTESIAN:
-    {
-      cell_type = CellType::SLAB;
+    case CoordinateSystemType::CARTESIAN:cell_type = CellType::SLAB;
       break;
-    }
-    case CoordinateSystem::CYLINDRICAL:
-    {
-      cell_type = CellType::ANNULUS;
+
+    case CoordinateSystemType::CYLINDRICAL:cell_type = CellType::ANNULUS;
       break;
-    }
-    case CoordinateSystem::SPHERICAL:
-    {
-      cell_type = CellType::SHELL;
+
+    case CoordinateSystemType::SPHERICAL:cell_type = CellType::SHELL;
       break;
-    }
+
   }
 
   // Create the cells, loop over zones, then cells per zone

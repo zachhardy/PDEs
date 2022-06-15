@@ -87,10 +87,13 @@ namespace Grid
 
     // @}
 
-    //################################################## Characteristics
+    //################################################## Information
 
-    /** \name Characteristics */
+    /** \name Information */
     // @{
+
+    bool operator==(const Point& q) const;
+    bool operator!=(const Point& q) const;
 
     /**
      * Return the length of the point vector. This is equivalent to returning
@@ -109,10 +112,6 @@ namespace Grid
      * \see Point::length
      */
     value_type length_squared() const;
-
-
-    bool operator==(const Point& q) const;
-    bool operator!=(const Point& q) const;
 
     // @}
 

@@ -13,6 +13,8 @@ KEigenvalueSolver::execute()
       assemble_matrix(groupset);
     else
       assemble_matrix(groupset, ASSEMBLE_SCATTER);
+
+    linear_solver->set_matrix(groupset.A);
   }
 
   power_method();

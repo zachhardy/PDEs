@@ -10,6 +10,7 @@
 
 using namespace Math;
 
+
 LinearSolver::SOR::
 SOR(const double omega, const Options& opts, const std::string solver_name) :
   IterativeSolverBase(opts, solver_name), omega(omega)
@@ -38,13 +39,13 @@ solve(Vector& x, const Vector& b) const
       double value = 0.0;
       for (const auto el : A->row_iterator(i))
         if (el.column() != i)
-          value += el.value() * x[el.column()];
+          value += el.value()*x[el.column()];
 
       double a_ii = A->diag(i);
-      value = x[i] + omega * ((b[i] - value) / a_ii - x[i]);
+      value = x[i] + omega*((b[i] - value)/a_ii - x[i]);
 
       //==================== Increment difference
-      change += std::fabs(value - x[i]) / std::fabs(b[i]);
+      change += std::fabs(value - x[i])/std::fabs(b[i]);
       x[i] = value;
     }
 

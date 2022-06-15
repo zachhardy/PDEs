@@ -3,21 +3,36 @@
 
 #include <cmath>
 #include <iomanip>
+#include <algorithm>
 
 
 using namespace Math;
 
 //################################################## Constructors
 
-Vector::Vector(const size_t n) : vals(n) {}
+Vector::Vector(const size_t n) :
+  vals(n)
+{}
 
-Vector::Vector(const size_t n, const double value) : vals(n, value) {}
 
-Vector::Vector(const std::vector<double>& other) : vals(other) {}
+Vector::Vector(const size_t n, const double value) :
+  vals(n, value)
+{}
 
-Vector::Vector(std::vector<double>&& other) : vals(other) {}
 
-Vector::Vector(const std::initializer_list<double> list) : vals(list) {}
+Vector::Vector(const std::vector<double>& other) :
+  vals(other)
+{}
+
+
+Vector::Vector(std::vector<double>&& other) :
+  vals(other)
+{}
+
+
+Vector::Vector(const std::initializer_list<double> list) :
+  vals(list)
+{}
 
 
 //################################################## Assignment
@@ -62,6 +77,15 @@ Vector::operator=(const double value)
 size_t
 Vector::size() const
 { return vals.size(); }
+
+
+size_t
+Vector::nnz() const
+{
+  return std::count_if(vals.begin(), vals.end(),
+                       [](const value_type v)
+                       { return v != 0.0; });
+}
 
 
 bool
@@ -213,7 +237,7 @@ Vector::dot(const Vector& y) const
   Assert(size() == y.size(), "Dimension mismatch error.");
   double c = 0.0;
   for (size_t i = 0; i < size(); ++i)
-    c += vals[i] * y.vals[i];
+    c += vals[i]*y.vals[i];
   return c;
 }
 
@@ -244,7 +268,7 @@ Vector::l2_norm() const
 {
   double norm = 0.0;
   for (const auto& el : vals)
-    norm += std::fabs(el) * std::fabs(el);
+    norm += std::fabs(el)*std::fabs(el);
   return std::sqrt(norm);
 }
 
@@ -255,7 +279,7 @@ Vector::lp_norm(const double p) const
   double norm = 0.0;
   for (const auto& el : vals)
     norm += std::pow(std::fabs(el), p);
-  return std::pow(norm, 1.0 / p);
+  return std::pow(norm, 1.0/p);
 }
 
 
@@ -309,7 +333,7 @@ Vector::add(const Vector& y, const value_type a)
 
   // Perform the add operation
   for (; x_ptr != end_ptr; ++x_ptr, ++y_ptr)
-    *x_ptr += a * *y_ptr;
+    *x_ptr += a**y_ptr;
   return *this;
 }
 
@@ -326,7 +350,7 @@ Vector::sadd(const value_type a, const Vector& y)
 
   // Perform the add operation
   for (; x_ptr != end_ptr; ++x_ptr, ++y_ptr)
-    *x_ptr = a * *x_ptr + *y_ptr;
+    *x_ptr = a**x_ptr + *y_ptr;
   return *this;
 }
 
@@ -343,7 +367,7 @@ Vector::sadd(const value_type a, const value_type b, const Vector& y)
 
   // Perform the add operation
   for (; x_ptr != end_ptr; ++x_ptr, ++y_ptr)
-    *x_ptr = a * *x_ptr + b * *y_ptr;
+    *x_ptr = a**x_ptr + b**y_ptr;
   return *this;
 }
 
@@ -360,7 +384,7 @@ Vector::equal(const Vector& y, const value_type factor)
 
   // Perform the add operation
   for (; x_ptr != end_ptr;)
-    *x_ptr++ = factor * *y_ptr++;
+    *x_ptr++ = factor**y_ptr++;
   return *this;
 }
 
@@ -393,7 +417,7 @@ Vector&
 Vector::operator/=(const double factor)
 {
   Assert(factor != 0.0, "Zero division error.");
-  return scale(1.0 / factor);
+  return scale(1.0/factor);
 }
 
 

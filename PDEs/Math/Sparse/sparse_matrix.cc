@@ -17,9 +17,9 @@ using namespace SparseMatrixIterators;
 
 
 Iterator::Accessor::
-Accessor(SparseMatrix*  matrix,
-         const size_t   row,
-         const size_t   index) :
+Accessor(SparseMatrix* matrix,
+         const size_t row,
+         const size_t index) :
   matrix(matrix),
   current_row(row),
   current_index(index)
@@ -127,9 +127,9 @@ Iterator::Accessor::advance()
 }
 
 
-Iterator::Iterator(SparseMatrix*  matrix,
-                   const size_t   row,
-                   const size_t   index) :
+Iterator::Iterator(SparseMatrix* matrix,
+                   const size_t row,
+                   const size_t index) :
   accessor(matrix, row, index)
 {}
 
@@ -185,9 +185,9 @@ Iterator::operator<(const Iterator& other) const
 
 
 ConstIterator::Accessor::
-Accessor(const SparseMatrix*  matrix,
-         const size_t   row,
-         const size_t   index) :
+Accessor(const SparseMatrix* matrix,
+         const size_t row,
+         const size_t index) :
   matrix(matrix),
   current_row(row),
   current_index(index)
@@ -299,9 +299,9 @@ ConstIterator::Accessor::advance()
 
 
 ConstIterator::
-ConstIterator(const SparseMatrix*  matrix,
-              const size_t         row,
-              const size_t         index) :
+ConstIterator(const SparseMatrix* matrix,
+              const size_t row,
+              const size_t index) :
   accessor(matrix, row, index)
 {}
 
@@ -358,7 +358,7 @@ ConstIterator::operator<(const ConstIterator& other) const
 
 
 RowIterator::RowIterator(SparseMatrix* matrix,
-                         const size_t  row) :
+                         const size_t row) :
   matrix(matrix), row(row)
 { assert(row < matrix->rows); }
 
@@ -378,7 +378,7 @@ RowIterator::end()
 
 ConstRowIterator::
 ConstRowIterator(const SparseMatrix* matrix,
-                 const size_t        row) :
+                 const size_t row) :
   matrix(matrix), row(row)
 { assert(row < matrix->rows); }
 
@@ -456,6 +456,18 @@ SparseMatrix::copy_from(const Matrix& matrix)
       if (matrix(row, col) != 0.0)
         set(row, col, matrix(row, col));
   has_entries = true;
+}
+
+
+void
+SparseMatrix::copy_from(const SparseMatrix& matrix)
+{
+  rows = matrix.n_rows();
+  cols = matrix.n_cols();
+
+  colnums = matrix.colnums;
+  vals = matrix.vals;
+  has_entries = matrix.has_entries;
 }
 
 
@@ -557,11 +569,11 @@ SparseMatrix::begin(const size_t row)
     return end();
 
   size_t r = row;
-  while(r != row && colnums[r].size() == 0)
+  while (r != row && colnums[r].size() == 0)
     ++r;
 
   if (r == rows) return {this};
-  else           return {this, r, 0};
+  else return {this, r, 0};
 }
 
 
@@ -591,11 +603,11 @@ SparseMatrix::begin(const size_t row) const
     return end();
 
   size_t r = row;
-  while(r != row && colnums[r].size() == 0)
+  while (r != row && colnums[r].size() == 0)
     ++r;
 
   if (r == rows) return {this};
-  else           return {this, r, 0};
+  else return {this, r, 0};
 }
 
 
@@ -686,8 +698,8 @@ SparseMatrix::clear()
 
 
 void
-SparseMatrix::set(const size_t     row,
-                  const size_t     col,
+SparseMatrix::set(const size_t row,
+                  const size_t col,
                   const value_type value)
 {
   assert(row < rows);
@@ -724,8 +736,8 @@ SparseMatrix::set(const size_t     row,
 
 
 void
-SparseMatrix::add(const size_t     row,
-                  const size_t     col,
+SparseMatrix::add(const size_t row,
+                  const size_t col,
                   const value_type value)
 {
   assert(row < rows);
@@ -775,7 +787,7 @@ SparseMatrix::scale(const value_type factor)
 
 SparseMatrix&
 SparseMatrix::add(const SparseMatrix& B,
-                  const value_type    factor)
+                  const value_type factor)
 {
   assert(colnums == B.colnums);
   for (size_t row = 0; row < rows; ++row)
@@ -784,15 +796,15 @@ SparseMatrix::add(const SparseMatrix& B,
     const value_type* b_ij = &B.vals[row][0];
     const value_type* const eor = a_ij + row_length(row);
 
-    while(a_ij != eor)
-      *a_ij++ += factor * *b_ij++;
+    while (a_ij != eor)
+      *a_ij++ += factor**b_ij++;
   }
   return *this;
 }
 
 
 SparseMatrix&
-SparseMatrix::sadd(const value_type    a,
+SparseMatrix::sadd(const value_type a,
                    const SparseMatrix& B)
 {
   assert(colnums == B.colnums);
@@ -802,16 +814,16 @@ SparseMatrix::sadd(const value_type    a,
     const value_type* b_ij = &B.vals[row][0];
     const value_type* const eor = a_ij + row_length(row);
 
-    for(; a_ij != eor; ++a_ij)
-      *a_ij = a * *a_ij + *b_ij;
+    for (; a_ij != eor; ++a_ij)
+      *a_ij = a**a_ij + *b_ij;
   }
   return *this;
 }
 
 
 SparseMatrix&
-SparseMatrix::sadd(const value_type    a,
-                   const value_type    b,
+SparseMatrix::sadd(const value_type a,
+                   const value_type b,
                    const SparseMatrix& B)
 {
   assert(colnums == B.colnums);
@@ -821,8 +833,8 @@ SparseMatrix::sadd(const value_type    a,
     const value_type* b_ij = &B.vals[row][0];
     const value_type* const eor = a_ij + row_length(row);
 
-    for(; a_ij != eor; ++a_ij)
-      *a_ij = a * *a_ij + b * *b_ij;
+    for (; a_ij != eor; ++a_ij)
+      *a_ij = a**a_ij + b**b_ij;
   }
   return *this;
 }
@@ -830,8 +842,8 @@ SparseMatrix::sadd(const value_type    a,
 
 void
 SparseMatrix::vmult(const Vector& x,
-                    Vector&       y,
-                    const bool    adding) const
+                    Vector& y,
+                    const bool adding) const
 {
   assert(x.size() == cols);
   assert(y.size() == rows);
@@ -846,7 +858,7 @@ SparseMatrix::vmult(const Vector& x,
 
     value_type val = adding? *dst_ptr : 0.0;
     while (a_ij != eor)
-      val += *a_ij++ * x[*col_ptr++];
+      val += *a_ij++*x[*col_ptr++];
     *dst_ptr++ = val;
   }
 }
@@ -854,8 +866,8 @@ SparseMatrix::vmult(const Vector& x,
 
 void
 SparseMatrix::Tvmult(const Vector& x,
-                     Vector&       y,
-                     const bool    adding) const
+                     Vector& y,
+                     const bool adding) const
 {
   assert(x.size() == cols);
   assert(y.size() == rows);
@@ -870,7 +882,7 @@ SparseMatrix::Tvmult(const Vector& x,
     const value_type* const eor = a_ij + row_length(row);
 
     while (a_ij != eor)
-      dst_ptr[*col_ptr++] += *a_ij++ * *x_ptr;
+      dst_ptr[*col_ptr++] += *a_ij++**x_ptr;
   }
 }
 
@@ -944,8 +956,8 @@ SparseMatrix::print(std::ostream& os,
   assert(!empty());
 
   // setup output stream format
-  std::ios::fmtflags old_flags     = os.flags();
-  unsigned int       old_precision = os.precision(precision);
+  std::ios::fmtflags old_flags = os.flags();
+  unsigned int old_precision = os.precision(precision);
   if (scientific)
     os.setf(std::ios::scientific, std::ios::floatfield);
   else
@@ -974,9 +986,9 @@ SparseMatrix::print_formatted(std::ostream& os,
   assert(!empty());
 
   // setup output stream format
-  unsigned int       w             = width;
-  std::ios::fmtflags old_flags     = os.flags();
-  unsigned int       old_precision = os.precision(precision);
+  unsigned int w = width;
+  std::ios::fmtflags old_flags = os.flags();
+  unsigned int old_precision = os.precision(precision);
   if (scientific)
     os.setf(std::ios::scientific, std::ios::floatfield);
   else

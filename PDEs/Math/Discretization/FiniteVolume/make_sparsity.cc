@@ -13,7 +13,7 @@ make_sparsity_pattern(std::vector<std::vector<size_t>> pattern,
   // Loop over cells
   for (const auto& cell : mesh->cells)
   {
-    const uint64_t ir = cell.id * n_components;
+    const uint64_t ir = cell.id*n_components;
 
     for (uint64_t c = 0; c < n_components; ++c)
     {
@@ -30,7 +30,7 @@ make_sparsity_pattern(std::vector<std::vector<size_t>> pattern,
     {
       if (face.has_neighbor)
       {
-        const uint64_t jr = face.neighbor_id * n_components;
+        const uint64_t jr = face.neighbor_id*n_components;
         for (uint64_t c = 0; c < n_components; ++c)
           pattern[ir + c].emplace_back(jr + c);
       }

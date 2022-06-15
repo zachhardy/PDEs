@@ -33,17 +33,12 @@ namespace Math
   class Discretization
   {
   public:
-    const std::shared_ptr<Grid::Mesh> mesh;
-    const DiscretizationMethod type;
-
-  public:
     explicit
     Discretization(const std::shared_ptr<Grid::Mesh> reference_mesh,
                    const DiscretizationMethod discretization_type)
       : mesh(reference_mesh), type(discretization_type)
     {}
 
-  public:
     /** Return the number of nodes in the discretization. */
     virtual size_t n_nodes() const = 0;
 
@@ -77,6 +72,10 @@ namespace Math
     make_sparsity_pattern(std::vector<std::vector<size_t>> pattern,
                           const size_t n_components = 1,
                           const bool is_coupled = false) const = 0;
+
+
+    const std::shared_ptr<Grid::Mesh> mesh;
+    const DiscretizationMethod type;
   };
 
 }

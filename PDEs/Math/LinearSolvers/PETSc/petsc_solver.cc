@@ -37,6 +37,8 @@ PETScSolver::set_matrix(const SparseMatrix& matrix)
   KSPGetPC(ksp, &pc);
   PCSetType(pc, preconditioner_type.c_str());
 
+  KSPSetConvergenceTest(ksp, &KSPConvergenceTest, NULL, NULL);
+
   KSPSetTolerances(ksp, relative_residual_tolerance,
                    PETSC_DEFAULT, PETSC_DEFAULT, max_iterations);
 
@@ -90,7 +92,7 @@ PETScSolver::solve(Vector& x, const Vector& b) const
         << solver_str << "::"
         << pc_str << " FAILURE !!*!!\n"
         << "# of Iterations:   " << it << std::endl
-        << "Final Difference:  " << res << std::endl;
+        << "Final Value:  " << res << std::endl;
     throw std::runtime_error(err.str());
   }
 
@@ -100,6 +102,28 @@ PETScSolver::solve(Vector& x, const Vector& b) const
   VecDestroy(&solution);
 }
 
+
+PetscErrorCode
+PETScSolver::KSPConvergenceTest(KSP solver,
+                                PetscInt it, PetscReal rnorm,
+                                KSPConvergedReason* reason,
+                                void*)
+{
+  Vec rhs;
+  KSPGetRhs(solver, &rhs);
+  double rhs_norm;
+  VecNorm(rhs, NORM_2, &rhs_norm);
+  rhs_norm = (rhs_norm < 1.0e-12)? 1.0 : rhs_norm;
+
+  double tol;
+  PetscInt its;
+  KSPGetTolerances(solver, &tol, NULL, NULL, &its);
+
+  double relative_residual = rnorm / rhs_norm;
+  if (relative_residual < tol)
+    *reason = KSP_CONVERGED_RTOL;
+  return KSP_CONVERGED_ITERATING;
+}
 
 
 PetscErrorCode
