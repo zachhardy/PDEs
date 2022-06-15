@@ -34,7 +34,7 @@ TransientSolver::initialize()
 void
 TransientSolver::compute_initial_values()
 {
-  //==================== Normalize fission cross sections
+  // Normalize fission cross sections
   if (normalize_fission_xs)
     for (auto& xs : material_xs)
       for (size_t g = 0; g < n_groups; ++g)
@@ -45,26 +45,19 @@ TransientSolver::compute_initial_values()
         xs->nu_delayed_sigma_f[g] /= k_eff;
       }
 
-  //==================== Compute fuel volume
-  reactor_volume = 0.0;
-  for (const auto& cell : mesh->cells)
-  {
-    const auto& xs = material_xs[matid_to_xs_map[cell.material_id]];
-    if (xs->is_fissile)
-      reactor_volume += cell.volume;
-  }
-
-  //========== Normalize the scalar flux
+  // Normalize the scalar flux
   compute_fission_rate();
-  phi.scale(power / compute_reactor_power());
 
-  //========== Recompute auxiliary quantities
+  double initial_power = power;
+  compute_power();
+  phi.scale(initial_power / power);
+
+  // Recompute auxiliary quantities
   compute_fission_rate();
-  power = compute_reactor_power();
-  average_power_density = power / reactor_volume;
+  compute_power();
   if (use_precursors)
     compute_precursors();
 
-  //=========== Set old solution vectors
+  // Set old solution vectors
   step_solutions();
 }

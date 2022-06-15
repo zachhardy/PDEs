@@ -92,32 +92,25 @@ namespace NeutronDiffusion
     Vector phi_old;
     Vector precursor_old;
 
-    /** The cell-wise fission rate density in (fissions/cm\f$^3\f$). */
+    /*-------------------- Power Quantities --------------------*/
+
     Vector fission_rate;
 
-    /** The cell-wise material temperature. */
-    Vector temperature;
-
-    /** The cell-wise material temperature last time step. */
-    Vector temperature_old;
-
-    /** The total reactor power (W). */
     double power = 1.0;
-
-    /** The total reactor power last time step (W). */
     double power_old = 1.0;
 
-    /** The initial temperature of the reactor (K). */
+    double average_power_density;
+    double peak_power_density;
+
+    /*-------------------- Temperature Quantities --------------------*/
+
+    Vector temperature;
+    Vector temperature_old;
+
     double initial_temperature = 300.0;
 
-    /** The average power density in the reactor (W/cm\f$^3\f$). */
-    double average_power_density;
-
-    /** The average fuel temperature in the reactor (K). */
     double average_fuel_temperature;
-
-    /** The total reactor volume (cm\f$cm^3\f$). */
-    double reactor_volume;
+    double peak_fuel_temperature;
 
     /*-------------------- Public Facing Routines --------------------*/
 
@@ -150,7 +143,8 @@ namespace NeutronDiffusion
     /*-------------------- Auxiliary Quantities --------------------*/
 
     void compute_fission_rate();
-    double compute_reactor_power();
+    void compute_power();
+
     void update_precursors();
 
 

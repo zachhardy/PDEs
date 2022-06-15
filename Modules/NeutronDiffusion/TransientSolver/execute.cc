@@ -28,7 +28,7 @@ TransientSolver::execute()
       dt = t_end - time;
 
     solve_time_step();
-    power = compute_reactor_power();
+    compute_power();
 
     time += dt;
     ++step;

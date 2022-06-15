@@ -24,19 +24,26 @@ TransientSolver::compute_fission_rate()
 }
 
 
-double
-TransientSolver::compute_reactor_power()
+void
+TransientSolver::compute_power()
 {
-  //==================== Loop over cells
-  double p = 0.0;
+  // Loop over cells
+  double p = 0.0, p_max = 0.0, volume = 0.0;
   for (const auto& cell : mesh->cells)
   {
     const auto& xs = material_xs[matid_to_xs_map[cell.material_id]];
     if (xs->is_fissile)
-      p += fission_rate[cell.id] * cell.volume;
-   }
-  return energy_per_fission * p;
+    {
+      p += fission_rate[cell.id]*cell.volume;
+      volume += cell.volume;
+      p_max = std::max(p_max, fission_rate[cell.id]);
+    }
+  }
+  power = energy_per_fission * p;
+  average_power_density = power / volume;
+  peak_power_density = energy_per_fission * p_max;
 }
+
 
 
 

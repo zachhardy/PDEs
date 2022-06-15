@@ -38,7 +38,7 @@ int main(int argc, char** argv)
 
     //================================================== Mesh
 
-    size_t n_cells = 100;
+    size_t n_cells = 200;
     double slab_width = 6.0;
     double cell_width = slab_width / n_cells;
 
@@ -100,7 +100,7 @@ int main(int argc, char** argv)
     solver.boundary_info.emplace_back(BoundaryType::REFLECTIVE, -1);
     solver.boundary_info.emplace_back(BoundaryType::ZERO_FLUX, -1);
 
-    solver.solution_technique = SolutionTechnique::GROUPSET_WISE;
+    solver.solution_technique = SolutionTechnique::FULL_SYSTEM;
 
     solver.t_end = 0.1;
     solver.dt = solver.t_end / 50;
