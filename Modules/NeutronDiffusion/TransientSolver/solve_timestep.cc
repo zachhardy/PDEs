@@ -1,5 +1,6 @@
 #include "transient_solver.h"
 
+#include <cmath>
 #include <iomanip>
 
 
@@ -15,7 +16,7 @@ TransientSolver::solve_time_step()
   if (solution_technique == SolutionTechnique::FULL_SYSTEM)
     solve_full_system_time_step(APPLY_MATERIAL_SOURCE);
   else
-    for (auto& groupset : groupsets)
+    for (auto& groupset: groupsets)
       solve_groupset_time_step(
         groupset,
         APPLY_MATERIAL_SOURCE |
@@ -36,6 +37,7 @@ TransientSolver::solve_time_step()
   compute_fission_rate();
 }
 
+//######################################################################
 
 void
 TransientSolver::solve_groupset_time_step(Groupset& groupset,
@@ -47,7 +49,7 @@ TransientSolver::solve_groupset_time_step(Groupset& groupset,
   double change;
   bool converged = false;
 
-  //======================================== Start iterations
+  // Start iterations
   for (nit = 0; nit < groupset.max_iterations; ++nit)
   {
     // Compute the RHS and solve
@@ -79,6 +81,7 @@ TransientSolver::solve_groupset_time_step(Groupset& groupset,
   }//for nit
 }
 
+//######################################################################
 
 void
 TransientSolver::solve_full_system_time_step(SourceFlags source_flags)
@@ -88,6 +91,40 @@ TransientSolver::solve_full_system_time_step(SourceFlags source_flags)
   phi = linear_solver->solve(groupsets.front().b);
 }
 
+//######################################################################
+
+void
+TransientSolver::refine_time_step()
+{
+  double dP = std::fabs(power - power_old)/std::fabs(power_old);
+  while (dP > refine_threshold)
+  {
+    dt /= 2.0;
+    assemble_matrices();
+
+    solve_time_step();
+    compute_power();
+
+    dP = std::fabs(power - power_old)/std::fabs(power_old);
+  }
+}
+
+//######################################################################
+
+void
+TransientSolver::coarsen_time_step()
+{
+  double dP = std::fabs(power - power_old)/std::fabs(power_old);
+  if (dP < coarsen_threshold)
+  {
+    dt *= 2.0;
+    if (dt > output_frequency)
+      dt = output_frequency;
+    assemble_matrices();
+  }
+}
+
+//######################################################################
 
 void
 TransientSolver::step_solutions()
@@ -99,6 +136,7 @@ TransientSolver::step_solutions()
     precursor_old = precursors;
 }
 
+//######################################################################
 
 double
 TransientSolver::effective_time_step()

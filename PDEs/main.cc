@@ -133,6 +133,10 @@ int main(int argc, char** argv)
     solver.initial_conditions[0] = ic;
     solver.initial_conditions[1] = ic;
 
+    solver.adaptivity = true;
+    solver.coarsen_threshold = 0.01;
+    solver.refine_threshold = 0.025;
+
     //============================================================
     // Run the problem
     //============================================================
