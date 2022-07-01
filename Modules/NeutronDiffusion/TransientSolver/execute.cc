@@ -13,7 +13,7 @@ TransientSolver::execute()
   size_t output = 0;
   double next_output = output_frequency;
   if (write_outputs)
-    write(output++);
+    write_snapshot(output++);
 
   // Initialize matrices
   assemble_matrices();
@@ -47,7 +47,7 @@ TransientSolver::execute()
     // Output solutions
     if (std::fabs(time - next_output) < 1.0e-12)
     {
-      write(output++);
+      write_snapshot(output++);
       next_output += output_frequency;
       if (next_output > t_end ||
           std::fabs(next_output - t_end) < 1.0e-12)

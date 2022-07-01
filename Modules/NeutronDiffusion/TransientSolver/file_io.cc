@@ -8,7 +8,7 @@ using namespace NeutronDiffusion;
 
 
 void
-TransientSolver::write(const size_t output_index) const
+TransientSolver::write_snapshot(const size_t output_index) const
 {
   std::string file_base(std::to_string(output_index));
   file_base.insert(0, 4 - file_base.size(), '0');
@@ -32,12 +32,6 @@ TransientSolver::write(const size_t output_index) const
   header_info +=
     "Structure(type-info):\n"
     "uint64_t      time_step\n"
-    "double        time\n"
-    "double        power\n"
-    "double        peak_power_density\n"
-    "double        average_power_density\n"
-    "double        peak_fuel_temperature\n"
-    "double        average_fuel_temperature\n"
     "unsigned_int  n_data_blocks\n"
     "unsigned int  n_cells\n"
     "unsigned int  n_nodes\n"
@@ -45,6 +39,12 @@ TransientSolver::write(const size_t output_index) const
     "unsigned int  n_groups\n"
     "unsigned int  n_precursors\n"
     "unsigned int  max_precursors\n"
+    "double        time\n"
+    "double        power\n"
+    "double        peak_power_density\n"
+    "double        average_power_density\n"
+    "double        peak_fuel_temperature\n"
+    "double        average_fuel_temperature\n"
     "Each cell:\n"
     "  uint64_t     cell_id\n"
     "  uint64_t     material_id\n"
@@ -59,7 +59,7 @@ TransientSolver::write(const size_t output_index) const
     "    double   z_position\n"
     "Scalar Flux Records:\n"
     "  unsigned int  record_type\n"
-    "  uint64_t      n_data_blocks\n"
+    "  uint64_t      n_records\n"
     "  Each Record:\n"
     "    uint64_t      cell_id\n"
     "    unsigned int  node\n"
@@ -68,7 +68,7 @@ TransientSolver::write(const size_t output_index) const
     "    double        value\n"
     "Precursor Records:\n"
     "  unsigned int record_type\n"
-    "  uint64_t     n_data_blocks\n"
+    "  uint64_t     n_records\n"
     "  Each Record:\n"
     "    uint64_t      cell_id\n"
     "    uint64_t      material_id\n"
@@ -76,7 +76,7 @@ TransientSolver::write(const size_t output_index) const
     "    double        value\n"
     "Power Density Records:\n"
     "  unsigned int record_type\n"
-    "  uint64_t     n_data_blocks\n"
+    "  uint64_t     n_records\n"
     "  Each Record:\n"
     "    uint64_t cell_id\n"
     "    double   value\n";
@@ -93,23 +93,14 @@ TransientSolver::write(const size_t output_index) const
   unsigned int record_type = 0;
 
   const uint64_t n_cells = mesh->cells.size();
-  const uint64_t n_nodes = discretization->nodes_per_cell();
+  const uint64_t n_nodes = discretization->n_nodes();
 
   const unsigned int n_moments = 1;
-
 
   // Write header_info and general information
   file << header_bytes;
 
   file.write((char*)&output_index, sizeof(uint64_t));
-  file.write((char*)&time, sizeof(double));
-
-  file.write((char*)&power, sizeof(double));
-  file.write((char*)&peak_power_density, sizeof(double));
-  file.write((char*)&average_power_density, sizeof(double));
-  file.write((char*)&peak_fuel_temperature, sizeof(double));
-  file.write((char*)&average_fuel_temperature, sizeof(double));
-
   file.write((char*)&n_data_blocks, sizeof(unsigned int));
 
   file.write((char*)&n_cells, sizeof(uint64_t));
@@ -119,6 +110,14 @@ TransientSolver::write(const size_t output_index) const
   file.write((char*)&n_groups, sizeof(unsigned int));
   file.write((char*)&n_precursors, sizeof(unsigned int));
   file.write((char*)&max_precursors, sizeof(unsigned int));
+
+  file.write((char*)&time, sizeof(double));
+
+  file.write((char*)&power, sizeof(double));
+  file.write((char*)&peak_power_density, sizeof(double));
+  file.write((char*)&average_power_density, sizeof(double));
+  file.write((char*)&peak_fuel_temperature, sizeof(double));
+  file.write((char*)&average_fuel_temperature, sizeof(double));
 
   // Write discretization information
   for (const auto& cell : mesh->cells)
@@ -237,5 +236,4 @@ TransientSolver::write(const size_t output_index) const
   ++record_type;
 
   file.close();
-  std::cout << "HERE\n";
 }
