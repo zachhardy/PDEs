@@ -315,12 +315,7 @@ namespace NeutronDiffusion
     /*-------------------- File I/O --------------------*/
 
     /** Write the solution data to a binary file. */
-    void write(const std::string& file_base) const;
-
-  protected:
-    void write_discretization(std::ofstream& file) const;
-    void write_scalar_flux(std::ofstream& file) const;
-    void write_precursors(std::ofstream& file) const;
+    void write_snapshot(const std::string& file_base) const;
   };
 
 }

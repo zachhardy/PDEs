@@ -9,7 +9,7 @@ using namespace NeutronDiffusion;
 
 
 void
-SteadyStateSolver::write(const std::string& file_base) const
+SteadyStateSolver::write_snapshot(const std::string& file_base) const
 {
   std::string file_name = file_base + ".data";
 
