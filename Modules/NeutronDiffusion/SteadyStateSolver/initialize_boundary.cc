@@ -8,12 +8,17 @@ initialize_boundaries()
 {
   std::cout << "Initializing simulation boundaries.\n";
 
-  //============================== Check number of boundaries
+  //============================================================
+  // Check the number of boundaries
+  //============================================================
   if (mesh->dim == 1)
   Assert(boundary_info.size() == 2,
          "1D problems must have 2 boundary conditions.");
 
-  //============================== Check specified boundary values
+  //============================================================
+  // Check the boundary values
+  //============================================================
+
   for (const auto& bndry_vals : boundary_values)
   {
     Assert(bndry_vals.size() == n_groups,
@@ -21,7 +26,10 @@ initialize_boundaries()
            "in the simulation.");
   }
 
-  //================================================== Loop over boundaries
+  //============================================================
+  // Create the appropriate boundary conditions based on inputs
+  //============================================================
+
   for (const auto& boundary : boundary_info)
   {
     std::vector<BndryPtr> mg_bcs;
@@ -31,22 +39,16 @@ initialize_boundaries()
       switch (boundary.first)
       {
         case BoundaryType::ZERO_FLUX:
-        {
           bc = std::make_shared<DirichletBoundary>();
           break;
-        }
 
         case BoundaryType::REFLECTIVE:
-        {
           bc = std::make_shared<NeumannBoundary>();
           break;
-        }
 
         case BoundaryType::VACUUM:
-        {
           bc = std::make_shared<RobinBoundary>();
           break;
-        }
 
         case BoundaryType::DIRICHLET:
         {
@@ -64,21 +66,16 @@ initialize_boundaries()
 
         case BoundaryType::MARSHAK:
         {
-          auto& bval = boundary_values[boundary.second][g][0];
+          const auto& bval = boundary_values[boundary.second][g][0];
           bc = std::make_shared<RobinBoundary>(bval);
           break;
         }
 
         case BoundaryType::ROBIN:
-        {
           const auto& bval = boundary_values[boundary.second][g];
-          Assert(bval.size() == 3,
-                 "Fully specified Robin boundaries must have 3 "
-                 "values for each group.");
-
+          assert(bval.size() == 3);
           bc = std::make_shared<RobinBoundary>(bval[0], bval[1], bval[2]);
           break;
-        }
       }
       mg_bcs.emplace_back(bc);
     }

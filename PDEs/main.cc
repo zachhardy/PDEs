@@ -37,7 +37,9 @@ int main(int argc, char** argv)
 
     using namespace NeutronDiffusion;
 
-    //================================================== Mesh
+    //============================================================
+    // Mesh
+    //============================================================
 
     size_t n_cells = 50;
     double slab_width = 6.0;
@@ -50,7 +52,9 @@ int main(int argc, char** argv)
     auto coord_sys = CoordinateSystemType::SPHERICAL;
     auto mesh = create_1d_mesh(vertices, coord_sys);
 
-    //================================================== Materials
+    //============================================================
+    // Materials
+    //============================================================
 
     auto material = std::make_shared<Material>();
 
@@ -66,7 +70,9 @@ int main(int argc, char** argv)
     auto src = std::make_shared<IsotropicMultiGroupSource>(mg_source);
     material->properties.emplace_back(src);
 
-    //================================================== Linear Solver
+    //============================================================
+    // Linear Solver
+    //============================================================
 
     Options opts;
     opts.verbosity = 0;
@@ -77,7 +83,9 @@ int main(int argc, char** argv)
 //    linear_solver = std::make_shared<CG>(opts);
     linear_solver = std::make_shared<PETScSolver>(KSPCG, PCLU, opts);
 
-    //================================================== Create the solver
+    //============================================================
+    // Create the diffusion solver
+    //============================================================
 
     TransientSolver solver;
     solver.mesh = mesh;
@@ -85,23 +93,32 @@ int main(int argc, char** argv)
     solver.linear_solver = linear_solver;
 
     solver.verbosity = 1;
-    solver.use_precursors = true;
+    solver.use_precursors = false;
 
-    // Initialize groups
+    solver.solution_technique = SolutionTechnique::FULL_SYSTEM;
+
+    //============================================================
+    // Initialize groups and groupsets
+    //============================================================
+
     for (size_t g = 0; g < n_groups; ++g)
       solver.groups.emplace_back(g);
 
-    // Initialize groupsets
     Groupset groupset(0);
     for (size_t g = 0; g < n_groups; ++g)
       groupset.groups.emplace_back(solver.groups[g]);
     solver.groupsets.emplace_back(groupset);
 
+    //============================================================
     // Define boundary conditions
+    //============================================================
+
     solver.boundary_info.emplace_back(BoundaryType::REFLECTIVE, -1);
     solver.boundary_info.emplace_back(BoundaryType::ZERO_FLUX, -1);
 
-    solver.solution_technique = SolutionTechnique::FULL_SYSTEM;
+    //============================================================
+    // Define transient parameters
+    //============================================================
 
     solver.t_end = 0.1;
     solver.dt = solver.t_end / 50;
@@ -111,13 +128,14 @@ int main(int argc, char** argv)
     solver.write_outputs = true;
     solver.output_directory = "outputs";
 
-//    auto ic = [slab_width](const Point p)
-//              { return 1.0 - p.z*p.z/(slab_width*slab_width); };
-//    solver.initial_conditions[0] = ic;
-//    solver.initial_conditions[1] = ic;
+    auto ic = [slab_width](const Point p)
+              { return 1.0 - p.z*p.z/(slab_width*slab_width); };
+    solver.initial_conditions[0] = ic;
+    solver.initial_conditions[1] = ic;
 
-
-    //================================================== Run the problem
+    //============================================================
+    // Run the problem
+    //============================================================
 
     Timer timer;
 

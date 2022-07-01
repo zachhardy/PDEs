@@ -11,7 +11,6 @@ SteadyStateSolver::compute_precursors()
 {
   assert(use_precursors);
 
-  //======================================== Loop over cells
   precursors = 0.0;
   for (const auto& cell : mesh->cells)
   {
@@ -26,6 +25,7 @@ SteadyStateSolver::compute_precursors()
     const size_t uk_map = cell.id*n_groups;
     const size_t prec_uk_map = cell.id*max_precursors;
 
+    // Loop over precursors
     for (size_t j = 0; j < xs->n_precursors; ++j)
     {
       double value = 0.0;

@@ -224,12 +224,15 @@ namespace NeutronDiffusion
     /**
      * Assemble the matrix for the specified \p groupset.
      *
-     * If solving the full system, this routine assembles the full multigroup
-     * operator for the groupset, including off-diagonal scattering and fission
-     * coupling terms. Otherwise, this routine assembles the within-group system
-     * for the groups within the groupset.
+     * By default, this routine assembles the within-group (total
+     * interaction, diffusion, and boundary) terms for the groupset. If
+     * specified, this routine will also assemble the the cross-group,
+     * within-groupset scattering and/or fission terms.
      *
      * \param groupset The groupset to construct the matrix for.
+     * \param assembler_flags Bitwise flags used to specify the assembly of the
+     *      within-groupset scattering and fission terms. Default behavior
+     *      assembles only the within-group, within-groupset terms.
      */
     void
     assemble_matrix(Groupset& groupset,
@@ -257,9 +260,7 @@ namespace NeutronDiffusion
     /** \name Initialization Routines */
     // @{
 
-    /**
-     * Validate the general setup of the simulation.
-     */
+    /** Validate the general setup of the simulation. */
     void input_checks();
 
     /**
@@ -269,9 +270,7 @@ namespace NeutronDiffusion
      */
     void initialize_materials();
 
-    /**
-     * Create a boundary condition for each boundary and each group.
-     */
+    /** Create a boundary condition for each boundary and each group. */
     void initialize_boundaries();
 
     // @}

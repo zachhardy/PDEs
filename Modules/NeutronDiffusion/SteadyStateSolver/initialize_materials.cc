@@ -9,6 +9,10 @@ NeutronDiffusion::SteadyStateSolver::initialize_materials()
 {
   std::cout << "Initializing materials.\n";
 
+  //============================================================
+  // Check the material IDs on the mesh
+  //============================================================
+
   // Determine the unique material IDs on the mesh
   std::set<int> unique_material_ids;
   std::vector<size_t> invalid_cells;
@@ -31,7 +35,9 @@ NeutronDiffusion::SteadyStateSolver::initialize_materials()
       cell.material_id = 0;
   }
 
-  //============================== Clear the current materials
+  //============================================================
+  // Clear the current material information
+  //============================================================
   material_xs.clear();
   material_src.clear();
 
@@ -39,37 +45,36 @@ NeutronDiffusion::SteadyStateSolver::initialize_materials()
   matid_to_xs_map.assign(n_materials, -1);
   matid_to_src_map.assign(n_materials, -1);
 
-  //============================== Loop over materials
+  //============================================================
+  // Go through the materials and their properties to get
+  // cross-sections and multi-group sources and perform checks
+  // to ensure these are valid.
+  //============================================================
+
   for (const int& material_id : unique_material_ids)
   {
     auto material = materials[material_id];
 
-    //============================== Loop over properties
     bool found_xs = false;
     for (const auto& property : material->properties)
     {
-      //============================== Parse cross sections
+
+      // Get cross-section properties
       if (property->type() == MaterialPropertyType::CROSS_SECTIONS)
       {
         auto xs = std::static_pointer_cast<CrossSections>(property);
-        Assert(xs->n_groups >= groups.size(),
-               "Cross sections with fewer groups than the simulation "
-               "encountered.\nAll cross sections must have at least as many "
-               "groups as the simulation.");
+        assert(xs->n_groups >= groups.size());
 
         material_xs.emplace_back(xs);
         matid_to_xs_map[material_id] = material_xs.size() - 1;
         found_xs = true;
       }
 
-        //============================== Parse multigroup sources
+      // Get multigroup source properties
       else if (property->type() == MaterialPropertyType::ISOTROPIC_MG_SOURCE)
       {
         auto src = std::static_pointer_cast<IsotropicMGSource>(property);
-        Assert(src->values.size() >= groups.size(),
-               "Multigroup source encountered with fewer groups than the "
-               "simulation.\nAll sources must have at least as many groups "
-               "as the simulation.");
+        assert(src->values.size() >= groups.size());
 
         material_src.emplace_back(src);
         matid_to_src_map[material_id] = material_src.size() - 1;
@@ -79,11 +84,15 @@ NeutronDiffusion::SteadyStateSolver::initialize_materials()
     Assert(found_xs, "Cross sections not found on a provided material.");
   }//for materials
 
+  //============================================================
+  // Define bulk quantities for the simulation
+  //============================================================
+
   // Define the number of groups
   n_groups = groups.size();
 
-  /* Define the precursor properties. For the total number of precursors
-     * tally the number of unique decay constants. */
+  // Define the precursor properties. For the total number of precursors
+  // tally the number of unique decay constants.
   if (use_precursors)
   {
     max_precursors = 0;

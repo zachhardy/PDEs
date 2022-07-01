@@ -19,7 +19,7 @@ TransientSolver::assemble_transient_matrix(Groupset& groupset,
   // Get effective time step size
   const double eff_dt = effective_time_step();
 
-  //======================================== Loop over cells
+  // Loop over cells
   for (const auto& cell : mesh->cells)
   {
     const double volume = cell.volume;
@@ -29,18 +29,24 @@ TransientSolver::assemble_transient_matrix(Groupset& groupset,
     const double* sig_t = xs->sigma_t.data();
     const double* inv_vel = xs->inv_velocity.data();
 
-    //============================== Loop over groups
+    // Loop over groups
     for (size_t gr = 0; gr < n_gsg; ++gr)
     {
       const size_t g = groupset.groups[gr];
 
-      //==================== Within group terms
+      //========================================
+      // Total interaction + time derivative term
+      //========================================
+
       double entry = 0.0;
       entry += sig_t[g]; // total interaction
       entry += inv_vel[g]/eff_dt; // time-derivative
       A.add(uk_map + gr, uk_map + gr, entry * volume);
 
-      //=============== Scattering term
+      //========================================
+      // Scattering term
+      //========================================
+
       if (assemble_scatter)
       {
         const double* sig_s = xs->transfer_matrices[0][g].data();
@@ -52,7 +58,10 @@ TransientSolver::assemble_transient_matrix(Groupset& groupset,
         }
       }//if scattering
 
-      //=============== Fission term
+      //========================================
+      // Fission term
+      //========================================
+
       if (assemble_fission && xs->is_fissile)
       {
         //========== Total fission
@@ -116,10 +125,12 @@ TransientSolver::assemble_transient_matrix(Groupset& groupset,
       }//if fissile
     }//for group
 
-    //============================== Loop over faces
     for (const auto& face : cell.faces)
     {
-      //==================== Interior faces
+      //========================================
+      // Diffusion term
+      //========================================
+
       if (face.has_neighbor)
       {
         // Get neighbor info
@@ -148,13 +159,18 @@ TransientSolver::assemble_transient_matrix(Groupset& groupset,
         }
       }//if interior face
 
-      //==================== Boundary faces
+      //========================================
+      // Boundary terms
+      //========================================
       else
       {
         const auto bndry_id = face.neighbor_id;
         const auto bndry_type = boundary_info[bndry_id].first;
 
-        //========== Dirichlet boundary term
+        //========================================
+        // Dirichlet boundary term
+        //========================================
+
         if (bndry_type == BoundaryType::ZERO_FLUX ||
             bndry_type == BoundaryType::DIRICHLET)
         {
@@ -168,7 +184,10 @@ TransientSolver::assemble_transient_matrix(Groupset& groupset,
           }
         }//if Dirichlet
 
-        //========== Robin boundary term
+        //========================================
+        // Robin boundary term
+        //========================================
+
         else if (bndry_type == BoundaryType::VACUUM ||
                  bndry_type == BoundaryType::MARSHAK ||
                  bndry_type == BoundaryType::ROBIN)

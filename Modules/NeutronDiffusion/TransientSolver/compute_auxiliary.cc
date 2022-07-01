@@ -7,7 +7,6 @@ using namespace NeutronDiffusion;
 void
 TransientSolver::compute_fission_rate()
 {
-  //==================== Loop over cells
   fission_rate = 0.0;
   for (const auto& cell : mesh->cells)
   {
@@ -27,7 +26,6 @@ TransientSolver::compute_fission_rate()
 void
 TransientSolver::compute_power()
 {
-  // Loop over cells
   double p = 0.0, p_max = 0.0, volume = 0.0;
   for (const auto& cell : mesh->cells)
   {

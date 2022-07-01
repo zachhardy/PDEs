@@ -27,7 +27,10 @@ KEigenvalueSolver::power_method()
 
   for (nit = 0; nit < max_iterations; ++nit)
   {
-    //==================== Precompute the fission source
+    //========================================
+    // Precompute the fission source
+    //========================================
+
     for (auto& groupset : groupsets)
     {
       groupset.b = 0.0;
@@ -36,7 +39,10 @@ KEigenvalueSolver::power_method()
       groupset.b /= k_eff;
     }
 
-    //==================== Solve the system
+    //========================================
+    // Solve the system
+    //========================================
+
     if (solution_technique == SolutionTechnique::GROUPSET_WISE)
       for (auto& groupset : groupsets)
       {
@@ -48,8 +54,10 @@ KEigenvalueSolver::power_method()
     else
       solve_full_system(NO_SOURCE_FLAGS);
 
+    //========================================
+    // Recompute the k-eigenvalue
+    //========================================
 
-    //==================== Recompute the k-eigenvalue
     production = compute_production();
     k_eff *= production/production_ell;
     rho = (k_eff - 1.0)/k_eff;

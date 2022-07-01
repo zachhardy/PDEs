@@ -22,7 +22,10 @@ SteadyStateSolver::initialize()
 {
   std::cout << "Initializing diffusion solver.\n";
 
+  //============================================================
   // If the full system is being solved, only use one groupset.
+  //============================================================
+
   if (solution_technique == SolutionTechnique::FULL_SYSTEM)
   {
     std::cout << "Solution technique set to full system.\n";
@@ -37,7 +40,9 @@ SteadyStateSolver::initialize()
 
   input_checks();
 
-  //================================================== Initialize objects
+  //============================================================
+  // Initialize component objects of the problem
+  //============================================================
 
   if (discretization_method == DiscretizationMethod::FINITE_VOLUME)
     discretization = std::make_shared<FiniteVolume>(mesh);
@@ -47,14 +52,18 @@ SteadyStateSolver::initialize()
   initialize_materials();
   initialize_boundaries();
 
-  //================================================== Initialize data storage
+  //============================================================
+  // Initialize the data storage
+  //============================================================
   size_t n_nodes = discretization->n_nodes();
 
   phi.resize(n_groups*n_nodes, 0.0);
   phi_ell.resize(phi.size(), 0.0);
   precursors.resize(max_precursors*n_nodes, 0.0);
 
-  //================================================== Initialize groups
+  //============================================================
+  // Initialize the groupsets
+  //============================================================
 
   // Initialize the groupsets
   for (auto& groupset : groupsets)
@@ -66,13 +75,17 @@ SteadyStateSolver::initialize()
   }//for groupset
 }
 
+
 //######################################################################
 
 
 void
 SteadyStateSolver::input_checks()
 {
-  //================================================== Check the groups
+  //============================================================
+  // Check the energy groups
+  //============================================================
+
   // Ensure groups and groupsets were added
   assert(!groups.empty());
   assert(!groupsets.empty());
@@ -103,7 +116,10 @@ SteadyStateSolver::input_checks()
   std::set<size_t> groups_set(groups.begin(), groups.end());
   assert(groupset_groups == groups_set);
 
-  //================================================== Check the mesh
+  //============================================================
+  // Check the mesh
+  //============================================================
+
   assert(mesh != nullptr);
   assert(mesh->dim == 1);
 }

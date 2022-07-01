@@ -18,7 +18,6 @@ TransientSolver::execute()
   // Initialize matrices
   assemble_matrices();
 
-
   double dt_prev = dt;
   const double dt_initial = dt;
 
@@ -27,22 +26,34 @@ TransientSolver::execute()
   size_t step = 0;
   while (time < t_end - 1.0e-12)
   {
-    // Force coincidence with output times
+    //========================================
+    // Modify time steps to coincide with output
+    // times and the end of the simulation.
+    //========================================
+
     if (write_outputs && time + dt > next_output)
     {
       dt_prev = dt;
       dt = next_output - time;
     }
 
-    // Force coincidence with t_end
     if (time + dt > t_end)
       dt = t_end - time;
+
+    //========================================
+    // Solve the time step
+    //========================================
 
     solve_time_step();
     compute_power();
 
+    //========================================
+    // Postprocess the time step
+    //========================================
+
     time += dt;
     ++step;
+    step_solutions();
 
     // Output solutions
     if (std::fabs(time - next_output) < 1.0e-12)
@@ -53,8 +64,6 @@ TransientSolver::execute()
           std::fabs(next_output - t_end) < 1.0e-12)
         next_output = t_end;
     }
-
-    step_solutions();
 
     std::cout
       << "\n***** Time Step " << step << " *****\n"

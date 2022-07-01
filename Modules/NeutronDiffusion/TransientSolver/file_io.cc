@@ -176,13 +176,13 @@ TransientSolver::write_snapshot(const size_t output_index) const
   ++record_type;
 
   // Write precursor data
+  n_records = precursors.size();
+
+  file.write((char*)&record_type, sizeof(unsigned int));
+  file.write((char*)&n_records, sizeof(uint64_t));
+
   if (use_precursors)
   {
-    n_records = precursors.size();
-
-    file.write((char*)&record_type, sizeof(unsigned int));
-    file.write((char*)&n_records, sizeof(uint64_t));
-
     for (const auto& cell : mesh->cells)
     {
       const uint64_t cell_id = cell.id;

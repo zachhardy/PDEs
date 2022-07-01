@@ -25,7 +25,7 @@ SteadyStateSolver::set_source(Groupset& groupset,
   // Get groupset vector
   auto& b = groupset.b;
 
-  //======================================== Loop over cells
+  // Loop over cells
   for (const auto& cell : mesh->cells)
   {
     const double volume = cell.volume;
@@ -39,16 +39,22 @@ SteadyStateSolver::set_source(Groupset& groupset,
     if (src_id >= 0 && apply_mat_src)
       src = material_src[src_id]->values.data();
 
-    //============================== Loop over groups
+    // Loop over groups
     for (size_t gr = 0; gr < n_gsg; ++gr)
     {
       double rhs = 0.0;
       const size_t g = groupset.groups[gr];
 
-      //==================== Inhomogeneous source term
+      //========================================
+      // Inhomogeneous source term
+      //========================================
+
       rhs += (src)? src[g] : 0.0;
 
-      //==================== Within-groupset scattering
+      //========================================
+      // Within-groupset scattering term
+      //========================================
+
       if (apply_wgs_scatter_src)
       {
         const double* sig_s = xs->transfer_matrices[0][g].data();
@@ -57,7 +63,9 @@ SteadyStateSolver::set_source(Groupset& groupset,
           rhs += sig_s[gp] * phi[uk_map + gp];
       }//if within-groupset scattering
 
-      //==================== Across-groupset scattering
+      //========================================
+      // Across-groupset scattering term
+      //========================================
       if (apply_ags_scatter_src)
       {
         const double* sig_s = xs->transfer_matrices[0][g].data();
@@ -70,10 +78,13 @@ SteadyStateSolver::set_source(Groupset& groupset,
         }//for gprime
       }//if across-groupset scattering
 
-      //==================== Within-groupset fission
+      //========================================
+      // Within-groupset fission term
+      //========================================
+
       if (xs->is_fissile && apply_wgs_fission_src)
       {
-        //==================== Total fission
+        // Total fission
         if (not use_precursors)
         {
           const double chi = xs->chi[g];
@@ -83,7 +94,7 @@ SteadyStateSolver::set_source(Groupset& groupset,
             rhs += chi * nu_sigf[gp] * phi[uk_map + gp];
         }//if total fission
 
-        //==================== Prompt + delayed fission
+        // Prompt + delayed fission
         else
         {
           const double chi_p = xs->chi_prompt[g];
@@ -92,11 +103,11 @@ SteadyStateSolver::set_source(Groupset& groupset,
           const double* nud_sigf = xs->nu_delayed_sigma_f.data();
           const double* gamma = xs->precursor_yield.data();
 
-          //===== Prompt fission
+          // Prompt fission
           for (const auto& gp : groupset.groups)
             rhs += chi_p * nup_sigf[gp] * phi[uk_map + gp];
 
-          //===== Delayed fission
+          // Delayed fission
           double coeff = 0.0;
           for (size_t j = 0; j < xs->n_precursors; ++j)
             coeff += chi_d[j] * gamma[j];
@@ -106,9 +117,13 @@ SteadyStateSolver::set_source(Groupset& groupset,
         }//if prompt+delayed fission
       }//if within-groupset fission
 
+      //========================================
+      // Across-groupset fission term
+      //========================================
+
       if (xs->is_fissile && apply_ags_fission_src)
       {
-        //==================== Total fission
+        // Total fission
         if (not use_precursors)
         {
           const double chi = xs->chi[g];
@@ -122,7 +137,7 @@ SteadyStateSolver::set_source(Groupset& groupset,
           }//for gprime
         }//if total fission
 
-          //==================== Prompt + delayed fission
+        // Prompt + delayed fission
         else
         {
           const double chi_p = xs->chi_prompt[g];
@@ -131,7 +146,7 @@ SteadyStateSolver::set_source(Groupset& groupset,
           const double* nud_sigf = xs->nu_delayed_sigma_f.data();
           const double* gamma = xs->precursor_yield.data();
 
-          //===== Prompt fission
+          // Prompt fission
           for (size_t gpr = 0; gpr < n_groups; ++gpr)
           {
             const size_t gp = groups[gpr];
@@ -139,7 +154,7 @@ SteadyStateSolver::set_source(Groupset& groupset,
               rhs += chi_p * nup_sigf[gp] * phi[uk_map + gp];
           }//for gprime
 
-          //===== Delayed fission
+          // Delayed fission
           double coeff = 0.0;
           for (size_t j = 0; j < xs->n_precursors; ++j)
             coeff += chi_d[j] * gamma[j];
@@ -157,7 +172,7 @@ SteadyStateSolver::set_source(Groupset& groupset,
 
     }//for group
 
-    //======================================== Loop over faces
+    // Loop over faces
     for (const auto& face : cell.faces)
     {
       // Skip interior faces
@@ -167,7 +182,10 @@ SteadyStateSolver::set_source(Groupset& groupset,
       const auto bndry_id = face.neighbor_id;
       const auto& bndry_type = boundary_info[bndry_id].first;
 
-      //==================== Dirichlet term
+      //========================================
+      // Dirichlet boundary term
+      //========================================
+
       if (bndry_type == BoundaryType::DIRICHLET)
       {
         const double* D = xs->diffusion_coeff.data();
@@ -184,7 +202,10 @@ SteadyStateSolver::set_source(Groupset& groupset,
         }
       }//if Dirichlet
 
-      //==================== Neumann term
+      //========================================
+      // Neumann boundary term
+      //========================================
+
       if (bndry_type == BoundaryType::NEUMANN)
       {
         for (size_t gr = 0; gr < n_gsg; ++gr)
@@ -198,8 +219,10 @@ SteadyStateSolver::set_source(Groupset& groupset,
         }
       }//if Neumann
 
+      //========================================
+      // Robin boundary terms
+      //========================================
 
-        //==================== Robin term
       else if (bndry_type == BoundaryType::MARSHAK ||
                bndry_type == BoundaryType::ROBIN)
       {

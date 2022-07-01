@@ -17,25 +17,31 @@ SteadyStateSolver::assemble_matrix(Groupset& groupset,
   // Get groupset range
   const size_t n_gsg = groupset.groups.size();
 
-  //================================================== Loop over cells
+  // Loop over cells
   for (const auto& cell : mesh->cells)
   {
     const double volume = cell.volume;
     const auto& xs = material_xs[matid_to_xs_map[cell.material_id]];
     const size_t i = cell.id*n_gsg;
 
-    //============================== Loop over groups
+    // Loop over groups
     for (size_t gr = 0; gr < n_gsg; ++gr)
     {
       const size_t ig = i + gr;
       const size_t g = groupset.groups[gr];
 
-      //==================== Total interaction term
+      //========================================
+      // Total interaction term
+      //========================================
+
       A.add(ig, ig, xs->sigma_t[g]*volume);
+
+      //========================================
+      // Scattering term
+      //========================================
 
       if (assemble_scatter)
       {
-        //==================== Scattering term
         const double* sig_s = &xs->transfer_matrices[0][g][0];
 
         for (size_t gpr = 0; gpr < n_gsg; ++gpr)
@@ -46,11 +52,13 @@ SteadyStateSolver::assemble_matrix(Groupset& groupset,
         }
       }
 
+      //========================================
+      // Fission term
+      //========================================
 
-      //==================== Fission term
       if (xs->is_fissile && assemble_fission)
       {
-        //========== Total fission
+        // Total fission
         if (not use_precursors)
         {
           const double chi = xs->chi[g];
@@ -64,7 +72,7 @@ SteadyStateSolver::assemble_matrix(Groupset& groupset,
           }
         }
 
-          //========== Prompt + delayed fission
+        // Prompt + delayed fission
         else
         {
           const double chi_p = xs->chi_prompt[g];
@@ -87,10 +95,13 @@ SteadyStateSolver::assemble_matrix(Groupset& groupset,
       }//if fissile
     }//for group
 
-    //============================================= Loop over faces
+    // Loop over faces
     for (const auto& face : cell.faces)
     {
-      //============================== Interior faces
+      //========================================
+      // Diffusion term on interior faces
+      //========================================
+
       if (face.has_neighbor)
       {
         // Get neighbor info
@@ -105,7 +116,7 @@ SteadyStateSolver::assemble_matrix(Groupset& groupset,
         const double d_pn = cell.centroid.distance(nbr_cell.centroid);
         const double w = d_pf/d_pn; // harmonic mean weighting factor
 
-        //==================== Diffusion term
+        // Diffusion data
         const double* D = &xs->diffusion_coeff[0];
         const double* D_nbr = &nbr_xs->diffusion_coeff[0];
 
@@ -123,13 +134,19 @@ SteadyStateSolver::assemble_matrix(Groupset& groupset,
         }
       }//if interior face
 
-        //============================== Boundary faces
+      //========================================
+      // Boundary terms
+      //========================================
+
       else
       {
         const auto bndry_id = face.neighbor_id;
         const auto bndry_type = boundary_info[bndry_id].first;
 
-        //==================== Dirichlet boundary term
+        //========================================
+        // Dirichlet boundary term
+        //========================================
+
         if (bndry_type == BoundaryType::ZERO_FLUX or
             bndry_type == BoundaryType::DIRICHLET)
         {
@@ -144,7 +161,10 @@ SteadyStateSolver::assemble_matrix(Groupset& groupset,
           }
         }
 
-          //==================== Robin boundary term
+        //========================================
+        // Robin boundary term
+        //========================================
+
         else if (bndry_type == BoundaryType::VACUUM or
                  bndry_type == BoundaryType::MARSHAK or
                  bndry_type == BoundaryType::ROBIN)

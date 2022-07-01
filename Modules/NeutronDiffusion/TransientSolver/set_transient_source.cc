@@ -28,7 +28,7 @@ TransientSolver::set_transient_source(Groupset& groupset,
   // Get groupset vector
   auto& b = groupset.b;
 
-  //======================================== Loop over cells
+  // Loop over cells
   for (const auto& cell : mesh->cells)
   {
     const double volume = cell.volume;
@@ -43,7 +43,7 @@ TransientSolver::set_transient_source(Groupset& groupset,
     if (src_id >= 0 && apply_mat_src)
       src = material_src[src_id]->values.data();
 
-    //============================== Loop over groups
+    // Loop over groups
     for (size_t gr = 0; gr < n_gsg; ++gr)
     {
       double rhs = 0.0;
@@ -51,13 +51,22 @@ TransientSolver::set_transient_source(Groupset& groupset,
 
       const double* inv_vel = xs->inv_velocity.data();
 
-      //==================== Inhomogeneous source term
+      //========================================
+      // Inhomogeneous source term
+      //========================================
+
       rhs += (src)? src[g] : 0.0;
 
-      //==================== Old scalar flux
+      //========================================
+      // Old scalar flux
+      //========================================
+
       rhs += inv_vel[g]/eff_dt * phi_old[uk_map + g];
 
-      //==================== Old precursors
+      //========================================
+      // Old precursors
+      //========================================
+
       if (xs->is_fissile && use_precursors)
       {
         const double* chi_d = xs->chi_delayed[g].data();
@@ -72,7 +81,9 @@ TransientSolver::set_transient_source(Groupset& groupset,
         }
       }//if precursors
 
-      //==================== Within-groupset scattering
+      //========================================
+      // Within-groupset scattering term
+      //========================================
       if (apply_wgs_scatter_src)
       {
         const double* sig_s = xs->transfer_matrices[0][g].data();
@@ -81,7 +92,10 @@ TransientSolver::set_transient_source(Groupset& groupset,
           rhs += sig_s[gp] * phi[uk_map + gp];
       }//if within-groupset scattering
 
-      //==================== Across-groupset scattering
+      //========================================
+      // Across-groupset scattering term
+      //========================================
+
       if (apply_ags_scatter_src)
       {
         const double* sig_s = xs->transfer_matrices[0][g].data();
@@ -94,10 +108,13 @@ TransientSolver::set_transient_source(Groupset& groupset,
         }//for gprime
       }//if across-groupset scattering
 
-      //==================== Within-groupset fission
+      //========================================
+      // Within-groupset fission term
+      //========================================
+
       if (xs->is_fissile && apply_wgs_fission_src)
       {
-        //==================== Total fission
+        // Total fission
         if (not use_precursors)
         {
           const double chi = xs->chi[g];
@@ -107,7 +124,7 @@ TransientSolver::set_transient_source(Groupset& groupset,
             rhs += chi * nu_sigf[gp] * phi[uk_map + gp];
         }//if total fission
 
-        //==================== Prompt + delayed fission
+        // Prompt + delayed fission
         else
         {
           const double chi_p = xs->chi_prompt[g];
@@ -117,11 +134,11 @@ TransientSolver::set_transient_source(Groupset& groupset,
           const double* lambda = xs->precursor_lambda.data();
           const double* gamma = xs->precursor_yield.data();
 
-          //===== Prompt fission
+          // Prompt
           for (const auto& gp : groupset.groups)
             rhs += chi_p * nup_sigf[gp] * phi[uk_map + gp];
 
-          //===== Delayed fission
+          // Delayed
           if (not lag_precursors)
           {
             double coeff = 0.0;
@@ -135,9 +152,13 @@ TransientSolver::set_transient_source(Groupset& groupset,
         }//if prompt+delayed fission
       }//if within-groupset fission
 
+      //========================================
+      // Across-groupset fission term
+      //========================================
+
       if (xs->is_fissile && apply_ags_fission_src)
       {
-        //==================== Total fission
+        // Total fission
         if (not use_precursors)
         {
           const double chi = xs->chi[g];
@@ -151,7 +172,7 @@ TransientSolver::set_transient_source(Groupset& groupset,
           }//for gprime
         }//if total fission
 
-          //==================== Prompt + delayed fission
+        // Prompt + delayed fission
         else
         {
           const double chi_p = xs->chi_prompt[g];
@@ -161,7 +182,7 @@ TransientSolver::set_transient_source(Groupset& groupset,
           const double* lambda = xs->precursor_lambda.data();
           const double* gamma = xs->precursor_yield.data();
 
-          //===== Prompt fission
+          // Prompt
           for (size_t gpr = 0; gpr < n_groups; ++gpr)
           {
             const size_t gp = groups[gpr];
@@ -169,7 +190,7 @@ TransientSolver::set_transient_source(Groupset& groupset,
               rhs += chi_p * nup_sigf[gp] * phi[uk_map + gp];
           }//for gprime
 
-          //===== Delayed fission
+          // Delayed
           if (not lag_precursors)
           {
             double coeff = 0.0;
@@ -191,7 +212,7 @@ TransientSolver::set_transient_source(Groupset& groupset,
 
     }//for group
 
-    //======================================== Loop over faces
+    // Loop over faces
     for (const auto& face : cell.faces)
     {
       // Skip interior faces
@@ -201,7 +222,10 @@ TransientSolver::set_transient_source(Groupset& groupset,
       const auto bndry_id = face.neighbor_id;
       const auto& bndry_type = boundary_info[bndry_id].first;
 
-      //==================== Dirichlet term
+      //========================================
+      // Dirichlet boundary term
+      //========================================
+
       if (bndry_type == BoundaryType::DIRICHLET)
       {
         const double* D = xs->diffusion_coeff.data();
@@ -218,7 +242,10 @@ TransientSolver::set_transient_source(Groupset& groupset,
         }
       }//if Dirichlet
 
-      //==================== Neumann term
+      //========================================
+      // Neumann boundary term
+      //========================================
+
       if (bndry_type == BoundaryType::NEUMANN)
       {
         for (size_t gr = 0; gr < n_gsg; ++gr)
@@ -233,7 +260,10 @@ TransientSolver::set_transient_source(Groupset& groupset,
       }//if Neumann
 
 
-      //==================== Robin term
+      //========================================
+      // Robin boundary term
+      //========================================
+
       else if (bndry_type == BoundaryType::MARSHAK ||
                bndry_type == BoundaryType::ROBIN)
       {
