@@ -16,7 +16,7 @@ namespace Grid
    *                          Cartesian coordinates.
    */
   std::shared_ptr<Mesh>
-  create_1d_orthomesh(const std::vector<double> vertices,
+  create_1d_orthomesh(const std::vector<double>& vertices,
                       const CoordinateSystemType coordinate_system,
                       const bool verbose = false);
 
@@ -35,9 +35,9 @@ namespace Grid
    *                          Cartesian coordinates.
    */
   std::shared_ptr<Mesh>
-  create_1d_orthomesh(const std::vector<double> zone_edges,
-                      const std::vector<size_t> zone_subdivisions,
-                      const std::vector<int> material_ids,
+  create_1d_orthomesh(const std::vector<double>& zone_edges,
+                      const std::vector<size_t>& zone_subdivisions,
+                      const std::vector<int>& material_ids,
                       const CoordinateSystemType coordinate_system,
                       const bool verbose = false);
 
@@ -52,8 +52,8 @@ namespace Grid
    * 1.0)</tt>, and <tt>(1.0, 1.0)</tt>.
    */
   std::shared_ptr<Mesh>
-  create_2d_orthomesh(const std::vector<double> x_vertices,
-                      const std::vector<double> y_vertices,
+  create_2d_orthomesh(const std::vector<double>& x_vertices,
+                      const std::vector<double>& y_vertices,
                       const bool verbose = false);
 
 }

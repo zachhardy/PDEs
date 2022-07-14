@@ -5,7 +5,7 @@
 
 
 std::shared_ptr<Grid::Mesh>
-Grid::create_1d_orthomesh(const std::vector<double> vertices,
+Grid::create_1d_orthomesh(const std::vector<double>& vertices,
                           const CoordinateSystemType coordinate_system,
                           const bool verbose)
 {
@@ -21,16 +21,15 @@ Grid::create_1d_orthomesh(const std::vector<double> vertices,
 
   // Compute the cell widths
   std::vector<double> widths;
-  widths.resize(n_cells);
   for (size_t v = 0; v < n_cells; ++v)
     widths.push_back(vertices[v + 1] - vertices[v]);
 
   // Initialize the vertices
   mesh->vertices.reserve(vertices.size());
-  mesh->vertices.emplace_back(0.0, 0.0, 0.0);
 
   // Compute the vertices, starting from 0.0
   double current_pos = 0.0;
+  mesh->vertices.emplace_back(0.0, 0.0, current_pos);
   for (const auto& width : widths)
   {
     mesh->vertices.emplace_back(0.0, 0.0, current_pos + width);
@@ -94,16 +93,16 @@ Grid::create_1d_orthomesh(const std::vector<double> vertices,
     std::cout << "Mesh Details:\n"
               << "\t# of Vertices: " << mesh->vertices.size() << "\n"
               << "\t# of Cells:    " << mesh->cells.size() << "\n"
-              << "\t# of Lines:    " << mesh->cells.size() << "\n";
+              << "\t# of Faces:    " << mesh->cells.size() + 1 << "\n";
   return mesh;
 }
 
 //######################################################################
 
 std::shared_ptr<Grid::Mesh>
-Grid::create_1d_orthomesh(const std::vector<double> zone_edges,
-                          const std::vector<size_t> zone_subdivisions,
-                          const std::vector<int> material_ids,
+Grid::create_1d_orthomesh(const std::vector<double>& zone_edges,
+                          const std::vector<size_t>& zone_subdivisions,
+                          const std::vector<int>& material_ids,
                           const CoordinateSystemType coordinate_system,
                           const bool verbose)
 {
@@ -119,8 +118,8 @@ Grid::create_1d_orthomesh(const std::vector<double> zone_edges,
   auto mesh = std::make_shared<Mesh>(1, coordinate_system);
 
   // Count the number of cells
-  size_t n_cells = std::accumulate(zone_subdivisions.begin(),
-                                   zone_subdivisions.end(), 0);
+  auto n_cells = std::accumulate(zone_subdivisions.begin(),
+                                   zone_subdivisions.end(), (size_t)0);
 
   // Initialize the vertices
   mesh->vertices.reserve(n_cells + 1);
@@ -132,8 +131,8 @@ Grid::create_1d_orthomesh(const std::vector<double> zone_edges,
   {
     // Define the width of cells in this zone z
     double zone_width = zone_edges[z + 1] - zone_edges[z];
-    double n_zone_cells = static_cast<double>(zone_subdivisions[z]);
-    double cell_width = zone_width/n_zone_cells;
+    size_t n_zone_cells = zone_subdivisions[z];
+    double cell_width = zone_width/(double)n_zone_cells;
 
     for (size_t c = 0; c < n_zone_cells; ++c)
     {
@@ -205,6 +204,6 @@ Grid::create_1d_orthomesh(const std::vector<double> zone_edges,
     std::cout << "Mesh Details:\n"
               << "\t# of Vertices: " << mesh->vertices.size() << "\n"
               << "\t# of Cells:    " << mesh->cells.size() << "\n"
-              << "\t# of Lines:    " << mesh->cells.size() << "\n";
+              << "\t# of Faces:    " << mesh->cells.size() + 1 << "\n";
   return mesh;
 }

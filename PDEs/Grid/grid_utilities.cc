@@ -27,6 +27,7 @@ Grid::cell_type_str(const CellType cell_type)
     case CellType::SLAB: return "SLAB";
     case CellType::ANNULUS: return "ANNULUS";
     case CellType::SHELL: return "SHELL";
+    case CellType::QUADRILATERAL: return "QUADRILATERAL";
     default: return "UNDEFINED";
   }
 }
@@ -46,10 +47,11 @@ Grid::Cell::str() const
   ss << "centroid: " << centroid << "\n";
   ss << "volume: " << volume << "\n";
 
-  int v = 0;
   ss << "n_vertex_ids: " << vertex_ids.size() << "\n";
+  ss << "vertices: [ ";
   for (auto& v_id : vertex_ids)
-    ss << "Vertex " << v++ << ": " << v_id << "\n";
+    ss << v_id << " ";
+  ss << "]\n";
 
   int f = 0;
   ss << "n_faces: " << faces.size() << "\n";
@@ -65,17 +67,17 @@ std::string
 Grid::Face::str() const
 {
   std::stringstream ss;
-  size_t v = 0;
   ss << "n_vertex_ids: " << vertex_ids.size() << "\n";
+  ss << "vertices: [ ";
   for (auto& v_id : vertex_ids)
-    ss << "Vertex " << v++ << ": " << v_id << "\n";
+    ss << v_id << " ";
+  ss << "]\n";
 
   ss << "normal: " << normal << "\n";
   ss << "centroid: " << centroid << "\n";
   ss << "area: " << area << "\n";
   ss << "has_neighbor: " << has_neighbor << "\n";
   ss << "neighbor_id: " << neighbor_id << "\n";
-
   return ss.str();
 }
 

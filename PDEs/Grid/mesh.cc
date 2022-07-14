@@ -112,36 +112,43 @@ Mesh::compute_geometric_info()
 {
   std::cout << "Computing geometric information on cells and faces.\n";
 
-  Assert(dim == 1, "Only 1D meshes are implemented.");
+  Assert(dim < 3, "Only 1D and 2D meshes are implemented.");
 
   //======================================== Loop over cells
   for (auto& cell : cells)
   {
+
     //==================== Compute cell centroid
     cell.centroid *= 0.0;
     for (auto& v_id : cell.vertex_ids)
       cell.centroid += vertices[v_id];
     cell.centroid /= static_cast<double>(cell.vertex_ids.size());
 
+
     //==================== Compute cell volume
     if (cell.vertex_ids.size() == 2)
     {
-      auto cell_type = cell.type;
-      auto& v1 = vertices[cell.vertex_ids[1]].z;
-      auto& v0 = vertices[cell.vertex_ids[0]].z;
+      const auto& v1 = vertices[cell.vertex_ids[1]].z;
+      const auto& v0 = vertices[cell.vertex_ids[0]].z;
 
-      switch (cell_type)
-      {
-        case CellType::SLAB:cell.volume = v1 - v0;
-          break;
-
-        case CellType::ANNULUS:cell.volume = M_PI*(v1*v1 - v0*v0);
-          break;
-
-        case CellType::SHELL:cell.volume = 4.0/3.0*M_PI*(v1*v1*v1 - v0*v0*v0);
-          break;
-      }
+      if (cell.type == CellType::SLAB)
+        cell.volume = v1 - v0;
+      else if (cell.type == CellType::ANNULUS)
+        cell.volume = M_PI*(v1*v1 - v0*v0);
+      else if (cell.type == CellType::SHELL)
+        cell.volume = 4.0/3.0*M_PI*(v1*v1*v1 - v0*v0*v0);
+      else
+        throw std::runtime_error("Unexpected 1D cell type.");
     }//if 1D
+    else if (cell.vertex_ids.size() == 4)
+    {
+      assert(cell.type == CellType::QUADRILATERAL);
+
+      const auto& vbl = vertices[cell.vertex_ids[0]];
+      const auto& vtr = vertices[cell.vertex_ids[2]];
+      cell.volume = (vtr.x - vbl.x) * (vtr.y - vbl.y);
+    }//if 2D quad
+
 
     //=================================== Loop over faces
     for (auto& face : cell.faces)
@@ -157,18 +164,21 @@ Mesh::compute_geometric_info()
       {
         const auto& v = vertices[face.vertex_ids[0]].z;
 
-        switch (coord_sys)
-        {
-          case CoordinateSystemType::CARTESIAN:face.area = 1.0;
-            break;
-
-          case CoordinateSystemType::CYLINDRICAL:face.area = 2.0*M_PI*v;
-            break;
-
-          case CoordinateSystemType::SPHERICAL:face.area = 4.0*M_PI*v*v;
-            break;
-        }
+        if (cell.type == CellType::SLAB)
+          face.area = 1.0;
+        else if (cell.type == CellType::ANNULUS)
+          face.area = 2.0*M_PI * v;
+        else if (cell.type == CellType::SHELL)
+          face.area = 4.0*M_PI * v*v;
       }// if 1D
+      else if (face.vertex_ids.size() == 2)
+      {
+        assert(coord_sys == CoordinateSystemType::CARTESIAN);
+
+        const auto& v0 = vertices[face.vertex_ids[0]];
+        const auto& v1 = vertices[face.vertex_ids[1]];
+        face.area = v1.distance(v0);
+      }
     }//for faces
   }//for cell
 }

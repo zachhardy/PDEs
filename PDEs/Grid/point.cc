@@ -173,7 +173,7 @@ Point::operator+=(const Point& q)
 Point&
 Point::operator-=(const Point& q)
 {
-  x -= q.y;
+  x -= q.x;
   y -= q.y;
   z -= q.z;
   return *this;
@@ -244,7 +244,7 @@ std::string
 Point::str() const
 {
   std::stringstream ss;
-  ss << "Point(" << x << " " << y << " " << z << ")\n";
+  ss << "Point(" << x << " " << y << " " << z << ")";
   return ss.str();
 }
 
