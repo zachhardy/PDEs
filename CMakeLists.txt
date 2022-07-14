@@ -32,7 +32,7 @@ message(STATUS "EIGEN_DIR set to ${EIGEN_DIR}")
 #-------------------- Define project
 set(TARGET PDEs)
 project(${TARGET} C CXX)
-set(MODULES "Modules")
+set(MODULES Modules)
 
 #-------------------- CMake variables
 if (NOT DEFINED CMAKE_RUNTIME_OUTPUT_DIRECTORY)
@@ -71,7 +71,8 @@ include_directories("${PROJECT_SOURCE_DIR}/Modules/NeutronDiffusion")
 
 
 #-------------------- Source directories
-set(SOURCES)
+set(SOURCES PDEs/main.cc Test/TWIGL/TWIGL.cc)
+#add_subdirectory(${PROJECT_SOURCE_DIR}/Test)
 add_subdirectory("${PROJECT_SOURCE_DIR}/PDEs/Grid")
 add_subdirectory("${PROJECT_SOURCE_DIR}/PDEs/Math")
 add_subdirectory("${PROJECT_SOURCE_DIR}/PDEs/Physics")
@@ -89,6 +90,16 @@ target_link_libraries(PDELib ${MPI_CXX_LIBRARIES})
 add_executable(${TARGET} PDEs/main.cc)
 target_link_libraries(${TARGET} PDELib Eigen3::Eigen petsc)
 
+file(GLOB_RECURSE TEST_TARGETS ${PROJECT_SOURCE_DIR}/Test/*.cc)
+foreach(testsource ${TEST_TARGETS})
+    get_filename_component(test ${testsource} NAME_WE)
+    get_filename_component(dirname ${testsource} DIRECTORY)
+    add_executable(${test} ${testsource})
+    target_link_libraries(${test} PDELib Eigen3::Eigen petsc)
+    set_target_properties(${test} PROPERTIES
+                          RUNTIME_OUTPUT_DIRECTORY
+                          ${dirname}/bin)
+endforeach(testsource ${TEST_TARGETS})
 
 #-------------------- Write Makefile to root directory
 set(CMAKE_VERBOSE_MAKEFILE OFF)

@@ -28,9 +28,31 @@ if [ $DO_CLEAN = "YES" ]; then
   if [ -d "build" ]; then
     rm -r build
   fi
+  if [ -d "bin" ]; then
+    rm -r bin
+  fi
+
+  cd Test || exit
+  for testset in *; do
+    cd "$testset" || exit
+    if [ -d "bin" ]; then
+      rm -r bin
+    fi
+    cd ..
+  done
+  cd ..
 fi
 
 if [ $DO_CMAKE = "YES" ]; then
-  mkdir -p build && cd build
+  mkdir -p build && mkdir -p bin
+
+  cd Test || exit
+  for testset in *; do
+    if [ ! -d "bin" ]; then
+      mkdir -p "${testset}/bin"
+    fi
+  done
+
+  cd ../build || exit
   cmake .. && cd ..
 fi
