@@ -74,8 +74,15 @@ TransientSolver::execute()
     // Check to see if time steps should be coarsened.
     if (adaptivity)
       coarsen_time_step();
+
+    // If no adaptivity, reset the time step to the original when
+    // modified for outputting purposes
     else if (dt != dt_initial)
+    {
       dt = dt_initial;
+      if (time >= t_end - 1.0e-12)
+      assemble_matrices();
+    }
 
     // Move the solutions to the next time step
     step_solutions();

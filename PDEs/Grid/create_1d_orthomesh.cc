@@ -1,17 +1,17 @@
 #include "ortho_grids.h"
-#include "macros.h"
 
+#include <cassert>
 #include <numeric>
 
 
 std::shared_ptr<Grid::Mesh>
-Grid::create_1d_mesh(const std::vector<double> vertices,
-                     const CoordinateSystemType coordinate_system,
-                     const bool verbose)
+Grid::create_1d_orthomesh(const std::vector<double> vertices,
+                          const CoordinateSystemType coordinate_system,
+                          const bool verbose)
 {
   std::cout << "Creating a 1D mesh from vertices.\n";
 
-  Assert(!vertices.empty(), "No vertices provided.");
+  assert(!vertices.empty());
 
   // Create the Mesh
   auto mesh = std::make_shared<Mesh>(1, coordinate_system);
@@ -21,7 +21,7 @@ Grid::create_1d_mesh(const std::vector<double> vertices,
 
   // Compute the cell widths
   std::vector<double> widths;
-  widths.reserve(n_cells);
+  widths.resize(n_cells);
   for (size_t v = 0; v < n_cells; ++v)
     widths.push_back(vertices[v + 1] - vertices[v]);
 
@@ -41,15 +41,17 @@ Grid::create_1d_mesh(const std::vector<double> vertices,
   CellType cell_type;
   switch (coordinate_system)
   {
-    case CoordinateSystemType::CARTESIAN:cell_type = CellType::SLAB;
+    case CoordinateSystemType::CARTESIAN:
+      cell_type = CellType::SLAB;
       break;
 
-    case CoordinateSystemType::CYLINDRICAL:cell_type = CellType::ANNULUS;
+    case CoordinateSystemType::CYLINDRICAL:
+      cell_type = CellType::ANNULUS;
       break;
 
-    case CoordinateSystemType::SPHERICAL:cell_type = CellType::SHELL;
+    case CoordinateSystemType::SPHERICAL:
+      cell_type = CellType::SHELL;
       break;
-
   }
 
   // Create the cells
@@ -78,6 +80,7 @@ Grid::create_1d_mesh(const std::vector<double> vertices,
     cell.faces.push_back(right_face);
 
     // Add cells to the mesh
+    mesh->ijk_mapping.push_back({c});
     mesh->cells.push_back(cell);
   }
 
@@ -98,23 +101,19 @@ Grid::create_1d_mesh(const std::vector<double> vertices,
 //######################################################################
 
 std::shared_ptr<Grid::Mesh>
-Grid::create_1d_mesh(const std::vector<double> zone_edges,
-                     const std::vector<size_t> zone_subdivisions,
-                     const std::vector<int> material_ids,
-                     const CoordinateSystemType coordinate_system,
-                     const bool verbose)
+Grid::create_1d_orthomesh(const std::vector<double> zone_edges,
+                          const std::vector<size_t> zone_subdivisions,
+                          const std::vector<int> material_ids,
+                          const CoordinateSystemType coordinate_system,
+                          const bool verbose)
 {
   std::cout << "Creating a 1D mesh from zones.\n";
 
-  Assert(!zone_edges.empty(), "No zone edges provided.");
-  Assert(!zone_subdivisions.empty(), "No zone subdivisions provided.");
-  Assert(!material_ids.empty(), "No material IDs provided.");
-  Assert(zone_edges.size() == zone_subdivisions.size() + 1,
-         "Incompatible zone edges and zone subdivisions."
-         "There must be one more edge than subdivisions entry.");
-  Assert(zone_subdivisions.size() == material_ids.size(),
-         "Incompatible zone subdivisions and material IDs."
-         "There must the same number of zone subdivisions as material IDs.");
+  assert(!zone_edges.empty());
+  assert(!zone_subdivisions.empty());
+  assert(!material_ids.empty());
+  assert(zone_edges.size() == zone_subdivisions.size() + 1);
+  assert(zone_subdivisions.size() == material_ids.size());
 
   // Create the mesh
   auto mesh = std::make_shared<Mesh>(1, coordinate_system);
@@ -124,7 +123,7 @@ Grid::create_1d_mesh(const std::vector<double> zone_edges,
                                    zone_subdivisions.end(), 0);
 
   // Initialize the vertices
-  mesh->vertices.reserve(n_cells);
+  mesh->vertices.reserve(n_cells + 1);
   mesh->vertices.emplace_back(0.0, 0.0, zone_edges[0]);
 
   // Define the vertices, loop over each zone, then the cells per zone
@@ -147,15 +146,17 @@ Grid::create_1d_mesh(const std::vector<double> zone_edges,
   CellType cell_type;
   switch (coordinate_system)
   {
-    case CoordinateSystemType::CARTESIAN:cell_type = CellType::SLAB;
+    case CoordinateSystemType::CARTESIAN:
+      cell_type = CellType::SLAB;
       break;
 
-    case CoordinateSystemType::CYLINDRICAL:cell_type = CellType::ANNULUS;
+    case CoordinateSystemType::CYLINDRICAL:
+      cell_type = CellType::ANNULUS;
       break;
 
-    case CoordinateSystemType::SPHERICAL:cell_type = CellType::SHELL;
+    case CoordinateSystemType::SPHERICAL:
+      cell_type = CellType::SHELL;
       break;
-
   }
 
   // Create the cells, loop over zones, then cells per zone
@@ -188,6 +189,7 @@ Grid::create_1d_mesh(const std::vector<double> zone_edges,
       cell.faces.push_back(right_face);
 
       // Add the cell to the mesh
+      mesh->ijk_mapping.push_back({c});
       mesh->cells.emplace_back(cell);
       ++count;
     }//for cell

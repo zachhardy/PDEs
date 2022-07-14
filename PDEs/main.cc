@@ -50,7 +50,7 @@ int main(int argc, char** argv)
       vertices.emplace_back(vertices.back() + cell_width);
 
     auto coord_sys = CoordinateSystemType::SPHERICAL;
-    auto mesh = create_1d_mesh(vertices, coord_sys);
+    auto mesh = create_1d_orthomesh(vertices, coord_sys);
 
     //============================================================
     // Materials

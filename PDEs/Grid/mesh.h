@@ -45,6 +45,8 @@ namespace Grid
 
     std::vector<size_t> boundary_cell_ids;
 
+    std::vector<std::vector<size_t>> ijk_mapping;
+
   public:
     /**
      * Construct a mesh with the specified dimension and coordinate system.

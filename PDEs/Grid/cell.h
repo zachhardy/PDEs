@@ -12,9 +12,10 @@ namespace Grid
 {
   enum class CellType
   {
-    SLAB = 0,  ///< 1D Cartesian geometry.
-    ANNULUS = 1,  ///< 1D cylindrical geometry.
-    SHELL = 2   ///< 1D spherical geometry.
+    SLAB = 0, ///< 1D Cartesian geometry.
+    ANNULUS = 1, ///< 1D cylindrical geometry.
+    SHELL = 2, ///< 1D spherical geometry.
+    QUADRILATERAL = 3 ///< 2D quadrilateral.
   };
 
 

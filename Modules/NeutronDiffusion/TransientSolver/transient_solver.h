@@ -166,24 +166,8 @@ namespace NeutronDiffusion
                                   SourceFlags source_flags);
     void solve_full_system_time_step(SourceFlags source_flags);
 
-    /**
-     * Refine the time step when the change in power is greater than the
-     * specified \p refine_threshold. This routine checks the relative power
-     * change to see if refinement is necessary. If it is, the previous time
-     * step is disregarded, the time step is halved and run again. This is
-     * done until the relative power change is less than the specified
-     * \p refine_threshold.
-     */
     void refine_time_step();
-
-    /**
-     * Coarsen the time step when the change in power is less than the
-     * specified \p coarsen_threshold. This routine checks the relative power
-     * change to see if coarsening is necessary. If it is, the previous time
-     * step is kept and the next time step is double the width.
-     */
     void coarsen_time_step();
-
 
     void step_solutions();
 
