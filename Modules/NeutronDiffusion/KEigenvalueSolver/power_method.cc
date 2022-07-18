@@ -82,6 +82,7 @@ KEigenvalueSolver::power_method()
         << "Step  " << std::setw(4) << nit
         << "k_eff  " << std::setw(10) << k_eff
         << "k_eff Change  " << std::setw(14) << k_eff_change
+        << "Phi Change  " << std::setw(14) << phi_change
         << "Reactivity  " << rho*1.0e5;
       if (converged) iter_info << "   CONVERGED";
       std::cout << iter_info.str() << std::endl;
