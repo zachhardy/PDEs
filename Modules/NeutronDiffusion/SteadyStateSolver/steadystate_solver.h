@@ -312,9 +312,11 @@ namespace NeutronDiffusion
     // @}
 
     /*-------------------- File I/O --------------------*/
+  public:
 
     /** Write the solution data to a binary file. */
-    void write_snapshot(const std::string& file_base) const;
+    virtual void write(const std::string& output_directory,
+                       const std::string& file_prefix) const;
   };
 
 }

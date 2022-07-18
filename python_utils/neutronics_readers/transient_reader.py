@@ -8,16 +8,18 @@ import matplotlib.pyplot as plt
 from matplotlib.pyplot import Figure
 from matplotlib.pyplot import Axes
 
-from .. import Point
-from .. import SimulationReader
+from python_utils import Point
+from python_utils import SimulationReader
 
 plt.rcParams['text.usetex'] = True
 plt.rcParams['font.size'] = 12
 
 
-class NeutronicsSimulationReader(SimulationReader):
+class TransientNeutronicsReader(SimulationReader):
 
     def __init__(self, path):
+        if not os.path.isdir(path):
+            raise NotADirectoryError
         super().__init__(path)
 
         # Temporal Information

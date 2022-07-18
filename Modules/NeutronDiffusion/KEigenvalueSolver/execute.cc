@@ -24,6 +24,4 @@ KEigenvalueSolver::execute()
     compute_precursors();
     precursors /= k_eff;
   }
-
-
 }

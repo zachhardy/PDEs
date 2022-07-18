@@ -1,4 +1,4 @@
-#include "steadystate_solver.h"
+#include "keigenvalue_solver.h"
 
 #include <fstream>
 #include <cstring>
@@ -10,18 +10,20 @@ using namespace NeutronDiffusion;
 
 
 void
-SteadyStateSolver::write(const std::string& output_directory,
+KEigenvalueSolver::write(const std::string& output_directory,
                          const std::string& file_prefix) const
 {
   assert(std::filesystem::is_directory(output_directory));
 
-  std::string filename = file_prefix;
-  if (filename.find(".") != std::string::npos)
-     filename = file_prefix.substr(0, file_prefix.rfind("."));
-  filename = filename + ".data";
+  std::string filepath = file_prefix;
+  if (filepath.find(".") != std::string::npos)
+    filepath = file_prefix.substr(0, file_prefix.rfind("."));
+  filepath = output_directory + "/" + filepath + ".data";
+
+  std::cout << "\n*** Writing result to " << filepath << " ***\n";
 
   // Open the file
-  std::ofstream file(filename,
+  std::ofstream file(filepath,
                      std::ofstream::binary |
                      std::ofstream::out |
                      std::ofstream::trunc);
@@ -30,10 +32,11 @@ SteadyStateSolver::write(const std::string& output_directory,
   // Write the header_info
   int size = 800;
   std::string header_info =
-    "NeutronDiffusion::SteadyStateSolver: Snapshot File\n"
+    "NeutronDiffusion::KEigenvalueSolver: Snapshot File\n"
     "Header size: " + std::to_string(size) + " bytes\n";
   header_info +=
     "Structure(type-info):\n"
+    "double        k_eff\n"
     "unsigned int  n_data_blocks\n"
     "uint64_t      n_cells\n"
     "uint64_t      n_nodes\n"
@@ -78,6 +81,7 @@ SteadyStateSolver::write(const std::string& output_directory,
   strncpy(header_bytes, header_info.c_str(), std::min(header_size, size - 1));
   header_bytes[size - 1] = '\0';
 
+  const unsigned int n_data_blocks = (use_precursors)? 2 : 1;
   uint64_t n_records;
   unsigned int record_type = 0;
 
@@ -88,6 +92,8 @@ SteadyStateSolver::write(const std::string& output_directory,
 
   // Write header_info and general information
   file << header_bytes;
+  file.write((char*)&k_eff, sizeof(double));
+
   file.write((char*)&n_records, sizeof(unsigned int));
 
   file.write((char*)&n_cells, sizeof(uint64_t));

@@ -8,7 +8,7 @@ using namespace NeutronDiffusion;
 
 
 void
-TransientSolver::write_snapshot(const size_t output_index) const
+TransientSolver::write(const size_t output_index) const
 {
   std::string file_base(std::to_string(output_index));
   file_base.insert(0, 4 - file_base.size(), '0');

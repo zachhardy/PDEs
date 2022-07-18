@@ -45,8 +45,6 @@ NeutronDiffusion::SteadyStateSolver::execute()
   // Compute precursors
   if (use_precursors)
     compute_precursors();
-
-  write_snapshot("output");
 }
 
 //######################################################################

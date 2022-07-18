@@ -26,6 +26,10 @@ namespace NeutronDiffusion
 
     /** Compute the total neutron production rate. */
     double compute_production();
+
+  public:
+    virtual void write(const std::string& output_directory,
+                       const std::string& file_prefix) const override;
   };
 
 }

@@ -192,7 +192,7 @@ namespace NeutronDiffusion
 
     /*-------------------- File I/O --------------------*/
 
-    void write_snapshot(const size_t output_index) const;
+    void write(const size_t output_index) const;
   };
 }
 

@@ -27,7 +27,7 @@ int main(int argc, char** argv)
   //============================================================
   using namespace Grid;
 
-  size_t n_x = 21, n_y = 21;
+  size_t n_x = 41, n_y = 41;
   double X = 80.0, Y = 80.0;
   double dx = X / (n_x - 1), dy = Y / (n_y - 1);
 
@@ -44,11 +44,10 @@ int main(int argc, char** argv)
   for (auto& cell : mesh->cells)
   {
     auto& c = cell.centroid;
-    if (24.0 < c.x < 56.0 and 24.0 < c.y < 56.0)
+    if (c.x > 24.0 and c.x < 56.0 and c.y > 24.0 and c.y < 56.0)
       cell.material_id = 0;
-    else if (0.0 < c.x < 24.0 and 24.0 < c.y < 56.0)
-      cell.material_id = 1;
-    else if (24.0 < c.x < 56.0 and 0.0 < c.y < 24.0)
+    else if ((c.x > 0.0 and c.x < 24.0 and c.y > 24.0 and c.y < 56.0) or
+             (c.x > 24.0 and c.x < 56.0 and c.y > 0.0 and c.y < 24.0))
       cell.material_id = 1;
     else
       cell.material_id = 2;
@@ -147,6 +146,8 @@ int main(int argc, char** argv)
   timer.stop();
 
   PetscFinalize();
+
+  solver.write("Test/TWIGL", "result");
 
   std::cout << timer.get_time() << " ms\n";
 }

@@ -1,10 +1,10 @@
 # from readers import NeutronicsSimulationReader
-from python_utils import NeutronicsSimulationReader
+from python_utils import KEigenvalueNeutronicsReader
 
 import matplotlib.pyplot as plt
 
 
-sim = NeutronicsSimulationReader("outputs")
+sim = KEigenvalueNeutronicsReader("Test/TWIGL/result.data")
 sim.read()
 
 sim.plot_flux_moment()

@@ -5,9 +5,6 @@ import numpy as np
 class SimulationReader:
 
     def __init__(self, path):
-        if not os.path.isdir(path):
-            raise NotADirectoryError
-
         self.data = {}
         self.path = os.path.abspath(path)
 
