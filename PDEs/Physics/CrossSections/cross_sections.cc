@@ -76,10 +76,7 @@ Physics::CrossSections::compute_scattering_from_transfers()
   {
     for (size_t g = 0; g < n_groups; ++g)
     {
-      Assert(transfer_matrices[0][g][gp] >= 0.0,
-             "Negative group-to-group transfer cross-section encountered "
-             "in incident group " + std::to_string(gp) + " and destination " +
-             "group " + std::to_string(g) ".");
+      assert(transfer_matrices[0][g][gp] >= 0.0);
       sigma_s[gp] += transfer_matrices[0][g][gp];
     }
   }
@@ -101,27 +98,17 @@ Physics::CrossSections::reconcile_cross_sections()
    * recompute the total cross-section from the specified scattering and
    * absorption. */
   if (not specified_sigma_a)
-  {
     for (size_t g = 0; g < n_groups; ++g)
     {
-      Assert(sigma_t[g] >= 0.0,
-             "Negative total cross-section encountered in group " +
-             std::to_string(g) + ".");
-      Assert(sigma_t[g] >= sigma_s[g],
-             "A scattering cross-section which exceeds the total cross-section "
-             "was encountered in group " + std::to_string(g) + ".");
+      assert(sigma_t[g] >= 0.0);
+      assert(sigma_t[g] >= sigma_s[g]);
       sigma_a[g] = sigma_t[g] - sigma_s[g];
     }
-  }
   else
-  {
     for (size_t g = 0; g < n_groups; ++g)
     {
-      Assert(sigma_a[g] >= 0.0,
-             "Negative absorption cross-section encountered in group " +
-             std::to_string(g));
+      assert(sigma_a[g] >= 0.0);
       sigma_t[g] = sigma_a[g] + sigma_s[g];
-    }
   }
 
   // Compute the removal cross sections
@@ -158,8 +145,7 @@ Physics::CrossSections::reconcile_fission_properties()
   {
     // Check for negative cross sections
     for (size_t g = 0; g < n_groups; ++g)
-    Assert(sigma_f[g] >= 0.0,
-           "Negative fission cross section encountered.");
+    assert(sigma_f[g] >= 0.0);
 
     // Determine which terms are present
     std::pair<bool, bool> has_total(false, false);
@@ -187,26 +173,20 @@ Physics::CrossSections::reconcile_fission_properties()
     // Check for prompt/delayed quantities
     if (n_precursors > 0)
     {
-      Assert(has_prompt.first && has_prompt.second && has_delayed.first,
-             "Prompt and delayed fission terms not supplied for a "
-             "problem with delayed neutron precursors.");
+      assert(has_prompt.first && has_prompt.second && has_delayed.first);
 
       // Ensure positive terms
       for (size_t g = 0; g < n_groups; ++g)
       {
-        Assert(nu_prompt[g] >= 0.0 && nu_delayed[g] >= 0.0,
-               "Negative prompt or delayed nu encountered.");
-        Assert(chi_prompt[g] >= 0.0,
-               "Negative prompt fission spectrum value.");
+        assert(nu_prompt[g] >= 0.0 && nu_delayed[g] >= 0.0);
+        assert(chi_prompt[g] >= 0.0);
       }
 
       // Check precursor properties
       for (size_t j = 0; j < n_precursors; ++j)
       {
-        Assert(precursor_lambda[j] > 0.0,
-               "Zero or negative decay constance encountered.");
-        Assert(precursor_yield[j] > 0.0,
-               "Zero or negative precursor yield encountered.");
+        assert(precursor_lambda[j] > 0.0);
+        assert(precursor_yield[j] > 0.0);
       }
 
       // Check delayed spectra
@@ -214,16 +194,13 @@ Physics::CrossSections::reconcile_fission_properties()
       {
         // Ensure positivity
         for (size_t g = 0; g < n_groups; ++g)
-        {
-          Assert(chi_delayed[g][j] >= 0.0,
-                 "Negative delayed emission spectrum value encountered.");
-        }
+          assert(chi_delayed[g][j] >= 0.0);
 
         // Compute spectra sum
         double sum = 0.0;
         for (size_t g = 0; g < n_groups; ++g)
           sum += chi_delayed[g][j];
-        Assert(sum > 0.0, "Zero emission spectra encountered.");
+        assert(sum > 0.0);
       }
       has_delayed.second = true;
 
@@ -296,9 +273,8 @@ Physics::CrossSections::reconcile_fission_properties()
     }//if has_precursors
     else
     {
-      Assert(has_total.first && has_total.second,
-             "Total fission terms were not found nor could they be computed "
-             "from prompt and delayed quantities.");
+      assert(has_total.first && has_total.second);
+      assert(has_total.first && has_total.second);
 
       // Normalize fission spectrum
       double sum = std::accumulate(chi.begin(), chi.end(), 0.0);

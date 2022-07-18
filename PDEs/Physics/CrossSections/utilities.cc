@@ -27,12 +27,8 @@ Physics::CrossSections::read_cross_section(
   while (line != keyword + "_END")
   {
     line_stream >> group >> value;
-    Assert(g < n_groups,
-           "The number of entries in the " + keyword +
-           " block exceeds the total number of groups.");
-    Assert(group < n_groups && group >= 0,
-           "Invalid group number encountered on line " +
-           std::to_string(line_number) + ".");
+    assert(g < n_groups);
+    assert(group < n_groups && group >= 0);
 
     destination[group] = value;
 
@@ -70,15 +66,9 @@ Physics::CrossSections::read_transfer_matrices(
     if (word == "M_GPRIME_G_VAL")
     {
       line_stream >> moment >> gprime >> group >> value;
-      Assert(moment >= 0,
-             "Invalid scattering moment encountered on line " +
-             std::to_string(line_number))
-      Assert(group < n_groups && group >= 0,
-             "Invalid incident group encountered on line " +
-             std::to_string(line_number) + ".");
-      Assert(gprime < n_groups && gprime >= 0,
-             "Invalid destination group encountered on line " +
-             std::to_string(line_number) + ".");
+      assert(moment >= 0);
+      assert(group < n_groups && group >= 0);
+      assert(gprime < n_groups && gprime >= 0);
 
       if (moment < destination.size())
         destination[moment][group][gprime] = value;
@@ -115,12 +105,8 @@ Physics::CrossSections::read_precursor_property(
   while (line != keyword + "_END")
   {
     line_stream >> precursor_num >> value;
-    Assert(j < n_precursors,
-           "The number of entries in the " + keyword +
-           " block exceeds the total number of precursor species.");
-    Assert(precursor_num < n_precursors && precursor_num >= 0,
-           "Invalid precursor species number encountered on line " +
-           std::to_string(line_number) + ".");
+    assert(j < n_precursors);
+    assert(precursor_num < n_precursors && precursor_num >= 0);
 
     destination[precursor_num] = value;
 
@@ -158,12 +144,8 @@ Physics::CrossSections::read_delayed_spectra(
     if (word == "G_PRECURSORJ_VAL")
     {
       line_stream >> group >> precursor_num >> value;
-      Assert(group < n_groups && group >= 0,
-             "Invalid group encountered on line " +
-             std::to_sting(line_number) + ".");
-      Assert(precursor_num < n_precursors && precursor_num >= 0,
-             "Invalid precursor number encountered on line " +
-             std::to_string(line_number) + ".");
+      assert(group < n_groups && group >= 0);
+      assert(precursor_num < n_precursors && precursor_num >= 0);
 
       destination[group][precursor_num] = value;
     }

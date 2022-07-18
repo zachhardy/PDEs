@@ -20,7 +20,7 @@ read_xs_file(const std::string file_name, const bool verbose)
   // Open the file
   std::ifstream file;
   file.open(file_name);
-  Assert(file.is_open(), "Failed to open the .xs file.");
+  assert(file.is_open());
 
   // Book-Keeping
   bool found_groups = false;
@@ -61,18 +61,16 @@ read_xs_file(const std::string file_name, const bool verbose)
     }
     if (word == "SCATTERING_ORDER")
     {
-      Assert(found_groups, "NUM_GROUPS must be specified before "
-                           "SCATTERING_ORDER in the \".xs\" file.");
+      assert(found_groups);
 
       line_stream >> scattering_order;
       transfer_matrices.resize(scattering_order + 1);
-      for (size_t m = 0; m < transfer_matrices.size(); ++m)
-        transfer_matrices[m].resize(n_groups, std::vector<double>(n_groups));
+      for (auto& transfer_matrix : transfer_matrices)
+        transfer_matrix.resize(n_groups, std::vector<double>(n_groups));
     }
     if (word == "NUM_PRECURSORS")
     {
-      Assert(found_groups, "NUM_GROUPS must be specified before "
-                           "NUM_PRECURSORS in the \".xs\" file.");
+      assert(found_groups);
       line_stream >> n_precursors;
       precursor_lambda.assign(n_precursors, 0.0);
       precursor_yield.assign(n_precursors, 0.0);
