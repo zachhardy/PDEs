@@ -312,6 +312,10 @@ namespace NeutronDiffusion
     // @}
 
     /*-------------------- File I/O --------------------*/
+  protected:
+    void write_geometry(const std::string& output_directory);
+    void write_flux_moments(const std::string& output_directory);
+
   public:
 
     /** Write the solution data to a binary file. */
