@@ -45,14 +45,9 @@ class SteadyStateNeutronicsReader(SimulationReader):
         self.precursors = np.zeros(0)
         self.power_density = np.zeros(0)
 
-    def read(self, skip=1):
+    def read(self):
         """
         Read a neutronics data files to populate simulation data.
-
-        :param skip: The interval to parse output files. If skip is 1,
-            every output file is parsed, otherwise every @p skip
-            file is parsed. Default is 1.
-        :type skip: int, optional
         """
         self.clear()
 

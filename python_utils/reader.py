@@ -5,10 +5,9 @@ import numpy as np
 class SimulationReader:
 
     def __init__(self, path):
-        self.data = {}
         self.path = os.path.abspath(path)
 
-    def read(self, skip=1):
+    def read(self):
         raise NotImplementedError
 
     def init_storage(self):
@@ -18,8 +17,7 @@ class SimulationReader:
         raise NotImplementedError
 
     def get(self, key):
-        if key in self.data:
-            return self.data.get(key)
+        raise NotImplementedError
 
     def clear(self):
         self.__init__(self.path)
