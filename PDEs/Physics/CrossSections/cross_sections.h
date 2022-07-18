@@ -5,7 +5,8 @@
 
 #include <string>
 #include <unordered_map>
-#include <cinttypes>
+#include <cstddef>
+#include <functional>
 
 
 namespace Physics
@@ -19,9 +20,9 @@ namespace Physics
     typedef std::vector<std::vector<double>> EmissionSpectra;
 
   public:
-    size_t n_groups;
-    size_t scattering_order;
-    size_t n_precursors;
+    unsigned int n_groups;
+    unsigned int scattering_order;
+    unsigned int n_precursors;
 
     double density = 1.0; ///< Atom density in atoms/b-cm.
     bool is_fissile = false;
@@ -52,6 +53,13 @@ namespace Physics
 
     std::vector<double> inv_velocity; ///< Inverse speed (s/cm)
     std::vector<double> diffusion_coeff; ///< Diffusion coefficient
+
+    /** A convenient typedef for functional cross-sections. */
+    typedef std::function<double(const unsigned int group_num,
+                                 const double current_time,
+                                 const double reference_value)> XSFunction;
+    XSFunction sigma_a_function;
+
 
   public:
 

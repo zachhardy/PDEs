@@ -76,7 +76,7 @@ read_xs_file(const std::string file_name, const bool verbose)
       precursor_yield.assign(n_precursors, 0.0);
 
       chi_delayed.resize(n_groups);
-      for (size_t g = 0; g < n_groups; ++g)
+      for (unsigned int g = 0; g < n_groups; ++g)
         chi_delayed[g].resize(n_precursors);
     }
     if (word == "DENSITY")
