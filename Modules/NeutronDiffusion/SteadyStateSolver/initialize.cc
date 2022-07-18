@@ -121,5 +121,5 @@ SteadyStateSolver::input_checks()
   //============================================================
 
   assert(mesh != nullptr);
-  assert(mesh->dim == 1);
+  assert(mesh->dim < 3);
 }
