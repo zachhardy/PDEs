@@ -114,18 +114,18 @@ Mesh::compute_geometric_info()
 
   Assert(dim < 3, "Only 1D and 2D meshes are implemented.");
 
-  //======================================== Loop over cells
+  // Loop over cells
   for (auto& cell : cells)
   {
 
-    //==================== Compute cell centroid
+    // Compute cell centroid
     cell.centroid *= 0.0;
     for (auto& v_id : cell.vertex_ids)
       cell.centroid += vertices[v_id];
     cell.centroid /= static_cast<double>(cell.vertex_ids.size());
 
 
-    //==================== Compute cell volume
+    // Compute cell volume
     if (cell.vertex_ids.size() == 2)
     {
       const auto& v1 = vertices[cell.vertex_ids[1]].z;
@@ -150,16 +150,16 @@ Mesh::compute_geometric_info()
     }//if 2D quad
 
 
-    //=================================== Loop over faces
+    // Loop over faces
     for (auto& face : cell.faces)
     {
-      //==================== Compute face centroids
+      // Compute face centroids
       face.centroid *= 0.0;
       for (auto& v_id : face.vertex_ids)
         face.centroid += vertices[v_id];
       face.centroid /= static_cast<double>(face.vertex_ids.size());
 
-      //==================== Compute face area
+      // Compute face area
       if (face.vertex_ids.size() == 1)
       {
         const auto& v = vertices[face.vertex_ids[0]].z;

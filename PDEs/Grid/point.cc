@@ -163,7 +163,7 @@ Point::operator/=(const double factor)
 Point&
 Point::operator+=(const Point& q)
 {
-  x += q.y;
+  x += q.x;
   y += q.y;
   z += q.z;
   return *this;

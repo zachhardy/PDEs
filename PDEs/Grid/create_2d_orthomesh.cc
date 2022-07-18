@@ -78,7 +78,7 @@ Grid::create_2d_orthomesh(const std::vector<double>& x_vertices,
         // Compute the face outward normal vector
         auto v0 = mesh->vertices[face.vertex_ids[0]];
         auto v1 = mesh->vertices[face.vertex_ids[1]];
-        face.normal = khat.cross(v1 - v0).normalize();
+        face.normal = khat.cross(v0 - v1).normalize();
 
         // Define the face neighbors
         if (face.normal == -jhat) // bottom face
