@@ -44,10 +44,10 @@ int main(int argc, char** argv)
   for (auto& cell : mesh->cells)
   {
     auto& c = cell.centroid;
-    if (c.x > 24.0 and c.x < 56.0 and c.y > 24.0 and c.y < 56.0)
+    if (c.x >= 24.0 and c.x <= 56.0 and c.y >= 24.0 and c.y <= 56.0)
       cell.material_id = 0;
-    else if ((c.x > 0.0 and c.x < 24.0 and c.y > 24.0 and c.y < 56.0) or
-             (c.x > 24.0 and c.x < 56.0 and c.y > 0.0 and c.y < 24.0))
+    else if ((c.x >= 0.0 and c.x <= 24.0 and c.y >= 24.0 and c.y <= 56.0) or
+             (c.x >= 24.0 and c.x <= 56.0 and c.y >= 0.0 and c.y <= 24.0))
       cell.material_id = 1;
     else
       cell.material_id = 2;
@@ -87,7 +87,7 @@ int main(int argc, char** argv)
 
   Options opts;
   opts.verbosity = 0;
-  opts.tolerance = 1.0e-10;
+  opts.tolerance = 1.0e-14;
   opts.max_iterations = 10000;
 
   std::shared_ptr<LinearSolverBase<SparseMatrix>> linear_solver;
@@ -108,6 +108,9 @@ int main(int argc, char** argv)
   solver.verbosity = 1;
   solver.use_precursors = true;
 
+  solver.tolerance = 1.0e-10;
+  solver.max_iterations = 1000;
+
   solver.solution_technique = SolutionTechnique::FULL_SYSTEM;
 
   //============================================================
@@ -127,8 +130,8 @@ int main(int argc, char** argv)
   //============================================================
 
   solver.boundary_info.emplace_back(BoundaryType::REFLECTIVE, -1);
-  solver.boundary_info.emplace_back(BoundaryType::ZERO_FLUX, -1);
-  solver.boundary_info.emplace_back(BoundaryType::ZERO_FLUX, -1);
+  solver.boundary_info.emplace_back(BoundaryType::VACUUM, -1);
+  solver.boundary_info.emplace_back(BoundaryType::VACUUM, -1);
   solver.boundary_info.emplace_back(BoundaryType::REFLECTIVE, -1);
 
   //============================================================
