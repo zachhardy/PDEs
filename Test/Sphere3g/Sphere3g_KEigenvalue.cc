@@ -54,7 +54,7 @@ int main(int argc, char** argv)
 
   // Create the cross sections
   auto xs = std::make_shared<CrossSections>();
-  xs->read_xs_file("xs_data/test_3g.xs");
+  xs->read_xs_file("Test/Sphere3g/xs/base3g.xs");
   material->properties.emplace_back(xs);
 
   size_t n_groups = xs->n_groups;
