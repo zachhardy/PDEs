@@ -5,8 +5,7 @@
 
 
 void
-NeutronDiffusion::SteadyStateSolver::initialize_materials()
-{
+NeutronDiffusion::SteadyStateSolver::initialize_materials() {
   std::cout << "Initializing materials.\n";
 
   //============================================================
@@ -16,8 +15,7 @@ NeutronDiffusion::SteadyStateSolver::initialize_materials()
   // Determine the unique material IDs on the mesh
   std::set<int> unique_material_ids;
   std::vector<size_t> invalid_cells;
-  for (const auto& cell : mesh->cells)
-  {
+  for (const auto &cell: mesh->cells) {
     unique_material_ids.insert(cell.material_id);
     if (cell.material_id < 0)
       invalid_cells.emplace_back(cell.id);
@@ -27,11 +25,10 @@ NeutronDiffusion::SteadyStateSolver::initialize_materials()
          "Cell's with invalid or unset material IDs encounterd.");
 
   // If all cells are invalid, set to zero
-  if (invalid_cells.size() == mesh->cells.size())
-  {
+  if (invalid_cells.size() == mesh->cells.size()) {
     unique_material_ids.clear();
     unique_material_ids.insert(0);
-    for (auto& cell : mesh->cells)
+    for (auto &cell: mesh->cells)
       cell.material_id = 0;
   }
 
@@ -51,17 +48,14 @@ NeutronDiffusion::SteadyStateSolver::initialize_materials()
   // to ensure these are valid.
   //============================================================
 
-  for (const int& material_id : unique_material_ids)
-  {
+  for (const int &material_id: unique_material_ids) {
     auto material = materials[material_id];
 
     bool found_xs = false;
-    for (const auto& property : material->properties)
-    {
+    for (const auto &property: material->properties) {
 
       // Get cross-section properties
-      if (property->type() == MaterialPropertyType::CROSS_SECTIONS)
-      {
+      if (property->type() == MaterialPropertyType::CROSS_SECTIONS) {
         auto xs = std::static_pointer_cast<CrossSections>(property);
         assert(xs->n_groups >= groups.size());
 
@@ -70,9 +64,8 @@ NeutronDiffusion::SteadyStateSolver::initialize_materials()
         found_xs = true;
       }
 
-      // Get multigroup source properties
-      else if (property->type() == MaterialPropertyType::ISOTROPIC_MG_SOURCE)
-      {
+        // Get multigroup source properties
+      else if (property->type() == MaterialPropertyType::ISOTROPIC_MG_SOURCE) {
         auto src = std::static_pointer_cast<IsotropicMGSource>(property);
         assert(src->values.size() >= groups.size());
 
@@ -83,6 +76,16 @@ NeutronDiffusion::SteadyStateSolver::initialize_materials()
 
     Assert(found_xs, "Cross sections not found on a provided material.");
   }//for materials
+
+  //============================================================
+  // Define cell-wise cross sections
+  //============================================================
+  cellwise_xs.reserve(mesh->cells.size());
+  for (const auto &cell: mesh->cells)
+  {
+    const auto xs = material_xs[matid_to_xs_map[cell.material_id]];
+    cellwise_xs.emplace_back(xs);
+  }
 
   //============================================================
   // Define bulk quantities for the simulation

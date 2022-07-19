@@ -12,6 +12,7 @@
 
 #include "material.h"
 #include "CrossSections/cross_sections.h"
+#include "lightweight_xs.h"
 
 #include <string>
 
@@ -78,6 +79,7 @@ namespace NeutronDiffusion
     typedef Physics::Material Material;
     typedef Physics::MaterialPropertyType MaterialPropertyType;
     typedef Physics::CrossSections CrossSections;
+    typedef Physics::LightWeightCrossSections LightWeightCrossSections;
     typedef Physics::IsotropicMultiGroupSource IsotropicMGSource;
 
     typedef std::vector<double> RobinBndryVals;
@@ -142,6 +144,8 @@ namespace NeutronDiffusion
      * once.
      */
     std::vector<int> matid_to_src_map;
+
+    std::vector<LightWeightCrossSections> cellwise_xs;
 
   public:
 

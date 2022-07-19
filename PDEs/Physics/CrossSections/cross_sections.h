@@ -53,6 +53,7 @@ namespace Physics
 
     std::vector<double> inv_velocity; ///< Inverse speed (s/cm)
     std::vector<double> diffusion_coeff; ///< Diffusion coefficient
+    std::vector<double> buckling; ///< Material buckling term
 
     /** A convenient typedef for functional cross-sections. */
     typedef std::function<double(const unsigned int group_num,
