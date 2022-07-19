@@ -66,6 +66,13 @@ namespace NeutronDiffusion
      */
     bool lag_precursors = false;
 
+    /**
+     * A flag for whether or not the problem has functional cross-sections
+     * or not. This is used to decide whether to call update functions, where
+     * necessary.
+     */
+    bool has_static_xs = true;
+
     /*-------------------- Time Stepping --------------------*/
 
     double time = 0.0;
@@ -151,15 +158,19 @@ namespace NeutronDiffusion
 
     /*-------------------- Public Facing Routines --------------------*/
 
+    /** Initialize the transient solver. */
     void initialize() override;
+
+    /** Execute the transient solver. */
     void execute() override;
 
   private:
 
+    /** Compute the initial conditions for the transient. */
     void compute_initial_values();
-    void evaluate_initial_conditions();
 
     /*-------------------- Time Step Routines --------------------*/
+
 
     void solve_time_step();
     void solve_groupset_time_step(Groupset& groupset,
@@ -187,6 +198,10 @@ namespace NeutronDiffusion
     void compute_power();
 
     void update_precursors();
+
+    void update_temperature() {}
+
+    void update_cross_sections(const double current_time);
 
     double effective_time_step();
 

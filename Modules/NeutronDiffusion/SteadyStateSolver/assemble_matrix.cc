@@ -22,6 +22,7 @@ SteadyStateSolver::assemble_matrix(Groupset& groupset,
   {
     const double volume = cell.volume;
     const auto& xs = material_xs[matid_to_xs_map[cell.material_id]];
+    const auto& sig_t = cellwise_xs[cell.id].sigma_t;
     const size_t i = cell.id*n_gsg;
 
     // Loop over groups
@@ -34,7 +35,7 @@ SteadyStateSolver::assemble_matrix(Groupset& groupset,
       // Total interaction term
       //========================================
 
-      A.add(ig, ig, xs->sigma_t[g]*volume);
+      A.add(ig, ig, sig_t[g]*volume);
 
       //========================================
       // Scattering term

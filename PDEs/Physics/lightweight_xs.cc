@@ -5,9 +5,7 @@ using namespace Physics;
 
 LightWeightCrossSections::
 LightWeightCrossSections(std::shared_ptr<CrossSections> xs)
-  : ref_xs(xs), sigma_t(xs->sigma_t),
-    diffusion_coeff(xs->diffusion_coeff),
-    buckling(xs->buckling)
+  : ref_xs(xs), sigma_t(xs->sigma_t)
 {}
 
 

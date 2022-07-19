@@ -11,11 +11,10 @@
 #include "LinearSolvers/PETSc/petsc_solver.h"
 
 #include "NeutronDiffusion/groupset.h"
-#include "NeutronDiffusion/KEigenvalueSolver/keigenvalue_solver.h"
+#include "NeutronDiffusion/TransientSolver/transient_solver.h"
 
 #include <iostream>
 #include <vector>
-#include <map>
 
 #include <petsc.h>
 
@@ -58,6 +57,23 @@ int main(int argc, char** argv)
   //============================================================
   using namespace Physics;
 
+  auto ramp_function =
+    [](const unsigned int group_num,
+      const double current_time,
+      const double reference_value)
+    {
+      const double delta = 0.97667 - 1.0;
+      if (group_num == 1)
+      {
+        if (current_time == 0.0)
+          return reference_value;
+        else
+          return reference_value*(1.0 + delta);
+      }
+      else
+        return reference_value;
+    };
+
   std::vector<std::shared_ptr<Material>> materials;
   materials.emplace_back(std::make_shared<Material>("Fuel 0"));
   materials.emplace_back(std::make_shared<Material>("Fuel 1"));
@@ -78,6 +94,8 @@ int main(int argc, char** argv)
     materials[i]->properties.emplace_back(xs[i]);
   }
 
+  xs[0]->sigma_a_function = ramp_function;
+
   const size_t n_groups = xs.front()->n_groups;
 
   //============================================================
@@ -97,7 +115,7 @@ int main(int argc, char** argv)
   // Create the diffusion solver
   //============================================================
   using namespace NeutronDiffusion;
-  KEigenvalueSolver solver;
+  TransientSolver solver;
   solver.mesh = mesh;
 
   for (auto& material : materials)
@@ -114,9 +132,24 @@ int main(int argc, char** argv)
   solver.solution_technique = SolutionTechnique::FULL_SYSTEM;
 
   //============================================================
+  // Define transient parameters
+  //============================================================
+  solver.t_end = 0.5;
+  solver.dt = 0.01;
+  solver.time_stepping_method = TimeSteppingMethod::CRANK_NICHOLSON;
+  solver.normalization_method = NormalizationMethod::TOTAL_POWER;
+  solver.normalize_fission_xs = true;
+
+  solver.write_outputs = true;
+  solver.output_directory = "Test/TWIGL/outputs";
+
+  solver.adaptivity = false;
+  solver.coarsen_threshold = 0.01;
+  solver.refine_threshold = 0.025;
+
+  //============================================================
   // Initialize groups and groupsets
   //============================================================
-
   for (size_t g = 0; g < n_groups; ++g)
     solver.groups.emplace_back(g);
 
@@ -149,8 +182,6 @@ int main(int argc, char** argv)
   timer.stop();
 
   PetscFinalize();
-
-  solver.write("Test/TWIGL", "result");
 
   std::cout << timer.get_time() << " ms\n";
 }

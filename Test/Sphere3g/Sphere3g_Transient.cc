@@ -17,8 +17,6 @@
 
 #include <iostream>
 #include <vector>
-#include <map>
-#include <filesystem>
 
 #include <petsc.h>
 
@@ -123,7 +121,7 @@ int main(int argc, char** argv)
   solver.normalization_method = NormalizationMethod::TOTAL_POWER;
 
   solver.write_outputs = true;
-  solver.output_directory = "outputs";
+  solver.output_directory = "Test/Sphere3g/outputs";
 
   auto ic = [slab_width](const Point p)
   { return 1.0 - p.z*p.z/(slab_width*slab_width); };

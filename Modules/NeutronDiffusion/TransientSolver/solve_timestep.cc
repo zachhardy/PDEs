@@ -12,6 +12,14 @@ TransientSolver::solve_time_step()
 {
   phi_ell = phi_old;
 
+  // Update cross sections
+  if (not has_static_xs)
+  {
+    const auto eff_dt = effective_time_step();
+    update_cross_sections(time + eff_dt);
+    assemble_matrices();
+  }
+
   // Solve for the scalar flux
   if (solution_technique == SolutionTechnique::FULL_SYSTEM)
     solve_full_system_time_step(APPLY_MATERIAL_SOURCE);

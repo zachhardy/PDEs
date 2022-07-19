@@ -12,18 +12,30 @@ TransientSolver::initialize()
   KEigenvalueSolver::initialize();
   KEigenvalueSolver::execute();
 
-  //==================== Check temporal parameters
+  // Check temporal parameters
   if (output_frequency < 0.0) output_frequency = dt;
   if (dt > output_frequency) dt = output_frequency;
 
-  //==================== Clear output directory
-  typedef std::filesystem::directory_iterator DirectoryIterator;
-
+  // Clear output directory
   if (write_outputs)
-    for (const auto& entry : DirectoryIterator(output_directory))
-      std::filesystem::remove_all(entry.path());
+  {
+    if (not std::filesystem::is_directory(output_directory))
+      std::filesystem::create_directory(output_directory);
 
-  //==================== Initialize auxiliary vector
+    typedef std::filesystem::directory_iterator DirectoryIterator;
+    for (const auto& entry: DirectoryIterator(output_directory))
+      std::filesystem::remove_all(entry.path());
+  }
+
+  // Check for non-static xs
+  for (const auto& xs : material_xs)
+    if (xs->sigma_a_function)
+    {
+      has_static_xs = false;
+      break;
+    }
+
+  // Initialize auxiliary vector
   fission_rate.resize(mesh->cells.size(), 0.0);
   temperature.resize(mesh->cells.size(), 0.0);
 
@@ -36,7 +48,29 @@ TransientSolver::compute_initial_values()
 {
   // Evaluate initial condition functions, if provided
   if (not initial_conditions.empty())
-    evaluate_initial_conditions();
+  {
+    const size_t npc = discretization->nodes_per_cell();
+    for (const auto& cell : mesh->cells)
+    {
+      const auto& nodes = discretization->nodes(cell);
+      assert(nodes.size() == npc);
+
+      for (size_t i = 0; i < npc; ++i)
+      {
+        const auto& node = nodes[i];
+        const size_t uk_map = cell.id*npc*n_groups + i*n_groups;
+
+        for (const auto& ic : initial_conditions)
+        {
+          const size_t g = ic.first;
+          assert(g >= groups.front() && g <= groups.back());
+
+          const auto f = ic.second;
+          phi[uk_map + g] = f(node);
+        }
+      }//for node
+    }//for cell
+  }
 
   // Otherwise, use the k-eigenvalue solver result
   else
@@ -79,31 +113,4 @@ TransientSolver::compute_initial_values()
 
   // Set old solution vectors
   step_solutions();
-}
-
-
-void
-TransientSolver::evaluate_initial_conditions()
-{
-  const size_t npc = discretization->nodes_per_cell();
-  for (const auto& cell : mesh->cells)
-  {
-    const auto& nodes = discretization->nodes(cell);
-    assert(nodes.size() == npc);
-
-    for (size_t i = 0; i < npc; ++i)
-    {
-      const auto& node = nodes[i];
-      const size_t uk_map = cell.id*npc*n_groups + i*n_groups;
-
-      for (const auto& ic : initial_conditions)
-      {
-        const size_t g = ic.first;
-        assert(g >= groups.front() && g <= groups.back());
-
-        const auto f = ic.second;
-        phi[uk_map + g] = f(node);
-      }
-    }//for node
-  }//for cell
 }

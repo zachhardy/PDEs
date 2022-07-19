@@ -48,14 +48,17 @@ NeutronDiffusion::SteadyStateSolver::initialize_materials() {
   // to ensure these are valid.
   //============================================================
 
-  for (const int &material_id: unique_material_ids) {
+  for (const int& material_id: unique_material_ids)
+  {
     auto material = materials[material_id];
 
     bool found_xs = false;
-    for (const auto &property: material->properties) {
+    for (const auto& property: material->properties)
+    {
 
       // Get cross-section properties
-      if (property->type() == MaterialPropertyType::CROSS_SECTIONS) {
+      if (property->type() == MaterialPropertyType::CROSS_SECTIONS)
+      {
         auto xs = std::static_pointer_cast<CrossSections>(property);
         assert(xs->n_groups >= groups.size());
 
@@ -64,8 +67,9 @@ NeutronDiffusion::SteadyStateSolver::initialize_materials() {
         found_xs = true;
       }
 
-        // Get multigroup source properties
-      else if (property->type() == MaterialPropertyType::ISOTROPIC_MG_SOURCE) {
+      // Get multigroup source properties
+      else if (property->type() == MaterialPropertyType::ISOTROPIC_MG_SOURCE)
+      {
         auto src = std::static_pointer_cast<IsotropicMGSource>(property);
         assert(src->values.size() >= groups.size());
 
@@ -74,8 +78,8 @@ NeutronDiffusion::SteadyStateSolver::initialize_materials() {
       }
     }//for properties
 
-    Assert(found_xs, "Cross sections not found on a provided material.");
-  }//for materialsUpdate3d
+    assert(found_xs);
+  }//for materials
 
   //============================================================
   // Define cell-wise cross sections

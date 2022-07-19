@@ -12,8 +12,6 @@ namespace Physics
 
   public:
     std::vector<double> sigma_t;
-    std::vector<double> diffusion_coeff;
-    std::vector<double> buckling;
 
     LightWeightCrossSections(std::shared_ptr<CrossSections> xs);
 

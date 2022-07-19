@@ -97,3 +97,11 @@ TransientSolver::execute()
   // Reset dt to see the initial time step size
   dt = dt_initial;
 }
+
+
+void
+TransientSolver::update_cross_sections(const double t)
+{
+  for (const auto& cell : mesh->cells)
+    cellwise_xs[cell.id].update(t);
+}
