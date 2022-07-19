@@ -52,9 +52,6 @@ TransientSolver::execute()
     if (adaptivity)
       refine_time_step();
 
-    if (step == 1)
-      exit(0);
-
     //==================================================
     // Postprocess the time step
     //==================================================

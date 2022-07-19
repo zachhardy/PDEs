@@ -119,7 +119,7 @@ TransientSolver::assemble_transient_matrix(Groupset& groupset,
             for (size_t gpr = 0; gpr < n_gsg; ++gpr)
             {
               const size_t gp = groupset.groups[gpr];
-              A.add(uk_map + gr, uk_map + gpr, coeff*nud_sigf[gp] * volume);
+              A.add(uk_map + gr, uk_map + gpr, -coeff*nud_sigf[gp] * volume);
             }
           }//if not lag precursors
         }//if prompt + delayed fission

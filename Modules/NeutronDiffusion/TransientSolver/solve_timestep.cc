@@ -32,7 +32,6 @@ TransientSolver::solve_time_step()
         APPLY_MATERIAL_SOURCE |
         APPLY_WGS_SCATTER_SOURCE | APPLY_WGS_FISSION_SOURCE |
         APPLY_AGS_SCATTER_SOURCE | APPLY_AGS_FISSION_SOURCE);
-  compute_fission_rate();
 
   // Update the precursors
   if (use_precursors)
@@ -89,6 +88,7 @@ TransientSolver::solve_groupset_time_step(Groupset& groupset,
 
     if (converged) break;
   }//for nit
+  compute_fission_rate();
 }
 
 //######################################################################
@@ -99,19 +99,7 @@ TransientSolver::solve_full_system_time_step(SourceFlags source_flags)
   groupsets.front().b = 0.0;
   set_transient_source(groupsets.front(), source_flags);
   phi = linear_solver->solve(groupsets.front().b);
-
-
-  double sum = 0.0;
-  for (const auto& el : groupsets.front().A.row_iterator(0)) {
-    sum += el.value();
-    std::cout << "(" << el.row()
-              << ", " << el.column()
-              << ")\t" << el.value() << std::endl;
-  }
-  std::cout << std::endl << std::fixed << std::setprecision(8) << sum << std::endl;
-//  std::cout
-//    << std::endl << std::fixed << std::setprecision(5) << sum << std::endl
-//    << std::scientific << std::setprecision(5) << phi.l2_norm() << std::endl;
+  compute_fission_rate();
 }
 
 //######################################################################
