@@ -52,11 +52,13 @@ read_xs_file(const std::string file_name, const bool verbose)
       nu.assign(n_groups, 0.0);
       nu_prompt.assign(n_groups, 0.0);
       nu_delayed.assign(n_groups, 0.0);
+      beta.assign(n_groups, 0.0);
       nu_sigma_f.assign(n_groups, 0.0);
       nu_prompt_sigma_f.assign(n_groups, 0.0);
       nu_delayed_sigma_f.assign(n_groups, 0.0);
       inv_velocity.assign(n_groups, 0.0);
       diffusion_coeff.assign(n_groups, 0.0);
+      buckling.assign(n_groups, 0.0);
       found_groups = true;
     }
     if (word == "SCATTERING_ORDER")
@@ -88,7 +90,31 @@ read_xs_file(const std::string file_name, const bool verbose)
     if (word == "SIGMA_A_BEGIN")
       read_cross_section("SIGMA_A", sigma_a, f, ls, ln);
     if (word == "SIGMA_F_BEGIN")
+    {
       read_cross_section("SIGMA_F", sigma_f, f, ls, ln);
+      is_fissile =  (is_fissile) ||
+          std::accumulate(sigma_f.begin(), sigma_f.end(), 0.0) > 1.0e-12;
+    }
+    if (word == "NU_SIGMA_F_BEGIN")
+    {
+      read_cross_section("NU_SIGMA_F", nu_sigma_f, f, ls, ln);
+      is_fissile = (is_fissile) ||
+          std::accumulate(nu_sigma_f.begin(), nu_sigma_f.end(), 0.0) > 1.0e-12;
+    }
+    if (word == "NU_PROMPT_SIGMA_F_BEGIN")
+    {
+      read_cross_section("NU_PROMPT_SIGMA_F", nu_prompt_sigma_f, f, ls, ln);
+      is_fissile = (is_fissile) ||
+                   std::accumulate(nu_prompt_sigma_f.begin(),
+                                   nu_prompt_sigma_f.end(), 0.0) > 1.0e-12;
+    }
+    if (word == "NU_DELAYED_SIGMA_F_BEGIN")
+    {
+      read_cross_section("NU_DELAYED_SIGMA_F", nu_delayed_sigma_f, f, ls, ln);
+      is_fissile = (is_fissile) ||
+                   std::accumulate(nu_delayed_sigma_f.begin(),
+                                   nu_delayed_sigma_f.end(), 0.0) > 1.0e-12;
+    }
 
     if (word == "NU_BEGIN")
       read_cross_section("NU", nu, f, ls, ln);
@@ -96,6 +122,8 @@ read_xs_file(const std::string file_name, const bool verbose)
       read_cross_section("NU_PROMPT", nu_prompt, f, ls, ln);
     if (word == "NU_DELAYED_BEGIN")
       read_cross_section("NU_DELAYED", nu_delayed, f, ls, ln);
+    if (word == "BETA_BEGIN")
+      read_cross_section("BETA", beta, f, ls, ln);
 
     if (word == "CHI_BEGIN")
       read_cross_section("CHI", chi, f, ls, ln);

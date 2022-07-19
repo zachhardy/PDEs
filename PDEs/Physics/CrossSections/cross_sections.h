@@ -43,6 +43,7 @@ namespace Physics
     std::vector<double> nu;         ///< Total neutrons per fission.
     std::vector<double> nu_prompt;  ///< Prompt neutrons per fission.
     std::vector<double> nu_delayed; ///< Delayed neutrons per fission.
+    std::vector<double> beta;       ///< Delayed neutron fraction.
 
     std::vector<double> nu_sigma_f;
     std::vector<double> nu_prompt_sigma_f;
