@@ -31,7 +31,7 @@ TransientSolver::initialize()
   for (const auto& xs : material_xs)
     if (xs->sigma_a_function)
     {
-      has_static_xs = false;
+      has_dynamic_xs = true;
       break;
     }
 
@@ -77,7 +77,8 @@ TransientSolver::compute_initial_values()
   {
     // Normalize fission cross sections
     if (normalize_fission_xs)
-      for (auto& xs : material_xs)
+    {
+      for (auto &xs: material_xs)
         for (size_t g = 0; g < n_groups; ++g)
         {
           xs->sigma_f[g] /= k_eff;
@@ -85,12 +86,13 @@ TransientSolver::compute_initial_values()
           xs->nu_prompt_sigma_f[g] /= k_eff;
           xs->nu_delayed_sigma_f[g] /= k_eff;
         }
+    }
   }
 
   // Normalize the scalar flux
   if (normalization_method != NormalizationMethod::NONE)
   {
-    double initial_power = power;
+    const double initial_power = power;
     compute_fission_rate();
     compute_power();
 

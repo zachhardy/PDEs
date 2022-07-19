@@ -15,10 +15,10 @@ TransientSolver::compute_fission_rate()
       continue;
 
     const size_t uk_map = cell.id * n_groups;
-    const double* nu_sigf = &xs->nu_sigma_f[0];
+    const double* sig_f = &xs->sigma_f[0];
 
     for (const auto& g : groups)
-      fission_rate[cell.id] += nu_sigf[g] * phi[uk_map + g];
+      fission_rate[cell.id] += sig_f[g] * phi[uk_map + g];
   }
 }
 
@@ -32,12 +32,12 @@ TransientSolver::compute_power()
     const auto& xs = material_xs[matid_to_xs_map[cell.material_id]];
     if (xs->is_fissile)
     {
-      p += fission_rate[cell.id] * cell.volume;
+      p += energy_per_fission * fission_rate[cell.id] * cell.volume;
       volume += cell.volume;
       p_max = std::max(p_max, fission_rate[cell.id]);
     }
   }
-  power = energy_per_fission * p;
+  power = p;
   average_power_density = power / volume;
   peak_power_density = energy_per_fission * p_max;
 }

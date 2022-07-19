@@ -1,5 +1,6 @@
 #include "transient_solver.h"
 
+#include <iomanip>
 
 using namespace NeutronDiffusion;
 
@@ -11,7 +12,7 @@ TransientSolver::assemble_transient_matrix(Groupset& groupset,
   const bool assemble_scatter = (assembler_flags & ASSEMBLE_SCATTER);
   const bool assemble_fission = (assembler_flags & ASSEMBLE_FISSION);
 
-  SparseMatrix& A = groupset.A = 0.0;
+  auto& A = groupset.A; A = 0.0;
 
   // Get groupset range
   const size_t n_gsg = groupset.groups.size();
@@ -26,7 +27,7 @@ TransientSolver::assemble_transient_matrix(Groupset& groupset,
     const auto& xs = material_xs[matid_to_xs_map[cell.material_id]];
     const size_t uk_map = cell.id * n_gsg;
 
-    const double* sig_t = xs->sigma_t.data();
+    const double* sig_t = cellwise_xs[cell.id].sigma_t.data();
     const double* inv_vel = xs->inv_velocity.data();
 
     // Loop over groups

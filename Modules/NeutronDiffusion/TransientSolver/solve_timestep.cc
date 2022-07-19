@@ -2,6 +2,7 @@
 
 #include <cmath>
 #include <iomanip>
+#include <numeric>
 
 
 using namespace NeutronDiffusion;
@@ -13,10 +14,11 @@ TransientSolver::solve_time_step()
   phi_ell = phi_old;
 
   // Update cross sections
-  if (not has_static_xs)
+  if (has_dynamic_xs)
   {
     const auto eff_dt = effective_time_step();
-    update_cross_sections(time + eff_dt);
+    for (const auto& cell : mesh->cells)
+      cellwise_xs[cell.id].update(time + eff_dt);
     assemble_matrices();
   }
 
@@ -30,6 +32,7 @@ TransientSolver::solve_time_step()
         APPLY_MATERIAL_SOURCE |
         APPLY_WGS_SCATTER_SOURCE | APPLY_WGS_FISSION_SOURCE |
         APPLY_AGS_SCATTER_SOURCE | APPLY_AGS_FISSION_SOURCE);
+  compute_fission_rate();
 
   // Update the precursors
   if (use_precursors)
@@ -40,9 +43,8 @@ TransientSolver::solve_time_step()
     phi.sadd(2.0, -1.0, phi_old);
     if (use_precursors)
       precursors.sadd(2.0, -1.0, precursor_old);
+    compute_fission_rate();
   }
-
-  compute_fission_rate();
 }
 
 //######################################################################
@@ -97,6 +99,19 @@ TransientSolver::solve_full_system_time_step(SourceFlags source_flags)
   groupsets.front().b = 0.0;
   set_transient_source(groupsets.front(), source_flags);
   phi = linear_solver->solve(groupsets.front().b);
+
+
+  double sum = 0.0;
+  for (const auto& el : groupsets.front().A.row_iterator(0)) {
+    sum += el.value();
+    std::cout << "(" << el.row()
+              << ", " << el.column()
+              << ")\t" << el.value() << std::endl;
+  }
+  std::cout << std::endl << std::fixed << std::setprecision(8) << sum << std::endl;
+//  std::cout
+//    << std::endl << std::fixed << std::setprecision(5) << sum << std::endl
+//    << std::scientific << std::setprecision(5) << phi.l2_norm() << std::endl;
 }
 
 //######################################################################

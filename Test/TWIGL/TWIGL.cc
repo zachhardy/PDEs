@@ -26,7 +26,7 @@ int main(int argc, char** argv)
   //============================================================
   using namespace Grid;
 
-  size_t n_x = 41, n_y = 41;
+  size_t n_x = 21, n_y = 21;
   double X = 80.0, Y = 80.0;
   double dx = X / (n_x - 1), dy = Y / (n_y - 1);
 
@@ -57,19 +57,13 @@ int main(int argc, char** argv)
   //============================================================
   using namespace Physics;
 
-  auto ramp_function =
+  auto step_function =
     [](const unsigned int group_num,
       const double current_time,
       const double reference_value)
     {
-      const double delta = 0.97667 - 1.0;
-      if (group_num == 1)
-      {
-        if (current_time == 0.0)
-          return reference_value;
-        else
-          return reference_value*(1.0 + delta);
-      }
+      if (group_num == 1 and current_time > 0.0)
+        return 0.97667 * reference_value;
       else
         return reference_value;
     };
@@ -94,7 +88,7 @@ int main(int argc, char** argv)
     materials[i]->properties.emplace_back(xs[i]);
   }
 
-  xs[0]->sigma_a_function = ramp_function;
+  xs[0]->sigma_a_function = step_function;
 
   const size_t n_groups = xs.front()->n_groups;
 

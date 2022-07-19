@@ -67,11 +67,11 @@ namespace NeutronDiffusion
     bool lag_precursors = false;
 
     /**
-     * A flag for whether or not the problem has functional cross-sections
+     * A flag for whether or not the problem has dynamic cross-sections
      * or not. This is used to decide whether to call update functions, where
      * necessary.
      */
-    bool has_static_xs = true;
+    bool has_dynamic_xs = false;
 
     /*-------------------- Time Stepping --------------------*/
 
@@ -200,8 +200,6 @@ namespace NeutronDiffusion
     void update_precursors();
 
     void update_temperature() {}
-
-    void update_cross_sections(const double current_time);
 
     double effective_time_step();
 

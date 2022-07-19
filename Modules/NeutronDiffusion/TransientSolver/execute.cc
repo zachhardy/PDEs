@@ -18,7 +18,6 @@ TransientSolver::execute()
   // Initialize matrices
   assemble_matrices();
 
-  double dt_prev = dt;
   const double dt_initial = dt;
 
   // Time stepping loop
@@ -26,14 +25,13 @@ TransientSolver::execute()
   size_t step = 0;
   while (time < t_end - 1.0e-12)
   {
-    //========================================
-    // Modify time steps to coincide with output
-    // times and the end of the simulation.
-    //========================================
+    //==================================================
+    // Modify time steps to coincide with output times and
+    // the end of the simulation.
+    //==================================================
 
     if (write_outputs && time + dt > next_output)
     {
-      dt_prev = dt;
       dt = next_output - time;
       assemble_matrices();
     }
@@ -44,9 +42,9 @@ TransientSolver::execute()
       assemble_matrices();
     }
 
-    //========================================
+    //==================================================
     // Solve the time step
-    //========================================
+    //==================================================
 
     solve_time_step();
     compute_power();
@@ -54,9 +52,12 @@ TransientSolver::execute()
     if (adaptivity)
       refine_time_step();
 
-    //========================================
+    if (step == 1)
+      exit(0);
+
+    //==================================================
     // Postprocess the time step
-    //========================================
+    //==================================================
 
     time += dt;
     ++step;
@@ -96,12 +97,4 @@ TransientSolver::execute()
 
   // Reset dt to see the initial time step size
   dt = dt_initial;
-}
-
-
-void
-TransientSolver::update_cross_sections(const double t)
-{
-  for (const auto& cell : mesh->cells)
-    cellwise_xs[cell.id].update(t);
 }
