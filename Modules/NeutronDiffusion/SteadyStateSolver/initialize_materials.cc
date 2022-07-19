@@ -75,7 +75,7 @@ NeutronDiffusion::SteadyStateSolver::initialize_materials() {
     }//for properties
 
     Assert(found_xs, "Cross sections not found on a provided material.");
-  }//for materials
+  }//for materialsUpdate3d
 
   //============================================================
   // Define cell-wise cross sections
