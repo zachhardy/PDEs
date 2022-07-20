@@ -214,7 +214,7 @@ int main(int argc, char** argv)
   solver.write_outputs = true;
   solver.output_directory = "Test/LRA/outputs";
 
-  solver.adaptivity = false;
+  solver.adaptivity = true;
   solver.coarsen_threshold = 0.01;
   solver.refine_threshold = 0.1;
 
