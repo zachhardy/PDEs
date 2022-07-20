@@ -26,7 +26,7 @@ int main(int argc, char** argv)
   //============================================================
   using namespace Grid;
 
-  size_t n_x = 21, n_y = 21;
+  size_t n_x = 41, n_y = 41;
   double X = 80.0, Y = 80.0;
   double dx = X / (n_x - 1), dy = Y / (n_y - 1);
 
@@ -43,10 +43,10 @@ int main(int argc, char** argv)
   for (auto& cell : mesh->cells)
   {
     auto& c = cell.centroid;
-    if (c.x >= 24.0 and c.x <= 56.0 and c.y >= 24.0 and c.y <= 56.0)
+    if ((c.x > 24.0 and c.x < 56.0) and (c.y > 24.0 and c.y < 56.0))
       cell.material_id = 0;
-    else if ((c.x >= 0.0 and c.x <= 24.0 and c.y >= 24.0 and c.y <= 56.0) or
-             (c.x >= 24.0 and c.x <= 56.0 and c.y >= 0.0 and c.y <= 24.0))
+    else if (c.x < 24.0 and (c.y > 24.0 and c.y < 56.0) or
+             ((c.x > 24.0 and c.x < 56.0) and c.y < 24.0))
       cell.material_id = 1;
     else
       cell.material_id = 2;
@@ -57,13 +57,21 @@ int main(int argc, char** argv)
   //============================================================
   using namespace Physics;
 
-  auto step_function =
+  auto ramp_function =
     [](const unsigned int group_num,
       const double current_time,
+      const double temperature,
+      const double reference_temperature,
       const double reference_value)
     {
-      if (group_num == 1 and current_time > 0.0)
-        return 0.97667 * reference_value;
+      const double delta = 0.97667 - 1.0;
+      if (group_num == 1)
+      {
+        if (current_time >= 0.0 and current_time <= 0.2)
+          return reference_value*(1.0 + current_time/0.2*delta);
+        else
+          return reference_value*(1.0 + delta);
+      }
       else
         return reference_value;
     };
@@ -78,9 +86,9 @@ int main(int argc, char** argv)
     xs.emplace_back(std::make_shared<CrossSections>());
 
   std::vector<std::string> xs_paths;
-  xs_paths.emplace_back("Test/TWIGL/xs/mat0.xs");
-  xs_paths.emplace_back("Test/TWIGL/xs/mat0.xs");
-  xs_paths.emplace_back("Test/TWIGL/xs/mat1.xs");
+  xs_paths.emplace_back("Test/TWIGL/xs/fuel1_w_rod.xs");
+  xs_paths.emplace_back("Test/TWIGL/xs/fuel1_w_rod.xs");
+  xs_paths.emplace_back("Test/TWIGL/xs/fuel1_wo_rod.xs");
 
   for (size_t i = 0; i < materials.size(); ++i)
   {
@@ -88,7 +96,7 @@ int main(int argc, char** argv)
     materials[i]->properties.emplace_back(xs[i]);
   }
 
-  xs[0]->sigma_a_function = step_function;
+  xs[0]->sigma_a_function = ramp_function;
 
   const size_t n_groups = xs.front()->n_groups;
 
@@ -137,9 +145,9 @@ int main(int argc, char** argv)
   solver.write_outputs = true;
   solver.output_directory = "Test/TWIGL/outputs";
 
-  solver.adaptivity = false;
+  solver.adaptivity = true;
   solver.coarsen_threshold = 0.01;
-  solver.refine_threshold = 0.025;
+  solver.refine_threshold = 0.05;
 
   //============================================================
   // Initialize groups and groupsets
