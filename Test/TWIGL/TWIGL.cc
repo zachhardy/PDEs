@@ -77,18 +77,18 @@ int main(int argc, char** argv)
     };
 
   std::vector<std::shared_ptr<Material>> materials;
+  materials.emplace_back(std::make_shared<Material>("Fuel 0 w/ Rod Ejection"));
   materials.emplace_back(std::make_shared<Material>("Fuel 0"));
   materials.emplace_back(std::make_shared<Material>("Fuel 1"));
-  materials.emplace_back(std::make_shared<Material>("Fuel 2"));
 
   std::vector<std::shared_ptr<CrossSections>> xs;
   for (size_t i = 0; i < materials.size(); ++i)
     xs.emplace_back(std::make_shared<CrossSections>());
 
   std::vector<std::string> xs_paths;
-  xs_paths.emplace_back("Test/TWIGL/xs/fuel1_w_rod.xs");
-  xs_paths.emplace_back("Test/TWIGL/xs/fuel1_w_rod.xs");
-  xs_paths.emplace_back("Test/TWIGL/xs/fuel1_wo_rod.xs");
+  xs_paths.emplace_back("Test/TWIGL/xs/fuel0.xs");
+  xs_paths.emplace_back("Test/TWIGL/xs/fuel0.xs");
+  xs_paths.emplace_back("Test/TWIGL/xs/fuel1.xs");
 
   for (size_t i = 0; i < materials.size(); ++i)
   {
