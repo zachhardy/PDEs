@@ -10,8 +10,11 @@ cmake-build-debug
 
 *.data
 k_eff.txt
+<<<<<<< HEAD
 
 __pycache__
+=======
+>>>>>>> development
 
 .DS_Store
 .idea
