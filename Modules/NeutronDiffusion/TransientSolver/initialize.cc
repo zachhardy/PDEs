@@ -12,6 +12,8 @@ TransientSolver::initialize()
   KEigenvalueSolver::initialize();
   KEigenvalueSolver::execute();
 
+  KEigenvalueSolver::write("Test/LRA/outputs", "result");
+
   // Check temporal parameters
   if (output_frequency < 0.0) output_frequency = dt;
   if (dt > output_frequency) dt = output_frequency;
@@ -37,7 +39,7 @@ TransientSolver::initialize()
 
   // Initialize auxiliary vector
   fission_rate.resize(mesh->cells.size(), 0.0);
-  temperature.resize(mesh->cells.size(), 0.0);
+  temperature.resize(mesh->cells.size(), initial_temperature);
 
   compute_initial_values();
 }
@@ -93,8 +95,8 @@ TransientSolver::compute_initial_values()
   if (normalization_method != NormalizationMethod::NONE)
   {
     const double initial_power = power;
-    compute_fission_rate();
-    compute_power();
+    update_fission_rate();
+    compute_bulk_properties();
 
     if (normalization_method == NormalizationMethod::TOTAL_POWER)
       phi.scale(initial_power / power);
@@ -103,8 +105,8 @@ TransientSolver::compute_initial_values()
   }
 
   // Compute initial auxiliary quantities
-  compute_fission_rate();
-  compute_power();
+  update_fission_rate();
+  compute_bulk_properties();
   if (use_precursors)
   {
     if (initial_conditions.empty())
@@ -115,4 +117,5 @@ TransientSolver::compute_initial_values()
 
   // Set old solution vectors
   step_solutions();
+  compute_bulk_properties();
 }

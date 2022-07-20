@@ -47,7 +47,7 @@ TransientSolver::execute()
     //==================================================
 
     solve_time_step();
-    compute_power();
+    compute_bulk_properties();
 
     if (adaptivity)
       refine_time_step();
@@ -87,9 +87,11 @@ TransientSolver::execute()
 
     std::cout
       << "\n***** Time Step " << step << " *****\n"
-      << "Simulation Time:   " << time << " s\n"
-      << "Time Step Size :   " << dt << " s\n"
-      << "Reactor Power  :   " << power << " W\n";
+      << "Simulation Time:        " << time << " s\n"
+      << "Time Step Size :        " << dt << " s\n"
+      << "Reactor Power  :        " << power << " W\n"
+      << "Average Power Density:  " << average_power_density << " W/cm^3\n"
+      << "Average Temperature:    " << average_fuel_temperature << " K\n";
   }
 
   // Reset dt to see the initial time step size
