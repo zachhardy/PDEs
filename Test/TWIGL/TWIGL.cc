@@ -11,11 +11,10 @@
 #include "LinearSolvers/PETSc/petsc_solver.h"
 
 #include "NeutronDiffusion/groupset.h"
-#include "NeutronDiffusion/KEigenvalueSolver/keigenvalue_solver.h"
+#include "NeutronDiffusion/TransientSolver/transient_solver.h"
 
 #include <iostream>
 #include <vector>
-#include <map>
 
 #include <petsc.h>
 
@@ -44,10 +43,10 @@ int main(int argc, char** argv)
   for (auto& cell : mesh->cells)
   {
     auto& c = cell.centroid;
-    if (c.x >= 24.0 and c.x <= 56.0 and c.y >= 24.0 and c.y <= 56.0)
+    if ((c.x > 24.0 and c.x < 56.0) and (c.y > 24.0 and c.y < 56.0))
       cell.material_id = 0;
-    else if ((c.x >= 0.0 and c.x <= 24.0 and c.y >= 24.0 and c.y <= 56.0) or
-             (c.x >= 24.0 and c.x <= 56.0 and c.y >= 0.0 and c.y <= 24.0))
+    else if (c.x < 24.0 and (c.y > 24.0 and c.y < 56.0) or
+             ((c.x > 24.0 and c.x < 56.0) and c.y < 24.0))
       cell.material_id = 1;
     else
       cell.material_id = 2;
@@ -58,25 +57,46 @@ int main(int argc, char** argv)
   //============================================================
   using namespace Physics;
 
+  auto ramp_function =
+    [](const unsigned int group_num,
+      const double current_time,
+      const double temperature,
+      const double reference_temperature,
+      const double reference_value)
+    {
+      const double delta = 0.97667 - 1.0;
+      if (group_num == 1)
+      {
+        if (current_time >= 0.0 and current_time <= 0.2)
+          return reference_value*(1.0 + current_time/0.2*delta);
+        else
+          return reference_value*(1.0 + delta);
+      }
+      else
+        return reference_value;
+    };
+
   std::vector<std::shared_ptr<Material>> materials;
+  materials.emplace_back(std::make_shared<Material>("Fuel 0 w/ Rod Ejection"));
   materials.emplace_back(std::make_shared<Material>("Fuel 0"));
   materials.emplace_back(std::make_shared<Material>("Fuel 1"));
-  materials.emplace_back(std::make_shared<Material>("Fuel 2"));
 
   std::vector<std::shared_ptr<CrossSections>> xs;
   for (size_t i = 0; i < materials.size(); ++i)
     xs.emplace_back(std::make_shared<CrossSections>());
 
   std::vector<std::string> xs_paths;
-  xs_paths.emplace_back("Test/TWIGL/xs/mat0.xs");
-  xs_paths.emplace_back("Test/TWIGL/xs/mat0.xs");
-  xs_paths.emplace_back("Test/TWIGL/xs/mat1.xs");
+  xs_paths.emplace_back("Test/TWIGL/xs/fuel0.xs");
+  xs_paths.emplace_back("Test/TWIGL/xs/fuel0.xs");
+  xs_paths.emplace_back("Test/TWIGL/xs/fuel1.xs");
 
   for (size_t i = 0; i < materials.size(); ++i)
   {
     xs[i]->read_xs_file(xs_paths[i]);
     materials[i]->properties.emplace_back(xs[i]);
   }
+
+  xs[0]->sigma_a_function = ramp_function;
 
   const size_t n_groups = xs.front()->n_groups;
 
@@ -97,7 +117,7 @@ int main(int argc, char** argv)
   // Create the diffusion solver
   //============================================================
   using namespace NeutronDiffusion;
-  KEigenvalueSolver solver;
+  TransientSolver solver;
   solver.mesh = mesh;
 
   for (auto& material : materials)
@@ -114,9 +134,24 @@ int main(int argc, char** argv)
   solver.solution_technique = SolutionTechnique::FULL_SYSTEM;
 
   //============================================================
+  // Define transient parameters
+  //============================================================
+  solver.t_end = 0.5;
+  solver.dt = 0.01;
+  solver.time_stepping_method = TimeSteppingMethod::CRANK_NICHOLSON;
+  solver.normalization_method = NormalizationMethod::TOTAL_POWER;
+  solver.normalize_fission_xs = true;
+
+  solver.write_outputs = true;
+  solver.output_directory = "Test/TWIGL/outputs";
+
+  solver.adaptivity = true;
+  solver.coarsen_threshold = 0.01;
+  solver.refine_threshold = 0.05;
+
+  //============================================================
   // Initialize groups and groupsets
   //============================================================
-
   for (size_t g = 0; g < n_groups; ++g)
     solver.groups.emplace_back(g);
 
@@ -149,8 +184,6 @@ int main(int argc, char** argv)
   timer.stop();
 
   PetscFinalize();
-
-  solver.write("Test/TWIGL", "result");
 
   std::cout << timer.get_time() << " ms\n";
 }

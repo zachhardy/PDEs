@@ -5,7 +5,8 @@
 
 #include <string>
 #include <unordered_map>
-#include <cinttypes>
+#include <cstddef>
+#include <functional>
 
 
 namespace Physics
@@ -19,9 +20,9 @@ namespace Physics
     typedef std::vector<std::vector<double>> EmissionSpectra;
 
   public:
-    size_t n_groups;
-    size_t scattering_order;
-    size_t n_precursors;
+    unsigned int n_groups;
+    unsigned int scattering_order;
+    unsigned int n_precursors;
 
     double density = 1.0; ///< Atom density in atoms/b-cm.
     bool is_fissile = false;
@@ -42,6 +43,7 @@ namespace Physics
     std::vector<double> nu;         ///< Total neutrons per fission.
     std::vector<double> nu_prompt;  ///< Prompt neutrons per fission.
     std::vector<double> nu_delayed; ///< Delayed neutrons per fission.
+    std::vector<double> beta;       ///< Delayed neutron fraction.
 
     std::vector<double> nu_sigma_f;
     std::vector<double> nu_prompt_sigma_f;
@@ -52,6 +54,16 @@ namespace Physics
 
     std::vector<double> inv_velocity; ///< Inverse speed (s/cm)
     std::vector<double> diffusion_coeff; ///< Diffusion coefficient
+    std::vector<double> buckling; ///< Material buckling term
+
+    /** A convenient typedef for functional cross-sections. */
+    typedef std::function<double(const unsigned int group_num,
+                                 const double current_time,
+                                 const double temperature,
+                                 const double current_temperature,
+                                 const double reference_value)> XSFunction;
+    XSFunction sigma_a_function;
+
 
   public:
 

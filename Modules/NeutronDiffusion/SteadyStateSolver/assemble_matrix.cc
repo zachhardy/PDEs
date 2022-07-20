@@ -20,9 +20,13 @@ SteadyStateSolver::assemble_matrix(Groupset& groupset,
   // Loop over cells
   for (const auto& cell : mesh->cells)
   {
-    const double volume = cell.volume;
+    const double& volume = cell.volume;
     const auto& xs = material_xs[matid_to_xs_map[cell.material_id]];
     const size_t i = cell.id*n_gsg;
+
+    const double* sig_t = &cellwise_xs[cell.id].sigma_t[0];
+    const double* D = &xs->diffusion_coeff[0];
+    const double* B = &xs->buckling[0];
 
     // Loop over groups
     for (size_t gr = 0; gr < n_gsg; ++gr)
@@ -31,10 +35,10 @@ SteadyStateSolver::assemble_matrix(Groupset& groupset,
       const size_t g = groupset.groups[gr];
 
       //========================================
-      // Total interaction term
+      // Total interaction term + buckling
       //========================================
 
-      A.add(ig, ig, xs->sigma_t[g]*volume);
+      A.add(ig, ig, (sig_t[g] + D[g]*B[g]) * volume);
 
       //========================================
       // Scattering term
@@ -108,6 +112,7 @@ SteadyStateSolver::assemble_matrix(Groupset& groupset,
         const auto& nbr_cell = mesh->cells[face.neighbor_id];
         const int nbr_xs_id = matid_to_xs_map[nbr_cell.material_id];
         const auto& nbr_xs = material_xs[nbr_xs_id];
+        const double* D_nbr = &nbr_xs->diffusion_coeff[0];
 
         const size_t j = nbr_cell.id*n_gsg;
 
@@ -115,10 +120,6 @@ SteadyStateSolver::assemble_matrix(Groupset& groupset,
         const double d_pf = cell.centroid.distance(face.centroid);
         const double d_pn = cell.centroid.distance(nbr_cell.centroid);
         const double w = d_pf/d_pn; // harmonic mean weighting factor
-
-        // Diffusion data
-        const double* D = &xs->diffusion_coeff[0];
-        const double* D_nbr = &nbr_xs->diffusion_coeff[0];
 
         for (size_t gr = 0; gr < n_gsg; ++gr)
         {
@@ -150,7 +151,6 @@ SteadyStateSolver::assemble_matrix(Groupset& groupset,
         if (bndry_type == BoundaryType::ZERO_FLUX or
             bndry_type == BoundaryType::DIRICHLET)
         {
-          const double* D = &xs->diffusion_coeff[0];
           const double d_pf = cell.centroid.distance(face.centroid);
 
           for (size_t gr = 0; gr < n_gsg; ++gr)
@@ -169,7 +169,6 @@ SteadyStateSolver::assemble_matrix(Groupset& groupset,
                  bndry_type == BoundaryType::MARSHAK or
                  bndry_type == BoundaryType::ROBIN)
         {
-          const double* D = &xs->diffusion_coeff[0];
           const double d_pf = cell.centroid.distance(face.centroid);
 
           for (size_t gr = 0; gr < n_gsg; ++gr)

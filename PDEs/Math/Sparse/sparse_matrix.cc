@@ -949,9 +949,9 @@ SparseMatrix::operator*(const Vector& x) const
 
 
 void
-SparseMatrix::print(std::ostream& os,
-                    const bool scientific,
-                    const unsigned int precision) const
+SparseMatrix::print(const bool scientific,
+                    const unsigned int precision,
+                    std::ostream& os) const
 {
   assert(!empty());
 
@@ -963,11 +963,11 @@ SparseMatrix::print(std::ostream& os,
   else
     os.setf(std::ios::fixed, std::ios::floatfield);
 
-  os << "(row,col): value" << std::endl
+  os << "(row,col):\tvalue" << std::endl
      << "----------------" << std::endl;
   for (size_t row = 0; row < rows; ++row)
     for (size_t index = 0; index < row_length(row); ++index)
-      os << "(" << row << "," << colnums[row][index] << ") "
+      os << "(" << row << ", " << colnums[row][index] << ")\t"
          << vals[row][index] << std::endl;
   os << std::endl;
 
@@ -978,10 +978,40 @@ SparseMatrix::print(std::ostream& os,
 
 
 void
-SparseMatrix::print_formatted(std::ostream& os,
-                              const bool scientific,
+SparseMatrix::print_row(const size_t row,
+                        const bool scientific,
+                        const unsigned int precision,
+                        std::ostream& os) const
+{
+  assert(!empty());
+
+  // setup output stream format
+  std::ios::fmtflags old_flags = os.flags();
+  unsigned int old_precision = os.precision(precision);
+  if (scientific)
+    os.setf(std::ios::scientific, std::ios::floatfield);
+  else
+    os.setf(std::ios::fixed, std::ios::floatfield);
+
+  os << "(row,col):\tvalue" << std::endl
+     << "----------------" << std::endl;
+  for (const auto& el : row_iterator(row))
+    os << "(" << el.row()
+       << ", " << el.column()
+       << ")\t" << el.value() << std::endl;
+  os << std::endl;
+
+  // reset output stream format
+  os.precision(old_precision);
+  os.flags(old_flags);
+}
+
+
+void
+SparseMatrix::print_formatted(const bool scientific,
                               const unsigned int precision,
-                              const unsigned int width) const
+                              const unsigned int width,
+                              std::ostream& os) const
 {
   assert(!empty());
 
@@ -1021,7 +1051,7 @@ SparseMatrix::str(const bool scientific,
                   const unsigned int width) const
 {
   std::stringstream ss;
-  print_formatted(ss, scientific, precision, width);
+  print_formatted(scientific, precision, width, ss);
   return ss.str();
 }
 

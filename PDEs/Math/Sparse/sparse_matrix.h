@@ -454,26 +454,39 @@ namespace Math
     /**
      *  Print the sparse matrix as triplets of nonzero entries.
      *
-     * \param os The output stream to print the matrix to.
      * \param scientific A flag for scientific notation.
      * \param precision The precision to display to sparse matrix elements.
+     * \param os The output stream to print the matrix to.
      */
-    void print(std::ostream& os = std::cout,
-               const bool scientific = true,
-               const unsigned int precision = 3) const;
+    void print(const bool scientific = true,
+               const unsigned int precision = 3,
+               std::ostream& os = std::cout) const;
+
+    /**
+     * Print a row of the sparse matrix.
+     *
+     * \param row The row to print.
+     * \param scientific A flag for scientific notation.
+     * \param precision The precision to display to sparse matrix elements.
+     * \param os The output stream to print the matrix to.
+     */
+     void print_row(const size_t row,
+                    const bool scientific = true,
+                    const unsigned int precision = 3,
+                    std::ostream& os = std::cout) const;
 
     /**
      * Print the matrix as if it were dense, filling in zero values.
      *
-     * \param os The output stream to print the matrix to.
      * \param scientific A flag for scientific notation.
      * \param precision The precision to display to sparse matrix elements.
      * \param width The spacing between entries.
+     * \param os The output stream to print the matrix to.
      */
-    void print_formatted(std::ostream& os = std::cout,
-                         const bool scientific = true,
+    void print_formatted(const bool scientific = true,
                          const unsigned int precision = 3,
-                         const unsigned int width = 0) const;
+                         const unsigned int width = 0,
+                         std::ostream& os = std::cout) const;
 
     /**
      * Return the sparse matrix as a string.

@@ -2,15 +2,30 @@
 
 #include <cmath>
 #include <iomanip>
+#include <numeric>
 
 
 using namespace NeutronDiffusion;
 
 
 void
-TransientSolver::solve_time_step()
+TransientSolver::solve_time_step(bool reconstruct_matrices)
 {
   phi_ell = phi_old;
+
+  // Update cross sections
+  if (has_dynamic_xs)
+  {
+    const auto eff_dt = effective_time_step();
+    for (const auto& cell : mesh->cells)
+      cellwise_xs[cell.id].update(time + eff_dt,
+                                  temperature[cell.id],
+                                  initial_temperature);
+    reconstruct_matrices = true;
+  }
+
+  if (reconstruct_matrices)
+    assemble_matrices();
 
   // Solve for the scalar flux
   if (solution_technique == SolutionTechnique::FULL_SYSTEM)
@@ -23,18 +38,20 @@ TransientSolver::solve_time_step()
         APPLY_WGS_SCATTER_SOURCE | APPLY_WGS_FISSION_SOURCE |
         APPLY_AGS_SCATTER_SOURCE | APPLY_AGS_FISSION_SOURCE);
 
-  // Update the precursors
-  if (use_precursors)
-    update_precursors();
+    // Update the temperature and precursors
+    update_fission_rate();
+    update_temperature();
+    if (use_precursors)
+      update_precursors();
 
   if (time_stepping_method == TimeSteppingMethod::CRANK_NICHOLSON)
   {
     phi.sadd(2.0, -1.0, phi_old);
+    temperature.sadd(2.0, -1.0, temperature_old);
     if (use_precursors)
       precursors.sadd(2.0, -1.0, precursor_old);
+    update_fission_rate();
   }
-
-  compute_fission_rate();
 }
 
 //######################################################################
@@ -100,10 +117,9 @@ TransientSolver::refine_time_step()
   while (dP > refine_threshold)
   {
     dt /= 2.0;
-    assemble_matrices();
 
-    solve_time_step();
-    compute_power();
+    solve_time_step(true);
+    compute_bulk_properties();
 
     dP = std::fabs(power - power_old)/std::fabs(power_old);
   }

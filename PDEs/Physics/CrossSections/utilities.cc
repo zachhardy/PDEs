@@ -21,7 +21,7 @@ Physics::CrossSections::read_cross_section(
   ++line_number;
 
   //========== Go through entries
-  size_t g = 0;
+  unsigned int g = 0;
   int group;
   double value;
   while (line != keyword + "_END")
@@ -99,7 +99,7 @@ Physics::CrossSections::read_precursor_property(
   ++line_number;
 
   //========== Go through entries
-  size_t j = 0;
+  unsigned int j = 0;
   int precursor_num;
   double value;
   while (line != keyword + "_END")

@@ -62,7 +62,7 @@ class SteadyStateNeutronicsReader(SimulationReader):
 
         # Open the snapshot file
         with open(self.path, mode='rb') as file:
-            file.read(799)  # skip over header
+            file.read(999)  # skip over header
 
             n_data_blocks = read_unsigned_int(file)
 
@@ -136,6 +136,8 @@ class SteadyStateNeutronicsReader(SimulationReader):
 
                 dof = self.map_precursor_dof(cell, precursor)
                 precursors[dof] = read_double(file)
+
+                # print(cell, material_id, precursor, precursors[dof])
 
             # Define the number of precursors per material
             for m in range(self.n_materials):
@@ -347,19 +349,19 @@ class SteadyStateNeutronicsReader(SimulationReader):
             groups = list(range(self.n_groups))
         elif isinstance(groups, int):
             groups = [groups]
+        assert all([g < self.n_groups for g in groups])
 
         phi = self.get_flux_moment(moment, groups)
 
         # Plot 1D profiles
         if self.dimension == 1:
-            fig: Figure = plt.figure()
-            ax: Axes = fig.add_subplot(1, 1, 1)
+            z = [p.z for p in self.nodes]
+
+            fig = plt.figure()
+            ax = fig.add_subplot(1, 1, 1)
             ax.set_xlabel(f'z (cm)')
             ax.set_ylabel(fr"$\phi_{{{moment},g}}$(z)")
             ax.grid(True)
-
-            # Define coordinates
-            z = [p.z for p in self.nodes]
 
             # Plot each group flux
             for g, group in enumerate(groups):
@@ -367,24 +369,24 @@ class SteadyStateNeutronicsReader(SimulationReader):
             ax.legend()
             fig.tight_layout()
 
+        # Plot 2D profiles
         elif self.dimension == 2:
-            # Define the coordinates
             x = np.array([p.x for p in self.nodes])
             y = np.array([p.y for p in self.nodes])
             X, Y = np.meshgrid(np.unique(x), np.unique(y))
 
-            for group in groups:
+            for g, group in enumerate(groups):
                 fig = plt.figure()
-                fig.suptitle(f"Moment {moment} Group {group} Flux Moment")
+                fig.suptitle(f"Moment {moment}, Group {group} Flux Moment")
                 ax = fig.add_subplot(1, 1, 1)
                 ax.set_xlabel("X (cm)")
                 ax.set_ylabel("Y (cm)")
 
-                phi_fmtd = phi[group].reshape(X.shape)
+                phi_fmtd = phi[g].reshape(X.shape)
                 im = ax.pcolor(X, Y, phi_fmtd, cmap="jet", shading="auto",
                                vmin=0.0, vmax=phi_fmtd.max())
                 fig.colorbar(im)
-            fig.tight_layout()
+                fig.tight_layout()
         plt.show()
 
     def plot_precursors_species(self, material=0, precursors=None):
@@ -415,9 +417,9 @@ class SteadyStateNeutronicsReader(SimulationReader):
 
             c_j = self.get_precursors(material, precursors)
 
-            fig: Figure = plt.figure()
-            ax: Axes = fig.add_subplot(1, 1, 1)
-            ax.set_xlabel(f'z (cm)')
+            fig = plt.figure()
+            ax = fig.add_subplot(1, 1, 1)
+            ax.set_xlabel(f"z (cm)")
             ax.set_ylabel(fr"$C^{{{material}}}_{{j}}$(z)")
             ax.grid(True)
 
@@ -426,5 +428,25 @@ class SteadyStateNeutronicsReader(SimulationReader):
                 ax.plot(z, c_j[j], label=f'Species {precursor}')
             ax.legend()
             fig.tight_layout()
+        plt.show()
+
+    def plot_material_ids(self):
+        plt.figure()
+
+        if self.dimension == 1:
+            z = [centroid.z for centroid in self.centroids]
+
+            plt.xlabel("z (cm)")
+            plt.plot(z, self.material_ids, 'ob')
+
+        elif self.dimension == 2:
+            x = [centroid.x for centroid in self.centroids]
+            y = [centroid.y for centroid in self.centroids]
+            X, Y = np.meshgrid(np.unique(x), np.unique(y))
+            matids = np.array(self.material_ids).reshape(X.shape)
+            plt.pcolormesh(X, Y, matids, cmap="jet", shading="auto")
+            plt.colorbar()
+
+        plt.tight_layout()
         plt.show()
 

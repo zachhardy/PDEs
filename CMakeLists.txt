@@ -71,7 +71,7 @@ include_directories("${PROJECT_SOURCE_DIR}/Modules/NeutronDiffusion")
 
 
 #-------------------- Source directories
-set(SOURCES PDEs/main.cc Test/TWIGL/TWIGL.cc)
+set(SOURCES PDEs/main.cc)
 #add_subdirectory(${PROJECT_SOURCE_DIR}/Test)
 add_subdirectory("${PROJECT_SOURCE_DIR}/PDEs/Grid")
 add_subdirectory("${PROJECT_SOURCE_DIR}/PDEs/Math")

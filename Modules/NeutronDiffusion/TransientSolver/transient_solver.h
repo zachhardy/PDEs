@@ -44,7 +44,7 @@ namespace NeutronDiffusion
     /*-------------------- Constants --------------------*/
 
     /** Energy release per fission (J/fission). */
-    const double energy_per_fission = 3.2e-11;
+    const double energy_per_fission = 3.204e-11;
 
     /**
      * A conversion factor to convert fission energy release to a change in
@@ -66,10 +66,18 @@ namespace NeutronDiffusion
      */
     bool lag_precursors = false;
 
+    /**
+     * A flag for whether or not the problem has dynamic cross-sections
+     * or not. This is used to decide whether to call update functions, where
+     * necessary.
+     */
+    bool has_dynamic_xs = false;
+
     /*-------------------- Time Stepping --------------------*/
 
     double time = 0.0;
     double dt = 0.1;
+    double dt_min = 1.0e-6;
 
     double t_start = 0.0;
     double t_end = 1.0;
@@ -151,17 +159,21 @@ namespace NeutronDiffusion
 
     /*-------------------- Public Facing Routines --------------------*/
 
+    /** Initialize the transient solver. */
     void initialize() override;
+
+    /** Execute the transient solver. */
     void execute() override;
 
   private:
 
+    /** Compute the initial conditions for the transient. */
     void compute_initial_values();
-    void evaluate_initial_conditions();
 
     /*-------------------- Time Step Routines --------------------*/
 
-    void solve_time_step();
+
+    void solve_time_step(bool reconstruct_matrices = false);
     void solve_groupset_time_step(Groupset& groupset,
                                   SourceFlags source_flags);
     void solve_full_system_time_step(SourceFlags source_flags);
@@ -183,10 +195,11 @@ namespace NeutronDiffusion
 
     /*-------------------- Auxiliary Quantities --------------------*/
 
-    void compute_fission_rate();
-    void compute_power();
-
+    void update_fission_rate();
     void update_precursors();
+    void update_temperature();
+
+    void compute_bulk_properties();
 
     double effective_time_step();
 
