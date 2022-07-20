@@ -92,8 +92,6 @@ class TransientNeutronicsReader(SimulationReader):
 
             path = os.path.join(self.path, snapshot)
 
-            print(path)
-
             # Open the snapshot file
             with open(path, mode='rb') as file:
                 file.read(1399)  # skip over header
