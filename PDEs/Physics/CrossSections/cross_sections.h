@@ -60,6 +60,7 @@ namespace Physics
     typedef std::function<double(const unsigned int group_num,
                                  const double current_time,
                                  const double temperature,
+                                 const double current_temperature,
                                  const double reference_value)> XSFunction;
     XSFunction sigma_a_function;
 

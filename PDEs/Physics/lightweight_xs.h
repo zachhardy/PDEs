@@ -16,7 +16,8 @@ namespace Physics
     LightWeightCrossSections(std::shared_ptr<CrossSections> xs);
 
     void update(const double time,
-                const double temperature);
+                const double temperature,
+                const double reference_temperature);
   };
 }
 

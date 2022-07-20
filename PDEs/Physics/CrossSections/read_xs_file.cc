@@ -143,6 +143,8 @@ read_xs_file(const std::string file_name, const bool verbose)
 
     if (word == "DIFFUSION_COEFF_BEGIN")
       read_cross_section("DIFFUSION_COEFF", diffusion_coeff, f, ls, ln);
+    if (word == "BUCKLING_BEGIN")
+      read_cross_section("BUCKLING", buckling, f, ls, ln);
 
     // Read transfer matrix
     if (word == "TRANSFER_MOMENTS_BEGIN")
