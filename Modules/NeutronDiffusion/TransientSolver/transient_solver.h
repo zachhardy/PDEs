@@ -44,7 +44,7 @@ namespace NeutronDiffusion
     /*-------------------- Constants --------------------*/
 
     /** Energy release per fission (J/fission). */
-    const double energy_per_fission = 3.2e-11;
+    const double energy_per_fission = 3.204e-11;
 
     /**
      * A conversion factor to convert fission energy release to a change in
@@ -194,12 +194,11 @@ namespace NeutronDiffusion
 
     /*-------------------- Auxiliary Quantities --------------------*/
 
-    void compute_fission_rate();
-    void compute_power();
-
+    void update_fission_rate();
     void update_precursors();
+    void update_temperature();
 
-    void update_temperature() {}
+    void compute_bulk_properties();
 
     double effective_time_step();
 
