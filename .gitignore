@@ -9,6 +9,7 @@ Makefile
 cmake-build-debug
 
 *.data
+k_eff.txt
 
 __pycache__
 
