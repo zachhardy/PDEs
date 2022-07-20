@@ -166,6 +166,8 @@ void
 SteadyStateSolver::write(const std::string& output_directory,
                          const std::string& file_prefix) const
 {
+  if (not std::filesystem::is_directory(output_directory))
+    std::filesystem::create_directory(output_directory);
   assert(std::filesystem::is_directory(output_directory));
 
   std::string filepath = output_directory + "/" + file_prefix;
@@ -181,7 +183,7 @@ SteadyStateSolver::write(const std::string& output_directory,
   assert(file.is_open());
 
   // Write the header_info
-  int size = 800;
+  int size = 1000;
   std::string header_info =
     "NeutronDiffusion::SteadyStateSolver: Snapshot File\n"
     "Header size: " + std::to_string(size) + " bytes\n";
@@ -233,6 +235,7 @@ SteadyStateSolver::write(const std::string& output_directory,
 
   uint64_t n_records;
   unsigned int record_type = 0;
+  unsigned int n_data_blocks = 2;
 
   const uint64_t n_cells = mesh->cells.size();
   const uint64_t n_nodes = discretization->n_nodes();
@@ -241,7 +244,7 @@ SteadyStateSolver::write(const std::string& output_directory,
 
   // Write header_info and general information
   file << header_bytes;
-  file.write((char*)&n_records, sizeof(unsigned int));
+  file.write((char*)&n_data_blocks, sizeof(unsigned int));
 
   file.write((char*)&n_cells, sizeof(uint64_t));
   file.write((char*)&n_nodes, sizeof(uint64_t));
