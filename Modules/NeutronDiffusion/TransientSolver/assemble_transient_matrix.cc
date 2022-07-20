@@ -27,20 +27,23 @@ TransientSolver::assemble_transient_matrix(Groupset& groupset,
     const auto& xs = material_xs[matid_to_xs_map[cell.material_id]];
     const size_t uk_map = cell.id * n_gsg;
 
-    const double* sig_t = cellwise_xs[cell.id].sigma_t.data();
-    const double* inv_vel = xs->inv_velocity.data();
+    const double* sig_t = &cellwise_xs[cell.id].sigma_t[0];
+    const double* D = &xs->diffusion_coeff[0];
+    const double* B = &xs->buckling[0];
+    const double* inv_vel = &xs->inv_velocity[0];
 
     // Loop over groups
     for (size_t gr = 0; gr < n_gsg; ++gr)
     {
       const size_t g = groupset.groups[gr];
 
-      //========================================
-      // Total interaction + time derivative term
-      //========================================
+      //=======================================================
+      // Total interaction + buckling + time derivative term
+      //=======================================================
 
       double entry = 0.0;
       entry += sig_t[g]; // total interaction
+      entry += D[g] * B[g]; // buckling
       entry += inv_vel[g]/eff_dt; // time-derivative
       A.add(uk_map + gr, uk_map + gr, entry * volume);
 
@@ -50,7 +53,7 @@ TransientSolver::assemble_transient_matrix(Groupset& groupset,
 
       if (assemble_scatter)
       {
-        const double* sig_s = xs->transfer_matrices[0][g].data();
+        const double* sig_s = &xs->transfer_matrices[0][g][0];
 
         for (size_t gpr = 0; gpr < n_gsg; ++gpr)
         {
@@ -69,7 +72,7 @@ TransientSolver::assemble_transient_matrix(Groupset& groupset,
         if (not use_precursors)
         {
           const double chi = xs->chi[g];
-          const double* nu_sigf = xs->nu_sigma_f.data();
+          const double* nu_sigf = &xs->nu_sigma_f[0];
 
           for (size_t gpr = 0; gpr < n_gsg; ++gpr)
           {
@@ -83,7 +86,7 @@ TransientSolver::assemble_transient_matrix(Groupset& groupset,
         {
           //===== Prompt
           const double chi_p = xs->chi_prompt[g];
-          const double* nup_sigf = xs->nu_prompt_sigma_f.data();
+          const double* nup_sigf = &xs->nu_prompt_sigma_f[0];
 
           for (size_t gpr = 0; gpr < n_gsg; ++gpr)
           {
@@ -94,10 +97,10 @@ TransientSolver::assemble_transient_matrix(Groupset& groupset,
           //===== Delayed
           if (not lag_precursors)
           {
-            const double* chi_d = xs->chi_delayed[g].data();
-            const double* nud_sigf = xs->nu_delayed_sigma_f.data();
-            const double* lambda = xs->precursor_lambda.data();
-            const double* gamma = xs->precursor_yield.data();
+            const double* chi_d = &xs->chi_delayed[g][0];
+            const double* nud_sigf = &xs->nu_delayed_sigma_f[0];
+            const double* lambda = &xs->precursor_lambda[0];
+            const double* gamma = &xs->precursor_yield[0];
 
             /* This section of code computes the matrix coefficient
              * corresponding to the precursor substitution term arising when
@@ -138,6 +141,7 @@ TransientSolver::assemble_transient_matrix(Groupset& groupset,
         const auto& nbr_cell = mesh->cells[face.neighbor_id];
         const auto nbr_xs_id = matid_to_xs_map[nbr_cell.material_id];
         const auto& nbr_xs = material_xs[nbr_xs_id];
+        const double* D_nbr = &nbr_xs->diffusion_coeff[0];
 
         const size_t nbr_uk_map = nbr_cell.id * n_gsg;
 
@@ -145,10 +149,6 @@ TransientSolver::assemble_transient_matrix(Groupset& groupset,
         const double d_pf = cell.centroid.distance(face.centroid);
         const double d_pn = cell.centroid.distance(nbr_cell.centroid);
         const double w = d_pf / d_pn; // harmonic mean weight factor
-
-        // Diffusion coefficients
-        const double* D = xs->diffusion_coeff.data();
-        const double* D_nbr = nbr_xs->diffusion_coeff.data();
 
         for (size_t gr = 0; gr < n_gsg; ++gr)
         {
@@ -193,7 +193,6 @@ TransientSolver::assemble_transient_matrix(Groupset& groupset,
                  bndry_type == BoundaryType::MARSHAK ||
                  bndry_type == BoundaryType::ROBIN)
         {
-          const double* D = xs->diffusion_coeff.data();
           const double d_pf = cell.centroid.distance(face.centroid);
 
           for (size_t gr = 0; gr < n_gsg; ++gr)
