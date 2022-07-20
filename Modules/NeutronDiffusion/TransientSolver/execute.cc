@@ -19,12 +19,18 @@ TransientSolver::execute()
   assemble_matrices();
 
   const double dt_initial = dt;
+  bool reconstruct_matrices;
 
   // Time stepping loop
   time = t_start;
   size_t step = 0;
   while (time < t_end - 1.0e-12)
   {
+    /* This flag is used to tell the solve_time_step routine whether or not
+     * to reconstruct the matrices or not. This gets set to true when the
+     * time step changes or the cross-sections are modified. */
+    reconstruct_matrices = false;
+
     //==================================================
     // Modify time steps to coincide with output times and
     // the end of the simulation.
@@ -33,20 +39,20 @@ TransientSolver::execute()
     if (write_outputs && time + dt > next_output)
     {
       dt = next_output - time;
-      assemble_matrices();
+      reconstruct_matrices = true;
     }
 
     if (time + dt > t_end)
     {
       dt = t_end - time;
-      assemble_matrices();
+      reconstruct_matrices = true;
     }
 
     //==================================================
     // Solve the time step
     //==================================================
 
-    solve_time_step();
+    solve_time_step(reconstruct_matrices);
     compute_bulk_properties();
 
     if (adaptivity)

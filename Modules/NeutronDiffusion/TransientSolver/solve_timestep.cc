@@ -9,7 +9,7 @@ using namespace NeutronDiffusion;
 
 
 void
-TransientSolver::solve_time_step()
+TransientSolver::solve_time_step(bool reconstruct_matrices)
 {
   phi_ell = phi_old;
 
@@ -21,8 +21,11 @@ TransientSolver::solve_time_step()
       cellwise_xs[cell.id].update(time + eff_dt,
                                   temperature[cell.id],
                                   initial_temperature);
-    assemble_matrices();
+    reconstruct_matrices = true;
   }
+
+  if (reconstruct_matrices)
+    assemble_matrices();
 
   // Solve for the scalar flux
   if (solution_technique == SolutionTechnique::FULL_SYSTEM)
@@ -114,9 +117,8 @@ TransientSolver::refine_time_step()
   while (dP > refine_threshold)
   {
     dt /= 2.0;
-    assemble_matrices();
 
-    solve_time_step();
+    solve_time_step(true);
     compute_bulk_properties();
 
     dP = std::fabs(power - power_old)/std::fabs(power_old);

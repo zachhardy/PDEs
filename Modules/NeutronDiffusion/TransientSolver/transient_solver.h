@@ -172,7 +172,7 @@ namespace NeutronDiffusion
     /*-------------------- Time Step Routines --------------------*/
 
 
-    void solve_time_step();
+    void solve_time_step(bool reconstruct_matrices = false);
     void solve_groupset_time_step(Groupset& groupset,
                                   SourceFlags source_flags);
     void solve_full_system_time_step(SourceFlags source_flags);
