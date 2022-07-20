@@ -12,8 +12,6 @@ TransientSolver::initialize()
   KEigenvalueSolver::initialize();
   KEigenvalueSolver::execute();
 
-  KEigenvalueSolver::write("Test/LRA/outputs", "result");
-
   // Check temporal parameters
   if (output_frequency < 0.0) output_frequency = dt;
   if (dt > output_frequency) dt = output_frequency;

@@ -18,9 +18,8 @@ TransientSolver::solve_time_step(bool reconstruct_matrices)
   {
     const auto eff_dt = effective_time_step();
     for (const auto& cell : mesh->cells)
-      cellwise_xs[cell.id].update(time + eff_dt,
-                                  temperature[cell.id],
-                                  initial_temperature);
+      cellwise_xs[cell.id].update({time + eff_dt,
+                                   temperature[cell.id]});
     reconstruct_matrices = true;
   }
 

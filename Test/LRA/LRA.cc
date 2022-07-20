@@ -90,48 +90,41 @@ int main(int argc, char** argv)
   const double delta = 0.8787631 - 1.0;
   const double t_ramp = 2.0;
   const double gamma = 3.034e-3;
+  const double T0 = 300.0;
 
   auto rod_ejection_with_feedback =
-      [delta, t_ramp, gamma](
+      [delta, t_ramp, gamma, T0](
           const unsigned int group_num,
-          const double current_time,
-          const double temperature,
-          const double reference_temperature,
-          const double reference_value)
+          const std::vector<double>& args,
+          const double reference)
       {
+        const double t = args[0], T = args[1];
+
         if (group_num == 0)
-        {
-          const double sqrt_T = std::sqrt(temperature);
-          const double sqrt_T0 = std::sqrt(reference_temperature);
-          return reference_value*(1.0 + gamma*(sqrt_T - sqrt_T0));
-        }
+          return (1.0 + gamma*(std::sqrt(T) - std::sqrt(T0))) * reference;
         else if (group_num == 1)
         {
-          if (current_time <= t_ramp)
-            return (1.0 + current_time/t_ramp * delta) * reference_value;
+          if (t <= t_ramp)
+            return (1.0 + t/t_ramp * delta) * reference;
           else
-            return (1.0 + delta) * reference_value;
+            return (1.0 + delta) * reference;
         }
         else
-          return reference_value;
+          return reference;
       };
 
   auto feedback =
-      [gamma](
+      [gamma, T0](
           const unsigned int group_num,
-          const double current_time,
-          const double temperature,
-          const double reference_temperature,
-          const double reference_value)
+          const std::vector<double>& args,
+          const double reference)
       {
+        const double T = args[1];
+
         if (group_num == 0)
-        {
-          const double sqrt_T = std::sqrt(temperature);
-          const double sqrt_T0 = std::sqrt(reference_temperature);
-          return reference_value*(1.0 + gamma*(sqrt_T - sqrt_T0));
-        }
+          return (1.0 + gamma * (std::sqrt(T) - std::sqrt(T0))) * reference;
         else
-          return reference_value;
+          return reference;
       };
 
 
