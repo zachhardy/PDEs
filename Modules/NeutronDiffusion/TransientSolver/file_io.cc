@@ -189,7 +189,7 @@ TransientSolver::write(const size_t output_index) const
       const uint64_t material_id = cell.material_id;
 
       const auto& xs = material_xs[matid_to_xs_map[material_id]];
-      for (unsigned int j = 0; j < xs->n_precursors; ++j)
+      for (unsigned int j = 0; j < max_precursors; ++j)
       {
         const uint64_t dof = cell.id*max_precursors + j;
         assert(dof < precursors.size());
