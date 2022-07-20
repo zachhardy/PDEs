@@ -79,11 +79,20 @@ class TransientNeutronicsReader(SimulationReader):
             return struct.unpack('d', f.read(8))[0]
 
         files = sorted(os.listdir(self.path))[::skip]
-        self.n_snapshots = len(files)
+
+        self.n_snapshots = 0
+        for file in files:
+            if any(s.isdigit() for s in file):
+                self.n_snapshots += 1
 
         # Loop over files
         for n, snapshot in enumerate(files):
+            if not any(s.isdigit() for s in snapshot):
+                continue
+
             path = os.path.join(self.path, snapshot)
+
+            print(path)
 
             # Open the snapshot file
             with open(path, mode='rb') as file:

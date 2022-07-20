@@ -58,10 +58,8 @@ namespace Physics
 
     /** A convenient typedef for functional cross-sections. */
     typedef std::function<double(const unsigned int group_num,
-                                 const double current_time,
-                                 const double temperature,
-                                 const double current_temperature,
-                                 const double reference_value)> XSFunction;
+                                 const std::vector<double>& args,
+                                 const double reference)> XSFunction;
     XSFunction sigma_a_function;
 
 

@@ -57,23 +57,24 @@ int main(int argc, char** argv)
   //============================================================
   using namespace Physics;
 
+  const double delta = 0.97667 - 1.0;
+
   auto ramp_function =
-    [](const unsigned int group_num,
-      const double current_time,
-      const double temperature,
-      const double reference_temperature,
-      const double reference_value)
+      [delta](const unsigned int group_num,
+         const std::vector<double>& args,
+         const double reference)
     {
-      const double delta = 0.97667 - 1.0;
+      const double t = args[0];
+
       if (group_num == 1)
       {
-        if (current_time >= 0.0 and current_time <= 0.2)
-          return reference_value*(1.0 + current_time/0.2*delta);
+        if (t >= 0.0 and t <= 0.2)
+          return (1.0 + t/0.2 * delta) * reference;
         else
-          return reference_value*(1.0 + delta);
+          return (1.0 + delta) * reference;
       }
       else
-        return reference_value;
+        return reference;
     };
 
   std::vector<std::shared_ptr<Material>> materials;
