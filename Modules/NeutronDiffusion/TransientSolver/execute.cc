@@ -9,6 +9,8 @@ using namespace NeutronDiffusion;
 void
 TransientSolver::execute()
 {
+  const double eps = 1.0e-10;
+
   // Output settings
   size_t output = 0;
   double next_output = output_frequency;
@@ -24,7 +26,7 @@ TransientSolver::execute()
   // Time stepping loop
   time = t_start;
   size_t step = 0;
-  while (time < t_end - 1.0e-12)
+  while (time < t_end - eps)
   {
     /* This flag is used to tell the solve_time_step routine whether or not
      * to reconstruct the matrices or not. This gets set to true when the
@@ -36,13 +38,13 @@ TransientSolver::execute()
     // the end of the simulation.
     //==================================================
 
-    if (write_outputs && time + dt > next_output)
+    if (write_outputs && time + dt > next_output + eps)
     {
       dt = next_output - time;
       reconstruct_matrices = true;
     }
 
-    if (time + dt > t_end)
+    if (time + dt > t_end + eps)
     {
       dt = t_end - time;
       reconstruct_matrices = true;
@@ -66,12 +68,11 @@ TransientSolver::execute()
     ++step;
 
     // Output solutions
-    if (std::fabs(time - next_output) < 1.0e-12)
+    if (std::fabs(time - next_output) < eps)
     {
       write(output++);
       next_output += output_frequency;
-      if (next_output > t_end ||
-          std::fabs(next_output - t_end) < 1.0e-12)
+      if (next_output > t_end || std::fabs(next_output - t_end) < eps)
         next_output = t_end;
     }
 
@@ -84,7 +85,6 @@ TransientSolver::execute()
     else if (dt != dt_initial)
     {
       dt = dt_initial;
-      if (time >= t_end - 1.0e-12)
       assemble_matrices();
     }
 

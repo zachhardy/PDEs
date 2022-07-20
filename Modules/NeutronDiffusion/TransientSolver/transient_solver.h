@@ -77,6 +77,7 @@ namespace NeutronDiffusion
 
     double time = 0.0;
     double dt = 0.1;
+    double dt_min = 1.0e-6;
 
     double t_start = 0.0;
     double t_end = 1.0;

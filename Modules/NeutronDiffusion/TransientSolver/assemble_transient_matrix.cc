@@ -47,6 +47,13 @@ TransientSolver::assemble_transient_matrix(Groupset& groupset,
       entry += inv_vel[g]/eff_dt; // time-derivative
       A.add(uk_map + gr, uk_map + gr, entry * volume);
 
+//      if (time >= 1.479 and uk_map + gr == 1)
+//        std::cout << time << "  "
+//                  << sig_t[g] << "  "
+//                  << D[g]*B[g] << "  "
+//                  << inv_vel[g] << "  "
+//                  << eff_dt << std::endl;
+
       //========================================
       // Scattering term
       //========================================
@@ -223,6 +230,14 @@ TransientSolver::assemble_matrices()
       assemble_transient_matrix(groupset,
                                 ASSEMBLE_SCATTER | ASSEMBLE_FISSION);
 
+    for (const auto& el : groupset.A)
+      if (el.value() > 1.0e12)
+      {
+        std::cout << "INVALID VALUE - Time " << time << " s" << std::endl
+                  << "(" << el.row() << ", " << el.column()
+                  << ")\t" << el.value() << std::endl;
+        exit(0);
+      }
     linear_solver->set_matrix(groupset.A);
   }
 }
