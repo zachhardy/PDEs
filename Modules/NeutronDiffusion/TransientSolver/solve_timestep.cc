@@ -18,7 +18,9 @@ TransientSolver::solve_time_step()
   {
     const auto eff_dt = effective_time_step();
     for (const auto& cell : mesh->cells)
-      cellwise_xs[cell.id].update(time + eff_dt, 300.0);
+      cellwise_xs[cell.id].update(time + eff_dt,
+                                  temperature[cell.id],
+                                  initial_temperature);
     assemble_matrices();
   }
 
@@ -33,16 +35,19 @@ TransientSolver::solve_time_step()
         APPLY_WGS_SCATTER_SOURCE | APPLY_WGS_FISSION_SOURCE |
         APPLY_AGS_SCATTER_SOURCE | APPLY_AGS_FISSION_SOURCE);
 
-  // Update the precursors
-  if (use_precursors)
-    update_precursors();
+    // Update the temperature and precursors
+    update_fission_rate();
+    update_temperature();
+    if (use_precursors)
+      update_precursors();
 
   if (time_stepping_method == TimeSteppingMethod::CRANK_NICHOLSON)
   {
     phi.sadd(2.0, -1.0, phi_old);
+    temperature.sadd(2.0, -1.0, temperature_old);
     if (use_precursors)
       precursors.sadd(2.0, -1.0, precursor_old);
-    compute_fission_rate();
+    update_fission_rate();
   }
 }
 
@@ -88,7 +93,6 @@ TransientSolver::solve_groupset_time_step(Groupset& groupset,
 
     if (converged) break;
   }//for nit
-  compute_fission_rate();
 }
 
 //######################################################################
@@ -99,7 +103,6 @@ TransientSolver::solve_full_system_time_step(SourceFlags source_flags)
   groupsets.front().b = 0.0;
   set_transient_source(groupsets.front(), source_flags);
   phi = linear_solver->solve(groupsets.front().b);
-  compute_fission_rate();
 }
 
 //######################################################################
@@ -114,7 +117,7 @@ TransientSolver::refine_time_step()
     assemble_matrices();
 
     solve_time_step();
-    compute_power();
+    compute_bulk_properties();
 
     dP = std::fabs(power - power_old)/std::fabs(power_old);
   }
