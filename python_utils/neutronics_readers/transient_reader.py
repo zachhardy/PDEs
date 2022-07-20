@@ -114,7 +114,7 @@ class TransientNeutronicsReader(SimulationReader):
                     assert read_unsigned_int(file) == self.n_precursors
                     assert read_unsigned_int(file) == self.max_precursors
 
-                self.times.append(read_double(file))
+                self.times.append(np.round(read_double(file), 10))
 
                 self.power[step] = read_double(file)
                 self.peak_power_density[step] = read_double(file)
@@ -368,7 +368,7 @@ class TransientNeutronicsReader(SimulationReader):
         assert all([g < self.n_groups for g in groups])
 
         if times is None:
-            times = list(self.times)
+            times = [self.times[0], self.times[-1]]
         elif isinstance(times, float):
             times = [times]
         t0, tf = self.times[0], self.times[-1]
@@ -477,15 +477,15 @@ class TransientNeutronicsReader(SimulationReader):
             dt = self.times[ind[1]] - self.times[ind[0]]
 
             # Compute interpolation weight factors
-
+            print(f"time = {time},  dt = {dt}")
             w = [ind[1] - time / dt, time / dt - ind[0]]
             if ind[0] == ind[1]:
                 w = [1.0, 0.0]
 
             return w[0] * vec[ind[0]] + w[1] * vec[ind[1]]
 
-    def plot_flux_moment(self, moment=0, groups=None,
-                         times=None, plot_type='group'):
+    def plot_flux_moments(self, moment=0, groups=None,
+                         times=None, plot_type='all'):
         """
         Plot a multi-group flux moment at various times.
 
@@ -493,24 +493,25 @@ class TransientNeutronicsReader(SimulationReader):
         :type moment: int, optional
         :param groups: The group indices. Default is all groups.
         :type: groups: int or list of int, optional
-        :param times: The simulation times to plot.
+        :param times: The times to plot the flux moment at.
             Default is the initial condition and end time.
         :type times: float or list of floats, optional
-        :param plot_type: The plotting method. his parameter determines
-            whether the each subplot contains all the specified groups at
-            a fixed time or vice verse. The parameter specifies what is
-            plotted on an individual subplot. Default is `group`.
-        :type plot_type: str {`group`, `time`}, optional
+        :param plot_type: The plotting method. This determines how the
+            combination of energy groups and times is displayed. When
+            'group', each figure shows the variation in group for a fixed
+            time. When 'time', each figure shows the variation in time for
+            a fixed group. When 'all', an individual plot for each group/time
+            combination is used. Default is 'all'.
+        :type plot_type: str {'group', 'time', 'all'}, optional
         """
-        assert plot_type in ['group', 'time']
+        assert plot_type in ['group', 'time', 'all']
 
-        # Get the groups to plot
         if groups is None:
             groups = list(range(self.n_groups))
         elif isinstance(groups, int):
             groups = [groups]
+        assert all([g < self.n_groups for g in groups])
 
-        # Get times to plot
         if times is None:
             times = [self.times[0], self.times[-1]]
         elif isinstance(times, float):
@@ -518,34 +519,135 @@ class TransientNeutronicsReader(SimulationReader):
         t0, tf = self.times[0], self.times[-1]
         assert all([t0 <= t <= tf for t in times])
 
+        phi = self.get_flux_moment(moment, groups, times)
+
         # Plot 1D profiles
         if self.dimension == 1:
-
-            # Get the coordinates
             z = [p.z for p in self.nodes]
 
+            # Plots with a variable group
             if plot_type == 'group':
-
-                phi = self.get_flux_moment(moment, groups, times)
-
-                # Create a figure for each time
                 for t, time in enumerate(times):
                     fig: Figure = plt.figure(t)
                     ax: Axes = fig.add_subplot(1, 1, 1)
-                    ax.set_title(fr'Time = {time:.2e} $\mu$s')
-                    ax.set_xlabel(f'z (cm)')
+
+                    ax.set_title(fr"Time = {time:.2e}")
+                    ax.set_xlabel("Z (cm)")
                     ax.set_ylabel(fr"$\phi_{{{moment},g}}$(z)")
                     ax.grid(True)
 
-                    # Plot each group flux
+                    # Plot each group flux for a fixed time
                     for g, group in enumerate(groups):
-                        ax.plot(z, phi[t][g], label=f'Group {group}')
+                        ax.plot(z, phi[t][g], label=f"Group {group}")
                     ax.legend()
                     fig.tight_layout()
+
+            # Plots with variable time
+            elif plot_type == 'time':
+                for g, group in enumerate(groups):
+                    fig: Figure = plt.figure(g)
+                    ax: Axes = fig.add_subplot(1, 1, 1)
+
+                    ax.set_title(f"Moment {moment}, Group {group}")
+                    ax.set_xlabel("Z (cm)")
+                    ax.set_ylabel(fr"$\phi_{{{moment}, {group}}}$(z)")
+                    ax.grid(True)
+
+                    # Plot each time for a fixed group
+                    for t, time in enumerate(times):
+                        ax.plot(z, phi[t][g], label=f"Time = {time:.3f}")
+                    ax.legend()
+                    fig.tight_layout()
+
+            # Plot all individually
+            else:
+                for g, group in enumerate(groups):
+                    for t, time in enumerate(times):
+                        fig: Figure = plt.figure()
+                        ax: Axes = fig.add_subplot(1, 1, 1)
+
+                        ax.set_title(f"Time = {time:.3f}\n"
+                                     f"Moment {moment}, Group {group}")
+                        ax.set_xlabel("Z (cm)")
+                        ax.set_ylabel(fr"$\phi_{{{moment}, {group}}}")
+                        ax.grid(True)
+
+                        ax.plot(z, phi[t][g])
+                        ax.legend()
+                        fig.tight_layout()
+
+        # Plot 2D profiles
+        elif self.dimension == 2:
+            x = np.unique([p.x for p in self.nodes])
+            y = np.unique([p.y for p in self.nodes])
+            X, Y = np.meshgrid(x, y)
+
+            # Plots with variable group
+            if plot_type == "group":
+                n_rows, n_cols = self._format_subplots(len(groups))
+
+                for t, time in enumerate(times):
+                    fig: Figure = plt.figure()
+                    fig.suptitle(f"Time = {time:.3e}")
+
+                    for g, group in enumerate(groups):
+                        phi_fmtd = phi[t][g].reshape(X.shape)
+
+                        ax: Axes = fig.add_subplot(n_rows, n_cols, g + 1)
+                        ax.set_title(f"Moment {moment}, Group {group}")
+                        ax.set_xlabel("X (cm)")
+                        ax.set_ylabel("Y (cm)")
+
+                        im = ax.pcolor(X, Y, phi_fmtd,
+                                       cmap='jet', shading='auto',
+                                       vmin=0.0, vmax=phi_fmtd.max())
+                        fig.colorbar(im)
+                    fig.tight_layout()
+
+            # Plots with variable time
+            elif plot_type == 'time':
+                n_rows, n_cols = self._format_subplots(len(times))
+
+                for g, group in enumerate(groups):
+                    fig: Figure = plt.figure()
+                    fig.suptitle(f"Moment {moment}, Group {group}")
+
+                    for t, time in enumerate(times):
+                        phi_fmtd = phi[t][g].reshape(X.shape)
+
+                        ax: Axes = fig.add_subplot(n_rows, n_cols, t + 1)
+                        ax.set_title(f"Time = {time:.3f}")
+                        ax.set_xlabel("X (cm)")
+                        ax.set_ylabel("Y (cm)")
+
+                        im = ax.pcolor(X, Y, phi_fmtd,
+                                       cmap='jet', shading='auto',
+                                       vmin=0.0, vmax=phi_fmtd.max())
+                        fig.colorbar(im)
+                    fig.tight_layout()
+
+            else:
+                for g, group in enumerate(groups):
+                    for t, time in enumerate(times):
+                        phi_fmtd = phi[t][g].reshape(X.shape)
+
+                        fig: Figure = plt.figure()
+                        ax: Axes = fig.add_subplot(1, 1, 1)
+
+                        ax.set_title(f"Time = {time:.3f}\n"
+                                     f"Moment {moment}, Group {group}")
+                        ax.set_xlabel("X (cm)")
+                        ax.set_ylabel("Y (cm)")
+
+                        im = ax.pcolor(X, Y, phi_fmtd, cmap='jet',
+                                       shading='auto',  vmin=0.0,
+                                       vmax=phi_fmtd.max())
+                        fig.colorbar(im)
+                        fig.tight_layout()
         plt.show()
 
     def plot_precursors_species(self, material=0, precursors=None,
-                                times=None, plot_type='precursors'):
+                                times=None, plot_type='all'):
         """
         Plot the precursor species at various times.
 
@@ -554,16 +656,20 @@ class TransientNeutronicsReader(SimulationReader):
         :param precursors: The precursor species index on the material.
             Default is None, which corresponds to all precursors.
         :type precursors: int or list of int, optional
-        :param times: The times to get the precursors at.
+        :param times: The times to plot the precursors at.
             Default is None, which returns all available times.
         :type times: float or list of float, optional
-        :param plot_type: The plotting method. his parameter determines
-            whether the each subplot contains all the specified species at
-            a fixed time or vice verse. The parameter specifies what is
-            plotted on an individual subplot. Default is `precursors`.
-        :type plot_type: str {`precursors`, `time`}, optional
+        :param plot_type: The plotting method. This determines how
+            the combination of precursor species and times is displayed.
+            When 'precursor', each figure shows the variation in precursor
+            species for a fixed time. When 'time', each figure shows the
+            variation in time for a fixed precursor species. When 'all',
+            an individual plot for each precursor species/time combination
+            is used. Default is 'all'.
+        :type plot_type: str {'precursor', 'time', 'all'}, optional
         """
         assert material < self.n_materials
+        assert plot_type in ['precursor', 'time', 'all']
 
         # Get precursors to plot
         n_precursors = self.precursors_per_material[material]
@@ -581,29 +687,412 @@ class TransientNeutronicsReader(SimulationReader):
         t0, tf = self.times[0], self.times[-1]
         assert all([t0 <= t <= tf for t in times])
 
+        cj = self.get_precursors(material, precursors, times)
+
         # Plot 1D profiles
         if self.dimension == 1:
-
-            # Get the coordinates
             z = [p.z for p in self.nodes]
 
-            if plot_type == 'precursors':
-
-                c_j = self.get_precursors(material, precursors, times)
-
-                # Create a figure for each time
+            # Plots with variable precursor species
+            if plot_type == 'precursor':
                 for t, time in enumerate(times):
                     fig: Figure = plt.figure(t)
                     ax: Axes = fig.add_subplot(1, 1, 1)
-                    ax.set_title(fr'Time = {time:.2e} $\mu$s')
-                    ax.set_xlabel(f'z (cm)')
-                    ax.set_ylabel(fr"$C^{{{material}}}_{{j}}$(z)")
+
+                    ax.set_title(f"Time = {time:.3f}, Material {material}")
+                    ax.set_xlabel("Z (cm)")
+                    ax.set_ylabel(r"$C_j$(z)")
                     ax.grid(True)
 
-                    # Plot each group flux
                     for j, precursor in enumerate(precursors):
-                        ax.plot(z, c_j[t][j], label=f'Species {precursor}')
+                        ax.plot(z, cj[t][j], label=f"Precursor {precursor}")
                     ax.legend()
+                    fig.tight_layout()
+
+            # Plots with variable times
+            elif plot_type == 'time':
+                for j, precursor in enumerate(precursors):
+                    fig: Figure = plt.figure(j)
+                    ax: Axes = fig.add_subplot(1, 1, 1)
+
+                    ax.set_title(f"Material {material}, "
+                                 f"Precursor {precursor}")
+                    ax.set_xlabel("Z (cm)")
+                    ax.set_ylabel(r"$C_j$(z)")
+                    ax.grid(True)
+
+                    for t, time in enumerate(times):
+                        ax.plot(z, cj[t][j], label=f"Time = {time:.3f}")
+                    ax.legend()
+                    fig.tight_layout()
+
+            else:
+                for j, precursor in enumerate(precursors):
+                    for t, time in enumerate(times):
+                        fig: Figure = plt.figure()
+                        ax: Axes = fig.add_subplot(1, 1, 1)
+
+                        ax.set_title(f"Time = {time:.3f}\n"
+                                     f"Material {material}, "
+                                     f"Precursor {precursor}")
+                        ax.set_xlabel("Z (cm)")
+                        ax.set_ylabel(fr"$C_j$(z)")
+                        ax.grid(True)
+
+                        ax.plot(z, cj[t][j])
+                        fig.tight_layout()
+
+        # Plot 2D profiles
+        elif self.dimension == 2:
+            x = np.unique([p.x for p in self.nodes])
+            y = np.unique([p.y for p in self.nodes])
+            X, Y = np.meshgrid(x, y)
+
+            # Plots with variable precursor species
+            if plot_type == "precursor":
+                n_rows, n_cols = self._format_subplots(len(precursors))
+
+                for t, time in enumerate(times):
+                    fig: Figure = plt.figure()
+                    fig.suptitle(f"Time = {time:.3f}")
+
+                    for j, precursor in enumerate(precursors):
+                        cj_fmtd = cj[t][j].reshape(X.shape)
+
+                        ax: Axes = fig.add_subplot(n_rows, n_cols, j + 1)
+                        ax.set_title(f"Material {material}, "
+                                     f"Precursor {precursor}")
+                        ax.set_xlabel("X (cm)")
+                        ax.set_ylabel("Y (cm)")
+
+                        im = ax.pcolor(X, Y, cj_fmtd,
+                                       cmap='jet', shading='auto',
+                                       vmin=0.0, vmax=cj_fmtd.max())
+                        fig.colorbar(im)
+                    fig.tight_layout()
+
+            # Plots with variable time
+            elif plot_type == 'time':
+                n_rows, n_cols = self._format_subplots(len(times))
+
+                for j, precursor in enumerate(precursors):
+                    fig: Figure = plt.figure()
+                    fig.suptitle(f"Material {material}, "
+                                 f"Precursors {precursor}")
+
+                    for t, time in enumerate(times):
+                        cj_fmtd = cj[t][j].reshape(X.shape)
+
+                        ax: Axes = fig.add_subplot(n_rows, n_cols, t + 1)
+                        ax.set_title(f"Time = {time:.3f}")
+                        ax.set_xlabel("X (cm)")
+                        ax.set_ylabel("Y (cm)")
+
+                        im = ax.pcolor(X, Y, cj_fmtd, cmap='jet',
+                                       shading='auto',  vmin=0.0,
+                                       vmax=cj_fmtd.max())
+                        fig.colorbar(im)
+                    fig.tight_layout()
+
+            else:
+                for j, precursor in enumerate(precursors):
+                    for t, time in enumerate(times):
+                        cj_fmtd = cj[t][j].reshape(X.shape)
+
+                        fig: Figure = plt.figure()
+                        ax: Axes = fig.add_subplot(1, 1, 1)
+
+                        ax.set_title(f"Time = {time:.3f}\n"
+                                     f"Material {material}, "
+                                     f"Precursor {precursor}")
+                        ax.set_xlabel("X (cm)")
+                        ax.set_ylabel("Y (cm)")
+
+                        im = ax.pcolor(X, Y, cj_fmtd, cmap='jet',
+                                       shading='auto',  vmin=0.0,
+                                       vmax=cj_fmtd.max())
+                        fig.colorbar(im)
+                        fig.tight_layout()
+        plt.show()
+
+    def plot_power_density_profiles(self, times=None, plot_type='all'):
+        """
+        Plot the power density at the specified times.
+
+        :param times: The times to plot the power density at.
+        :type times: float or list of float, optional
+        :param plot_type: The plotting method. This determines how the
+            power density at various times is displayed. When 'time',
+            a single plot with the power density at each time is produced.
+            When 'all', an individual plot for each time is produced.
+            Default is 'all'.
+        :type plot_type: str {'time', 'all'}, optional
+        """
+        if times is None:
+            times = [self.times[0], self.times[-1]]
+        elif isinstance(times, float):
+            times = [times]
+        t0, tf = self.times[0], self.times[-1]
+        assert all([t0 <= t <= tf for t in times])
+
+        P = np.empty((len(times), self.n_cells))
+        for t, time in enumerate(times):
+            P[t] = self._interpolate_time(time, self.power_density)
+
+        # Plot 1D profiles
+        if self.dimension == 1:
+            z = np.array([p.z for p in self.centroids])
+
+            # Plot with a variable time
+            if plot_type == 'time':
+                fig: Figure = plt.figure()
+                ax: Axes = fig.add_subplot(1, 1, 1)
+
+                ax.set_xlabel("Z (cm)")
+                ax.set_ylabel("P (W/cm$^3$)")
+                ax.grid(True)
+
+                for t, time in enumerate(times):
+                    ax.plot(z, P[t], label=f"Time = {time:.3f}")
+                ax.legend()
+                fig.tight_layout()
+
+            else:
+                for t, time in enumerate(times):
+                    fig: Figure = plt.figure()
+                    ax: Axes = fig.add_subplot(1, 1, 1)
+
+                    ax.set_title(f"Time = {time:.3f}")
+                    ax.set_xlabel("Z (cm)")
+                    ax.set_ylabel("P (W/cm$^3$)")
+                    ax.grid(True)
+
+                    ax.plot(z, P[t])
+                    fig.tight_layout()
+
+        # Plot 2D profiles
+        elif self.dimension == 2:
+            x = np.unique([p.x for p in self.nodes])
+            y = np.unique([p.y for p in self.nodes])
+            X, Y = np.meshgrid(x, y)
+
+            # Plots with variable time
+            if plot_type == 'time':
+                n_rows, n_cols = self._format_subplots(len(times))
+
+                fig: Figure = plt.figure()
+                fig.suptitle("Power Density (W/cm$^3$)")
+
+                for t, time in enumerate(times):
+                    P_fmtd = P[t].reshape(X.shape)
+
+                    ax: Axes = fig.add_subplot(n_rows, n_cols, t + 1)
+                    ax.set_title(f"Time = {time:.3f}")
+                    ax.set_xlabel("X (cm)")
+                    ax.set_ylabel("Y (cm)")
+
+                    im = ax.pcolor(X, Y, P_fmtd,
+                                   cmap='jet', shading='auto',
+                                   vmin=0.0, vmax=P_fmtd.max())
+                    fig.colorbar(im)
+                fig.tight_layout()
+
+            else:
+                for t, time in enumerate(times):
+                    P_fmtd = P[t].reshape(X.shape)
+
+                    fig: Figure = plt.figure()
+                    ax: Axes = fig.add_subplot(1, 1, 1)
+
+                    ax.set_title("Power Density (W/cm$^3$)")
+                    ax.set_xlabel("X (cm)")
+                    ax.set_ylabel("Y (cm)")
+
+                    im = ax.pcolor(X, Y, P_fmtd,
+                                   cmap='jet', shading='auto',
+                                   vmin=0.0, vmax=P_fmtd.max())
+                    fig.colorbar(im)
                     fig.tight_layout()
         plt.show()
 
+    def plot_temperature_profiles(self, times=None, plot_type='all'):
+        """
+        Plot the power density at the specified times.
+
+        :param times: The times to plot the temperature at.
+        :type times: float or list of float, optional
+        :param plot_type: The plotting method. This determines how the
+            power density at various times is displayed. When 'time',
+            a single plot with the power density at each time is produced.
+            When 'all', an individual plot for each time is produced.
+            Default is 'all'.
+        :type plot_type: str {'time', 'all'}, optional
+        """
+        if times is None:
+            times = [self.times[0], self.times[-1]]
+        elif isinstance(times, float):
+            times = [times]
+        t0, tf = self.times[0], self.times[-1]
+        assert all([t0 <= t <= tf for t in times])
+
+        T = np.empty((len(times), self.n_cells))
+        for t, time in enumerate(times):
+            T[t] = self._interpolate_time(time, self.temperature)
+
+        # Plot 1D profiles
+        if self.dimension == 1:
+            z = np.array([p.z for p in self.centroids])
+
+            # Plot with a variable time
+            if plot_type == 'time':
+                fig: Figure = plt.figure()
+                ax: Axes = fig.add_subplot(1, 1, 1)
+
+                ax.set_xlabel("Z (cm)")
+                ax.set_ylabel("T (K)")
+                ax.grid(True)
+
+                for t, time in enumerate(times):
+                    ax.plot(z, T[t], label=f"Time = {time:.3f}")
+                ax.legend()
+                fig.tight_layout()
+
+            else:
+                for t, time in enumerate(times):
+                    fig: Figure = plt.figure()
+                    ax: Axes = fig.add_subplot(1, 1, 1)
+
+                    ax.set_title(f"Time = {time:.3f}")
+                    ax.set_xlabel("Z (cm)")
+                    ax.set_ylabel("T (K)")
+                    ax.grid(True)
+
+                    ax.plot(z, T[t])
+                    fig.tight_layout()
+
+        # Plot 2D profiles
+        elif self.dimension == 2:
+            x = np.unique([p.x for p in self.nodes])
+            y = np.unique([p.y for p in self.nodes])
+            X, Y = np.meshgrid(x, y)
+
+            # Plots with variable time
+            if plot_type == 'time':
+                n_rows, n_cols = self._format_subplots(len(times))
+
+                fig: Figure = plt.figure()
+                fig.suptitle("Temperature (K)")
+
+                for t, time in enumerate(times):
+                    T_fmtd = T[t].reshape(X.shape)
+
+                    ax: Axes = fig.add_subplot(n_rows, n_cols, t + 1)
+                    ax.set_title(f"Time = {time:.3f}")
+                    ax.set_xlabel("X (cm)")
+                    ax.set_ylabel("Y (cm)")
+
+                    im = ax.pcolor(X, Y, T_fmtd,
+                                   cmap='jet', shading='auto',
+                                   vmin=0.0, vmax=T_fmtd.max())
+                    fig.colorbar(im)
+                fig.tight_layout()
+
+            else:
+                for t, time in enumerate(times):
+                    T_fmtd = T[t].reshape(X.shape)
+
+                    fig: Figure = plt.figure()
+                    ax: Axes = fig.add_subplot(1, 1, 1)
+
+                    ax.set_title("Temperature (K)")
+                    ax.set_xlabel("X (cm)")
+                    ax.set_ylabel("Y (cm)")
+
+                    im = ax.pcolor(X, Y, T_fmtd,
+                                   cmap='jet', shading='auto',
+                                   vmin=0.0, vmax=T_fmtd.max())
+                    fig.colorbar(im)
+                    fig.tight_layout()
+        plt.show()
+
+    def plot_power(self, mode='total', log_scale=False):
+        """
+        Plot the reactor power.
+
+        :param mode: The quantity to plot. Options are 'total' for total
+            reactor power, 'average' for average power density, and 'peak'
+            for peak power density. Default is 'total'.
+        :type mode: str {'total', 'average', 'peak'}, optional
+        :param log_scale: A flag for using a log-scale on the y-axis.
+            Default is False.
+        :type log_scale: bool, optional
+        """
+        assert mode in ['total', 'average', 'peak']
+
+        fig: Figure = plt.figure()
+        ax: Axes = fig.add_subplot(1, 1, 1)
+        plotter = ax.semilogy if log_scale else ax.plot
+
+        ax.set_xlabel("Time")
+        ax.grid(True)
+
+        if mode == 'total':
+            ax.set_ylabel("P (W)")
+            plotter(self.times, self.power, '-*b')
+
+        elif mode == 'average':
+            ax.set_ylabel(r"$\bar{P}$ (W/cm$^3$)")
+            plotter(self.times, self.average_power_density, '-*b')
+        else:
+            ax.set_ylabel(r"$\max \bar{P}$ (W/cm$^3$)")
+            plotter(self.times, self.peak_power_density, '-*b')
+
+        fig.tight_layout()
+        plt.show()
+
+    def plot_temperature(self, mode='average', log_scale=False):
+        """
+        Plot the reactor power.
+
+        :param mode: The quantity to plot. Options are 'average' for
+            the average fuel temperature and 'peak' for peak fuel
+            temperature. Default is 'average'.
+        :type mode: str {'average', 'peak'}, optional
+        :param log_scale: A flag for using a log-scale on the y-axis.
+            Default is False.
+        :type log_scale: bool, optional
+        """
+        assert mode in ['average', 'peak']
+
+        fig: Figure = plt.figure()
+        ax: Axes = fig.add_subplot(1, 1, 1)
+        plotter = ax.semilogy if log_scale else ax.plot
+
+        ax.set_xlabel("Time")
+        ax.grid(True)
+
+        if mode == 'average':
+            ax.set_ylabel(r"$\bar{T}$ (K)")
+            plotter(self.times, self.average_fuel_temperature, '-*b')
+
+        elif mode == 'peak':
+            ax.set_ylabel(r"$\max T$ (K)")
+            plotter(self.times, self.peak_fuel_temperature, '-*b')
+
+        fig.tight_layout()
+        plt.show()
+
+    @staticmethod
+    def _format_subplots(n):
+        """
+        Determine the appropriate subplot layout.
+
+        :param n: The total number of plots.
+        :return: n_rows, n_cols
+        """
+        if n < 4:
+            return 1, n
+        elif 4 <= n < 6:
+            return 2, int(np.ceil(n / 2))
+        else:
+            raise AssertionError("Maximum subplots allowed is 6.")

@@ -121,27 +121,27 @@ class SteadyStateNeutronicsReader(SimulationReader):
 
                 phi[dof] = read_double(file)  # value
 
-            # # Parse precursors
-            # assert read_unsigned_int(file) == 1
-            # precursors = self.precursors
-            # ppm = [set() for _ in range(self.n_materials)]
-            #
-            # n_records = read_uint64_t(file)
-            # for i in range(n_records):
-            #     cell = read_uint64_t(file)
-            #     material_id = read_uint64_t(file)
-            #     precursor = read_unsigned_int(file)
-            #
-            #     ppm[material_id].add(precursor)
-            #
-            #     dof = self.map_precursor_dof(cell, precursor)
-            #     precursors[dof] = read_double(file)
-            #
-            #     # print(cell, material_id, precursor, precursors[dof])
-            #
-            # # Define the number of precursors per material
-            # for m in range(self.n_materials):
-            #     self.precursors_per_material.append(len(ppm[m]))
+            # Parse precursors
+            assert read_unsigned_int(file) == 1
+            precursors = self.precursors
+            ppm = [set() for _ in range(self.n_materials)]
+
+            n_records = read_uint64_t(file)
+            for i in range(n_records):
+                cell = read_uint64_t(file)
+                material_id = read_uint64_t(file)
+                precursor = read_unsigned_int(file)
+
+                ppm[material_id].add(precursor)
+
+                dof = self.map_precursor_dof(cell, precursor)
+                precursors[dof] = read_double(file)
+
+                # print(cell, material_id, precursor, precursors[dof])
+
+            # Define the number of precursors per material
+            for m in range(self.n_materials):
+                self.precursors_per_material.append(len(ppm[m]))
 
         # Determine spatial dimension
         if sum([p.x + p.y for p in self.nodes]) == 0.0:
@@ -349,19 +349,19 @@ class SteadyStateNeutronicsReader(SimulationReader):
             groups = list(range(self.n_groups))
         elif isinstance(groups, int):
             groups = [groups]
+        assert all([g < self.n_groups for g in groups])
 
         phi = self.get_flux_moment(moment, groups)
 
         # Plot 1D profiles
         if self.dimension == 1:
+            z = [p.z for p in self.nodes]
+
             fig = plt.figure()
             ax = fig.add_subplot(1, 1, 1)
             ax.set_xlabel(f'z (cm)')
             ax.set_ylabel(fr"$\phi_{{{moment},g}}$(z)")
             ax.grid(True)
-
-            # Define coordinates
-            z = [p.z for p in self.nodes]
 
             # Plot each group flux
             for g, group in enumerate(groups):
@@ -369,20 +369,20 @@ class SteadyStateNeutronicsReader(SimulationReader):
             ax.legend()
             fig.tight_layout()
 
+        # Plot 2D profiles
         elif self.dimension == 2:
-            # Define the coordinates
             x = np.array([p.x for p in self.nodes])
             y = np.array([p.y for p in self.nodes])
             X, Y = np.meshgrid(np.unique(x), np.unique(y))
 
-            for group in groups:
+            for g, group in enumerate(groups):
                 fig = plt.figure()
-                fig.suptitle(f"Moment {moment} Group {group} Flux Moment")
+                fig.suptitle(f"Moment {moment}, Group {group} Flux Moment")
                 ax = fig.add_subplot(1, 1, 1)
                 ax.set_xlabel("X (cm)")
                 ax.set_ylabel("Y (cm)")
 
-                phi_fmtd = phi[group].reshape(X.shape)
+                phi_fmtd = phi[g].reshape(X.shape)
                 im = ax.pcolor(X, Y, phi_fmtd, cmap="jet", shading="auto",
                                vmin=0.0, vmax=phi_fmtd.max())
                 fig.colorbar(im)
