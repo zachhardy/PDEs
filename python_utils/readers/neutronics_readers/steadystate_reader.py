@@ -1,12 +1,8 @@
 import os
 import struct
-import bisect
 
 import numpy as np
 import matplotlib.pyplot as plt
-
-from matplotlib.pyplot import Figure
-from matplotlib.pyplot import Axes
 
 from python_utils import Point
 from python_utils import SimulationReader
