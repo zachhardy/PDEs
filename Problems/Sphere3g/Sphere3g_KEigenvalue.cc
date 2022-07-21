@@ -11,12 +11,11 @@
 #include "LinearSolvers/PETSc/petsc_solver.h"
 
 #include "NeutronDiffusion/groupset.h"
-#include "NeutronDiffusion/SteadyStateSolver/steadystate_solver.h"
 #include "NeutronDiffusion/KEigenvalueSolver/keigenvalue_solver.h"
-#include "NeutronDiffusion/TransientSolver/transient_solver.h"
 
 #include <iostream>
 #include <vector>
+#include <map>
 
 #include <petsc.h>
 
@@ -36,7 +35,7 @@ int main(int argc, char** argv)
   // Mesh
   //============================================================
 
-  size_t n_cells = 10;
+  size_t n_cells = 100;
   double slab_width = 6.0;
   double cell_width = slab_width/(double)n_cells;
 
@@ -55,7 +54,7 @@ int main(int argc, char** argv)
 
   // Create the cross sections
   auto xs = std::make_shared<CrossSections>();
-  xs->read_xs_file("Test/Sphere3g/xs/base3g.xs");
+  xs->read_xs_file("Problems/Sphere3g/xs/base3g.xs");
   material->properties.emplace_back(xs);
 
   size_t n_groups = xs->n_groups;
@@ -75,14 +74,13 @@ int main(int argc, char** argv)
   opts.max_iterations = 10000;
 
   std::shared_ptr<LinearSolverBase<SparseMatrix>> linear_solver;
-//    linear_solver = std::make_shared<CG>(opts);
   linear_solver = std::make_shared<PETScSolver>(KSPCG, PCLU, opts);
 
   //============================================================
   // Create the diffusion solver
   //============================================================
 
-  TransientSolver solver;
+  KEigenvalueSolver solver;
   solver.mesh = mesh;
   solver.materials.emplace_back(material);
   solver.linear_solver = linear_solver;
@@ -110,27 +108,6 @@ int main(int argc, char** argv)
 
   solver.boundary_info.emplace_back(BoundaryType::REFLECTIVE, -1);
   solver.boundary_info.emplace_back(BoundaryType::ZERO_FLUX, -1);
-
-  //============================================================
-  // Define transient parameters
-  //============================================================
-
-  solver.t_end = 0.1;
-  solver.dt = solver.t_end / 50;
-  solver.time_stepping_method = TimeSteppingMethod::CRANK_NICHOLSON;
-  solver.normalization_method = NormalizationMethod::TOTAL_POWER;
-
-  solver.write_outputs = true;
-  solver.output_directory = "Test/Sphere3g/outputs";
-
-  auto ic = [slab_width](const Point p)
-  { return 1.0 - p.z*p.z/(slab_width*slab_width); };
-  solver.initial_conditions[0] = ic;
-  solver.initial_conditions[1] = ic;
-
-  solver.adaptivity = true;
-  solver.coarsen_threshold = 0.01;
-  solver.refine_threshold = 0.025;
 
   //============================================================
   // Run the problem

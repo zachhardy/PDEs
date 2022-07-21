@@ -32,9 +32,9 @@ if [ $DO_CLEAN = "YES" ]; then
     rm -r bin
   fi
 
-  cd Test || exit
-  for testset in *; do
-    cd "$testset" || exit
+  cd Problems || exit
+  for problemset in *; do
+    cd "$problemset" || exit
     if [ -d "bin" ]; then
       rm -r bin
     fi
@@ -46,10 +46,10 @@ fi
 if [ $DO_CMAKE = "YES" ]; then
   mkdir -p build && mkdir -p bin
 
-  cd Test || exit
-  for testset in *; do
+  cd Problems || exit
+  for problemset in *; do
     if [ ! -d "bin" ]; then
-      mkdir -p "${testset}/bin"
+      mkdir -p "${problemset}/bin"
     fi
   done
 

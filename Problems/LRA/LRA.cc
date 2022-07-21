@@ -141,12 +141,12 @@ int main(int argc, char** argv)
     xs.emplace_back(std::make_shared<CrossSections>());
 
   std::vector<std::string> xs_paths;
-  xs_paths.emplace_back("Test/LRA/xs/fuel1_w_rod.xs");
-  xs_paths.emplace_back("Test/LRA/xs/fuel1_wo_rod.xs");
-  xs_paths.emplace_back("Test/LRA/xs/fuel2_w_rod.xs");
-  xs_paths.emplace_back("Test/LRA/xs/fuel2_wo_rod.xs");
-  xs_paths.emplace_back("Test/LRA/xs/fuel2_w_rod.xs");
-  xs_paths.emplace_back("Test/LRA/xs/reflector.xs");
+  xs_paths.emplace_back("Problems/LRA/xs/fuel1_w_rod.xs");
+  xs_paths.emplace_back("Problems/LRA/xs/fuel1_wo_rod.xs");
+  xs_paths.emplace_back("Problems/LRA/xs/fuel2_w_rod.xs");
+  xs_paths.emplace_back("Problems/LRA/xs/fuel2_wo_rod.xs");
+  xs_paths.emplace_back("Problems/LRA/xs/fuel2_w_rod.xs");
+  xs_paths.emplace_back("Problems/LRA/xs/reflector.xs");
 
   for (size_t i = 0; i < materials.size(); ++i)
   {
@@ -205,7 +205,7 @@ int main(int argc, char** argv)
   solver.power = 1.0e-6;
 
   solver.write_outputs = true;
-  solver.output_directory = "Test/LRA/outputs";
+  solver.output_directory = "Problems/LRA/outputs";
 
   solver.adaptivity = true;
   solver.coarsen_threshold = 0.01;
