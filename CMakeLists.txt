@@ -90,7 +90,7 @@ target_link_libraries(PDELib ${MPI_CXX_LIBRARIES})
 add_executable(${TARGET} PDEs/main.cc)
 target_link_libraries(${TARGET} PDELib Eigen3::Eigen petsc)
 
-file(GLOB_RECURSE TEST_TARGETS ${PROJECT_SOURCE_DIR}/Test/*.cc)
+file(GLOB_RECURSE TEST_TARGETS ${PROJECT_SOURCE_DIR}/Problems/*.cc)
 foreach(testsource ${TEST_TARGETS})
     get_filename_component(test ${testsource} NAME_WE)
     get_filename_component(dirname ${testsource} DIRECTORY)
