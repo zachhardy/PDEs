@@ -81,6 +81,7 @@ namespace Physics
 
     /** Read a "xs" file containing the cross-section information. */
     void read_xs_file(const std::string file_name,
+                      const double rho = 1.0,
                       const bool verbose = false);
 
     // @}

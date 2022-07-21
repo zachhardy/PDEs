@@ -21,24 +21,40 @@
 #include <petsc.h>
 
 
+
+
 int main(int argc, char** argv)
 {
-  using namespace Grid;
 
-  using namespace Math;
-  using namespace Math::LinearSolver;
+  double radius = 6.0;
+  double density = 0.05;
+  double sigs_01 = 1.46;
+  std::string outdir = "Problems/Sphere3g/";
 
-  using namespace Physics;
+  for (int i = 0; i < argc; ++i)
+  {
+    std::string arg(argv[i]);
+    std::cout << "Parsing argument " << i << " " << arg << std::endl;
 
-  using namespace NeutronDiffusion;
+    if (arg.find("radius") != std::string::npos)
+      radius = std::stod(arg.substr(arg.find("=") + 1));
+    else if (arg.find("density") != std::string::npos)
+      density = std::stod(arg.substr(arg.find("=") + 1));
+    else if (arg.find("down_scatter") != std::string::npos)
+      sigs_01 = std::stod(arg.substr(arg.find("=") + 1));
+    else if (arg.find("output_directory") != std::string::npos)
+      outdir += arg.substr(arg.find("=") + 1);
+  }
+  if (outdir == "Problems/Sphere3g/")
+    outdir += "outputs";
 
   //============================================================
   // Mesh
   //============================================================
+  using namespace Grid;
 
-  size_t n_cells = 10;
-  double slab_width = 6.0;
-  double cell_width = slab_width/(double)n_cells;
+  size_t n_cells = 100;
+  double cell_width = radius/(double)n_cells;
 
   std::vector<double> vertices(1, 0.0);
   for (size_t i = 0; i < n_cells; ++i)
@@ -50,12 +66,14 @@ int main(int argc, char** argv)
   //============================================================
   // Materials
   //============================================================
+  using namespace Physics;
 
   auto material = std::make_shared<Material>();
 
   // Create the cross sections
   auto xs = std::make_shared<CrossSections>();
-  xs->read_xs_file("Problems/Sphere3g/xs/base3g.xs");
+  xs->read_xs_file("Problems/Sphere3g/xs/base3g.xs", density);
+  xs->transfer_matrices[0][1][0] = sigs_01 * density;
   material->properties.emplace_back(xs);
 
   size_t n_groups = xs->n_groups;
@@ -68,6 +86,8 @@ int main(int argc, char** argv)
   //============================================================
   // Linear Solver
   //============================================================
+  using namespace Math;
+  using namespace Math::LinearSolver;
 
   Options opts;
   opts.verbosity = 0;
@@ -81,6 +101,7 @@ int main(int argc, char** argv)
   //============================================================
   // Create the diffusion solver
   //============================================================
+  using namespace NeutronDiffusion;
 
   TransientSolver solver;
   solver.mesh = mesh;
@@ -121,14 +142,14 @@ int main(int argc, char** argv)
   solver.normalization_method = NormalizationMethod::TOTAL_POWER;
 
   solver.write_outputs = true;
-  solver.output_directory = "Problems/Sphere3g/outputs";
+  solver.output_directory = outdir;
 
-  auto ic = [slab_width](const Point p)
-  { return 1.0 - p.z*p.z/(slab_width*slab_width); };
+  auto ic = [radius](const Point p)
+  { return 1.0 - p.z*p.z/(radius*radius); };
   solver.initial_conditions[0] = ic;
   solver.initial_conditions[1] = ic;
 
-  solver.adaptivity = true;
+  solver.adaptivity = false;
   solver.coarsen_threshold = 0.01;
   solver.refine_threshold = 0.025;
 

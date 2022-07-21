@@ -10,12 +10,16 @@
 
 void
 Physics::CrossSections::
-read_xs_file(const std::string file_name, const bool verbose)
+read_xs_file(const std::string file_name,
+             const double rho,
+             const bool verbose)
 {
   std::cout << "Reading cross-section file \"" << file_name << "\".\n";
 
   // Clear old cross sections
   reset();
+
+  density = rho;
 
   // Open the file
   std::ifstream file;
