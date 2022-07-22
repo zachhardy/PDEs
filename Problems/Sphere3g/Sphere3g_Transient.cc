@@ -25,28 +25,25 @@
 
 int main(int argc, char** argv)
 {
-
   double radius = 6.0;
   double density = 0.05;
   double sigs_01 = 1.46;
-  std::string outdir = "Problems/Sphere3g/";
+  std::string outdir = "Problems/Sphere3g/outputs";
 
   for (int i = 0; i < argc; ++i)
   {
     std::string arg(argv[i]);
     std::cout << "Parsing argument " << i << " " << arg << std::endl;
 
-    if (arg.find("radius") != std::string::npos)
+    if (arg.find("radius") == 0)
       radius = std::stod(arg.substr(arg.find("=") + 1));
-    else if (arg.find("density") != std::string::npos)
+    else if (arg.find("density") == 0)
       density = std::stod(arg.substr(arg.find("=") + 1));
-    else if (arg.find("down_scatter") != std::string::npos)
+    else if (arg.find("scatter") == 0)
       sigs_01 = std::stod(arg.substr(arg.find("=") + 1));
-    else if (arg.find("output_directory") != std::string::npos)
-      outdir += arg.substr(arg.find("=") + 1);
+    else if (arg.find("output_directory") == 0)
+      outdir = arg.substr(arg.find("=") + 1);
   }
-  if (outdir == "Problems/Sphere3g/")
-    outdir += "outputs";
 
   //============================================================
   // Mesh
@@ -108,7 +105,7 @@ int main(int argc, char** argv)
   solver.materials.emplace_back(material);
   solver.linear_solver = linear_solver;
 
-  solver.verbosity = 1;
+  solver.verbosity = 0;
   solver.use_precursors = false;
 
   solver.solution_technique = SolutionTechnique::FULL_SYSTEM;

@@ -97,6 +97,7 @@ namespace NeutronDiffusion
     bool use_precursors = false;
 
     size_t verbosity = 0;
+    bool suppress_output = false;
 
     /*-------------------- Solver Information --------------------*/
 

@@ -1,13 +1,11 @@
 # from readers import NeutronicsSimulationReader
-from python_utils import TransientNeutronicsReader
+from python_utils.readers import TransientNeutronicsReader
 
 import matplotlib.pyplot as plt
 
 
-sim = TransientNeutronicsReader("Test/LRA/outputs")
+sim = TransientNeutronicsReader("Problems/Sphere3g/studies/radius/reference")
 sim.read()
 
-sim.plot_flux_moments(groups=0, times=[0.0, 1.44])
-sim.plot_power('average', True)
-sim.plot_temperature('peak', False)
+sim.plot_power('total')
 plt.show()

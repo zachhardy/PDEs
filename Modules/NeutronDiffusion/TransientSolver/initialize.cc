@@ -24,7 +24,8 @@ TransientSolver::initialize()
 
     typedef std::filesystem::directory_iterator DirectoryIterator;
     for (const auto& entry: DirectoryIterator(output_directory))
-      std::filesystem::remove_all(entry.path());
+      if (entry.path().string().find("log.txt") == std::string::npos)
+        std::filesystem::remove_all(entry.path());
   }
 
   // Check for non-static xs

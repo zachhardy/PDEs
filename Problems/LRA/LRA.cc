@@ -21,6 +21,26 @@
 
 int main(int argc, char** argv)
 {
+  double magnitude = 0.8787631 - 1.0;
+  double duration = 2.0;
+  double feedback = 3.034e-3;
+  std::string outdir = "Problems/LRA/outputs";
+
+  for (int i = 0; i < argc; ++i)
+  {
+    std::string arg(argv[i]);
+    std::cout << "Parsing argument " << i << " " << arg << std::endl;
+
+    if (arg.find("magnitude") == 0)
+      magnitude = std::stod(arg.substr(arg.find("=") + 1));
+    else if (arg.find("duration") == 0)
+      duration = std::stod(arg.substr(arg.find("=") + 1));
+    else if (arg.find("feedback") == 0)
+      feedback = std::stod(arg.substr(arg.find("=") + 1));
+    else if (arg.find("output_directory") == 0)
+      outdir = arg.substr(arg.find("=") + 1);
+  }
+
   //============================================================
   // Mesh
   //============================================================
@@ -87,13 +107,10 @@ int main(int argc, char** argv)
   //============================================================
   using namespace Physics;
 
-  const double delta = 0.8787631 - 1.0;
-  const double t_ramp = 2.0;
-  const double gamma = 3.034e-3;
   const double T0 = 300.0;
 
   auto rod_ejection_with_feedback =
-      [delta, t_ramp, gamma, T0](
+      [magnitude, duration, feedback, T0](
           const unsigned int group_num,
           const std::vector<double>& args,
           const double reference)
@@ -101,20 +118,20 @@ int main(int argc, char** argv)
         const double t = args[0], T = args[1];
 
         if (group_num == 0)
-          return (1.0 + gamma*(std::sqrt(T) - std::sqrt(T0))) * reference;
+          return (1.0 + feedback * (std::sqrt(T) - std::sqrt(T0))) * reference;
         else if (group_num == 1)
         {
-          if (t <= t_ramp)
-            return (1.0 + t/t_ramp * delta) * reference;
+          if (t <= duration)
+            return (1.0 + t / duration * magnitude) * reference;
           else
-            return (1.0 + delta) * reference;
+            return (1.0 + magnitude) * reference;
         }
         else
           return reference;
       };
 
-  auto feedback =
-      [gamma, T0](
+  auto feedback_function =
+      [feedback, T0](
           const unsigned int group_num,
           const std::vector<double>& args,
           const double reference)
@@ -122,7 +139,7 @@ int main(int argc, char** argv)
         const double T = args[1];
 
         if (group_num == 0)
-          return (1.0 + gamma * (std::sqrt(T) - std::sqrt(T0))) * reference;
+          return (1.0 + feedback * (std::sqrt(T) - std::sqrt(T0))) * reference;
         else
           return reference;
       };
@@ -152,7 +169,7 @@ int main(int argc, char** argv)
   {
     xs[i]->read_xs_file(xs_paths[i]);
 
-    if (i < 4) xs[i]->sigma_a_function = feedback;
+    if (i < 4) xs[i]->sigma_a_function = feedback_function;
     else if (i == 4) xs[i]->sigma_a_function = rod_ejection_with_feedback;
 
     materials[i]->properties.emplace_back(xs[i]);
@@ -205,7 +222,7 @@ int main(int argc, char** argv)
   solver.power = 1.0e-6;
 
   solver.write_outputs = true;
-  solver.output_directory = "Problems/LRA/outputs";
+  solver.output_directory = outdir;
 
   solver.adaptivity = true;
   solver.coarsen_threshold = 0.01;

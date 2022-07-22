@@ -21,6 +21,26 @@
 
 int main(int argc, char** argv)
 {
+  double magnitude = 0.97667 - 1.0;
+  double duration = 0.2;
+  double sigs_01 = 0.01;
+  std::string outdir = "Problems/TWIGL/outputs";
+
+  for (int i = 0; i < argc; ++i)
+  {
+    std::string arg(argv[i]);
+    std::cout << "Parsing argument " << i << " " << arg << std::endl;
+
+    if (arg.find("magnitude") == 0)
+      magnitude = std::stod(arg.substr(arg.find("=") + 1));
+    else if (arg.find("duration") == 0)
+      duration = std::stod(arg.substr(arg.find("=") + 1));
+    else if (arg.find("scatter") == 0)
+      sigs_01 = std::stod(arg.substr(arg.find("=") + 1));
+    else if (arg.find("output_directory") == 0)
+      outdir = arg.substr(arg.find("=") + 1);
+  }
+
   //============================================================
   // Mesh
   //============================================================
@@ -57,21 +77,19 @@ int main(int argc, char** argv)
   //============================================================
   using namespace Physics;
 
-  const double delta = 0.97667 - 1.0;
-
   auto ramp_function =
-      [delta](const unsigned int group_num,
-         const std::vector<double>& args,
-         const double reference)
+      [magnitude, duration](const unsigned int group_num,
+                            const std::vector<double>& args,
+                            const double reference)
     {
       const double t = args[0];
 
       if (group_num == 1)
       {
-        if (t >= 0.0 and t <= 0.2)
-          return (1.0 + t/0.2 * delta) * reference;
+        if (t >= 0.0 and t <= duration)
+          return (1.0 + t / duration * magnitude) * reference;
         else
-          return (1.0 + delta) * reference;
+          return (1.0 + magnitude) * reference;
       }
       else
         return reference;
@@ -94,6 +112,8 @@ int main(int argc, char** argv)
   for (size_t i = 0; i < materials.size(); ++i)
   {
     xs[i]->read_xs_file(xs_paths[i]);
+    if (i == 2)
+      xs[i]->transfer_matrices[0][1][0] = sigs_01;
     materials[i]->properties.emplace_back(xs[i]);
   }
 
@@ -144,7 +164,7 @@ int main(int argc, char** argv)
   solver.normalize_fission_xs = true;
 
   solver.write_outputs = true;
-  solver.output_directory = "Problems/TWIGL/outputs";
+  solver.output_directory = outdir;
 
   solver.adaptivity = true;
   solver.coarsen_threshold = 0.01;

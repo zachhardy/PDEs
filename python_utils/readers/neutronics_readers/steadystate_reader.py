@@ -4,8 +4,8 @@ import struct
 import numpy as np
 import matplotlib.pyplot as plt
 
-from python_utils import Point
-from python_utils import SimulationReader
+from .. import Point
+from .. import SimulationReader
 
 plt.rcParams['text.usetex'] = True
 plt.rcParams['font.size'] = 12

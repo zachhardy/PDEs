@@ -8,8 +8,8 @@ import matplotlib.pyplot as plt
 from matplotlib.pyplot import Figure
 from matplotlib.pyplot import Axes
 
-from python_utils import Point
-from python_utils import SimulationReader
+from .. import Point
+from .. import SimulationReader
 
 plt.rcParams['text.usetex'] = True
 plt.rcParams['font.size'] = 12
@@ -131,7 +131,6 @@ class TransientNeutronicsReader(SimulationReader):
                 self.average_fuel_temperature[step] = read_double(file)
 
                 # Parse discretization information
-                node_count = 0
                 for c in range(self.n_cells):
                     cell_id = read_uint64_t(file)
                     material_id = read_uint64_t(file)
