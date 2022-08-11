@@ -11,8 +11,9 @@ def setup_directory(path):
     """
     Prepare a directory for simulation outputs.
 
-    :param path: The path to the directory.
-    :type path: str
+    Parameters
+    ----------
+    path : str, The path to the directory.
     """
     if os.path.isdir(path):
         os.system(f"rm -r {path}")
@@ -22,17 +23,19 @@ def setup_directory(path):
 def define_range(reference, variance, n):
     """
     Define sample points for a parameter given the nominal value,
-    the variance, and the number of samples desired.
+    the variance, and the number of samples desired. This routine
+    generates uniformly spaced samples within plus or minus the
+    specified variance about the specified reference value.
 
-    :param reference: The nominal parameter value.
-    :type reference: float
-    :param variance: The variance of the parameter.
-    :type variance: float
-    :param n: The number of samples to define within the range.
-    :return: The samples to use in the parameter study. This routine
-        defines a range which spans one times the variance in either
-        direction about the nominal value.
-    :rtype: numpy.ndarray
+    Parameters
+    ----------
+    reference : float, The nominal parameter value.
+    variance : float, The variance of the parameter.
+    n : int, The number of samples to generate.
+
+    Returns
+    -------
+    numpy.ndarray : The samples to use in the parameter study.
     """
     samples = np.linspace(-1.0, 1.0, n)
     return reference*(1.0 + variance * samples)
@@ -42,10 +45,11 @@ def parameter_study(problem_name, study):
     """
     Define and run a parameter study.
 
-    :param problem_name: The name of the problem to run.
-    :type problem_name: str {'Sphere3g', 'TWIGL', 'LRA'}
-    :param study: The study number
-    :return:
+    Parameters
+    ----------
+    problem_name : str {'Sphere3g', 'TWIGL', 'LRA'}
+        The problem to run a parameter study for.
+    study : int, The pre-defined parameter study to run.
     """
 
     path = os.path.dirname(os.path.abspath(__file__))
@@ -208,15 +212,49 @@ def parameter_study(problem_name, study):
         t_start = time.time()
         os.system(cmd)
         sim_time = time.time() - t_start
+        t_avg += sim_time/len(values)
 
         print()
         print(f"Simulation Time = {sim_time:.3f} s")
 
+    print()
+    print(f"Average Simulation Time = {t_avg:.3e} s")
+
 
 if __name__ == "__main__":
-    for i in range(7):
-        parameter_study("LRA", i)
 
-    # parameter_study(*sys.argv[1:])
+    ############################################################
+    # Maximum Parameter Study Number:
+    #   Sphere3g - 3
+    #   TWIGL    - 6
+    #   LRA      - 6
+    ############################################################
+
+    # If only
+    if len(sys.argv) == 2:
+        name = sys.argv[1]
+        if name == "Sphere3g":
+            max_study = 3
+        elif name == "TWIGL":
+            max_study = 6
+        elif name == "LRA":
+            max_study = 6
+        else:
+            raise NotImplementedError("Invalid problem name.")
+
+        check = input("Are you sure you want to run every parameter "
+                      f"study for {name}? [y/n] ")
+        if "y" in check:
+            for i in range(max_study + 1):
+                parameter_study(name, i)
+        if "n" in check:
+            print("Terminating program.")
+            exit(0)
+
+    elif len(sys.argv) == 3:
+        parameter_study(*sys.argv[1:])
+
+    else:
+        raise AssertionError("Invalid command line inputs.")
 
 
