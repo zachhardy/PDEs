@@ -1,4 +1,3 @@
-#include "mesh.h"
 #include "ortho_grids.h"
 
 #include "material.h"
@@ -17,10 +16,6 @@
 
 #include <iostream>
 #include <vector>
-
-#include <petsc.h>
-
-
 
 
 int main(int argc, char** argv)

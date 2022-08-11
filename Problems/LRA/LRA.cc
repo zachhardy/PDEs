@@ -1,4 +1,3 @@
-#include "mesh.h"
 #include "ortho_grids.h"
 
 #include "material.h"
@@ -15,8 +14,6 @@
 
 #include <iostream>
 #include <vector>
-
-#include <petsc.h>
 
 
 int main(int argc, char** argv)
@@ -208,7 +205,7 @@ int main(int argc, char** argv)
   solver.tolerance = 1.0e-12;
   solver.max_iterations = 1000;
 
-  solver.solution_technique = SolutionTechnique::FULL_SYSTEM;
+  solver.solution_technique = SolutionTechnique::GROUPSET_WISE;
 
   //============================================================
   // Define transient parameters
