@@ -20,7 +20,6 @@ int main(int argc, char** argv)
   double magnitude = 0.8787631 - 1.0;
   double duration = 2.0;
   double feedback = 3.034e-3;
-  std::string outdir = "Problems/LRA/outputs";
 
   for (int i = 0; i < argc; ++i)
   {
@@ -33,8 +32,6 @@ int main(int argc, char** argv)
       duration = std::stod(arg.substr(arg.find("=") + 1));
     else if (arg.find("feedback") == 0)
       feedback = std::stod(arg.substr(arg.find("=") + 1));
-    else if (arg.find("output_directory") == 0)
-      outdir = arg.substr(arg.find("=") + 1);
   }
 
   //============================================================
@@ -191,12 +188,11 @@ int main(int argc, char** argv)
   //============================================================
   using namespace NeutronDiffusion;
 
-  TransientSolver solver;
-  solver.mesh = mesh;
+  KEigenvalueSolver solver;
 
+  solver.mesh = mesh;
   for (auto& material : materials)
     solver.materials.emplace_back(material);
-
   solver.linear_solver = linear_solver;
 
   solver.verbosity = 0;
@@ -206,25 +202,6 @@ int main(int argc, char** argv)
   solver.max_outer_iterations = 1000;
 
   solver.algorithm = Algorithm::DIRECT;
-
-  //============================================================
-  // Define transient parameters
-  //============================================================
-
-  solver.t_end = 3.0;
-  solver.dt = 0.01;
-  solver.time_stepping_method = TimeSteppingMethod::CRANK_NICHOLSON;
-
-  solver.normalize_fission_xs = true;
-  solver.normalization_method = NormalizationMethod::AVERAGE_POWER;
-  solver.power = 1.0e-6;
-
-  solver.write_outputs = true;
-  solver.output_directory = outdir;
-
-  solver.adaptive_time_stepping = true;
-  solver.coarsen_threshold = 0.01;
-  solver.refine_threshold = 0.1;
 
   //============================================================
   // Initialize groups

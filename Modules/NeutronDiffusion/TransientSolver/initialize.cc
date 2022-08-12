@@ -50,20 +50,17 @@ TransientSolver::compute_initial_values()
   // Evaluate initial condition functions, if provided
   if (not initial_conditions.empty())
   {
-    const size_t npc = discretization->nodes_per_cell();
     for (const auto& cell : mesh->cells)
     {
       const auto& nodes = discretization->nodes(cell);
-      assert(nodes.size() == npc);
-
-      for (size_t i = 0; i < npc; ++i)
+      for (unsigned int i = 0; i < nodes.size(); ++i)
       {
         const auto& node = nodes[i];
-        const size_t uk_map = cell.id*npc*n_groups + i*n_groups;
+        const auto uk_map = n_groups*nodes.size()*cell.id + n_groups*i;
 
         for (const auto& ic : initial_conditions)
         {
-          const size_t g = ic.first;
+          const auto g = ic.first;
           assert(g >= groups.front() && g <= groups.back());
 
           const auto f = ic.second;
@@ -80,7 +77,7 @@ TransientSolver::compute_initial_values()
     if (normalize_fission_xs)
     {
       for (auto &xs: material_xs)
-        for (size_t g = 0; g < n_groups; ++g)
+        for (unsigned int g = 0; g < n_groups; ++g)
         {
           xs->sigma_f[g] /= k_eff;
           xs->nu_sigma_f[g] /= k_eff;
@@ -93,7 +90,7 @@ TransientSolver::compute_initial_values()
   // Normalize the scalar flux
   if (normalization_method != NormalizationMethod::NONE)
   {
-    const double initial_power = power;
+    const auto initial_power = power;
     update_fission_rate();
     compute_bulk_properties();
 

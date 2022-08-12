@@ -9,7 +9,7 @@
 namespace Math
 {
 
-  enum class DiscretizationMethod
+  enum class SpatialDiscretizationMethod
   {
     FINITE_VOLUME = 1,  ///< Finite volume (FV)
     PIECEWISE_LINEAR_CONTINUOUS = 2,  ///< Linear continuous (PWLC)
@@ -35,7 +35,7 @@ namespace Math
   public:
     explicit
     Discretization(const std::shared_ptr<Grid::Mesh> reference_mesh,
-                   const DiscretizationMethod discretization_type)
+                   const SpatialDiscretizationMethod discretization_type)
       : mesh(reference_mesh), type(discretization_type)
     {}
 
@@ -75,7 +75,7 @@ namespace Math
 
 
     const std::shared_ptr<Grid::Mesh> mesh;
-    const DiscretizationMethod type;
+    const SpatialDiscretizationMethod type;
   };
 
 }

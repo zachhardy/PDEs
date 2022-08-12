@@ -1,30 +1,29 @@
 #include "steadystate_solver.h"
-#include "macros.h"
+
+#include <cassert>
+
+
+using namespace NeutronDiffusion;
 
 
 void
 NeutronDiffusion::SteadyStateSolver::
 initialize_boundaries()
 {
-  std::cout << "Initializing simulation boundaries.\n";
+  std::cout << "Initializing simulation boundaries...\n";
 
   //============================================================
   // Check the number of boundaries
   //============================================================
   if (mesh->dim == 1)
-  Assert(boundary_info.size() == 2,
-         "1D problems must have 2 boundary conditions.");
+    assert(boundary_info.size() == 2);
 
   //============================================================
   // Check the boundary values
   //============================================================
 
   for (const auto& bndry_vals : boundary_values)
-  {
-    Assert(bndry_vals.size() == n_groups,
-           "Specified boundary values must have as many entries as groups "
-           "in the simulation.");
-  }
+    assert(bndry_vals.size() == n_groups);
 
   //============================================================
   // Create the appropriate boundary conditions based on inputs
@@ -33,54 +32,36 @@ initialize_boundaries()
   for (const auto& boundary : boundary_info)
   {
     std::vector<BndryPtr> mg_bcs;
-    for (size_t g = 0; g < n_groups; ++g)
+
+    for (unsigned int g = 0; g < n_groups; ++g)
     {
       BndryPtr bc;
-      switch (boundary.first)
+      const auto btype = boundary.first;
+
+      if (btype == BoundaryType::ZERO_FLUX)
+        bc = std::make_shared<DirichletBoundary>();
+      else if (btype == BoundaryType::REFLECTIVE)
+        bc = std::make_shared<NeumannBoundary>();
+      else if (btype == BoundaryType::VACUUM)
+        bc = std::make_shared<RobinBoundary>();
+      else
       {
-        case BoundaryType::ZERO_FLUX:
-          bc = std::make_shared<DirichletBoundary>();
-          break;
-
-        case BoundaryType::REFLECTIVE:
-          bc = std::make_shared<NeumannBoundary>();
-          break;
-
-        case BoundaryType::VACUUM:
-          bc = std::make_shared<RobinBoundary>();
-          break;
-
-        case BoundaryType::DIRICHLET:
+        const auto& bvals = boundary_values[boundary.second][g];
+        if (btype == BoundaryType::DIRICHLET)
+          bc = std::make_shared<DirichletBoundary>(bvals[0]);
+        else if (btype == BoundaryType::NEUMANN)
+          bc = std::make_shared<NeumannBoundary>(bvals[0]);
+        else if (btype == BoundaryType::MARSHAK)
+          bc = std::make_shared<RobinBoundary>(bvals[0]);
+        else
         {
-          auto& bval = boundary_values[boundary.second][g][0];
-          bc = std::make_shared<DirichletBoundary>(bval);
-          break;
+          assert(bvals.size() == 3);
+          bc = std::make_shared<RobinBoundary>(bvals[0], bvals[1], bvals[2]);
         }
-
-        case BoundaryType::NEUMANN:
-        {
-          auto& bval = boundary_values[boundary.second][g][0];
-          bc = std::make_shared<NeumannBoundary>(bval);
-          break;
-        }
-
-        case BoundaryType::MARSHAK:
-        {
-          const auto& bval = boundary_values[boundary.second][g][0];
-          bc = std::make_shared<RobinBoundary>(bval);
-          break;
-        }
-
-        case BoundaryType::ROBIN:
-          const auto& bval = boundary_values[boundary.second][g];
-          assert(bval.size() == 3);
-          bc = std::make_shared<RobinBoundary>(bval[0], bval[1], bval[2]);
-          break;
       }
       mg_bcs.emplace_back(bc);
     }
     boundaries.emplace_back(mg_bcs);
   }
-
   std::cout << "Boundaries initialized: " << boundaries.size() << "\n";
 }

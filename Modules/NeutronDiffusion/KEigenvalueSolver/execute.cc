@@ -7,15 +7,11 @@ using namespace NeutronDiffusion;
 void
 KEigenvalueSolver::execute()
 {
-  for (auto& groupset : groupsets)
-  {
-    if (solution_technique == SolutionTechnique::GROUPSET_WISE)
-      assemble_matrix(groupset);
-    else
-      assemble_matrix(groupset, ASSEMBLE_SCATTER);
-
-    linear_solver->set_matrix(groupset.A);
-  }
+  if (algorithm == Algorithm::DIRECT)
+    assemble_matrix(ASSEMBLE_SCATTER);
+  else
+    assemble_matrix(NO_ASSEMBLER_FLAGS);
+  linear_solver->set_matrix(A);
 
   power_method();
 

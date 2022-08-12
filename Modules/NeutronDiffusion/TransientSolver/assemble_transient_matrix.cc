@@ -6,36 +6,33 @@ using namespace NeutronDiffusion;
 
 
 void
-TransientSolver::assemble_transient_matrix(Groupset& groupset,
-                                           AssemblerFlags assembler_flags)
+TransientSolver::
+assemble_transient_matrix(AssemblerFlags assembler_flags)
 {
   const bool assemble_scatter = (assembler_flags & ASSEMBLE_SCATTER);
   const bool assemble_fission = (assembler_flags & ASSEMBLE_FISSION);
 
-  auto& A = groupset.A; A = 0.0;
-
-  // Get groupset range
-  const size_t n_gsg = groupset.groups.size();
+  A = 0.0;
 
   // Get effective time step size
-  const double eff_dt = effective_time_step();
+  const auto eff_dt = effective_time_step();
 
   // Loop over cells
   for (const auto& cell : mesh->cells)
   {
-    const double volume = cell.volume;
+    const auto volume = cell.volume;
     const auto& xs = material_xs[matid_to_xs_map[cell.material_id]];
-    const size_t uk_map = cell.id * n_gsg;
+    const auto i = n_groups * cell.id ;
 
-    const double* sig_t = &cellwise_xs[cell.id].sigma_t[0];
-    const double* D = &xs->diffusion_coeff[0];
-    const double* B = &xs->buckling[0];
-    const double* inv_vel = &xs->inv_velocity[0];
+    const auto* sig_t = cellwise_xs[cell.id].sigma_t.data();
+    const auto* D = xs->diffusion_coeff.data();
+    const auto* B = xs->buckling.data();
+    const auto* inv_vel = xs->inv_velocity.data();
 
     // Loop over groups
-    for (size_t gr = 0; gr < n_gsg; ++gr)
+    for (unsigned int gr = 0; gr < n_groups; ++gr)
     {
-      const size_t g = groupset.groups[gr];
+      const auto g = groups[gr];
 
       //=======================================================
       // Total interaction + buckling + time derivative term
@@ -45,14 +42,7 @@ TransientSolver::assemble_transient_matrix(Groupset& groupset,
       entry += sig_t[g]; // total interaction
       entry += D[g] * B[g]; // buckling
       entry += inv_vel[g]/eff_dt; // time-derivative
-      A.add(uk_map + gr, uk_map + gr, entry * volume);
-
-//      if (time >= 1.479 and uk_map + gr == 1)
-//        std::cout << time << "  "
-//                  << sig_t[g] << "  "
-//                  << D[g]*B[g] << "  "
-//                  << inv_vel[g] << "  "
-//                  << eff_dt << std::endl;
+      A.add(i + gr, i + gr, entry * volume);
 
       //========================================
       // Scattering term
@@ -60,13 +50,9 @@ TransientSolver::assemble_transient_matrix(Groupset& groupset,
 
       if (assemble_scatter)
       {
-        const double* sig_s = &xs->transfer_matrices[0][g][0];
-
-        for (size_t gpr = 0; gpr < n_gsg; ++gpr)
-        {
-          const size_t gp = groupset.groups[gpr];
-          A.add(uk_map + gr, uk_map + gpr, -sig_s[gp] * volume);
-        }
+        const auto* sig_s = xs->transfer_matrices[0][g].data();
+        for (unsigned int gpr = 0; gpr < n_groups; ++gpr)
+          A.add(i + gr, i + gpr, -sig_s[groups[gpr]] * volume);
       }//if scattering
 
       //========================================
@@ -75,39 +61,32 @@ TransientSolver::assemble_transient_matrix(Groupset& groupset,
 
       if (assemble_fission && xs->is_fissile)
       {
-        //========== Total fission
+        // Total fission
         if (not use_precursors)
         {
-          const double chi = xs->chi[g];
-          const double* nu_sigf = &xs->nu_sigma_f[0];
+          const auto chi = xs->chi[g];
+          const auto* nu_sigf = xs->nu_sigma_f.data();
 
-          for (size_t gpr = 0; gpr < n_gsg; ++gpr)
-          {
-            const size_t gp = groupset.groups[gpr];
-            A.add(uk_map + gr, uk_map + gpr, -chi*nu_sigf[gp] * volume);
-          }
+          for (unsigned int gpr = 0; gpr < n_groups; ++gpr)
+            A.add(i + gr, i + gpr, -chi * nu_sigf[groups[gpr]] * volume);
         }//if no precursors
 
         //========== Prompt + delayed fission
         else
         {
           //===== Prompt
-          const double chi_p = xs->chi_prompt[g];
-          const double* nup_sigf = &xs->nu_prompt_sigma_f[0];
-
-          for (size_t gpr = 0; gpr < n_gsg; ++gpr)
-          {
-            const size_t gp = groupset.groups[gpr];
-            A.add(uk_map + gr, uk_map + gpr, -chi_p*nup_sigf[gp] * volume);
-          }
+          const auto chi_p = xs->chi_prompt[g];
+          const auto* nup_sigf = xs->nu_prompt_sigma_f.data();
+          for (unsigned int gpr = 0; gpr < n_groups; ++gpr)
+            A.add(i + gr, i + gpr, -chi_p * nup_sigf[groups[gpr]] * volume);
 
           //===== Delayed
           if (not lag_precursors)
           {
-            const double* chi_d = &xs->chi_delayed[g][0];
-            const double* nud_sigf = &xs->nu_delayed_sigma_f[0];
-            const double* lambda = &xs->precursor_lambda[0];
-            const double* gamma = &xs->precursor_yield[0];
+            const auto* chi_d = xs->chi_delayed[g].data();
+            const auto* nud_sigf = xs->nu_delayed_sigma_f.data();
+            const auto* lambda = xs->precursor_lambda.data();
+            const auto* gamma = xs->precursor_yield.data();
 
             /* This section of code computes the matrix coefficient
              * corresponding to the precursor substitution term arising when
@@ -121,16 +100,13 @@ TransientSolver::assemble_transient_matrix(Groupset& groupset,
              * computed \p n_gsg times or for many more expensive sparse matrix
              * add operations. */
             double coeff= 0.0;
-            for (size_t j = 0; j < xs->n_precursors; ++j)
-              coeff +=
-                chi_d[j]*lambda[j]/(1.0 + eff_dt*lambda[j]) * gamma[j]*eff_dt;
+            for (unsigned int j = 0; j < xs->n_precursors; ++j)
+              coeff += chi_d[j] * lambda[j] * gamma[j] * eff_dt /
+                       (1.0 + eff_dt*lambda[j]);
 
             // Contribute the delayed fission term to the matrix.
-            for (size_t gpr = 0; gpr < n_gsg; ++gpr)
-            {
-              const size_t gp = groupset.groups[gpr];
-              A.add(uk_map + gr, uk_map + gpr, -coeff*nud_sigf[gp] * volume);
-            }
+            for (unsigned int gpr = 0; gpr < n_groups; ++gpr)
+              A.add(i + gr, i + gpr, -coeff * nud_sigf[groups[gpr]] * volume);
           }//if not lag precursors
         }//if prompt + delayed fission
       }//if fissile
@@ -148,22 +124,22 @@ TransientSolver::assemble_transient_matrix(Groupset& groupset,
         const auto& nbr_cell = mesh->cells[face.neighbor_id];
         const auto nbr_xs_id = matid_to_xs_map[nbr_cell.material_id];
         const auto& nbr_xs = material_xs[nbr_xs_id];
-        const double* D_nbr = &nbr_xs->diffusion_coeff[0];
+        const auto* D_nbr = nbr_xs->diffusion_coeff.data();
 
-        const size_t nbr_uk_map = nbr_cell.id * n_gsg;
+        const auto j = n_groups * nbr_cell.id;
 
         // Geometric data
-        const double d_pf = cell.centroid.distance(face.centroid);
-        const double d_pn = cell.centroid.distance(nbr_cell.centroid);
-        const double w = d_pf / d_pn; // harmonic mean weight factor
+        const auto d_pf = cell.centroid.distance(face.centroid);
+        const auto d_pn = cell.centroid.distance(nbr_cell.centroid);
+        const auto w = d_pf / d_pn; // harmonic mean weight factor
 
-        for (size_t gr = 0; gr < n_gsg; ++gr)
+        for (unsigned int gr = 0; gr < n_groups; ++gr)
         {
-          const size_t g = groupset.groups[gr];
+          const auto g = groups[gr];
           const auto D_eff = 1.0/(w/D[g] + (1.0 - w)/D_nbr[g]);
 
-          A.add(uk_map + gr, uk_map + gr, D_eff/d_pn * face.area);
-          A.add(uk_map + gr, nbr_uk_map + gr, -D_eff/d_pn * face.area);
+          A.add(i + gr, i + gr, D_eff/d_pn * face.area);
+          A.add(i + gr, j + gr, -D_eff/d_pn * face.area);
         }
       }//if interior face
 
@@ -182,14 +158,9 @@ TransientSolver::assemble_transient_matrix(Groupset& groupset,
         if (bndry_type == BoundaryType::ZERO_FLUX ||
             bndry_type == BoundaryType::DIRICHLET)
         {
-          const double* D = xs->diffusion_coeff.data();
-          const double d_pf = cell.centroid.distance(face.centroid);
-
-          for (size_t gr = 0; gr < n_gsg; ++gr)
-          {
-            const size_t g = groupset.groups[gr];
-            A.add(uk_map + gr, uk_map + gr, D[g]/d_pf * face.area);
-          }
+          const auto d_pf = cell.centroid.distance(face.centroid);
+          for (unsigned int gr = 0; gr < n_groups; ++gr)
+            A.add(i + gr, i + gr, D[groups[gr]]/d_pf * face.area);
         }//if Dirichlet
 
         //========================================
@@ -200,17 +171,15 @@ TransientSolver::assemble_transient_matrix(Groupset& groupset,
                  bndry_type == BoundaryType::MARSHAK ||
                  bndry_type == BoundaryType::ROBIN)
         {
-          const double d_pf = cell.centroid.distance(face.centroid);
-
-          for (size_t gr = 0; gr < n_gsg; ++gr)
+          const auto d_pf = cell.centroid.distance(face.centroid);
+          for (unsigned int gr = 0; gr < n_groups; ++gr)
           {
-            const size_t g = groupset.groups[gr];
-
-            const auto& bndry = boundaries[bndry_id][g];
+            const auto g = groups[gr];
+            const auto& bndry = boundaries[bndry_id][gr];
             const auto bc = std::static_pointer_cast<RobinBoundary>(bndry);
 
             double val = bc->a*D[g]/(bc->b*D[g] + bc->a*d_pf);
-            A.add(uk_map + gr, uk_map + gr, val * face.area);
+            A.add(i + gr, i + gr, val * face.area);
           }
         }//if Robin
       }//if boundary face
@@ -220,24 +189,12 @@ TransientSolver::assemble_transient_matrix(Groupset& groupset,
 
 
 void
-TransientSolver::assemble_matrices()
+TransientSolver::
+rebuild_matrix()
 {
-  for (auto& groupset : groupsets)
-  {
-    if (solution_technique == SolutionTechnique::GROUPSET_WISE)
-      assemble_transient_matrix(groupset, NO_ASSEMBLER_FLAGS);
-    else
-      assemble_transient_matrix(groupset,
-                                ASSEMBLE_SCATTER | ASSEMBLE_FISSION);
-
-    for (const auto& el : groupset.A)
-      if (el.value() > 1.0e12)
-      {
-        std::cout << "INVALID VALUE - Time " << time << " s" << std::endl
-                  << "(" << el.row() << ", " << el.column()
-                  << ")\t" << el.value() << std::endl;
-        exit(0);
-      }
-    linear_solver->set_matrix(groupset.A);
-  }
+  if (algorithm == Algorithm::DIRECT)
+    assemble_transient_matrix(ASSEMBLE_SCATTER | ASSEMBLE_FISSION);
+  else
+    assemble_transient_matrix(NO_ASSEMBLER_FLAGS);
+  linear_solver->set_matrix(A);
 }

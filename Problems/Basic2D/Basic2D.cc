@@ -9,7 +9,6 @@
 #include "LinearSolvers/IterativeSolvers"
 #include "LinearSolvers/PETSc/petsc_solver.h"
 
-#include "NeutronDiffusion/groupset.h"
 #include "NeutronDiffusion/KEigenvalueSolver/keigenvalue_solver.h"
 
 #include <iostream>
@@ -48,7 +47,7 @@ int main(int argc, char** argv)
   xs->read_xs_file("Problems/Basic2D/xs/test_1g.xs");
   material->properties.emplace_back(xs);
 
-  const size_t n_groups = xs->n_groups;
+  const auto n_groups = xs->n_groups;
 
   //============================================================
   // Linear Solver
@@ -75,19 +74,14 @@ int main(int argc, char** argv)
   solver.verbosity = 1;
   solver.use_precursors = true;
 
-  solver.solution_technique = SolutionTechnique::FULL_SYSTEM;
+  solver.algorithm = Algorithm::DIRECT;
 
   //============================================================
   // Initialize groups and groupsets
   //============================================================
 
-  for (size_t g = 0; g < n_groups; ++g)
+  for (unsigned int g = 0; g < n_groups; ++g)
     solver.groups.emplace_back(g);
-
-  Groupset groupset(0);
-  for (size_t g = 0; g < n_groups; ++g)
-    groupset.groups.emplace_back(solver.groups[g]);
-  solver.groupsets.emplace_back(groupset);
 
   //============================================================
   // Define boundary conditions

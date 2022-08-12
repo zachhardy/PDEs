@@ -28,5 +28,5 @@ for arg in sys.argv[1:]:
 sim = TransientNeutronicsReader(path)
 sim.read()
 
-sim.plot_power('total', logscale)
+sim.plot_power('average', logscale)
 plt.show()

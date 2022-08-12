@@ -10,21 +10,19 @@ KEigenvalueSolver::compute_production()
   double production = 0.0;
   for (const auto& cell : mesh->cells)
   {
-    const double volume = cell.volume;
+    const auto volume = cell.volume;
     const auto& xs = material_xs[matid_to_xs_map[cell.material_id]];
 
     if (xs->is_fissile)
     {
-      const size_t uk_map = cell.id*n_groups;
-      const double* x = &phi[uk_map];
-      const double* nu_sigf = &xs->nu_sigma_f[0];
+      const auto uk_map = n_groups * cell.id;
+      const auto* nu_sigf = xs->nu_sigma_f.data();
 
       double cell_production = 0.0;
-      for (const auto& g : groups)
-        cell_production += nu_sigf[g]*x[g];
+      for (unsigned int gr = 0; gr < n_groups; ++gr)
+        cell_production += nu_sigf[groups[gr]] * phi[uk_map + gr];
       production += cell_production*volume;
     }
   }
   return production;
-
 }

@@ -9,9 +9,9 @@ using namespace NeutronDiffusion;
 
 
 void
-TransientSolver::solve_time_step(bool reconstruct_matrices)
+TransientSolver::execute_time_step(bool reconstruct_matrices)
 {
-  phi_ell = phi_old;
+  auto x = phi_old;
 
   // Update cross sections
   if (has_dynamic_xs)
@@ -24,18 +24,18 @@ TransientSolver::solve_time_step(bool reconstruct_matrices)
   }
 
   if (reconstruct_matrices)
-    assemble_matrices();
+    rebuild_matrix();
 
   // Solve for the scalar flux
-  if (solution_technique == SolutionTechnique::FULL_SYSTEM)
-    solve_full_system_time_step(APPLY_MATERIAL_SOURCE);
+  if (algorithm == Algorithm::DIRECT)
+  {
+    b = 0.0;
+    set_transient_source(APPLY_MATERIAL_SOURCE | APPLY_BOUNDARY_SOURCE);
+    linear_solver->solve(phi, b);
+  }
   else
-    for (auto& groupset: groupsets)
-      solve_groupset_time_step(
-        groupset,
-        APPLY_MATERIAL_SOURCE |
-        APPLY_WGS_SCATTER_SOURCE | APPLY_WGS_FISSION_SOURCE |
-        APPLY_AGS_SCATTER_SOURCE | APPLY_AGS_FISSION_SOURCE);
+    iterative_time_step_solve(APPLY_MATERIAL_SOURCE | APPLY_BOUNDARY_SOURCE |
+                              APPLY_SCATTER_SOURCE | APPLY_FISSION_SOURCE);
 
     // Update the temperature and precursors
     update_fission_rate();
@@ -56,30 +56,25 @@ TransientSolver::solve_time_step(bool reconstruct_matrices)
 //######################################################################
 
 void
-TransientSolver::solve_groupset_time_step(Groupset& groupset,
-                                          SourceFlags source_flags)
+TransientSolver::iterative_time_step_solve(SourceFlags source_flags)
 {
-  Vector& b = groupset.b;
-
-  size_t nit;
+  unsigned int nit;
   double change;
   bool converged = false;
 
   // Start iterations
-  for (nit = 0; nit < groupset.max_iterations; ++nit)
+  auto x = phi;
+  for (nit = 0; nit < max_inner_iterations; ++nit)
   {
     // Compute the RHS and solve
     b = 0.0;
-    set_transient_source(groupset, source_flags);
-    auto x = linear_solver->solve(b);
+    set_transient_source(source_flags);
+    linear_solver->solve(phi, b);
 
     // Convergence check, finalize iteration
-    scoped_transfer(groupset, x, phi);
-    change = compute_change(groupset);
-    scoped_copy(groupset, phi, phi_ell);
-
-    if (change < groupset.tolerance)
-      converged = true;
+    change = l1_norm(phi - x);
+    converged = change < inner_tolerance;
+    x = phi;
 
     // Print iteration information
     if (verbosity > 1)
@@ -100,16 +95,6 @@ TransientSolver::solve_groupset_time_step(Groupset& groupset,
 //######################################################################
 
 void
-TransientSolver::solve_full_system_time_step(SourceFlags source_flags)
-{
-  groupsets.front().b = 0.0;
-  set_transient_source(groupsets.front(), source_flags);
-  phi = linear_solver->solve(groupsets.front().b);
-}
-
-//######################################################################
-
-void
 TransientSolver::refine_time_step()
 {
   double dP = std::fabs(power - power_old)/std::fabs(power_old);
@@ -117,7 +102,7 @@ TransientSolver::refine_time_step()
   {
     dt /= 2.0;
 
-    solve_time_step(true);
+    execute_time_step(true);
     compute_bulk_properties();
 
     dP = std::fabs(power - power_old)/std::fabs(power_old);
@@ -135,7 +120,7 @@ TransientSolver::coarsen_time_step()
     dt *= 2.0;
     if (dt > output_frequency)
       dt = output_frequency;
-    assemble_matrices();
+    rebuild_matrix();
   }
 }
 
@@ -145,7 +130,7 @@ void
 TransientSolver::step_solutions()
 {
   power_old = power;
-  phi_old = phi_ell = phi;
+  phi_old = phi;
   temperature_old = temperature;
   if (use_precursors)
     precursor_old = precursors;
