@@ -10,7 +10,6 @@
 #include "LinearSolvers/IterativeSolvers"
 #include "LinearSolvers/PETSc/petsc_solver.h"
 
-#include "NeutronDiffusion/groupset.h"
 #include "NeutronDiffusion/SteadyStateSolver/steadystate_solver.h"
 #include "NeutronDiffusion/KEigenvalueSolver/keigenvalue_solver.h"
 #include "NeutronDiffusion/TransientSolver/transient_solver.h"

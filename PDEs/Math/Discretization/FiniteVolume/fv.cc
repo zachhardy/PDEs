@@ -6,7 +6,7 @@ using namespace Math;
 
 FiniteVolume::
 FiniteVolume(std::shared_ptr<Grid::Mesh> reference_mesh) :
-  Discretization(reference_mesh, DiscretizationMethod::FINITE_VOLUME)
+  Discretization(reference_mesh, SpatialDiscretizationMethod::FINITE_VOLUME)
 {}
 
 
