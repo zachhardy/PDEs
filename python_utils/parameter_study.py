@@ -55,6 +55,7 @@ def parameter_study(problem_name, study):
     path = os.path.dirname(os.path.abspath(__file__))
     path = "/".join(path.split("/")[:-1])
     path = os.path.join(path, "Problems")
+    path_to_exe = os.path.join(path, "bin")
     study = int(study)
 
     ##################################################
@@ -64,7 +65,7 @@ def parameter_study(problem_name, study):
     # Three group sphere problem
     if problem_name == "Sphere3g":
         path = os.path.join(path, problem_name)
-        path_to_exe = os.path.join(path, "bin", "Sphere3g_Transient")
+        path_to_exe = os.path.join(path_to_exe, "Sphere3g")
 
         # Define the parameter
         parameters = {}
@@ -87,7 +88,7 @@ def parameter_study(problem_name, study):
     # TWIGL problem
     elif problem_name == "TWIGL":
         path = os.path.join(path, problem_name)
-        path_to_exe = os.path.join(path, "bin", "TWIGL")
+        path_to_exe = os.path.join(path_to_exe, "TWIGL")
 
         magnitude = 0.97667 - 1.0
         duration = 0.2
@@ -123,7 +124,7 @@ def parameter_study(problem_name, study):
     elif problem_name == "LRA":
 
         path = os.path.join(path, problem_name)
-        path_to_exe = os.path.join(path, "bin", "LRA")
+        path_to_exe = os.path.join(path_to_exe, "LRA")
 
         magnitude = 0.8787631 - 1.0
         duration = 2.0
@@ -190,7 +191,7 @@ def parameter_study(problem_name, study):
     ##################################################
     # Run the parameter study
     ##################################################
-    t_avg = 0.0
+    total_time = 0.0
     for n, params in enumerate(values):
 
         # Setup output path
@@ -212,13 +213,14 @@ def parameter_study(problem_name, study):
         t_start = time.time()
         os.system(cmd)
         sim_time = time.time() - t_start
-        t_avg += sim_time/len(values)
+        total_time += sim_time
 
         print()
         print(f"Simulation Time = {sim_time:.3f} s")
 
     print()
-    print(f"Average Simulation Time = {t_avg:.3e} s")
+    print(f"Average Simulation Time = {total_time/len(values):.3e} s")
+    print(f"Total Parameter Study Time = {total_time:.3e} s")
 
 
 if __name__ == "__main__":
