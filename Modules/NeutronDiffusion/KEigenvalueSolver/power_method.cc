@@ -13,46 +13,37 @@ KEigenvalueSolver::power_method()
   std::cout << "********** Solving the k-eigenvalue problem "
             << "using the Power Method.\n";
 
-  phi = phi_ell = 1.0;
+  phi = 1.0;
+  auto x = phi;
 
-  double production = compute_production();
-  double production_ell = production;
-  double k_eff_ell = k_eff;
+  auto production = compute_production();
+  auto production_ell = production;
+  auto k_eff_ell = k_eff;
 
   double rho;
   double k_eff_change, phi_change;
 
-  size_t nit;
+  unsigned int nit;
   bool converged = false;
 
-  for (nit = 0; nit < max_iterations; ++nit)
+  for (nit = 0; nit < max_outer_iterations; ++nit)
   {
     //========================================
     // Precompute the fission source
     //========================================
 
-    for (auto& groupset : groupsets)
-    {
-      groupset.b = 0.0;
-      set_source(groupset, APPLY_WGS_FISSION_SOURCE |
-                           APPLY_AGS_FISSION_SOURCE);
-      groupset.b /= k_eff;
-    }
+    b = 0.0;
+    set_source(APPLY_FISSION_SOURCE | APPLY_BOUNDARY_SOURCE);
+    b /= k_eff;
 
     //========================================
     // Solve the system
     //========================================
 
-    if (solution_technique == SolutionTechnique::GROUPSET_WISE)
-      for (auto& groupset : groupsets)
-      {
-        // Converge the scattering source
-        solve_groupset(groupset,
-                       APPLY_WGS_SCATTER_SOURCE |
-                       APPLY_AGS_SCATTER_SOURCE);
-      }
+    if (algorithm == Algorithm::DIRECT)
+      linear_solver->solve(phi, b);
     else
-      solve_full_system(NO_SOURCE_FLAGS);
+      iterative_solve(APPLY_SCATTER_SOURCE);
 
     //========================================
     // Recompute the k-eigenvalue
@@ -63,15 +54,14 @@ KEigenvalueSolver::power_method()
     rho = (k_eff - 1.0)/k_eff;
 
     k_eff_change = std::fabs(k_eff - k_eff_ell)/k_eff;
-    phi_change = l2_norm(phi - phi_ell);
+    phi_change = l1_norm(phi - x) / l1_norm(phi);
 
     production_ell = production;
     k_eff_ell = k_eff;
-    phi_ell = phi;
+    x = phi;
 
-    if (k_eff_change <= tolerance &&
-        phi_change <= tolerance)
-      converged = true;
+    converged = (k_eff_change < outer_tolerance &&
+                 phi_change < outer_tolerance);
 
     // Print iteration information
     if (verbosity > 0)

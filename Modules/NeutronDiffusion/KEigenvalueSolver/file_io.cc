@@ -10,8 +10,9 @@ using namespace NeutronDiffusion;
 
 
 void
-KEigenvalueSolver::write(const std::string& output_directory,
-                         const std::string& file_prefix) const
+KEigenvalueSolver::
+write(const std::string& output_directory,
+      const std::string& file_prefix) const
 {
   SteadyStateSolver::write(output_directory, file_prefix);
 

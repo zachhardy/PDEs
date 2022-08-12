@@ -1,12 +1,14 @@
 #include "steadystate_solver.h"
-#include "macros.h"
 
 #include <set>
+#include <cassert>
 
 
 void
-NeutronDiffusion::SteadyStateSolver::initialize_materials() {
-  std::cout << "Initializing materials.\n";
+NeutronDiffusion::SteadyStateSolver::
+initialize_materials()
+{
+  std::cout << "Initializing materials...\n";
 
   //============================================================
   // Check the material IDs on the mesh
@@ -15,17 +17,18 @@ NeutronDiffusion::SteadyStateSolver::initialize_materials() {
   // Determine the unique material IDs on the mesh
   std::set<int> unique_material_ids;
   std::vector<size_t> invalid_cells;
-  for (const auto &cell: mesh->cells) {
+  for (const auto &cell: mesh->cells)
+  {
     unique_material_ids.insert(cell.material_id);
     if (cell.material_id < 0)
       invalid_cells.emplace_back(cell.id);
   }
-  Assert(invalid_cells.size() == 0 ||
-         invalid_cells.size() == mesh->cells.size(),
-         "Cell's with invalid or unset material IDs encounterd.");
+  assert(invalid_cells.size() == 0 ||
+         invalid_cells.size() == mesh->cells.size());
 
   // If all cells are invalid, set to zero
-  if (invalid_cells.size() == mesh->cells.size()) {
+  if (invalid_cells.size() == mesh->cells.size())
+  {
     unique_material_ids.clear();
     unique_material_ids.insert(0);
     for (auto &cell: mesh->cells)
@@ -35,6 +38,7 @@ NeutronDiffusion::SteadyStateSolver::initialize_materials() {
   //============================================================
   // Clear the current material information
   //============================================================
+
   material_xs.clear();
   material_src.clear();
 
@@ -50,12 +54,11 @@ NeutronDiffusion::SteadyStateSolver::initialize_materials() {
 
   for (const int& material_id: unique_material_ids)
   {
-    auto material = materials[material_id];
+    const auto material = materials[material_id];
 
     bool found_xs = false;
     for (const auto& property: material->properties)
     {
-
       // Get cross-section properties
       if (property->type() == MaterialPropertyType::CROSS_SECTIONS)
       {
@@ -77,13 +80,13 @@ NeutronDiffusion::SteadyStateSolver::initialize_materials() {
         matid_to_src_map[material_id] = material_src.size() - 1;
       }
     }//for properties
-
     assert(found_xs);
   }//for materials
 
   //============================================================
   // Define cell-wise cross sections
   //============================================================
+
   cellwise_xs.reserve(mesh->cells.size());
   for (const auto &cell: mesh->cells)
   {
@@ -92,21 +95,20 @@ NeutronDiffusion::SteadyStateSolver::initialize_materials() {
   }
 
   //============================================================
-  // Define bulk quantities for the simulation
+  // Define number of groups and precursors
   //============================================================
 
   // Define the number of groups
   n_groups = groups.size();
 
-  // Define the precursor properties. For the total number of precursors
-  // tally the number of unique decay constants.
+  // Define the precursor properties
   if (use_precursors)
   {
     max_precursors = 0;
     std::set<double> unique_decay_constants;
     for (const auto& xs : material_xs)
     {
-      for (size_t j = 0; j < xs->n_precursors; ++j)
+      for (unsigned int j = 0; j < xs->n_precursors; ++j)
         unique_decay_constants.insert(xs->precursor_lambda[j]);
 
       if (xs->n_precursors > max_precursors)

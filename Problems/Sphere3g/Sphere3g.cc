@@ -103,19 +103,14 @@ int main(int argc, char** argv)
   solver.verbosity = 0;
   solver.use_precursors = false;
 
-  solver.solution_technique = SolutionTechnique::FULL_SYSTEM;
+  solver.algorithm = Algorithm::DIRECT;
 
   //============================================================
-  // Initialize groups and groupsets
+  // Initialize groups
   //============================================================
 
   for (size_t g = 0; g < n_groups; ++g)
     solver.groups.emplace_back(g);
-
-  Groupset groupset(0);
-  for (size_t g = 0; g < n_groups; ++g)
-    groupset.groups.emplace_back(solver.groups[g]);
-  solver.groupsets.emplace_back(groupset);
 
   //============================================================
   // Define boundary conditions
@@ -141,7 +136,7 @@ int main(int argc, char** argv)
   solver.initial_conditions[0] = ic;
   solver.initial_conditions[1] = ic;
 
-  solver.adaptivity = false;
+  solver.adaptive_time_stepping = false;
   solver.coarsen_threshold = 0.01;
   solver.refine_threshold = 0.025;
 

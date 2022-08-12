@@ -7,18 +7,19 @@ using namespace NeutronDiffusion;
 
 
 void
-TransientSolver::execute()
+TransientSolver::
+execute()
 {
   const double eps = 1.0e-10;
 
   // Output settings
-  size_t output = 0;
+  unsigned int output = 0;
   double next_output = output_frequency;
   if (write_outputs)
     write(output++);
 
   // Initialize matrices
-  assemble_matrices();
+  rebuild_matrix();
 
   const double dt_initial = dt;
   bool reconstruct_matrices;
@@ -28,7 +29,7 @@ TransientSolver::execute()
   size_t step = 0;
   while (time < t_end - eps)
   {
-    /* This flag is used to tell the solve_time_step routine whether or not
+    /* This flag is used to tell the execute_time_step routine whether or not
      * to reconstruct the matrices or not. This gets set to true when the
      * time step changes or the cross-sections are modified. */
     reconstruct_matrices = false;
@@ -54,10 +55,10 @@ TransientSolver::execute()
     // Solve the time step
     //==================================================
 
-    solve_time_step(reconstruct_matrices);
+    execute_time_step(reconstruct_matrices);
     compute_bulk_properties();
 
-    if (adaptivity)
+    if (adaptive_time_stepping)
       refine_time_step();
 
     //==================================================
@@ -77,15 +78,15 @@ TransientSolver::execute()
     }
 
     // Check to see if time steps should be coarsened.
-    if (adaptivity)
+    if (adaptive_time_stepping)
       coarsen_time_step();
 
-    // If no adaptivity, reset the time step to the original when
+    // If no adaptive_time_stepping, reset the time step to the original when
     // modified for outputting purposes
     else if (dt != dt_initial)
     {
       dt = dt_initial;
-      assemble_matrices();
+      rebuild_matrix();
     }
 
     // Move the solutions to the next time step

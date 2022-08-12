@@ -2,12 +2,12 @@
 #define STEADYSTATE_SOLVER_H
 
 #include "../boundaries.h"
-#include "../groupset.h"
 
 #include "mesh.h"
 #include "Discretization/discretization.h"
 
 #include "vector.h"
+#include "Sparse/sparse_matrix.h"
 #include "LinearSolvers/linear_solver.h"
 
 #include "material.h"
@@ -23,24 +23,27 @@ using namespace Math;
 namespace NeutronDiffusion
 {
 
-  /** Algorithms to solve the multigroup diffusion problem. */
-  enum class SolutionTechnique
+  /**
+   * Algorithms to solve the multi-group diffusion problem.
+   */
+  enum class Algorithm
   {
-    FULL_SYSTEM = 0,   ///< Solve the full multigroup system.
-    GROUPSET_WISE = 1  ///< Iteratively solve by groupset.
+    DIRECT = 0,   ///< Solve the full multi-group system.
+    ITERATIVE = 1  ///< Iterate on the cross-group terms.
   };
 
   //######################################################################
 
-  /** Bitwise source flags. */
+  /**
+   * Bitwise source flags for right-hand side vector construction.
+   */
   enum SourceFlags : int
   {
     NO_SOURCE_FLAGS = 0,
     APPLY_MATERIAL_SOURCE = (1 << 0),
-    APPLY_WGS_SCATTER_SOURCE = (1 << 1),
-    APPLY_AGS_SCATTER_SOURCE = (1 << 2),
-    APPLY_WGS_FISSION_SOURCE = (1 << 3),
-    APPLY_AGS_FISSION_SOURCE = (1 << 4)
+    APPLY_SCATTER_SOURCE = (1 << 1),
+    APPLY_FISSION_SOURCE = (1 << 2),
+    APPLY_BOUNDARY_SOURCE = (1 << 3)
   };
 
 
@@ -52,7 +55,9 @@ namespace NeutronDiffusion
   }
 
 
-  /** Bitwise assembler flags */
+  /**
+   * Bitwise assembler flags for matrix construction.
+   */
   enum AssemblerFlags : int
   {
     NO_ASSEMBLER_FLAGS = 0,
@@ -70,11 +75,14 @@ namespace NeutronDiffusion
 
   //######################################################################
 
-  /** A steady state solver for multigroup neutron diffusion applications. */
+  /**
+   * A steady-state multi-group diffusion solver.
+   */
   class SteadyStateSolver
   {
   protected:
     typedef Grid::Mesh Mesh;
+    typedef SpatialDiscretizationMethod SDMethod;
 
     typedef Physics::Material Material;
     typedef Physics::MaterialPropertyType MaterialPropertyType;
@@ -87,245 +95,263 @@ namespace NeutronDiffusion
 
     typedef LinearSolver::LinearSolverBase<SparseMatrix> LinearSolverBase;
 
+    /*-------------------- Options --------------------*/
   public:
+    /**
+     * The level of screen output during the simulation where a value
+     * of zero implies minimal outputs.
+     */
+    unsigned int verbosity = 0;
 
-    /*-------------------- General Information --------------------*/
+    /**
+     * The algorithm to use to solve the discrete system.
+     */
+    Algorithm algorithm = Algorithm::DIRECT;
 
-    size_t n_groups = 0;
-    size_t n_precursors = 0;
+    /**
+     * The spatial discretization type to use.
+     */
+    SDMethod discretization_method = SDMethod::FINITE_VOLUME;
 
+    /**
+     * A flag for whether to include delayed neutron precursors.
+     */
     bool use_precursors = false;
 
-    size_t verbosity = 0;
-    bool suppress_output = false;
+    /**
+     * The maximum number of inner iterations.
+     */
+    unsigned int max_inner_iterations = 100;
 
-    /*-------------------- Solver Information --------------------*/
+    /**
+     * The inner iterations outer_tolerance.
+     */
+    double inner_tolerance = 1.0e-6;
 
-    SolutionTechnique solution_technique = SolutionTechnique::GROUPSET_WISE;
-
-    std::shared_ptr<LinearSolverBase> linear_solver;
-
-    /*-------------------- Groupsets and Groups --------------------*/
-
-    std::vector<size_t> groups;
-    std::vector<Groupset> groupsets;
-
-    /*-------------------- Spatial Grid Information --------------------*/
-
+    /*-------------------- Spatial Domain --------------------*/
+    /**
+     * The spatial Mesh that describes the spatial partitioning.
+     */
     std::shared_ptr<Mesh> mesh;
 
-    DiscretizationMethod discretization_method = DiscretizationMethod::FINITE_VOLUME;
+    /**
+     * The Discretization associated with the spatial Mesh. This is created
+     * within the \p initialize routine based on the \p discretization_method
+     * option.
+     */
     std::shared_ptr<Discretization> discretization;
 
-    /*-------------------- Physics Information --------------------*/
+    /*-------------------- Physics Informations --------------------*/
+    /**
+     * A list of materials, each of which contain CrossSections and, optionally,
+     * an IsotropicMultiGroupSource
+     */
+     std::vector<std::shared_ptr<Material>> materials;
 
-    std::vector<std::shared_ptr<Material>> materials;
-    std::vector<std::shared_ptr<CrossSections>> material_xs;
-    std::vector<std::shared_ptr<IsotropicMGSource>> material_src;
+     /**
+      * A list of the group IDs to be used in the simulation. While this may
+      * seem useless, it allows for a subset of available groups within
+      * a cross-section library to be considered.
+      */
+     std::vector<unsigned int> groups;
 
+     /*-------------------- Boundary Information --------------------*/
+     /**
+      * A list specifying the different boundary conditions in the problem.
+      * Each boundary condition is given by a pair. The first element contains
+      * the boundary type. The second contains an index which points to the
+      * position within the auxiliary \p boundary_values vector that the
+      * multi-group boundary values are located.
+      */
+     std::vector<std::pair<BoundaryType, unsigned int>> boundary_info;
+
+    /**
+     * The multi-group boundary values. The outer index is used by the
+     * \p boundary_info attribute to access a boundary value, the middle points
+     * to particular energy groups, and the inner to the boundary values. For
+     * non-Robin boundaries, this always has one entry. For Robin boundaries,
+     * three entries in the order of <tt>(a, b, f)</tt> are used.
+     */
+    std::vector<std::vector<std::vector<double>>> boundary_values;
+
+    /*-------------------- Linear Solver --------------------*/
+    /**
+     * The linear solver used to solve the linear system <tt>A x = b</tt>.
+     */
+    std::shared_ptr<LinearSolverBase> linear_solver;
+
+    /*-------------------- Internal Attributes --------------------*/
   protected:
     /**
-     * The maximum number of precursors that live on a material.
-     * This is used to promote sparsity in the precursor vector for problems with
-     * many materials and precursor sets, such as in burn-up applications.
+     * The number of energy groups.
      */
-    size_t max_precursors = 0;
+    unsigned int n_groups = 0;
 
     /**
-     * Map a material ID to a particular CrossSection object.
-     * This mapping alleviates the need to store multiple copies of the
-     * CrossSections objects when one property appears more than once.
+     * The total number of delayed neutron precursors across all materials.
+     */
+    unsigned int n_precursors = 0;
+
+    /**
+     * The maximum number of precursors on a material. This is used to size
+     * the precursor vector so that only a limited number of precursors are
+     * stored per cell.
+     */
+    unsigned int max_precursors = 0;
+
+    /**
+     * A list of cross-sections  parsed from the materials list at
+     * initialization. This allows for easy access, when necessary.
+     */
+    std::vector<std::shared_ptr<CrossSections>> material_xs;
+
+    /**
+     * A list of inhomogeneous sources parsed from the materials list at
+     * initialization. This allows for easy access, when necessary.
+     */
+    std::vector<std::shared_ptr<IsotropicMGSource>> material_src;
+
+    /**
+     * Lightweight, cell-wise cross-sections. These are primarily used when
+     * functional cross-sections are employed.
+     */
+    std::vector<LightWeightCrossSections> cellwise_xs;
+
+    /**
+     * Map a material ID to a particular CrossSections. This mapping alleviates
+     * the need to store multiple copies of CrossSections when used on
+     * several materials.
      */
     std::vector<int> matid_to_xs_map;
 
     /**
      * Map a material ID to a particular IsotropicMultiGroupSource object.
-     * This mapping alleviates the need to store multiple copies of the
-     * IsotropicMultiGroupSource objects when one property appears more than
-     * once.
+     * This mapping alleviates the need to store multiple copies of an
+     * IsotropicMultiGroupSource object when used on several materials.
      */
     std::vector<int> matid_to_src_map;
 
-    std::vector<LightWeightCrossSections> cellwise_xs;
-
-  public:
-
-    /*-------------------- Boundary Information --------------------*/
-
     /**
-     * A list containing a pair with the boundary type and index corresponding
-     * to the location of the boundary values within the boundary values vector.
-     * This is similar to the matid_to_xs_map attribute.
-     */
-    std::vector<std::pair<BoundaryType, size_t>> boundary_info;
-
-    /**
-     * The multigroup boundary values. The outer index corresponds to the
-     * boundary index, the middle to the group, and the last to the boundary
-     * value index. For non-Robin boundaries, this always has one entry at the
-     * innermost lever. For Robin boundaries, three entries in the order of
-     * <tt>(a, b, f)</tt> are used.
-     */
-    std::vector<std::vector<std::vector<double>>> boundary_values;
-
-  protected:
-
-    /**
-     * The multigroup boundary conditions. This is a vector of vectors of
+     * The multi-group boundary conditions. This is a vector of vectors of
      * pointers to Boundary objects. The outer indexing corresponds to the
      * boundary index and the inner index to the group. These are created at
      * solver initialization.
      */
     std::vector<std::vector<BndryPtr>> boundaries;
 
+    /*-------------------- System Storage --------------------*/
   public:
-
-    /*-------------------- Solutions --------------------*/
-
+    /**
+     * The multi-group scalar flux solution vector.
+     */
     Vector phi;
-    Vector phi_ell;
+
+    /**
+     * The precursor solution vector.
+     */
     Vector precursors;
 
-  public:
+  protected:
+    /**
+     * The discrete multi-group operator.
+     */
+    SparseMatrix A;
+
+    /**
+     * The right-hand side source vector.
+     */
+    Vector b;
 
     /*-------------------- Public Facing Routines --------------------*/
+  public:
+    /**
+     * Initialize the multi-group diffusion solver. This routine performs
+     * checks on the information attached to the solvera and initializes the
+     * internal data.
+     */
+    virtual void
+    initialize();
 
     /**
-     * Initialize the solver. This routine ensures that the specified setup is
-     * valid. For example, the mesh, groups, groupsets, materials, and
-     * boundaries are all checked and relevant properties are initialized.
+     * Execute the steady-state multi-group diffusion solver.
      */
-    virtual void initialize();
+    virtual void
+    execute();
 
-    /** Run the steady state multigroup diffusion simulation. */
-    virtual void execute();
+    /**
+     * Write the result of the simulation to an output file.
+     *
+     * \param output_directory The directory where the output should be placed.
+     * \param file_prefix The name of the file without a suffix. By default,
+     *      the suffix <tt>.data</tt> will be added to this input.
+     */
+    virtual void
+    write(const std::string& output_directory,
+          const std::string& file_prefix) const;
 
+    /*-------------------- Initialization Routines --------------------*/
   protected:
+    /**
+     * Parse the CrossSections and IsotropicMultiGroupSource objects from the
+     * Material list and set the appropriate internal data.
+     */
+    void
+    initialize_materials();
+
+    /**
+     * Parse the boundary specification and define the boundary conditions
+     * used in the simulation. This initializes \p n_groups Boundary objects
+     * for each of the spatial domain boundaries.
+     */
+    void
+    initialize_boundaries();
+
+
     /*-------------------- Solve Routines --------------------*/
-
-    /** \name Solve Routines */
-    // @{
-
+  protected:
     /**
-     * Solve the system for a single groupset. This routine iteratively converges
-     * the scattering and fission term. In this particular case, matrices will
-     * uniformly be SPD.
+     * Solve the system iteratively by iterating on the specified SourceFlags.
+     * The primary utility of this for k-eigenvalue solvers where the fission
+     * source is held constant (outer iterations) while the scattering source
+     * is converged (inner iterations).
+     *
+     * \param source_flags Bitwise flags defining the source terms to iterate
+     *      on and converge.
      */
-    void solve_groupset(Groupset& groupset, SourceFlags source_flags);
-
-    /**
-     * Solve the full multigroup system. This routine uses a direct solver to
-     * solve the <tt>often</tt> asymmetric system.
-     */
-    void solve_full_system(SourceFlags source_flags);
-
-    // @}
+    void
+    iterative_solve(SourceFlags source_flags);
 
     /*-------------------- Assembly Routines --------------------*/
 
-    /** \name Assembly Routines */
-    // @{
-
     /**
-     * Assemble the matrix for the specified \p groupset.
+     * Assemble the multi-group matrix according to the specified
+     * AssemblerFlags. By default, the within-group terms (total interaction,
+     * buckling, diffusion, and boundary) are included in the matrix. When
+     * specified, the cross-group scattering and fission terms may be included.
      *
-     * By default, this routine assembles the within-group (total
-     * interaction, diffusion, and boundary) terms for the groupset. If
-     * specified, this routine will also assemble the the cross-group,
-     * within-groupset scattering and/or fission terms.
-     *
-     * \param groupset The groupset to construct the matrix for.
-     * \param assembler_flags Bitwise flags used to specify the assembly of the
-     *      within-groupset scattering and fission terms. Default behavior
-     *      assembles only the within-group, within-groupset terms.
+     * \param assembler_flags Bitwise flags used to specify which cross-group
+     *      terms to include in the matrix.
      */
     void
-    assemble_matrix(Groupset& groupset,
-                    AssemblerFlags assembler_flags = NO_ASSEMBLER_FLAGS);
+    assemble_matrix(AssemblerFlags assembler_flags = NO_ASSEMBLER_FLAGS);
 
     /**
-     * Set the right-hand side source vector for the specified groupset.
+     * Set the right-hand side source vector. This is an additive routine which
+     * will only add the specified sources to the source vector. Source options
+     * include the inhomogeneous source, scattering source, fission source,
+     * and boundary source
      *
-     * The available source flags include the material source, across groupset
-     * scattering and fission terms, and within groupset scattering and fission
-     * terms.
-     *
-     * \param groupset The groupset to construct the source for.
-     * \param source_flags The terms to assemble into the destination vector.
+     * \param source_flags Bitwise flags used to specify which sources are
+     *      added to the source vector.
      */
-    void set_source(Groupset& groupset, SourceFlags source_flags);
-
-    /** Compute the steady-state delayed neutron precursor concentrations. */
-    void compute_precursors();
-
-    //@}
-
-    /*-------------------- Initialization Routines --------------------*/
-
-    /** \name Initialization Routines */
-    // @{
-
-    /** Validate the general setup of the simulation. */
-    void input_checks();
+    void
+    set_source(SourceFlags source_flags = NO_SOURCE_FLAGS);
 
     /**
-     * Parse the appropriate properties from the materials list, validate
-     * compatibility with other properties and the simulation, and set relevant
-     * attributes of the simulation obtained from materials.
+     * Compute the steady-state precursor vector from the multi-group flux.
      */
-    void initialize_materials();
-
-    /** Create a boundary condition for each boundary and each group. */
-    void initialize_boundaries();
-
-    // @}
-
-    /*-------------------- Vector Operations --------------------*/
-
-    /** \name Vector Operations */
-    // @{
-
-    /**
-     * Transfer a groupset vector to a full multigroup vector.
-     *
-     * \param groupset The groupset the vector belongs to.
-     * \param x The groupset vector to be transferred.
-     * \param dst The destination multigroup vector.
-     */
-    void scoped_transfer(const Groupset& groupset,
-                         const Vector& x, Vector& dst);
-
-    /**
-     * Copy the elements corresponding to the specified groupset from one full
-     * multigroup vector to another.
-     *
-     * \param groupset The groupset to copy data from.
-     * \param x The multigroup vector to be copied.
-     * \param dst The destination multigroup vector.
-     */
-    void scoped_copy(const Groupset& groupset,
-                     const Vector& x, Vector& dst);
-
-    /**
-     * Return the \f$\ell_2\f$-norm between the last two iterates of the
-     * multigroup flux vectors for elements belonging to the specified groupset.
-     *
-     * \param groupset The groupset to compute the change within.
-     */
-    double compute_change(const Groupset& groupset);
-
-    // @}
-
-    /*-------------------- File I/O --------------------*/
-  protected:
-    void write_geometry(const std::string& output_directory);
-    void write_flux_moments(const std::string& output_directory);
-
-  public:
-
-    /** Write the solution data to a binary file. */
-    virtual void write(const std::string& output_directory,
-                       const std::string& file_prefix) const;
+    void
+    compute_precursors();
   };
 
 }

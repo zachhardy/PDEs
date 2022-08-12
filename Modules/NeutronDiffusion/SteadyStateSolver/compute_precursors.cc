@@ -18,24 +18,21 @@ SteadyStateSolver::compute_precursors()
     if (not xs->is_fissile)
       continue;
 
-    const double* lambda = xs->precursor_lambda.data();
-    const double* gamma = xs->precursor_yield.data();
-    const double* nud_sigf = xs->nu_delayed_sigma_f.data();
+    const auto* lambda = xs->precursor_lambda.data();
+    const auto* gamma = xs->precursor_yield.data();
+    const auto* nud_sigf = xs->nu_delayed_sigma_f.data();
 
-    const size_t uk_map = cell.id*n_groups;
-    const size_t prec_uk_map = cell.id*max_precursors;
+    const auto uk_map_g = n_groups * cell.id;
+    const auto uk_map_j = max_precursors * cell.id;
 
     // Loop over precursors
-    for (size_t j = 0; j < xs->n_precursors; ++j)
+    for (unsigned int j = 0; j < xs->n_precursors; ++j)
     {
       double value = 0.0;
-      const double coeff = gamma[j]/lambda[j];
-      for (size_t gr = 0; gr < n_groups; ++gr)
-      {
-        const size_t g = groups[gr];
-        value += coeff*nud_sigf[g] * phi[uk_map + g];
-      }
-      precursors[prec_uk_map + j] = value;
+      const auto coeff = gamma[j]/lambda[j];
+      for (unsigned int gr = 0; gr < n_groups; ++gr)
+        value += coeff * nud_sigf[groups[gr]] * phi[uk_map_g + gr];
+      precursors[uk_map_j + j] = value;
     }
   }
 }
