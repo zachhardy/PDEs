@@ -9,7 +9,6 @@
 #include "LinearSolvers/IterativeSolvers"
 #include "LinearSolvers/PETSc/petsc_solver.h"
 
-#include "NeutronDiffusion/groupset.h"
 #include "NeutronDiffusion/SteadyStateSolver/steadystate_solver.h"
 #include "NeutronDiffusion/KEigenvalueSolver/keigenvalue_solver.h"
 #include "NeutronDiffusion/TransientSolver/transient_solver.h"
@@ -68,7 +67,7 @@ int main(int argc, char** argv)
   xs->transfer_matrices[0][1][0] = sigs_01 * density;
   material->properties.emplace_back(xs);
 
-  size_t n_groups = xs->n_groups;
+  const auto n_groups =xs->n_groups;
 
   // Create the multigroup source
   std::vector<double> mg_source(n_groups, 1.0);
@@ -78,8 +77,7 @@ int main(int argc, char** argv)
   //============================================================
   // Linear Solver
   //============================================================
-  using namespace Math;
-  using namespace Math::LinearSolver;
+  using namespace LinearSolver;
 
   Options opts;
   opts.verbosity = 0;
@@ -87,7 +85,6 @@ int main(int argc, char** argv)
   opts.max_iterations = 10000;
 
   std::shared_ptr<LinearSolverBase<SparseMatrix>> linear_solver;
-//    linear_solver = std::make_shared<CG>(opts);
   linear_solver = std::make_shared<PETScSolver>(KSPCG, PCLU, opts);
 
   //============================================================
@@ -96,6 +93,7 @@ int main(int argc, char** argv)
   using namespace NeutronDiffusion;
 
   TransientSolver solver;
+
   solver.mesh = mesh;
   solver.materials.emplace_back(material);
   solver.linear_solver = linear_solver;
@@ -109,7 +107,7 @@ int main(int argc, char** argv)
   // Initialize groups
   //============================================================
 
-  for (size_t g = 0; g < n_groups; ++g)
+  for (unsigned int g = 0; g < n_groups; ++g)
     solver.groups.emplace_back(g);
 
   //============================================================

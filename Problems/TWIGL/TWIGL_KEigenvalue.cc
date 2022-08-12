@@ -135,7 +135,7 @@ int main(int argc, char** argv)
   //============================================================
   using namespace NeutronDiffusion;
 
-  TransientSolver solver;
+  KEigenvalueSolver solver;
 
   solver.mesh = mesh;
   for (auto& material : materials)
@@ -149,23 +149,6 @@ int main(int argc, char** argv)
   solver.max_outer_iterations = 1000;
 
   solver.algorithm = Algorithm::DIRECT;
-
-  //============================================================
-  // Define transient parameters
-  //============================================================
-
-  solver.t_end = 0.5;
-  solver.dt = 0.01;
-  solver.time_stepping_method = TimeSteppingMethod::CRANK_NICHOLSON;
-  solver.normalization_method = NormalizationMethod::TOTAL_POWER;
-  solver.normalize_fission_xs = true;
-
-  solver.write_outputs = true;
-  solver.output_directory = outdir;
-
-  solver.adaptive_time_stepping = true;
-  solver.coarsen_threshold = 0.01;
-  solver.refine_threshold = 0.05;
 
   //============================================================
   // Initialize groups and groupsets
