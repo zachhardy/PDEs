@@ -29,13 +29,9 @@ private:
   const BoundaryType bndry_type;
 
 public:
-  /** Default constructor. */
-  explicit
-  Boundary(BoundaryType type);
+  explicit Boundary(BoundaryType type);
 
-  /** Get the boundary type. */
-  BoundaryType
-  type() const;
+  BoundaryType type() const;
 };
 
 //######################################################################
@@ -68,8 +64,7 @@ public:
   NeumannBoundary();
 
   /** Construct a general Neumann boundary. */
-  explicit
-  NeumannBoundary(const double value);
+  explicit NeumannBoundary(const double value);
 };
 
 //######################################################################

@@ -5,6 +5,7 @@
 
 namespace Physics
 {
+  /** A utility class meant to store up-to-date functional cross-sections. */
   class LightWeightCrossSections
   {
   private:

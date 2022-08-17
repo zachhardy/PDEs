@@ -24,16 +24,10 @@ namespace Physics
     const std::string property_name = "Generic Property";
 
   public:
-    /** Construct a material property of the specified type. */
     MaterialProperty(const MaterialPropertyType type);
-
-    /** Construct a named material property of the specified type. */
     MaterialProperty(const MaterialPropertyType type, const std::string name);
 
-    /** Get the material property type. */
     MaterialPropertyType type() const;
-
-    /** Get the material property name. */
     std::string name() const;
   };
 
@@ -41,11 +35,10 @@ namespace Physics
   //######################################################################
 
   /**
-   * A class representing a material.
-   *
-   * In order to support future multi-physics applications. A Physics holds
-   * a collection a MaterialProperty objects which hold derived objects that
-   * describe properties that are necessary for a particular type of physics.
+   * A class representing a material. In order to support future multi-physics
+   * applications. A Physics holds a collection a MaterialProperty objects which
+   * hold derived objects that describe properties that are necessary for a
+   * particular type of physics.
    */
   class Material
   {
@@ -57,11 +50,8 @@ namespace Physics
 
   public:
     Material() = default;
-
-    /** Construct a material with unique name. */
     explicit Material(const std::string name);
 
-    /** Return the material name. */
     std::string name() const;
   };
 
@@ -74,16 +64,9 @@ namespace Physics
     double value = 1.0;
 
   public:
-    /** Construct a scalar valued property with the default value of 1. */
     ScalarProperty();
-
-    /** Construct a named scalar valued property with the default value of 1. */
-    explicit ScalarProperty(const std::string name);
-
-    /** Construct a scalar valued property with the specified value. */
+    ScalarProperty(const std::string name);
     ScalarProperty(const double value);
-
-    /** Construct a scalar valued property with the specified name and value. */
     ScalarProperty(const double value, const std::string name);
   };
 
@@ -100,10 +83,8 @@ namespace Physics
     std::vector<double> values;
 
   public:
-    /** Construct a multigroup source from an STL vector. */
     IsotropicMultiGroupSource(const std::vector<double> src);
 
-    /** Construct a named multigroup source from an STL vector. */
     IsotropicMultiGroupSource(const std::vector<double> src,
                               const std::string name);
 
