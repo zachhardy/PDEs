@@ -13,8 +13,8 @@ namespace Grid
   /**
    * A class that represents a face on a Cell.
    *
-   * A Face is defined as a <tt>dim - 1</tt>-dimensional object which, in
-   * a collection, bounds a <tt>dim</tt>-dimensional Cell. Face objects in
+   * A face is defined as a <tt>dim - 1</tt>-dimensional object which, in
+   * a collection, bounds a <tt>dim</tt>-dimensional cell. face objects in
    * various dimensions are:
    *  -   1D: Vertex
    *  -   2D: Edge, or connection of 2 vertices
@@ -28,8 +28,8 @@ namespace Grid
     std::vector<size_t> vertex_ids;
 
     /**
-     * If an interior face, this stores the global ID of the neighboring cell.
-     * If a boundary face, this stores the boundary ID.
+     * The ID of the cell opposite this face in the direction of its normal if
+     * an interior face. If a boundary face, the boundary ID.
      */
     size_t neighbor_id = 0;
     bool has_neighbor = false;
@@ -38,12 +38,10 @@ namespace Grid
     Centroid centroid;
     double area = 0.0;
 
-    /** Return the face as a string. */
     std::string str() const;
   };
 
 
-  /** Insert a face into an output stream. */
   std::ostream& operator<<(std::ostream&, const Face& face);
 }
 #endif //FACE_H

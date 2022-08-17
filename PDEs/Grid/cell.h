@@ -62,15 +62,12 @@ namespace Grid
     std::vector<Face> faces;
 
   public:
-    /** Construct an empty cell of the specified type. */
     explicit Cell(const CellType cell_type);
 
-    /** Return the cell as a string. */
     std::string str() const;
   };
 
 
-  /** Insert a cell into an output stream. */
   std::ostream& operator<<(std::ostream& os, const Cell& cell);
 }
 #endif //CELL_H

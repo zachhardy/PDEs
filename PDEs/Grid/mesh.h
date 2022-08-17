@@ -37,7 +37,7 @@ namespace Grid
   class Mesh
   {
   public:
-    const size_t dim;
+    const unsigned int dim;
     const CoordinateSystemType coord_sys;
 
     std::vector<Vertex> vertices;
@@ -54,7 +54,7 @@ namespace Grid
      * \param dimension The spatial dimension of the mesh.
      * \param coordinate_system The coordinate system of the mesh.
      */
-    explicit Mesh(const size_t dimension,
+    explicit Mesh(const unsigned int dimension,
                   const CoordinateSystemType coordinate_system);
 
   public:

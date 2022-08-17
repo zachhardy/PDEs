@@ -50,7 +50,7 @@ Point::operator=(const double value)
 
 
 Point
-Point::unit_vector(const std::size_t axis)
+Point::unit_vector(const unsigned int axis)
 {
   Assert(axis < 3, "Invalid dimension provided.");
   if (axis == 0) return Point(1.0, 0.0, 0.0);
@@ -76,7 +76,7 @@ Point::operator!=(const Point& q) const
 
 
 double&
-Point::operator[](const size_t i)
+Point::operator[](const unsigned int i)
 {
   Assert(i < 3, "Invalid dimension provided.");
   if (i == 0) return x;
@@ -86,7 +86,7 @@ Point::operator[](const size_t i)
 
 
 const double&
-Point::operator[](const size_t i) const
+Point::operator[](const unsigned int i) const
 {
   Assert(i < 3, "Invalid dimension provided.");
   if (i == 0) return x;
@@ -96,12 +96,12 @@ Point::operator[](const size_t i) const
 
 
 double&
-Point::operator()(const size_t i)
+Point::operator()(const unsigned int i)
 { return (*this)[i]; }
 
 
 const double&
-Point::operator()(const size_t i) const
+Point::operator()(const unsigned int i) const
 { return (*this)[i]; }
 
 
