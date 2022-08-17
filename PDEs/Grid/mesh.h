@@ -18,7 +18,7 @@ namespace Grid
     SPHERICAL = 2   ///< \f$(r, \varphi, \theta)\f$ coordinates.
   };
 
-  /** Return the coordinate system type as a string. */
+
   std::string coordinate_system_str(const CoordinateSystemType coord_sys);
 
   //###########################################################################
@@ -58,22 +58,20 @@ namespace Grid
                   const CoordinateSystemType coordinate_system);
 
   public:
-
     /**
      * Establish the relationships between cells and their neighbors.
      *
      * Connectivity is established by
      * 1. For each Vertex, determine which Cell objects the Vertex belongs to.
-     * 2. For each Face of each Cell, compare vertex ids to those of adjacent cells
-     *    as defined by the step 1.
-     * 3. If vertex ids match, set the neighbor properties.
+     * 2. For each Face of each Cell, compare vertex ids to those of adjacent
+     *    cells as defined by the step 1.
+     * 3. If vertex IDs match, set the neighbor properties.
      *
-     * \note This routine may be quite expensive. Only use this when connectivity
-     *       cannot be established a-priori. Generally, this routine should only be
-     *       utilized for unstructured meshes.
+     * \note This routine may be quite expensive. Only use this when
+     *       connectivity cannot be established a-priori. Generally, this
+     *       routine should only be utilized for unstructured meshes.
      */
     void compute_geometric_info();
-
 
     /** Compute the geometric properties of the cells and faces. */
     void establish_connectivity();

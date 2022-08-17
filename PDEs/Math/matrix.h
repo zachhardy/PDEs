@@ -18,12 +18,10 @@ namespace Math
   class Matrix
   {
   public:
-    using value_type = double;
-
     using iterator = std::vector<Vector>::iterator;
     using const_iterator = std::vector<Vector>::const_iterator;
 
-    using STLMatrix = std::vector<std::vector<value_type>>;
+    using STLMatrix = std::vector<std::vector<double>>;
     using InitializerMatrix = std::initializer_list<std::initializer_list<double>>;
 
   protected:
@@ -44,25 +42,18 @@ namespace Math
     /** Construct a Matrix with \p n_rows and \p n_cols set to \p value. */
     explicit Matrix(const size_t n_rows,
                     const size_t n_cols,
-                    const value_type value);
+                    const double value);
 
-    /** Copy construction with nested STL vectors. */
     Matrix(const STLMatrix& other);
-
-    /** Move construction from nested STL vectors. */
     Matrix(STLMatrix&& other);
 
-    /** Construction from nested initializer lists. */
     Matrix(const InitializerMatrix list);
 
-    /** Copy assignment from nested STL vectors. */
     Matrix& operator=(const STLMatrix& other);
-
-    /** Move assignment from nested STL vectors. */
     Matrix& operator=(STLMatrix&& other);
 
-    /** Set the elements to a scalar value. */
-    Matrix& operator=(const value_type value);
+    /** Element-wise assignment to a scalar. */
+    Matrix& operator=(const double value);
 
     // @}
 
@@ -100,20 +91,20 @@ namespace Math
     Vector& at(const size_t i);
     const Vector& at(const size_t i) const;
 
-    value_type& operator()(const size_t i, const size_t j);
-    const value_type& operator()(const size_t i, const size_t j) const;
+    double& operator()(const size_t i, const size_t j);
+    const double& operator()(const size_t i, const size_t j) const;
 
-    value_type& at(const size_t i, const size_t j);
-    const value_type& at(const size_t i, const size_t j) const;
+    double& at(const size_t i, const size_t j);
+    const double& at(const size_t i, const size_t j) const;
 
-    value_type& diag(const size_t i);
-    const value_type& diag(const size_t i) const;
+    double& diag(const size_t i);
+    const double& diag(const size_t i) const;
 
     Vector* data();
     const Vector* data() const;
 
-    value_type* data(const size_t i);
-    const value_type* data(const size_t i) const;
+    double* data(const size_t i);
+    const double* data(const size_t i) const;
 
     // @}
 
@@ -125,11 +116,11 @@ namespace Math
     const_iterator begin() const;
     const_iterator end() const;
 
-    std::vector<value_type>::iterator begin(const size_t i);
-    std::vector<value_type>::iterator end(const size_t i);
+    std::vector<double>::iterator begin(const size_t i);
+    std::vector<double>::iterator end(const size_t i);
 
-    std::vector<value_type>::const_iterator begin(const size_t i) const;
-    std::vector<value_type>::const_iterator end(const size_t i) const;
+    std::vector<double>::const_iterator begin(const size_t i) const;
+    std::vector<double>::const_iterator end(const size_t i) const;
 
     // @}
 
@@ -145,26 +136,42 @@ namespace Math
     void push_back(const Vector& row);
     void push_back(Vector&& row);
 
+    /**
+     * Resize the Matrix to have \p n_rows and \p n_cols. If either dimension 
+     * is less than the its current size, entries are deleted from the back.
+     * If either is greater, new elements are unininitialized.
+     */
     void resize(const size_t n_rows,
                 const size_t n_cols);
 
+    /**
+     * Resize the Matrix to have \p n_rows and \p n_cols. If new elements are
+     * created, they are set to \p value.
+     */
     void resize(const size_t n_rows,
                 const size_t n_cols,
-                const value_type value);
+                const double value);
 
+    /**
+     * Clear the Matrix and reinitialize it with \p n_rows and \p n_cols whose
+     * elements are uninitialized.
+     */
     void reinit(const size_t n_rows,
                 const size_t n_cols);
 
+    /** Clear the Matrix and reinitialize it with \p n_rows and \p n_cols whose
+     * elements are set to \p value.
+     */
     void reinit(const size_t n_rows,
                 const size_t n_cols,
-                const value_type value);
+                const double value);
 
     void swap_row(const size_t i, const size_t k);
     void swap_column(const size_t j, const size_t k);
     void swap(Matrix& other);
 
     void set_diag(const Vector& diag);
-    void set_diag(const value_type value);
+    void set_diag(const double value);
 
     // @}
 
@@ -173,91 +180,84 @@ namespace Math
     /** \name Linear Algebra */
     // @{
 
-    /**
-     * Scale the matrix by a scalar value. This is computed via \f$
-     * \boldsymbol{A} = \alpha \boldsymbol{A} = \alpha a_{ij}, ~ \forall i, j \f$.
-     */
-    Matrix& scale(const value_type factor);
+    /** Element-wise multiplication by a scalar in place. */
+    Matrix& scale(const double factor);
+
+    /** Element-wise addition of a scaled Matrix in place. */
+    Matrix& add(const Matrix& B, const double a = 1.0);
 
     /**
-     * Add a multiple of another matrix. This is computed via \f$ \boldsymbol{A} =
-     * \boldsymbol{A} + \alpha \boldsymbol{B} = a_{ij} \alpha b_{ij} \f$. The
-     * default behavior is \f$ \alpha = 1.0 \f$.
+     * Element-wise addition of the transpose of a scaled Matrix in place.
      */
-    Matrix& add(const Matrix& B, const value_type a = 1.0);
+    Matrix& Tadd(const Matrix& B, const double a = 1.0);
 
     /**
-     * Add a multiple of the transpose of another matrix. This is computed via
-     * \f$ \boldsymbol{A} = \boldsymbol{A} + \alpha \boldsymbol{B}^T = a_{ij} +
-     * \alpha b{ji}, ~ \forall i, j \f$. The default behavior uses \f$ \alpha =
-     * 1.0 \f$.
+     * Element-wise multiplication by a scalar followed by element-wise addition
+     * of a Matrix in place.
      */
-    Matrix& Tadd(const Matrix& B, const value_type a = 1.0);
+    Matrix& sadd(const double a, const Matrix& B);
 
     /**
-     * Scale this matrix and then add another. This is computed via \f$
-     * \boldsymbol{A} = \alpha \boldsymbol{A} + \boldsymbol{B} = \alpha a_{ij} +
-     * b_{ij}, ~ \forall i, j \f$.
+     * Element-wise multiplication by a scalar \p a followed by element-wise
+     * addition of a Matrix scaled by \p b in place.
      */
-    Matrix& sadd(const value_type a, const Matrix& B);
+    Matrix& sadd(const double a, const double b, const Matrix& B);
 
     /**
-     * Scale this matrix and then add a multiple of another matrix. This is
-     * computed via \f$ \boldsymbol{A} = \alpha \boldsymbol{A} + \beta
-     * \boldsymbol{B} = \alpha a_{ij} + \beta b_{ij}, ~ \forall i, j \f$.
+     * Element-wise multiplication by a scalar \p a followed by element-wise
+     * addition of the transpose of a Matrix in place.
      */
-    Matrix& sadd(const value_type a, const value_type b, const Matrix& B);
+    Matrix& sTadd(const double a, const Matrix& B);
 
     /**
-     * Scale this matrix and then add the transpose of another. This is computed
-     * via \f$ \boldsymbol{A} = \alpha \boldsymbol{A} + \boldsymbol{B}^T = \alpha
-     * a_{ij} + b_{ji}, ~ \forall i, j \f$.
+     * Element-wise multiplication by a scalar \p a followed by element-wise
+     * addition of a Matrix scaled by \p b in place.
      */
-    Matrix& sTadd(const value_type a, const Matrix& B);
+    Matrix& sTadd(const double a, const double b, const Matrix& B);
 
     /**
-     * Scale this matrix and then add a multiple of the transpose another. This
-     * is computed via \f$ \boldsymbol{A} = \alpha \boldsymbol{A} + \beta
-     * \boldsymbol{B}^T = \alpha a_{ij} + \beta \beta b_{ji}, ~ \forall i, j \f$.
-     */
-    Matrix& sTadd(const value_type a, const value_type b, const Matrix& B);
-
-    /**
-     * Compute a matrix-matrix product. This is computed via
-     * \f$ \boldsymbol{C} = \boldsymbol{A} \boldsymbol{B}  = \sum_{k=0}^{n}
-     * a_{ik} b_{kj}, ~ \forall i, j \f$. If desired, setting the \p adding flag
-     * to \p true will add the matrix-matrix product to the destination
-     * matrix \f$ \boldsymbol{C} \f$.
+     * Compute a matrix-matrix product via \f$ \boldsymbol{C} = \boldsymbol{A}
+     * \boldsymbol{B} = \sum_{k=0}^{n} a_{ik} b_{kj}, ~ \forall i, j \f$.
+     *
+     * \param[in] B The multiplying Matrix.
+     * \param[out] C The destination Matrix.
+     * \param adding A flag for adding to or setting the destination Matrix.
      */
     void mmult(const Matrix& B, Matrix& C,
                const bool adding = false) const;
 
     /**
-     * Compute a transpose matrix-matrix product. This is computed via
-     * \f$ \boldsymbol{C} = \boldsymbol{A}^T \boldsymbol{B} = \sum_{k=0}^{n}
-     * a_{ki} b_{kj}, ~ \forall i, j \f$. If desired, setting the \p adding flag
-     * to \p true will add the matrix-matrix product to the destination
-     * matrix \f$ \boldsymbol{C} \f$.
+     * Compute a transpose matrix-matrix product via \f$ \boldsymbol{C} =
+     * \boldsymbol{A}^T \boldsymbol{B} = \sum_{k=0}^{n} a_{ki} b_{kj}, ~
+     * \forall i, j \f$.
+     *
+     * \param[in] B The multiplying Matrix.
+     * \param[out] C The destination Matrix.
+     * \param adding A flag for adding to or setting the destination Matrix.
      */
     void Tmmult(const Matrix& B, Matrix& C,
                 const bool adding = false) const;
 
     /**
-     * Compute a matrix-transpose matrix product. This is computed via
-     * \f$ \boldsymbol{C} = \boldsymbol{A} \boldsymbol{B}^T = \sum_{k=1}^{n}
-     * a_{ik} b_{jk}, ~ \forall i, j \f$. If desired, setting the \p adding flag
-     * to \p true will add the matrix-matrix product to the destination
-     * matrix \f$ \boldsymbol{C} \f$.
+     * Compute a matrix-transpose matrix product via \f$ \boldsymbol{C} =
+     * \boldsymbol{A} \boldsymbol{B}^T = \sum_{k=1}^{n} a_{ik} b_{jk}, ~
+     * \forall i, j \f$.
+     *
+     * \param[in] B The multiplying Matrix (not transposed).
+     * \param[out] C The destination Matrix.
+     * \param adding A flag for adding to or setting the destination Matrix.
      */
     void mTmult(const Matrix& B, Matrix& C,
                 const bool adding = false) const;
 
     /**
-     * Compute a transpose matrix-transpose matrix product. This is
-     * computed via \f$ \boldsymbol{C} = \boldsymbol{A}^T \boldsymbol{B}^T =
-     * \sum_{k=1}^{n} a_{ki} b_{jk}, \forall i, j \f$. If desired, setting the
-     * \p adding flag to \p true will add the matrix-matrix product to
-     * the destination matrix \f$ \boldsymbol{C} \f$.
+     * Compute a transpose matrix-transpose matrix product via \f$
+     * \boldsymbol{C} = \boldsymbol{A}^T \boldsymbol{B}^T = \sum_{k=1}^{n}
+     * a_{ki} b_{jk}, ~ \forall i, j \f$.
+     *
+     * \param[in] B The multiplying Matrix (not transposed).
+     * \param[out] C The destination Matrix.
+     * \param adding A flag for adding to or setting the destination Matrix.
      */
     void TTmult(const Matrix& B, Matrix& C,
                 const bool adding = false) const;
@@ -275,19 +275,23 @@ namespace Math
     Matrix TTmult(const Matrix& B) const;
 
     /**
-     * Compute a matrix-vector product. This is computed via \f$ \vec{y} =
-     * \boldsymbol{A} \vec{x} = \sum_{j=1}^{n} a_{ij} x_j, ~ \forall i \f$.
-     * If desired, setting the \p adding flag to \p true will add the
-     * matrix-vector product to the destination vector \f$ \vec{y} \f$.
+     * Compute a matrix-vector product via \f$ \vec{y} = \boldsymbol{A} \vec{x}
+     * = \sum_{j=1}^{n} a_{ij} x_j, ~ \forall i \f$.
+     *
+     * \param[in] x The multiplying Vector.
+     * \param[out] y The destination Vector.
+     * \param adding A flag for adding to or setting the destination Vector.
      */
     void vmult(const Vector& x, Vector& y,
                const bool adding = false) const;
 
     /**
-     * Compute a transpose matrix-vector product. This is computed via \f$
-     * \vec{y} = \boldsymbol{A}^T \vec{x} = \sum_{i=1}^{n} a_{ji} x_i, ~ \forall
-     * i \f$. If desired, setting the \p adding flag to \p true will add the
-     * matrix-vector product to the destination vector \f$ \vec{y} \f$.
+     * Compute a transpose matrix-vector product via \f$ \vec{y} =
+     * \boldsymbol{A}^T \vec{x} = \sum_{i=1}^{n} a_{ji} x_i, ~ \forall  i \f$.
+     *
+     * \param[in] x The multiplying Vector.
+     * \param[out] y The destination Vector.
+     * \param adding A flag for adding to or setting the destination Vector.
      */
     void Tvmult(const Vector& x, Vector& y,
                 const bool adding = false) const;
@@ -299,77 +303,43 @@ namespace Math
     Vector Tvmult(const Vector& x) const;
 
     /**
-     * Add a matrix-vector product to the destination vector \f$ \vec{y} \f$.
+     * Add a matrix-vector product to the destination Vector.
      *
-     * \see Matrix::vmult
+     * \param[in] x The multiplying Vector.
+     * \param[out] y The destination Vector.
      */
     void vmult_add(const Vector& x, Vector& y) const;
 
     /**
-     * Add a transpose matrix-vector product to the destination vector
-     * \f$ \vec{y} \f$
+     * Add a transpose matrix-vector product to the destination vector.
      *
-     * \see Matrix::Tvmult
+     * \param[in] x The multiplying Vector.
+     * \param[out] y The destination Vector.
      */
     void Tvmult_add(const Vector& x, Vector& y);
 
-    /**
-     * Negate the elements of the matrix. This is computed via \f$ \boldsymbol{A}
-     * = -\boldsymbol{A} = -a_{ij}, ~ \forall i, j \f$.
-     */
+    /** Element-wise negation in place. */
     Matrix& operator-();
 
-    /**
-     * Return a matrix containing the negated elements of this matrix.
-     *
-     * \see Matrix::operator-()
-     */
+    /** Return a Matrix with the negated elements. */
     Matrix operator-() const;
 
-    /**
-     * Multiply the elements of the matrix by a scalar factor. This is computed via
-     * \f$ \boldsymbol{A} = \alpha \boldsymbol{A} = \alpha a_{ij} ~ \forall i, j
-     * \f$.
-     *
-     * \see Matrix::scale
-     */
-    Matrix& operator*=(const value_type factor);
+    /** Element-wise multiplication by a scalar in place. */
+    Matrix& operator*=(const double factor);
 
-    /**
-     * Divide the elements of the matrix by a scalar value. This is computed via
-     * \f$ \boldsymbol{A} = \frac{\boldsymbol{A}}{\alpha} = \frac{a_{ij}}{\alpha},
-     * ~ \forall i, j \f$.
-     *
-     * \see Matrix::scale
-     */
-    Matrix& operator/=(const value_type factor);
+    /** Element-wise division by a scalar in place. */
+    Matrix& operator/=(const double factor);
 
-    /**
-     * Add another matrix. This is computed via \f$ \boldsymbol{A} =
-     * \boldsymbol{A} + \boldsymbol{B} = a_{ij} + b_{ij}, ~ \forall i, j \f$.
-     *
-     * \see Matrix::add
-     */
+    /** Element-wise addition with a Matrix in place. */
     Matrix& operator+=(const Matrix& B);
 
-    /**
-     * Subtract another matrix. This is computed via \f$ \boldsymbol{A} =
-     * \boldsymbol{A} - \boldsymbol{B} = a_{ij} - b_{ij}, ~ \forall i, j \f$.
-     *
-     * \see Matrix::add
-     */
+    /** Element-wise subtraction with a Matrix in place. */
     Matrix& operator-=(const Matrix& B);
 
-    /**
-     * Compute a matrix-vector product.
-     *
-     * \see Matrix::vmult
-     */
+    /** Return a matrix-vector product. */
     Vector operator*(const Vector& x) const;
 
-    /**
-     * Return the transpose of the matrix.
-     */
+    /** Return the transpose. */
     Matrix transpose() const;
 
     // @}
@@ -411,25 +381,49 @@ namespace Math
 
   //################################################## Methods
 
-  /** Add two matrices together. */
+  /** Element-wise addition. */
   Matrix operator+(const Matrix& A, const Matrix& B);
 
-  /** Subtract two matrices. */
+  /** Element-wise subtraction. */
   Matrix operator-(const Matrix& A, const Matrix& B);
 
   /** Return a matrix-matrix product. */
   Matrix operator*(const Matrix& A, const Matrix& B);
 
-  /** Compute a matrix-matrix product. */
+  /**
+   * Compute a matrix-matrix product.
+   *
+   * \param[in] A The left Matrix.
+   * \param[in] B The right multiplying Matrix.
+   * \param[out] C The destination Matrix.
+   */
   void mmult(const Matrix& A, const Matrix& B, Matrix& C);
 
-  /** Compute a transpose matrix-matrix product. */
+  /**
+   * Compute a transpose matrix-matrix product.
+   *
+   * \param[in] A The left Matrix.
+   * \param[in] B The right multiplying Matrix.
+   * \param[out] C The destination Matrix.
+   */
   void Tmmult(const Matrix& A, const Matrix& B, Matrix& C);
 
-  /** Compute a matrix-transpose matrix product. */
+  /**
+   * Compute a matrix-transpose matrix product.
+   *
+   * \param[in] A The left Matrix.
+   * \param[in] B The right multiplying Matrix.
+   * \param[out] C The destination Matrix.
+   */
   void mTmult(const Matrix& A, const Matrix& B, Matrix& C);
 
-  /** Compute a transpose matrix-transpose matrix product. */
+  /**
+   * Compute a transpose matrix-transpose matrix product.
+   *
+   * \param[in] A The left Matrix.
+   * \param[in] B The right multiplying Matrix.
+   * \param[out] C The destination Matrix.
+   */
   void TTmult(const Matrix& A, const Matrix& B, Matrix& C);
 
   /** Return a matrix-matrix product. */
@@ -444,10 +438,23 @@ namespace Math
   /** Return a transpose matrix-transpose matrix product. */
   Matrix TTmult(const Matrix& A, const Matrix& B);
 
-  /** Compute a matrix-vector product. */
+  /**
+   * Compute a matrix-vector product.
+   *
+   * \param[in] A The Matrix.
+   * \param[in] x The multiplying Vector.
+   * \param[out] y The destination Vector.
+   */
   void vmult(const Matrix& A, const Vector& x, Vector& y);
 
-  /** Compute a transpose matrix-vector product. */
+  /**
+   * Compute a transpose matrix-vector product.
+   *
+   * \param[in] A The Matrix.
+   * \param[in] x The multiplying Vector.
+   * \param[out] y The destination Vector.
+   *
+   */
   void Tvmult(const Matrix& A, const Vector& x, Vector& y);
 
   /** Return a matrix-vector product. */
@@ -456,7 +463,6 @@ namespace Math
   /** Return a transpose matrix-vector product. */
   Vector Tvmult(const Matrix& A, const Vector& x);
 
-  /** Insert a matrix into an output stream. */
   std::ostream& operator<<(std::ostream& os, const Matrix& A);
 
 }

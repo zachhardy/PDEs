@@ -11,23 +11,23 @@ FiniteVolume(std::shared_ptr<Grid::Mesh> reference_mesh) :
 
 
 size_t
+FiniteVolume::n_nodes() const
+{ return mesh->cells.size(); }
+
+
+unsigned int
 FiniteVolume::nodes_per_cell() const
 { return 1; }
 
 
 size_t
-FiniteVolume::dofs_per_cell(const size_t n_components) const
-{ return n_components; }
-
-
-size_t
-FiniteVolume::n_nodes() const
-{ return mesh->cells.size(); }
-
-
-size_t
-FiniteVolume::n_dofs(const size_t n_components) const
+FiniteVolume::n_dofs(const unsigned int n_components) const
 { return n_components*mesh->cells.size(); }
+
+
+unsigned int
+FiniteVolume::dofs_per_cell(const unsigned int n_components) const
+{ return n_components; }
 
 
 std::vector<Grid::Point>

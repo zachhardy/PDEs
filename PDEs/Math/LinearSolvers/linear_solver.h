@@ -15,16 +15,17 @@ namespace Math
 namespace Math::LinearSolver
 {
 
+  /** Common options for linear solvers. */
   struct Options
   {
-    size_t verbosity = 0;
+    unsigned int verbosity = 0;
 
     double tolerance = 1.0e-6;
-    size_t max_iterations = 500;
+    unsigned int max_iterations = 500;
 
     Options(const double tolerance = 1.0e-6,
-            const size_t max_iterations = 500,
-            const size_t verbosity = 0);
+            const unsigned int max_iterations = 500,
+            const unsigned int verbosity = 0);
   };
 
 

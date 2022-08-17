@@ -72,8 +72,8 @@ template class LinearSolver::DirectSolverBase<SparseMatrix>;
 
 
 Options::Options(const double tolerance,
-                 const size_t max_iterations,
-                 const size_t verbosity) :
+                 const unsigned int max_iterations,
+                 const unsigned int verbosity) :
   tolerance(tolerance),
   max_iterations(max_iterations),
   verbosity(verbosity)

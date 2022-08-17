@@ -83,7 +83,7 @@ size_t
 Vector::nnz() const
 {
   return std::count_if(vals.begin(), vals.end(),
-                       [](const value_type v)
+                       [](const double v)
                        { return v != 0.0; });
 }
 
@@ -287,7 +287,7 @@ Vector::lp_norm(const double p) const
 
 
 Vector&
-Vector::scale(const value_type factor)
+Vector::scale(const double factor)
 {
   for (auto& el : vals)
     el *= factor;
@@ -301,9 +301,9 @@ Vector::scale(const Vector scaling_factors)
   Assert(scaling_factors.size() == size(), "Dimension mismatch error.");
 
   // Get pointers for faster access
-  value_type* el_ptr = data();
-  const value_type* f_ptr = scaling_factors.data();
-  value_type* end_ptr = data() + vals.size();
+  double* el_ptr = data();
+  const double* f_ptr = scaling_factors.data();
+  double* end_ptr = data() + vals.size();
 
   // Perform the vector scaling
   for (; el_ptr != end_ptr; ++el_ptr, ++f_ptr)
@@ -313,7 +313,7 @@ Vector::scale(const Vector scaling_factors)
 
 
 Vector&
-Vector::add(const value_type value)
+Vector::add(const double value)
 {
   for (auto& el : vals)
     el += value;
@@ -322,14 +322,14 @@ Vector::add(const value_type value)
 
 
 Vector&
-Vector::add(const Vector& y, const value_type a)
+Vector::add(const Vector& y, const double a)
 {
   Assert(y.size() == size(), "Dimension mismatch error.");
 
   // Get pointers for fast access
-  value_type* x_ptr = data();
-  const value_type* y_ptr = y.data();
-  value_type* end_ptr = data() + size();
+  double* x_ptr = data();
+  const double* y_ptr = y.data();
+  double* end_ptr = data() + size();
 
   // Perform the add operation
   for (; x_ptr != end_ptr; ++x_ptr, ++y_ptr)
@@ -339,14 +339,14 @@ Vector::add(const Vector& y, const value_type a)
 
 
 Vector&
-Vector::sadd(const value_type a, const Vector& y)
+Vector::sadd(const double a, const Vector& y)
 {
   Assert(y.size() == size(), "Dimension mismatch error.");
 
   // Get pointers for fast access
-  value_type* x_ptr = data();
-  const value_type* y_ptr = y.data();
-  value_type* end_ptr = data() + size();
+  double* x_ptr = data();
+  const double* y_ptr = y.data();
+  double* end_ptr = data() + size();
 
   // Perform the add operation
   for (; x_ptr != end_ptr; ++x_ptr, ++y_ptr)
@@ -356,14 +356,14 @@ Vector::sadd(const value_type a, const Vector& y)
 
 
 Vector&
-Vector::sadd(const value_type a, const value_type b, const Vector& y)
+Vector::sadd(const double a, const double b, const Vector& y)
 {
   Assert(y.size() == size(), "Dimension mismatch error.");
 
   // Get pointers for fast access
-  value_type* x_ptr = data();
-  const value_type* y_ptr = y.data();
-  value_type* end_ptr = data() + size();
+  double* x_ptr = data();
+  const double* y_ptr = y.data();
+  double* end_ptr = data() + size();
 
   // Perform the add operation
   for (; x_ptr != end_ptr; ++x_ptr, ++y_ptr)
@@ -373,14 +373,14 @@ Vector::sadd(const value_type a, const value_type b, const Vector& y)
 
 
 Vector&
-Vector::equal(const Vector& y, const value_type factor)
+Vector::equal(const Vector& y, const double factor)
 {
   assert(y.size() == size());
 
   // Get pointers for fast access
-  value_type* x_ptr = data();
-  const value_type* y_ptr = y.data();
-  value_type* end_ptr = data() + size();
+  double* x_ptr = data();
+  const double* y_ptr = y.data();
+  double* end_ptr = data() + size();
 
   // Perform the add operation
   for (; x_ptr != end_ptr;)
@@ -427,9 +427,9 @@ Vector::operator+=(const Vector& y)
   Assert(y.size() == size(), "Dimension mismatch error.");
 
   // Get pointers for fast access
-  value_type* x_ptr = data();
-  const value_type* y_ptr = y.data();
-  value_type* end_ptr = data() + size();
+  double* x_ptr = data();
+  const double* y_ptr = y.data();
+  double* end_ptr = data() + size();
 
   // Add the other vector
   for (; x_ptr != end_ptr; ++x_ptr, ++y_ptr)
@@ -444,9 +444,9 @@ Vector::operator-=(const Vector& y)
   Assert(y.size() == size(), "Dimension mismatch error.");
 
   // Get pointers for fast access
-  value_type* x_ptr = data();
-  const value_type* y_ptr = y.data();
-  value_type* end_ptr = data() + size();
+  double* x_ptr = data();
+  const double* y_ptr = y.data();
+  double* end_ptr = data() + size();
 
   // Subtract the other vector
   for (; x_ptr != end_ptr; ++x_ptr, ++y_ptr)

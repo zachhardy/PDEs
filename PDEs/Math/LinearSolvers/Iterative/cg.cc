@@ -3,10 +3,8 @@
 #include "vector.h"
 #include "Sparse/sparse_matrix.h"
 
-#include "macros.h"
-#include "Timer/timer.h"
-
 #include <cmath>
+#include <cassert>
 
 
 using namespace Math;
@@ -22,8 +20,8 @@ LinearSolver::CG::
 solve(Vector& x, const Vector& b) const
 {
   size_t n = A->n_rows();
-  Assert(b.size() == n, "Dimension mismatch error.")
-  Assert(x.size() == n, "Dimension mismatch error.")
+  assert(b.size() == n);
+  assert(x.size() == n);
 
   double norm = b.l2_norm();
 

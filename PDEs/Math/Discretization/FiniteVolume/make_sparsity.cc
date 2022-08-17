@@ -4,7 +4,7 @@
 void
 Math::FiniteVolume::
 make_sparsity_pattern(std::vector<std::vector<size_t>> pattern,
-                      const size_t n_components,
+                      const unsigned int n_components,
                       const bool is_coupled) const
 {
   // Resive based on the number of DoFs
@@ -13,12 +13,12 @@ make_sparsity_pattern(std::vector<std::vector<size_t>> pattern,
   // Loop over cells
   for (const auto& cell : mesh->cells)
   {
-    const uint64_t ir = cell.id*n_components;
+    const size_t ir = cell.id*n_components;
 
-    for (uint64_t c = 0; c < n_components; ++c)
+    for (unsigned int c = 0; c < n_components; ++c)
     {
       if (is_coupled)
-        for (uint64_t cp = 0; cp < n_components; ++cp)
+        for (unsigned int cp = 0; cp < n_components; ++cp)
           pattern[ir + c].emplace_back(ir + cp);
       else
         pattern[ir + c].emplace_back(ir + c);
@@ -30,8 +30,8 @@ make_sparsity_pattern(std::vector<std::vector<size_t>> pattern,
     {
       if (face.has_neighbor)
       {
-        const uint64_t jr = face.neighbor_id*n_components;
-        for (uint64_t c = 0; c < n_components; ++c)
+        const size_t jr = face.neighbor_id*n_components;
+        for (unsigned int c = 0; c < n_components; ++c)
           pattern[ir + c].emplace_back(jr + c);
       }
     }//for face

@@ -14,16 +14,16 @@ namespace Math::LinearSolver
   class PETScSolver : public LinearSolverBase<SparseMatrix>
   {
   protected:
-    //========== Solver parameters
-    size_t verbosity;
+    // Solver parameters
+    unsigned int verbosity;
 
     double relative_residual_tolerance;
-    size_t max_iterations;
+    unsigned int max_iterations;
 
     std::string solver_type = KSPCG;
     std::string preconditioner_type = PCNONE;
 
-    //========== PETSc solver objects
+    // PETSc solver objects
     Mat A;
     KSP ksp;
     PC pc;
@@ -45,13 +45,11 @@ namespace Math::LinearSolver
   private:
 
     static PetscErrorCode
-    KSPMonitor(KSP solver, PetscInt it,
-               PetscReal rnorm,
+    KSPMonitor(KSP solver, PetscInt it, PetscReal rnorm,
                void* monitordestroy);
 
     static PetscErrorCode
-    KSPConvergenceTest(KSP solver, PetscInt it,
-                       PetscReal rnorm,
+    KSPConvergenceTest(KSP solver, PetscInt it, PetscReal rnorm,
                        KSPConvergedReason* reason, void*);
   };
 }

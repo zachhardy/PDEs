@@ -3,9 +3,8 @@
 #include "vector.h"
 #include "Sparse/sparse_matrix.h"
 
-#include "macros.h"
-
 #include <cmath>
+#include <cassert>
 
 
 using namespace Math;
@@ -14,9 +13,7 @@ using namespace Math;
 LinearSolver::SOR::
 SOR(const double omega, const Options& opts, const std::string solver_name) :
   IterativeSolverBase(opts, solver_name), omega(omega)
-{
-  Assert(omega > 0 && omega < 2, "Invalid relaxation parameter.");
-}
+{ assert(omega > 0 && omega < 2); }
 
 
 void LinearSolver::SOR::
