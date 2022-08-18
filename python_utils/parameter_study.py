@@ -54,8 +54,9 @@ def parameter_study(problem_name, study):
 
     path = os.path.dirname(os.path.abspath(__file__))
     path = "/".join(path.split("/")[:-1])
-    path = os.path.join(path, "Problems")
-    path_to_exe = os.path.join(path, "bin")
+
+    path_to_exe = os.path.join("bin", "Problems")
+    path_to_out = os.path.join(path, "Problems")
     study = int(study)
 
     ##################################################
@@ -64,7 +65,7 @@ def parameter_study(problem_name, study):
 
     # Three group sphere problem
     if problem_name == "Sphere3g":
-        path = os.path.join(path, problem_name)
+        path_to_out = os.path.join(path_to_out, problem_name)
         path_to_exe = os.path.join(path_to_exe, "Sphere3g")
 
         # Define the parameter
@@ -87,7 +88,7 @@ def parameter_study(problem_name, study):
 
     # TWIGL problem
     elif problem_name == "TWIGL":
-        path = os.path.join(path, problem_name)
+        path_to_out = os.path.join(path_to_out, problem_name)
         path_to_exe = os.path.join(path_to_exe, "TWIGL")
 
         magnitude = 0.97667 - 1.0
@@ -123,7 +124,7 @@ def parameter_study(problem_name, study):
     # LRA benchmark problem
     elif problem_name == "LRA":
 
-        path = os.path.join(path, problem_name)
+        path_to_out = os.path.join(path_to_out, problem_name)
         path_to_exe = os.path.join(path_to_exe, "LRA")
 
         magnitude = 0.8787631 - 1.0
@@ -170,7 +171,7 @@ def parameter_study(problem_name, study):
     ##################################################
 
     # Define the path to the output directory
-    output_path = f"{path}/studies/{keys[0]}"
+    output_path = f"{path_to_out}/studies/{keys[0]}"
     for k, key in enumerate(keys[1:]):
         output_path += f"_{key}"
     setup_directory(output_path)
