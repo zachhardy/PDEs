@@ -25,7 +25,7 @@ coordinate_system_str(const CoordinateSystemType coord_sys)
 //######################################################################
 
 
-Mesh::Mesh(const size_t dimension,
+Mesh::Mesh(const unsigned int dimension,
            const CoordinateSystemType coordinate_system)
   : dim(dimension), coord_sys(coordinate_system)
 {}

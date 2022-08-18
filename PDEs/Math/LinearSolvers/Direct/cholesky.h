@@ -21,8 +21,8 @@ namespace Math::LinearSolver
      * into a lower triangular matrix and its transpose. This method is more
      * efficient than the LU decomposition when applicable.
      *
-     * \note Checks are not performed to ensure symetric positive definiteness.
-     *    The user is responsible for ensuring the matrix fits this criteria.
+     * \note Checks are not performed to ensure symmetric positive definiteness.
+     *       The user is responsible for ensuring the matrix fits this criteria.
      */
     void factorize() override;
 

@@ -433,7 +433,7 @@ SparseMatrix::reinit(const size_t n_rows,
 
 
 SparseMatrix&
-SparseMatrix::operator=(const value_type value)
+SparseMatrix::operator=(const double value)
 {
   for (auto& row : vals)
     for (auto& el : row)
@@ -700,7 +700,7 @@ SparseMatrix::clear()
 void
 SparseMatrix::set(const size_t row,
                   const size_t col,
-                  const value_type value)
+                  const double value)
 {
   assert(row < rows);
   assert(col < cols);
@@ -738,7 +738,7 @@ SparseMatrix::set(const size_t row,
 void
 SparseMatrix::add(const size_t row,
                   const size_t col,
-                  const value_type value)
+                  const double value)
 {
   assert(row < rows);
   assert(col < cols);
@@ -776,7 +776,7 @@ SparseMatrix::swap(SparseMatrix& other)
 
 
 SparseMatrix&
-SparseMatrix::scale(const value_type factor)
+SparseMatrix::scale(const double factor)
 {
   for (auto& row_vals : vals)
     for (auto& el : row_vals)
@@ -787,14 +787,14 @@ SparseMatrix::scale(const value_type factor)
 
 SparseMatrix&
 SparseMatrix::add(const SparseMatrix& B,
-                  const value_type factor)
+                  const double factor)
 {
   assert(colnums == B.colnums);
   for (size_t row = 0; row < rows; ++row)
   {
-    value_type* a_ij = &vals[row][0];
-    const value_type* b_ij = &B.vals[row][0];
-    const value_type* const eor = a_ij + row_length(row);
+    double* a_ij = &vals[row][0];
+    const double* b_ij = &B.vals[row][0];
+    const double* const eor = a_ij + row_length(row);
 
     while (a_ij != eor)
       *a_ij++ += factor**b_ij++;
@@ -804,15 +804,15 @@ SparseMatrix::add(const SparseMatrix& B,
 
 
 SparseMatrix&
-SparseMatrix::sadd(const value_type a,
+SparseMatrix::sadd(const double a,
                    const SparseMatrix& B)
 {
   assert(colnums == B.colnums);
   for (size_t row = 0; row < rows; ++row)
   {
-    value_type* a_ij = &vals[row][0];
-    const value_type* b_ij = &B.vals[row][0];
-    const value_type* const eor = a_ij + row_length(row);
+    double* a_ij = &vals[row][0];
+    const double* b_ij = &B.vals[row][0];
+    const double* const eor = a_ij + row_length(row);
 
     for (; a_ij != eor; ++a_ij)
       *a_ij = a**a_ij + *b_ij;
@@ -822,16 +822,16 @@ SparseMatrix::sadd(const value_type a,
 
 
 SparseMatrix&
-SparseMatrix::sadd(const value_type a,
-                   const value_type b,
+SparseMatrix::sadd(const double a,
+                   const double b,
                    const SparseMatrix& B)
 {
   assert(colnums == B.colnums);
   for (size_t row = 0; row < rows; ++row)
   {
-    value_type* a_ij = &vals[row][0];
-    const value_type* b_ij = &B.vals[row][0];
-    const value_type* const eor = a_ij + row_length(row);
+    double* a_ij = &vals[row][0];
+    const double* b_ij = &B.vals[row][0];
+    const double* const eor = a_ij + row_length(row);
 
     for (; a_ij != eor; ++a_ij)
       *a_ij = a**a_ij + b**b_ij;
@@ -848,15 +848,15 @@ SparseMatrix::vmult(const Vector& x,
   assert(x.size() == cols);
   assert(y.size() == rows);
 
-  value_type* dst_ptr = &y[0];
+  double* dst_ptr = &y[0];
 
   for (size_t row = 0; row < rows; ++row)
   {
     const size_t* col_ptr = &colnums[row][0];
-    const value_type* a_ij = &vals[row][0];
-    const value_type* const eor = a_ij + row_length(row);
+    const double* a_ij = &vals[row][0];
+    const double* const eor = a_ij + row_length(row);
 
-    value_type val = adding? *dst_ptr : 0.0;
+    double val = adding? *dst_ptr : 0.0;
     while (a_ij != eor)
       val += *a_ij++*x[*col_ptr++];
     *dst_ptr++ = val;
@@ -872,14 +872,14 @@ SparseMatrix::Tvmult(const Vector& x,
   assert(x.size() == cols);
   assert(y.size() == rows);
 
-  value_type* dst_ptr = &y[0];
-  const value_type* x_ptr = &x[0];
+  double* dst_ptr = &y[0];
+  const double* x_ptr = &x[0];
 
   for (size_t row = 0; row < rows; ++row, ++x_ptr)
   {
     const size_t* col_ptr = &colnums[row][0];
-    const value_type* a_ij = &vals[row][0];
-    const value_type* const eor = a_ij + row_length(row);
+    const double* a_ij = &vals[row][0];
+    const double* const eor = a_ij + row_length(row);
 
     while (a_ij != eor)
       dst_ptr[*col_ptr++] += *a_ij++**x_ptr;
@@ -921,12 +921,12 @@ SparseMatrix::operator-()
 
 
 SparseMatrix&
-SparseMatrix::operator*=(const value_type factor)
+SparseMatrix::operator*=(const double factor)
 { return scale(factor); }
 
 
 SparseMatrix&
-SparseMatrix::operator/=(const value_type factor)
+SparseMatrix::operator/=(const double factor)
 {
   assert(factor != 0.0);
   return scale(1.0/factor);

@@ -9,18 +9,14 @@ namespace Grid
 {
 
   /**
-   * A class representing a point vector in space.
+   * A class representing a point in space or a vector.
    *
-   * In this context, a point is defined as a generic three-vector. This carries
-   * a number of different interpretations, such as a scalar point or a vector.
-   * Example uses for this class are representing vertices on a mesh, centroids
-   * on cells or faces, nodes in a spatial discretization, outward normal vectors
-   * on faces, or gradient vectors.
+   * A point is defined as a three-vector. This is intended to be used to
+   * define various quantities such as vertices, centroids, nodes, normal
+   * vectors, or gradient vectors.
    */
   class Point
   {
-  public:
-
   public:
     double x;
     double y;
@@ -48,14 +44,14 @@ namespace Grid
                    const double c);
 
     /**
-     * Static method to construct a unit vector in the specified dimension.
+     * Construct a unit vector in the specified dimension.
      *
      * \param axis The axis to construct the unit vector for. 0 corresponds to
      *    the x-direction, 1 to the y-direction, and 2 to the z-direction.
      */
     static Point unit_vector(const unsigned int axis);
 
-    /** Set all elements of the point to a scalar value. */
+    /** Element-wise assignment to a scalar value. */
     Point& operator=(const double value);
 
     // @}
@@ -67,6 +63,7 @@ namespace Grid
 
     double& operator[](const unsigned int i);
     const double& operator[](const unsigned int i) const;
+
     double& operator()(const unsigned int i);
     const double& operator()(const unsigned int i) const;
 
@@ -80,10 +77,10 @@ namespace Grid
     bool operator==(const Point& q) const;
     bool operator!=(const Point& q) const;
 
-    /** Return the distance of the point from the origin. */
+    /** Return the Euclidean distance to the origin. */
     double length() const;
 
-    /** Return the squared distance of the point from the origin. */
+    /** Return the Euclidean distance to the origin squared. */
     double length_squared() const;
 
     // @}
@@ -93,16 +90,17 @@ namespace Grid
     /** \name Scalar Operations */
     //@{
 
-    /** Element-wise negation in-place. */
+
+    /** Element-wise negation in place. */
     Point& operator-();
 
-    /** Return an element-wise negated Point. */
+    /** Return a Point containing the negated elements. */
     Point operator-() const;
 
-    /** Element-wise multiplication by a scalar in-place. */
+    /** Element-wise multiplication by a scalar in place. */
     Point& operator*=(const double factor);
 
-    /** Element-wise division by a scalar in-place. */
+    /** Element-wise division by a scalar in place. */
     Point& operator/=(const double factor);
 
     // @}
@@ -119,28 +117,27 @@ namespace Grid
     Point& operator-=(const Point& q);
 
     /**
-     * Return the dot product between this and another point via
-     * \f$ c = p_x q_x + p_y q_y + p_z q_z \f$.
+     * Take the dot product with another Point via \f$ c = p_x q_x + p_y q_y +
+     * p_z q_z \f$.
      */
     double dot(const Point& q) const;
 
     /**
-     * Return the cross product between this and another point via
-     * \f$ r = p \times q
-     *       = (p_y q_z - p_z q_y, p_z q_x - p_x q_z, p_x q_y - p_y q_x) \f$.
+     * Take the cross product with another Point via  \f$ r = p \times q =
+     * (p_y q_z - p_z q_y, p_z q_x - p_x q_z, p_x q_y - p_y q_x) \f$.
      */
     Point cross(const Point& q) const;
 
-    /** Return the Euclidean distance between two points. */
+    /** Return the Euclidean distance to another Point. */
     double distance(const Point& q) const;
 
-    /** Return the squared Euclidean distance between two points. */
+    /** Return the Euclidean distance to another Point squared. */
     double distance_squared(const Point& q) const;
 
-    /** Element-wise absolute value in-place. */
+    /** Element-wise absolute value in place. */
     Point& fabs();
 
-    /** Return the absolute value of this Point. */
+    /** Return a Point containing the absolute value of the elements. */
     Point fabs() const;
 
     /** Normalize the Point to its length. */
@@ -169,13 +166,13 @@ namespace Grid
 
   //================================================== Methods
 
-  /** Element-wise multiplication by a scalar value. */
+  /** Element-wise multiplication by a scalar. */
   Point operator*(const Point& p, const double factor);
 
-  /** Element-wise multiplication by a scalar value. */
+  /** Element-wise multiplication by a scalar. */
   Point operator*(const double factor, const Point& p);
 
-  /** Element-wise division by a scalar value. */
+  /** Element-wise division by a scalar. */
   Point operator/(const Point& p, const double factor);
 
   /** Element-wise addition. */

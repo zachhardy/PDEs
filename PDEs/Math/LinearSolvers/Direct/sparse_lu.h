@@ -11,19 +11,16 @@
 namespace Math::LinearSolver
 {
 
-  /**
-   * Implementation of a sparse LU solver.
-   */
+  /** Implementation of a sparse LU solver. */
   class SparseLU : public DirectSolverBase<SparseMatrix>
   {
   private:
     bool pivot_flag = true;
 
     /**
-     * The pivot mapping vector.
-     * The index corresponds to the initial row number and the value to the
-     * pivoted row number. This is used to map the right-hand side vector to the
-     * correct row when solving.
+     * The pivot mapping vector. The index corresponds to the initial row
+     * number and the value to the pivoted row number. This is used to map the
+     * right-hand side vector to the correct row when solving.
      */
     std::vector<size_t> row_pivots;
 
@@ -36,18 +33,10 @@ namespace Math::LinearSolver
     /** Attach a matrix to the solver. */
     void set_matrix(const SparseMatrix& matrix) override;
 
-    /**
-     * Factor the matrix \f$ \boldsymbol{A} \f$ in-place.
-     *
-     * \see LU::factorize
-     */
+    /** Factor the matrix \f$ \boldsymbol{A} \f$ in-place. \see LU::factorize */
     void factorize() override;
 
-    /**
-     * Solve the LU factored linear system.
-     *
-     * \see LU::solve
-     */
+    /** Solve the LU factored linear system. \see LU::solve */
     void solve(Vector& x, const Vector& b) const override;
 
 

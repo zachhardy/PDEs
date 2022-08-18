@@ -104,10 +104,8 @@ PETScSolver::solve(Vector& x, const Vector& b) const
 
 
 PetscErrorCode
-PETScSolver::KSPConvergenceTest(KSP solver,
-                                PetscInt it, PetscReal rnorm,
-                                KSPConvergedReason* reason,
-                                void*)
+PETScSolver::KSPConvergenceTest(KSP solver, PetscInt it, PetscReal rnorm,
+                                KSPConvergedReason* reason, void*)
 {
   Vec rhs;
   KSPGetRhs(solver, &rhs);
@@ -128,8 +126,7 @@ PETScSolver::KSPConvergenceTest(KSP solver,
 
 PetscErrorCode
 PETScSolver::KSPMonitor(KSP solver, PetscInt it,
-                        PetscReal rnorm,
-                        void* monitordestroy)
+                        PetscReal rnorm, void* monitordestroy)
 {
   Vec rhs;
   KSPGetRhs(solver, &rhs);

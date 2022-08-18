@@ -1,7 +1,8 @@
 #include "point.h"
-#include "macros.h"
 
+#include <sstream>
 #include <cmath>
+#include <cassert>
 
 
 using namespace Grid;
@@ -52,7 +53,7 @@ Point::operator=(const double value)
 Point
 Point::unit_vector(const unsigned int axis)
 {
-  Assert(axis < 3, "Invalid dimension provided.");
+  assert(axis < 3);
   if (axis == 0) return Point(1.0, 0.0, 0.0);
   else if (axis == 1) return Point(0.0, 1.0, 0.0);
   else return Point(0.0, 0.0, 1.0);
@@ -78,7 +79,7 @@ Point::operator!=(const Point& q) const
 double&
 Point::operator[](const unsigned int i)
 {
-  Assert(i < 3, "Invalid dimension provided.");
+  assert(i < 3);
   if (i == 0) return x;
   else if (i == 1) return y;
   else return z;
@@ -88,7 +89,7 @@ Point::operator[](const unsigned int i)
 const double&
 Point::operator[](const unsigned int i) const
 {
-  Assert(i < 3, "Invalid dimension provided.");
+  assert(i < 3);
   if (i == 0) return x;
   else if (i == 1) return y;
   else return z;
@@ -149,7 +150,7 @@ Point::operator*=(const double factor)
 Point&
 Point::operator/=(const double factor)
 {
-  Assert(factor != 0.0, "Zero division error.");
+  assert(factor != 0.0);
   x /= factor;
   y /= factor;
   z /= factor;

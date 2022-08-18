@@ -33,7 +33,7 @@ namespace Physics
     std::vector<double> sigma_f;  ///< Fission cross section
     std::vector<double> sigma_r;  ///< Removal cross section
 
-    /// Moment-wise group-to-group transfer matrices
+    /** Moment-wise group-to-group transfer matrices */
     std::vector<TransferMatrix> transfer_matrices;
 
     std::vector<double> chi;        ///< Total fission spectrum.
@@ -53,7 +53,7 @@ namespace Physics
     std::vector<double> precursor_yield;  ///< Precursor yield fractions.
 
     std::vector<double> inv_velocity; ///< Inverse speed (s/cm)
-    std::vector<double> diffusion_coeff; ///< Diffusion coefficient
+    std::vector<double> diffusion_coeff; ///< Diffusion coefficient (cm)
     std::vector<double> buckling; ///< Material buckling term
 
     /** A convenient typedef for functional cross-sections. */
@@ -70,16 +70,12 @@ namespace Physics
     /** \name Constructors and Initialization */
     // @{
 
-    /** Construct an empty cross-section property. */
     CrossSections();
-
-    /** Construct an empty cross-section property with the specified name. */
     CrossSections(const std::string property_name);
 
-    /** Reset the cross-sections to an uninitialized state. */
     void reset();
 
-    /** Read a "xs" file containing the cross-section information. */
+    /** Read a ".xs" file containing the cross-section information. */
     void read_xs_file(const std::string file_name,
                       const double rho = 1.0,
                       const bool verbose = false);
@@ -97,10 +93,10 @@ namespace Physics
      * Compute \f$ \sigma_s \f$ from the zeroth scattering moment.
      *
      * Compute the group-wise scattering cross sections from the zeroth transfer
-     * matrices. This is defined as the sum of all transfers from a fixed group to
-     * any other. Mathematically, this is given by
-     * \f$ \sigma_{s,g} = \sum_{g^\prime} \sigma_{0, g \rightarrow g^\prime} \f$,
-     * which is obtained via column-wise sums.
+     * matrices. This is defined as the sum of all transfers from a fixed group
+     * to any other. Mathematically, this is given by \f$ \sigma_{s,g} =
+     * \sum_{g^\prime} \sigma_{0, g \rightarrow g^\prime} \f$, which is obtained
+     * via column-wise sums.
      */
     void compute_scattering_from_transfers();
 
@@ -146,7 +142,7 @@ namespace Physics
      * Compute the macroscopic cross-sections via
      * \f$ \Sigma_x = \rho \sigma_x \f$.
      * If the \p diffusion_coeff was unspecified, it is computed via its standard
-     * defintion, given by \f$ D = \frac{1}{3 \Sigma_t} \f$.
+     * definition, given by \f$ D = \frac{1}{3 \Sigma_t} \f$.
      */
     void compute_macroscopic_cross_sections();
 

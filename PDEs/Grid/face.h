@@ -11,10 +11,10 @@ namespace Grid
 {
 
   /**
-   * A class that represents a face on a Cell.
+   * A class that represents a face on a cell.
    *
    * A face is defined as a <tt>dim - 1</tt>-dimensional object which, in
-   * a collection, bounds a <tt>dim</tt>-dimensional cell. face objects in
+   * a collection, bounds a <tt>dim</tt>-dimensional cell. Face objects in
    * various dimensions are:
    *  -   1D: Vertex
    *  -   2D: Edge, or connection of 2 vertices
@@ -28,8 +28,8 @@ namespace Grid
     std::vector<size_t> vertex_ids;
 
     /**
-     * The ID of the cell opposite this face in the direction of its normal if
-     * an interior face. If a boundary face, the boundary ID.
+     * On interior faces, this stores the global ID of the cell opposite the
+     * face. On boundary faces, this stores the boundary ID.
      */
     size_t neighbor_id = 0;
     bool has_neighbor = false;
