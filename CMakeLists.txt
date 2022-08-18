@@ -98,7 +98,7 @@ foreach(testsource ${TEST_TARGETS})
     target_link_libraries(${test} PDELib Eigen3::Eigen petsc)
     set_target_properties(${test} PROPERTIES
                           RUNTIME_OUTPUT_DIRECTORY
-                          ${dirname}/../bin)
+                          ${dirname}/../../bin/Problems)
 endforeach(testsource ${TEST_TARGETS})
 
 #-------------------- Write Makefile to root directory
