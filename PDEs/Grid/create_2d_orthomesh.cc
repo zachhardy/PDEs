@@ -93,13 +93,13 @@ Grid::create_2d_orthomesh(const std::vector<double>& x_vertices,
           throw std::runtime_error("Unexpected face normal encountered.");
 
         // Define boundary faces
-        if (v0.y == y_min and v1.y == y_min) // bottom face
+        if (v0.y() == y_min and v1.y() == y_min) // bottom face
           face.neighbor_id = 0;
-        else if (v0.x == x_max and v1.x == x_max) // right face
+        else if (v0.x() == x_max and v1.x() == x_max) // right face
           face.neighbor_id = 1;
-        else if (v0.y == y_max and v1.y == y_max) // top face
+        else if (v0.y() == y_max and v1.y() == y_max) // top face
           face.neighbor_id = 2;
-        else if (v0.x == x_min and v1.x == x_min) // left face
+        else if (v0.x() == x_min and v1.x() == x_min) // left face
           face.neighbor_id = 3;
         else
           face.has_neighbor = true;

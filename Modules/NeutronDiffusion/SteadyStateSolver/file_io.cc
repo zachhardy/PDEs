@@ -118,16 +118,18 @@ write(const std::string& output_directory,
     file.write((char*)&npc, sizeof(unsigned int));
 
     // Write the centroid
-    file.write((char*)&centroid.x, sizeof(double));
-    file.write((char*)&centroid.y, sizeof(double));
-    file.write((char*)&centroid.z, sizeof(double));
+    double x = centroid.x(), y = centroid.y(), z = centroid.z();
+    file.write((char*)&x, sizeof(double));
+    file.write((char*)&y, sizeof(double));
+    file.write((char*)&z, sizeof(double));
 
     // Write the nodes
     for (const auto& node : nodes)
     {
-      file.write((char*)&node.x, sizeof(double));
-      file.write((char*)&node.y, sizeof(double));
-      file.write((char*)&node.z, sizeof(double));
+      x = node.x(), y = node.y(), z = node.z();
+      file.write((char*)&x, sizeof(double));
+      file.write((char*)&y, sizeof(double));
+      file.write((char*)&z, sizeof(double));
     }
   }//for cell
 

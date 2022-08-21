@@ -128,8 +128,8 @@ Mesh::compute_geometric_info()
     // Compute cell volume
     if (cell.vertex_ids.size() == 2)
     {
-      const auto& v1 = vertices[cell.vertex_ids[1]].z;
-      const auto& v0 = vertices[cell.vertex_ids[0]].z;
+      const auto& v1 = vertices[cell.vertex_ids[1]].z();
+      const auto& v0 = vertices[cell.vertex_ids[0]].z();
 
       if (cell.type == CellType::SLAB)
         cell.volume = v1 - v0;
@@ -146,7 +146,7 @@ Mesh::compute_geometric_info()
 
       const auto& vbl = vertices[cell.vertex_ids[0]];
       const auto& vtr = vertices[cell.vertex_ids[2]];
-      cell.volume = (vtr.x - vbl.x) * (vtr.y - vbl.y);
+      cell.volume = (vtr.x() - vbl.x()) * (vtr.y() - vbl.y());
     }//if 2D quad
 
 
@@ -162,7 +162,7 @@ Mesh::compute_geometric_info()
       // Compute face area
       if (face.vertex_ids.size() == 1)
       {
-        const auto& v = vertices[face.vertex_ids[0]].z;
+        const auto& v = vertices[face.vertex_ids[0]].z();
 
         if (cell.type == CellType::SLAB)
           face.area = 1.0;

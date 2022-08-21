@@ -8,142 +8,155 @@
 using namespace Grid;
 
 
-//################################################## Constructors
-
-
-Point::Point()
-  : x(0.0), y(0.0), z(0.0)
+Point::Point() :
+  values({0.0, 0.0, 0.0})
 {}
 
 
-Point::Point(const double a)
-  : x(a), y(0.0), z(0.0)
+Point::Point(const double a) :
+  values({a, 0.0, 0.0})
 {}
 
 
-Point::Point(const double a,
-             const double b)
-  : x(a), y(b), z(0.0)
+Point::Point(const double a, const double b) :
+  values({a, b, 0.0})
 {}
 
 
-Point::Point(const double a,
-             const double b,
-             const double c)
-  : x(a), y(b), z(c)
+Point::Point(const double a, const double b, const double c) :
+  values({a, b, c})
 {}
-
-
-//################################################## Assignment
-
-
-Point&
-Point::operator=(const double value)
-{
-  x = value;
-  y = value;
-  z = value;
-  return *this;
-}
-
-
-//################################################## Static Methods
 
 
 Point
 Point::unit_vector(const unsigned int axis)
 {
-  assert(axis < 3);
+  assert(axis <= 2);
   if (axis == 0) return Point(1.0, 0.0, 0.0);
   else if (axis == 1) return Point(0.0, 1.0, 0.0);
   else return Point(0.0, 0.0, 1.0);
 }
 
 
-//################################################## Comparison Operators
-
-
-bool
-Point::operator==(const Point& q) const
-{ return (x == q.x && y == q.y && z == q.z); }
-
-
-bool
-Point::operator!=(const Point& q) const
-{ return !(*this == q); }
-
-
-//################################################## Accessors
+Point&
+Point::operator=(const double value)
+{
+  values = {value, value, value};
+  return *this;
+}
 
 
 double&
 Point::operator[](const unsigned int i)
 {
-  assert(i < 3);
-  if (i == 0) return x;
-  else if (i == 1) return y;
-  else return z;
+  return values.at(i);
 }
 
 
 const double&
 Point::operator[](const unsigned int i) const
 {
-  assert(i < 3);
-  if (i == 0) return x;
-  else if (i == 1) return y;
-  else return z;
+  return values.at(i);
 }
 
 
 double&
 Point::operator()(const unsigned int i)
-{ return (*this)[i]; }
+{
+  return values.at(i);
+}
 
 
 const double&
 Point::operator()(const unsigned int i) const
-{ return (*this)[i]; }
+{
+  return values.at(i);
+}
 
 
-//################################################## Information
+const double&
+Point::x() const
+{
+  return values[0];
+}
+
+
+const double&
+Point::y() const
+{
+  return values[1];
+}
+
+
+const double&
+Point::z() const
+{
+  return values[2];
+}
+
+
+bool
+Point::operator==(const Point& other) const
+{
+  return (values == other.values);
+}
+
+
+bool
+Point::operator!=(const Point& other) const
+{
+  return !(values == other.values);
+}
+
+
+double
+Point::distance(const Point& other) const
+{
+  return std::sqrt(this->distance_squared(other));
+}
+
+
+double
+Point::distance_squared(const Point& other) const
+{
+  double retval = 0.0;
+  const auto difference = *this - other;
+  for (unsigned int i = 0; i <= 2; ++i)
+    retval = difference[i] * difference[i];
+  return retval;
+}
 
 
 double
 Point::length() const
-{ return std::sqrt(length_squared()); }
+{
+  return std::sqrt(this->length_squared());
+}
 
 
 double
 Point::length_squared() const
-{ return x*x + y*y + z*z; }
-
-
-//################################################## Scalar Operations
-
-
-Point&
-Point::operator-()
 {
-  x = -x;
-  y = -y;
-  z = -z;
-  return *this;
+  double retval = 0.0;
+  for (const auto& v : values)
+    retval += v * v;
+  return retval;
 }
-
-
-Point
-Point::operator-() const
-{ return Point(-x, -y, -z); }
 
 
 Point&
 Point::operator*=(const double factor)
 {
-  x *= factor;
-  y *= factor;
-  z *= factor;
+  for (unsigned int i = 0; i <= 2; ++i)
+    values[i] *= factor;
   return *this;
+}
+
+
+Point
+Point::operator*(const double factor) const
+{
+  return Point(*this) *= factor;
 }
 
 
@@ -151,163 +164,177 @@ Point&
 Point::operator/=(const double factor)
 {
   assert(factor != 0.0);
-  x /= factor;
-  y /= factor;
-  z /= factor;
-  return *this;
+  return *this *= 1.0/factor;
 }
-
-
-//################################################## Point Operations
-
-
-Point&
-Point::operator+=(const Point& q)
-{
-  x += q.x;
-  y += q.y;
-  z += q.z;
-  return *this;
-}
-
-
-Point&
-Point::operator-=(const Point& q)
-{
-  x -= q.x;
-  y -= q.y;
-  z -= q.z;
-  return *this;
-}
-
-
-double
-Point::dot(const Point& q) const
-{ return x*q.x + y*q.y*z*q.z; }
 
 
 Point
-Point::cross(const Point& q) const
+Point::operator/(const double factor) const
 {
-  return Point(y*q.z - z*q.y,
-               z*q.x - x*q.z,
-               x*q.y - y*q.x);
+  return Point(*this) /= factor;
 }
 
 
-double
-Point::distance(const Point& q) const
-{ return std::sqrt(distance_squared(q)); }
-
-
-double
-Point::distance_squared(const Point& q) const
+Point&
+Point::operator-()
 {
-  double dx = x - q.x;
-  double dy = y - q.y;
-  double dz = z - q.z;
-  return dx*dx + dy*dy + dz*dz;
+  return *this *= -1.0;
+}
+
+
+Point
+Point::operator-() const
+{
+  return -Point(*this);
+}
+
+
+Point&
+Point::operator+=(const Point& other)
+{
+  for (unsigned int i = 0; i <= 2; ++i)
+    values[i] += other.values[i];
+  return *this;
+}
+
+
+Point
+Point::operator+(const Point& other) const
+{
+  return Point(*this) += other;
+}
+
+
+Point&
+Point::operator-=(const Point& other)
+{
+  for (unsigned int i = 0; i <= 2; ++i)
+    values[i] -= other.values[i];
+  return *this;
+}
+
+
+Point
+Point::operator-(const Point& other) const
+{
+  return Point(*this) -= other;
 }
 
 
 Point&
 Point::fabs()
 {
-  x = std::fabs(x);
-  y = std::fabs(y);
-  z = std::fabs(z);
+  for (auto& v : values)
+    v = std::fabs(v);
   return *this;
 }
 
 
 Point
 Point::fabs() const
-{ return Point(x, y, z).fabs(); }
+{
+  return Point(*this).fabs();
+}
 
 
 Point&
 Point::normalize()
 {
-  double len = length();
-  return *this /= (len != 0.0)? len : 1.0;
+  double len = this->length();
+  return (len > 0.0)? *this /= len : *this;
 }
 
 
 Point
 Point::direction() const
-{ return Point(x, y, z).normalize(); }
+{
+  return Point(*this).normalize();
+}
 
 
-//################################################## Print Utilities
+double
+Point::dot(const Point& other) const
+{
+  double retval = 0.0;
+  for (unsigned int i = 0; i <= 2; ++i)
+    retval += values[i] * other.values[i];
+  return retval;
+}
+
+
+Point
+Point::cross(const Point& other) const
+{
+  double x = this->y()*other.z() - this->z()*other.y();
+  double y = this->z()*other.x() - this->x()*other.z();
+  double z = this->x()*other.y() - this->y()*other.x();
+  return Point(x, y, z);
+}
 
 
 std::string
 Point::str() const
 {
   std::stringstream ss;
-  ss << "Point(" << x << " " << y << " " << z << ")";
+  ss << "Point("
+     << this->x() << ", "
+     << this->y() << ", "
+     << this->z() << ")" << std::endl;
   return ss.str();
 }
 
 
 void
 Point::print(std::ostream& os) const
-{ os << str(); }
-
-
-//################################################## Methods
-
-
-Point
-Grid::operator*(const Point& p, const double factor)
-{ return Point(p) *= factor; }
+{
+  os << this->str();
+}
 
 
 Point
 Grid::operator*(const double factor, const Point& p)
-{ return Point(p) *= factor; }
-
-
-Point
-Grid::operator/(const Point& p, const double factor)
-{ return Point(p) /= factor; }
-
-
-Point
-Grid::operator+(const Point& p, const Point& q)
-{ return Point(p) += q; }
-
-
-Point
-Grid::operator-(const Point& p, const Point& q)
-{ return Point(p) -= q; }
+{
+  return p * factor;
+}
 
 
 double
 Grid::dot(const Point& p, const Point& q)
-{ return p.dot(q); }
+{
+  return p.dot(q);
+}
 
 
 Point
 Grid::cross(const Point& p, const Point& q)
-{ return p.cross(q); }
+{
+  return p.cross(q);
+}
 
 
 double
 Grid::distance(const Point& p, const Point& q)
-{ return p.distance(q); }
+{
+  return p.distance(q);
+}
 
 
 Point
 Grid::fabs(const Point& p)
-{ return p.fabs(); }
+{
+  return p.fabs();
+}
 
 
 Point
 Grid::direction(const Point& p)
-{ return p.direction(); }
+{
+  return p.direction();
+}
 
 
 std::ostream&
 Grid::operator<<(std::ostream& os, const Point& p)
-{ return os << p.str(); }
+{
+  return os << p.str();
+}
