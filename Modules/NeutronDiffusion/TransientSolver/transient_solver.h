@@ -80,7 +80,7 @@ namespace NeutronDiffusion
      * function should take a point object as input and returns a the
      * evaluated initial condition.
      */
-    typedef std::function<double(const Grid::Point p)> InitialCondition;
+    typedef std::function<double(const Grid::CartesianVector p)> InitialCondition;
 
     /**
      * A map holding the initial condition functions used to initialize

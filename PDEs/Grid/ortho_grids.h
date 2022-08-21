@@ -2,7 +2,7 @@
 #define GRID_STRUCTS_H
 
 #include "mesh.h"
-#include "point.h"
+#include "cartesian_vector.h"
 
 
 namespace Grid

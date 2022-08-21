@@ -49,7 +49,7 @@ namespace Math
     dofs_per_cell(const unsigned int n_components) const = 0;
 
     /** Get the location of the nodes on a cell. */
-    virtual std::vector<Grid::Point> nodes(const Grid::Cell& cell) const = 0;
+    virtual std::vector<Grid::CartesianVector> nodes(const Grid::Cell& cell) const = 0;
 
     /**
      * Define the sparsity pattern. This routine defines the column indices of

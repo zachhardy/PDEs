@@ -1,5 +1,5 @@
-#ifndef POINT_H
-#define POINT_H
+#ifndef CARTESIAN_VECTOR_H
+#define CARTESIAN_VECTOR_H
 
 #include <iostream>
 #include <array>
@@ -11,7 +11,9 @@ namespace Grid
   /**
    * A class representing a Cartesian vector in space.
    *
-   * This
+   * This class is meant to be generic and all-encompassing for representing
+   * vertices on a mesh, nodes on a discretization, centroids on cells,
+   * and normal vectors on faces, and gradient vectors.
    */
   class CartesianVector
   {
@@ -338,6 +340,7 @@ namespace Grid
 
   //================================================== Useful Aliases
 
+  using Point = CartesianVector;
   using Vertex = CartesianVector;
   using Node = CartesianVector;
   using Centroid = CartesianVector;
@@ -345,4 +348,4 @@ namespace Grid
   using Gradient = CartesianVector;
 
 }
-#endif //POINT_H
+#endif //CARTESIAN_VECTOR_H

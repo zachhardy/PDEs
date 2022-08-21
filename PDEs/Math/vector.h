@@ -10,7 +10,9 @@
 
 namespace Math
 {
-  /** Implementation of a general linear algebra vector. */
+  /**
+   * Implementation of a general linear algebra vector.
+   */
   class Vector
   {
   public:

@@ -2,7 +2,7 @@
 #define MESH_H
 
 #include "cell.h"
-#include "point.h"
+#include "cartesian_vector.h"
 
 #include <vector>
 #include <memory>

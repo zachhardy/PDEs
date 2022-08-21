@@ -49,9 +49,9 @@ Grid::create_2d_orthomesh(const std::vector<double>& x_vertices,
   auto y_max = *std::max_element(y_vertices.begin(), y_vertices.end());
 
   // Reference normal vectors
-  const Normal ihat = Point(1.0, 0.0, 0.0);
-  const Normal jhat = Point(0.0, 1.0, 0.0);
-  const Normal khat = Point(0.0, 0.0, 1.0);
+  const Normal ihat = CartesianVector(1.0, 0.0, 0.0);
+  const Normal jhat = CartesianVector(0.0, 1.0, 0.0);
+  const Normal khat = CartesianVector(0.0, 0.0, 1.0);
 
   for (size_t i = 0; i < n_y - 1; ++i)
     for (size_t j = 0; j < n_x - 1; ++j)

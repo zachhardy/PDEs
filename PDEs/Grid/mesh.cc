@@ -22,12 +22,9 @@ coordinate_system_str(const CoordinateSystemType coord_sys)
 }
 
 
-//######################################################################
-
-
 Mesh::Mesh(const unsigned int dimension,
-           const CoordinateSystemType coordinate_system)
-  : dim(dimension), coord_sys(coordinate_system)
+           const CoordinateSystemType coordinate_system) :
+  dim(dimension), coord_sys(coordinate_system)
 {}
 
 
@@ -104,15 +101,11 @@ Mesh::establish_connectivity()
 }
 
 
-//######################################################################
-
-
 void
 Mesh::compute_geometric_info()
 {
+  assert(dim < 3);
   std::cout << "Computing geometric information on cells and faces.\n";
-
-  Assert(dim < 3, "Only 1D and 2D meshes are implemented.");
 
   // Loop over cells
   for (auto& cell : cells)

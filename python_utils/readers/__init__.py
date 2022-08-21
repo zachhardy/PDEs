@@ -1,4 +1,4 @@
-from .point import Point
+from .cartesian_vector import Point
 from .reader import SimulationReader
 from .neutronics_readers import TransientNeutronicsReader
 from .neutronics_readers import KEigenvalueNeutronicsReader
