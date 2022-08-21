@@ -490,7 +490,7 @@ namespace Math
     /**
      * The underlying vector data.
      */
-    std::vector<double> vals;
+    std::vector<double> values;
   };
 
 

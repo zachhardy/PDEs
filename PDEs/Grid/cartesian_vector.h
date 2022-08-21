@@ -292,7 +292,7 @@ namespace Grid
     /**
      * The x, y, z coordinates.
      */
-    std::array<double, 3> values;
+    std::array<double, 3> xyz;
   };
 
   /**

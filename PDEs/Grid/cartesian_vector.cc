@@ -9,22 +9,22 @@ using namespace Grid;
 
 
 CartesianVector::CartesianVector() :
-  values({0.0, 0.0, 0.0})
+  xyz({0.0, 0.0, 0.0})
 {}
 
 
 CartesianVector::CartesianVector(const double a) :
-  values({a, 0.0, 0.0})
+  xyz({a, 0.0, 0.0})
 {}
 
 
 CartesianVector::CartesianVector(const double a, const double b) :
-  values({a, b, 0.0})
+  xyz({a, b, 0.0})
 {}
 
 
 CartesianVector::CartesianVector(const double a, const double b, const double c) :
-  values({a, b, c})
+  xyz({a, b, c})
 {}
 
 
@@ -41,7 +41,7 @@ CartesianVector::unit_vector(const unsigned int axis)
 CartesianVector&
 CartesianVector::operator=(const double value)
 {
-  values = {value, value, value};
+  xyz = {value, value, value};
   return *this;
 }
 
@@ -49,63 +49,63 @@ CartesianVector::operator=(const double value)
 double&
 CartesianVector::operator[](const unsigned int i)
 {
-  return values.at(i);
+  return xyz.at(i);
 }
 
 
 const double&
 CartesianVector::operator[](const unsigned int i) const
 {
-  return values.at(i);
+  return xyz.at(i);
 }
 
 
 double&
 CartesianVector::operator()(const unsigned int i)
 {
-  return values.at(i);
+  return xyz.at(i);
 }
 
 
 const double&
 CartesianVector::operator()(const unsigned int i) const
 {
-  return values.at(i);
+  return xyz.at(i);
 }
 
 
 const double&
 CartesianVector::x() const
 {
-  return values[0];
+  return xyz[0];
 }
 
 
 const double&
 CartesianVector::y() const
 {
-  return values[1];
+  return xyz[1];
 }
 
 
 const double&
 CartesianVector::z() const
 {
-  return values[2];
+  return xyz[2];
 }
 
 
 bool
 CartesianVector::operator==(const CartesianVector& other) const
 {
-  return (values == other.values);
+  return (xyz == other.xyz);
 }
 
 
 bool
 CartesianVector::operator!=(const CartesianVector& other) const
 {
-  return !(values == other.values);
+  return !(xyz == other.xyz);
 }
 
 
@@ -137,7 +137,7 @@ double
 CartesianVector::length_squared() const
 {
   double retval = 0.0;
-  for (const auto& v : values)
+  for (const auto& v : xyz)
     retval += v * v;
   return retval;
 }
@@ -147,7 +147,7 @@ CartesianVector&
 CartesianVector::operator*=(const double factor)
 {
   for (unsigned int i = 0; i <= 2; ++i)
-    values[i] *= factor;
+    xyz[i] *= factor;
   return *this;
 }
 
@@ -192,7 +192,7 @@ CartesianVector&
 CartesianVector::operator+=(const CartesianVector& other)
 {
   for (unsigned int i = 0; i <= 2; ++i)
-    values[i] += other.values[i];
+    xyz[i] += other.xyz[i];
   return *this;
 }
 
@@ -208,7 +208,7 @@ CartesianVector&
 CartesianVector::operator-=(const CartesianVector& other)
 {
   for (unsigned int i = 0; i <= 2; ++i)
-    values[i] -= other.values[i];
+    xyz[i] -= other.xyz[i];
   return *this;
 }
 
@@ -223,7 +223,7 @@ CartesianVector::operator-(const CartesianVector& other) const
 CartesianVector&
 CartesianVector::fabs()
 {
-  for (auto& v : values)
+  for (auto& v : xyz)
     v = std::fabs(v);
   return *this;
 }
@@ -256,7 +256,7 @@ CartesianVector::dot(const CartesianVector& other) const
 {
   double retval = 0.0;
   for (unsigned int i = 0; i <= 2; ++i)
-    retval += values[i] * other.values[i];
+    retval += xyz[i]*other.xyz[i];
   return retval;
 }
 
