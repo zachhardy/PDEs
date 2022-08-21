@@ -106,7 +106,7 @@ namespace Math
     n_nonzero_elements() const;
 
     /**
-     * Return whether the vector is empty or not.
+     * Return whether the vector is empty (no allocated elements) or not.
      */
     bool
     empty() const;
@@ -288,6 +288,25 @@ namespace Math
     void
     swap(Vector& other);
 
+    /**
+     * Set this vector to \f$ \vec{y} \f$ scaled by \p a.
+     */
+    Vector&
+    equal(const Vector& y, const double a = 1.0);
+
+    /**
+     * Element-wise absolute value in place.
+     */
+    Vector&
+    fabs();
+
+    /**
+     * Return the absolute value of this vector.
+     */
+    Vector
+    fabs() const;
+
+
     /* @} */
     /**
      * \name Scalar operations and norms
@@ -331,7 +350,7 @@ namespace Math
 
     /* @} */
     /**
-     * \name Linear algebra
+     * \name Scaling operations
      */
     /* @{ */
 
@@ -346,51 +365,6 @@ namespace Math
      */
     Vector&
     scale(const Vector scaling_factors);
-
-    /**
-     * Shift each element in a vector by \p such that \f$ x_i = x_i + a \f$.
-     */
-    Vector&
-    shift(const double value);
-
-    /**
-     * Element-wise addition by vector \f$ a \vec{y} \f$ in place.
-     * This is computed via \f$ \vec{x} = \vec{x} + a \vec{y} = \sum_i x_i +
-     * a y_i \f$.
-     */
-    Vector&
-    add(const Vector& y, const double a = 1.0);
-
-    /**
-     * Scale this vector by \p a and add vector \f$ \vec{y} \f$ in place.
-     */
-    Vector&
-    sadd(const double a, const Vector& y);
-
-    /**
-     * Scale this vector by \p a and add vector \f$ \vec{y} \f$ scaled by \p b
-     * in place.
-     */
-    Vector&
-    sadd(const double a, const double b, const Vector& y);
-
-    /**
-     * Set this vector to \f$ \vec{y} \f$ scaled by \p a.
-     */
-    Vector&
-    equal(const Vector& y, const double a = 1.0);
-
-    /**
-     * Element-wise absolute value in place.
-     */
-    Vector&
-    fabs();
-
-    /**
-     * Return the absolute value of this vector.
-     */
-    Vector
-    fabs() const;
 
     /**
      * Element-wise negation in place.
@@ -428,6 +402,26 @@ namespace Math
     Vector
     operator/(const double factor) const;
 
+    /* @} */
+    /**
+     * \name Addition and subtraction operations
+     */
+    /* @{ */
+
+    /**
+     * Shift each element in a vector by \p such that \f$ x_i = x_i + a \f$.
+     */
+    Vector&
+    shift(const double value);
+
+    /**
+     * Element-wise addition by vector \f$ a \vec{y} \f$ in place.
+     * This is computed via \f$ \vec{x} = \vec{x} + a \vec{y} = \sum_i x_i +
+     * a y_i \f$.
+     */
+    Vector&
+    add(const Vector& y, const double a = 1.0);
+
     /**
      * Element-wise addition with another vector in place.
      */
@@ -451,6 +445,19 @@ namespace Math
      */
     Vector
     operator-(const Vector& y) const;
+
+    /**
+     * Scale this vector by \p a and add vector \f$ \vec{y} \f$ in place.
+     */
+    Vector&
+    sadd(const double a, const Vector& y);
+
+    /**
+     * Scale this vector by \p a and add vector \f$ \vec{y} \f$ scaled by \p b
+     * in place.
+     */
+    Vector&
+    sadd(const double a, const double b, const Vector& y);
 
     /* @} */
     /**
