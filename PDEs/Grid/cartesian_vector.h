@@ -9,13 +9,11 @@ namespace Grid
 {
 
   /**
-   * A class representing a Point in Cartesian space.
+   * A class representing a Cartesian vector in space.
    *
-   * This is intended to be a generic three-vector which can be used to
-   * represent a Point, a Vertex on a Mesh, a Node in a Discretization,
-   * a Normal on a Face, or a gradient.
+   * This
    */
-  class Point
+  class CartesianVector
   {
   public:
     /**
@@ -26,22 +24,22 @@ namespace Grid
     /**
      * Construct the point <tt>(0, 0, 0)</tt>.
      */
-    Point();
+    CartesianVector();
 
     /**
      * Construct the point <tt>(a, 0, 0)</tt>.
      */
-    explicit Point(const double a);
+    explicit CartesianVector(const double a);
 
     /**
      * Construct the point <tt>(b, 0, 0)</tt>.
      */
-    explicit Point(const double a, const double b);
+    explicit CartesianVector(const double a, const double b);
 
     /**
      * Construct the point <tt>(a, b, c)</tt>.
      */
-    explicit Point(const double a, const double b, const double c);
+    explicit CartesianVector(const double a, const double b, const double c);
 
     /**
      * Construct a unit vector in the specified dimension.
@@ -49,13 +47,13 @@ namespace Grid
      * \param axis The axis to construct the unit vector for. 0 corresponds to
      *    the x-direction, 1 to the y-direction, and 2 to the z-direction.
      */
-    static Point
+    static CartesianVector
     unit_vector(const unsigned int axis);
 
     /**
      * Element-wise assignment to a scalar value.
      */
-    Point&
+    CartesianVector&
     operator=(const double value);
 
     /* @} */
@@ -117,27 +115,27 @@ namespace Grid
      * Return whether all elements of two points are equivalent.
      */
     bool
-    operator==(const Point& other) const;
+    operator==(const CartesianVector& other) const;
 
     /**
      * Return whether any elements of two points are different.
      */
     bool
-    operator!=(const Point& other) const;
+    operator!=(const CartesianVector& other) const;
 
     /**
      * Return the Euclidean distance between two points. This is given by \f$
      * d = \sqrt{(p_x - q_x)^2 + (p_y - q_y)^2 + (p_z - q_z)^2} \f$.
      */
     double
-    distance(const Point& other) const;
+    distance(const CartesianVector& other) const;
 
     /**
      * Return the Euclidean distance between two points squared. This is given
      * by \f$ d^2 = (p_x - q_x)^2 + (p_y - q_y)^2 + (p_z - q_z)^2 \f$.
      */
     double
-    distance_squared(const Point& other) const;
+    distance_squared(const CartesianVector& other) const;
 
     /* @} */
     /**
@@ -168,86 +166,86 @@ namespace Grid
     /**
      * Element-wise multiplication by a scalar.
      */
-    Point&
+    CartesianVector&
     operator*=(const double factor);
 
     /**
      * Return a point multiplied by a scalar.
      */
-    Point
+    CartesianVector
     operator*(const double factor) const;
 
     /**
      * Element-wise division by a non-zero scalar.
      */
-    Point&
+    CartesianVector&
     operator/=(const double factor);
 
     /**
      * Return a point divided by a non-zero scalar.
      */
-     Point
+     CartesianVector
      operator/(const double factor) const;
 
     /**
       * Element-wise negation in place.
       */
-    Point&
+    CartesianVector&
     operator-();
 
     /**
      * Return the negative of a point.
      */
-    Point
+    CartesianVector
     operator-() const;
 
     /**
      * Element-wise addition in place.
      */
-    Point&
-    operator+=(const Point& other);
+    CartesianVector&
+    operator+=(const CartesianVector& other);
 
     /**
      * Return the sum of two points.
      */
-    Point
-    operator+(const Point& other) const;
+    CartesianVector
+    operator+(const CartesianVector& other) const;
 
     /**
      * Element-wise subtraction in place.
      */
-    Point&
-    operator-=(const Point& other);
+    CartesianVector&
+    operator-=(const CartesianVector& other);
 
     /**
      * Return the difference of two points.
      */
-    Point
-    operator-(const Point& other) const;
+    CartesianVector
+    operator-(const CartesianVector& other) const;
 
     /**
      * Element-wise absolute value in place.
      */
-    Point&
+    CartesianVector&
     fabs();
 
     /**
      * Return the absolute value of a point.
      */
-    Point
+    CartesianVector
     fabs() const;
 
     /**
      * Normalize the point to its length. If the length is zero (e.g. the point
      * is the origin), return a copy. See \ref length.
      */
-    Point&
+    CartesianVector&
     normalize();
 
     /**
      * Return the direction of a point. See \ref normalize.
      */
-    Point
+    CartesianVector
     direction() const;
 
     /**
@@ -255,14 +253,14 @@ namespace Grid
      * + p_y q_y + p_z q_z \f$.
      */
     double
-    dot(const Point& other) const;
+    dot(const CartesianVector& other) const;
 
     /**
      * Take the cross product between two points via \f$ r = p \times q =
      * (p_y q_z - p_z q_y, p_z q_x - p_x q_z, p_x q_y - p_y q_x) \f$.
      */
-    Point
-    cross(const Point& other) const;
+    CartesianVector
+    cross(const CartesianVector& other) const;
 
     /* @} */
     /**
@@ -298,53 +296,53 @@ namespace Grid
   /**
    * Multiply a point by a scalar.
    */
-  Point
-  operator*(const double factor, const Point& p);
+  CartesianVector
+  operator*(const double factor, const CartesianVector& p);
 
   /**
-   * Take the dot product between two points. See \ref Point::dot.
+   * Take the dot product between two points. See \ref CartesianVector::dot.
    */
   double
-  dot(const Point& p, const Point& q);
+  dot(const CartesianVector& p, const CartesianVector& q);
 
   /**
-   * Take the cross product between two points. See \ref Point::cross
+   * Take the cross product between two points. See \ref CartesianVector::cross
    */
-  Point
-  cross(const Point& p, const Point& q);
+  CartesianVector
+  cross(const CartesianVector& p, const CartesianVector& q);
 
   /**
-   * Return the Euclidean distance between two points. See \ref Point::distance.
+   * Return the Euclidean distance between two points. See \ref CartesianVector::distance.
    */
   double
-  distance(const Point& p, const Point& q);
+  distance(const CartesianVector& p, const CartesianVector& q);
 
   /**
-   * Return the absolute value of a point. See \ref Point::fabs.
+   * Return the absolute value of a point. See \ref CartesianVector::fabs.
    */
-  Point
-  fabs(const Point& p);
+  CartesianVector
+  fabs(const CartesianVector& p);
 
   /**
    * Return the direction of a vector pointing to the specified point.
-   * See \ref Point::directions
+   * See \ref CartesianVector::directions
    */
-  Point
-  direction(const Point& p);
+  CartesianVector
+  direction(const CartesianVector& p);
 
   /**
    * Insert a point into an output stream.
    */
   std::ostream&
-  operator<<(std::ostream& os, const Point& p);
+  operator<<(std::ostream& os, const CartesianVector& p);
 
   //================================================== Useful Aliases
 
-  using Vertex = Point;
-  using Node = Point;
-  using Centroid = Point;
-  using Normal = Point;
-  using Gradient = Point;
+  using Vertex = CartesianVector;
+  using Node = CartesianVector;
+  using Centroid = CartesianVector;
+  using Normal = CartesianVector;
+  using Gradient = CartesianVector;
 
 }
 #endif //POINT_H
