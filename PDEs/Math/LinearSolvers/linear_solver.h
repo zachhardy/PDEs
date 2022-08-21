@@ -4,7 +4,8 @@
 #include <cstddef>
 #include <string>
 
-//########## Forward declarations
+
+// forward declarations
 namespace Math
 {
   class Vector;
