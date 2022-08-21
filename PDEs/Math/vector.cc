@@ -258,6 +258,39 @@ Vector::swap(Vector& other)
 }
 
 
+Vector&
+Vector::equal(const Vector& y, const double a)
+{
+  assert(y.size() == this->size());
+
+  // Get pointers for fast access
+  double* x_ptr = data();
+  const double* y_ptr = y.data();
+  double* end_ptr = data() + size();
+
+  // Perform the add operation
+  for (; x_ptr != end_ptr; ++x_ptr, ++y_ptr)
+    *x_ptr = a * *y_ptr;
+  return *this;
+}
+
+
+Vector&
+Vector::fabs()
+{
+  for (auto& el : values)
+    el = std::fabs(el);
+  return *this;
+}
+
+
+Vector
+Vector::fabs() const
+{
+  return Vector(*this).fabs();
+}
+
+
 double
 Vector::dot(const Vector& y) const
 {
@@ -337,6 +370,47 @@ Vector::scale(const Vector scaling_factors)
 
 
 Vector&
+Vector::operator-()
+{
+  return this->scale(-1.0);
+}
+
+
+Vector
+Vector::operator-() const
+{ return -Vector(values); }
+
+
+Vector&
+Vector::operator*=(const double factor)
+{
+  return this->scale(factor);
+}
+
+
+Vector
+Vector::operator*(const double factor) const
+{
+  return Vector(*this).scale(factor);
+}
+
+
+Vector&
+Vector::operator/=(const double factor)
+{
+  assert(factor != 0.0);
+  return this->scale(1.0/factor);
+}
+
+
+Vector
+Vector::operator/(const double factor) const
+{
+  return Vector(*this) /= factor;
+}
+
+
+Vector&
 Vector::shift(const double value)
 {
   for (auto& el : values)
@@ -393,80 +467,6 @@ Vector::sadd(const double a, const double b, const Vector& y)
   for (; x_ptr != end_ptr; ++x_ptr, ++y_ptr)
     *x_ptr = a * *x_ptr + b * *y_ptr;
   return *this;
-}
-
-
-Vector&
-Vector::equal(const Vector& y, const double a)
-{
-  assert(y.size() == this->size());
-
-  // Get pointers for fast access
-  double* x_ptr = data();
-  const double* y_ptr = y.data();
-  double* end_ptr = data() + size();
-
-  // Perform the add operation
-  for (; x_ptr != end_ptr; ++x_ptr, ++y_ptr)
-    *x_ptr = a * *y_ptr;
-  return *this;
-}
-
-
-Vector&
-Vector::fabs()
-{
-  for (auto& el : values)
-    el = std::fabs(el);
-  return *this;
-}
-
-
-Vector
-Vector::fabs() const
-{
-  return Vector(*this).fabs();
-}
-
-
-Vector&
-Vector::operator-()
-{
-  return this->scale(-1.0);
-}
-
-
-Vector
-Vector::operator-() const
-{ return -Vector(values); }
-
-
-Vector&
-Vector::operator*=(const double factor)
-{
-  return this->scale(factor);
-}
-
-
-Vector
-Vector::operator*(const double factor) const
-{
-  return Vector(*this).scale(factor);
-}
-
-
-Vector&
-Vector::operator/=(const double factor)
-{
-  assert(factor != 0.0);
-  return this->scale(1.0/factor);
-}
-
-
-Vector
-Vector::operator/(const double factor) const
-{
-  return Vector(*this) /= factor;
 }
 
 
