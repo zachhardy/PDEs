@@ -54,5 +54,8 @@ if [ $DO_CMAKE = "YES" ]; then
   done
 
   cd ../build || exit
-  cmake .. && cd ..
+  cmake .. \
+    -DCMAKE_C_COMPILER=/opt/homebrew/bin/mpicc \
+    -DCMAKE_CXX_COMPILER=/opt/homebrew/bin/mpicxx
+  cd ..
 fi
