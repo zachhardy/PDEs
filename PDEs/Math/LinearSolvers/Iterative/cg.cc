@@ -54,9 +54,8 @@ CG::solve(Vector& x, const Vector& b) const
     alpha = res_prev/p.dot(q);
 
     // Update solution and residual vector
-    x.add(p, alpha);
-
-    r.add(q, -alpha);
+    x.add(alpha, p);
+    r.add(-alpha, q);
 
     // Update residual norm
     res = r.dot(r);
