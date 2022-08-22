@@ -36,8 +36,8 @@ solve(Vector& x, const Vector& b) const
       //==================== Compute element-wise update
       double value = b[i];
       for (const auto el : A->row_iterator(i))
-        if (el.column() != i)
-          value -= el.value()*x_ell[el.column()];
+        if (el.column != i)
+          value -= el.value*x_ell[el.column];
       value /= A->diag(i);
 
       //==================== Increment difference

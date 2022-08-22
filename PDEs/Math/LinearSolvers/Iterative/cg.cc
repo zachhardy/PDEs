@@ -37,7 +37,7 @@ CG::solve(Vector& x, const Vector& b) const
   /* Initialize residual, residual norms, and search directions.
    * If the residual norm is smaller than the tolerance, exit because
    * the initial guess is the solution. */
-  r = (x.n_nonzero_elements() > 0)? b - A->vmult(x) : b;
+  r = (x.n_nonzero_entries() > 0)? b - A->vmult(x) : b;
   res = res_prev = r.dot(r);
   if (res < tolerance)
     return;

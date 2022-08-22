@@ -35,8 +35,8 @@ solve(Vector& x, const Vector& b) const
       //==================== Compute element-wise update
       double value = 0.0;
       for (const auto el : A->row_iterator(i))
-        if (el.column() != i)
-          value += el.value()*x[el.column()];
+        if (el.column != i)
+          value += el.value*x[el.column];
 
       double a_ii = A->diag(i);
       value = x[i] + omega*((b[i] - value)/a_ii - x[i]);

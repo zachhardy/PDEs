@@ -79,7 +79,7 @@ Vector::size() const
 
 
 size_t
-Vector::n_nonzero_elements() const
+Vector::n_nonzero_entries() const
 {
   return std::count_if(values.begin(), values.end(),
                        [](const double v)

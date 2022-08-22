@@ -49,7 +49,7 @@ namespace Math
     Vector(Vector&& other) = default;
 
     /**
-     * Construct a vector with \p n elements, optionally set to \p value.
+     * Construct a vector with \p n entries, optionally set to \p value.
      */
     Vector(const size_t n, const double value = 0.0);
 
@@ -65,7 +65,7 @@ namespace Math
     Vector(const InputIterator first, const InputIterator last);
 
     /**
-     * Construct a vector from \p n contiguously stored elements.
+     * Construct a vector from \p n contiguously stored entries.
      */
     Vector(const size_t n, const double* value_ptr);
 
@@ -82,14 +82,14 @@ namespace Math
     operator=(Vector&& other);
 
     /**
-     * Assign each element of the vector to the specified \p value. If the
-     * vector is empty, this will initialize a single element set to \p value.
+     * Assign each entry of the vector to the specified \p value. If the
+     * vector is empty, this will initialize a single entry set to \p value.
      */
     Vector&
     operator=(const double value);
 
     /**
-     * Reinitialize the vector to have \p n elements set to \p value. This
+     * Reinitialize the vector to have \p n entries set to \p value. This
      * first clears the vector, then resizes it.
      */
     void
@@ -102,31 +102,31 @@ namespace Math
     // @{
 
     /**
-     * Return the number of elements.
+     * Return the number of entries.
      */
     size_t
     size() const;
 
     /**
-     * Return he number of non-zero elements.
+     * Return he number of non-zero entries.
      */
     size_t
-    n_nonzero_elements() const;
+    n_nonzero_entries() const;
 
     /**
-     * Return whether the vector is empty (no allocated elements) or not.
+     * Return whether the vector is empty (no allocated entries) or not.
      */
     bool
     empty() const;
 
     /**
-     * Return whether all elements of two vectors are equivalent.
+     * Return whether all entries of two vectors are equivalent.
      */
     bool
     operator==(const Vector& other) const;
 
     /**
-     * Return whether any elements of two vectors are different.
+     * Return whether any entries of two vectors are different.
      */
     bool
     operator!=(const Vector& other) const;
@@ -138,65 +138,65 @@ namespace Math
     /* @{ */
 
     /**
-     * Read and write access for element \p i.
+     * Read and write access for entry \p i.
      * \note No bounds checking is performed. See \ref at.
      */
     double&
     operator[](const size_t i);
 
     /**
-     * Read access for element \p i.
+     * Read access for entry \p i.
      * \note No bounds checking is performed. See \ref at.
      */
     const double&
     operator[](const size_t i) const;
 
     /**
-     * Read and write access for element \p i.
+     * Read and write access for entry \p i.
      * \note No bounds checking is performed. See \ref at.
      */
     double&
     operator()(const size_t i);
 
     /**
-     * Read access for element \p i.
+     * Read access for entry \p i.
      * \note No bounds checking is performed. See \ref at.
      */
     const double&
     operator()(const size_t i) const;
 
     /**
-     * Read and write access for element \p i with bounds checking.
+     * Read and write access for entry \p i with bounds checking.
      */
     double&
     at(const size_t i);
 
     /**
-     * Read access for element \p i with bounds checking.
+     * Read access for entry \p i with bounds checking.
      */
     const double&
     at(const size_t i) const;
 
     /**
-     * Read and write access to the first element.
+     * Read and write access to the first entry.
      */
     double&
     front();
 
     /**
-     * Read access to the first element.
+     * Read access to the first entry.
      */
     const double&
     front() const;
 
     /**
-     * Read and write access to the last element.
+     * Read and write access to the last entry.
      */
     double&
     back();
 
     /**
-     * Read access to the last elements.
+     * Read access to the last entries.
      */
     const double&
     back() const;
@@ -250,21 +250,21 @@ namespace Math
     clear();
 
     /**
-     * Add an element set to \p value to the back of the vector.
+     * Add an entry set to \p value to the back of the vector.
      */
     void
     push_back(const double value);
 
     /**
-     * Remove the last element from the vector.
+     * Remove the last entry from the vector.
      */
     void
     pop_back();
 
     /**
-     * Resize the vector to \p n elements. If \p n is less than the current
-     * number of elements, elements are deleted from the back. If \p n is
-     * greater than the current size, all new elements are uninitialized.
+     * Resize the vector to \p n entries. If \p n is less than the current
+     * number of entries, entries are deleted from the back. If \p n is
+     * greater than the current size, all new entries are uninitialized.
      */
     void
     resize(const size_t n, const double value = 0.0);
@@ -282,7 +282,7 @@ namespace Math
     equal(const Vector& y, const double factor = 1.0);
 
     /**
-     * Take the absolute value of each element of the vector.
+     * Take the absolute value of each entry of the vector.
      */
     Vector&
     fabs();
@@ -341,14 +341,14 @@ namespace Math
     /* @{ */
 
     /**
-     * Multiply each element of the vector by a scalar such that \f$ \vec{x} =
+     * Multiply each entry of the vector by a scalar such that \f$ \vec{x} =
      * a \vec{x} \f$.
      */
     Vector&
     scale(const double factor);
 
     /**
-     * Multiply each element of the vector by the corresponding element in the
+     * Multiply each entry of the vector by the corresponding entry in the
      * argument such that \f$ x_i = a_i x_i \f$ where \f$ \vec{a} = (a_i, ...,
      * a_n) \f$ is of the same length as \f$ \vec{x} \f$.
      */
@@ -356,40 +356,40 @@ namespace Math
     scale(const Vector& scaling_factors);
 
     /**
-     * Negate each element of the vector. This is equivalent to scaling by -1.0.
+     * Negate each entry of the vector. This is equivalent to scaling by -1.0.
      * See \ref scale.
      */
     Vector&
     operator-();
 
     /**
-     * Return a vector containing the negated elements of this vector. See
+     * Return a vector containing the negated entries of this vector. See
      * \ref scale.
      */
     Vector
     operator-() const;
 
     /**
-     * Multiply each element of the vector by the argument. See \ref scale.
+     * Multiply each entry of the vector by the argument. See \ref scale.
      */
     Vector&
     operator*=(const double factor);
 
     /**
-     * Return a vector that contains the elements of this vector multiplied by
+     * Return a vector that contains the entries of this vector multiplied by
      * a scalar. See \ref scale.
      */
     Vector
     operator*(const double factor) const;
 
     /**
-     * Divide the elements of the vector by a non-zero scalar. See \ref scale.
+     * Divide the entries of the vector by a non-zero scalar. See \ref scale.
      */
     Vector&
     operator/=(const double factor);
 
     /**
-     * Return a vector that contains the elements of this vector divided by a
+     * Return a vector that contains the entries of this vector divided by a
      * non-zero scalar. See \ref scale.
      */
     Vector
@@ -402,7 +402,7 @@ namespace Math
     /* @{ */
 
     /**
-     * Shift each element in a vector by \p such that \f$ x_i = x_i + a, ~
+     * Shift each entry in a vector by \p such that \f$ x_i = x_i + a, ~
      * \forall i \f$.
      */
     Vector&
@@ -467,8 +467,8 @@ namespace Math
      * Return the vector as a string.
      *
      * \param scientific A flag for using scientific notation.
-     * \param precision The precision to use when printing elements.
-     * \param width The width between elements.
+     * \param precision The precision to use when printing entries.
+     * \param width The width between entries.
      */
     std::string
     str(const bool scientific = true,
@@ -480,8 +480,8 @@ namespace Math
      *
      * \param os The output stream to print the vector in.
      * \param scientific A flag for using scientific notation.
-     * \param precision The precision to use when printing elements.
-     * \param width The width between elements.
+     * \param precision The precision to use when printing entries.
+     * \param width The width between entries.
      */
     void
     print(std::ostream& os = std::cout,

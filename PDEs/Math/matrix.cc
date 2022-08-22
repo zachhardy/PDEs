@@ -128,11 +128,11 @@ Matrix::size() const
 
 
 size_t
-Matrix::n_nonzero_elements() const
+Matrix::n_nonzero_entries() const
 {
   size_t count = 0;
   for (const auto& row : values)
-    count += row.n_nonzero_elements();
+    count += row.n_nonzero_entries();
   return count;
 }
 
@@ -517,7 +517,7 @@ Matrix::operator/(const double factor) const
 
 
 Matrix&
-Matrix::add(const double b, const Matrix& B)
+Matrix::sadd(const double a, const double b, const Matrix& B)
 {
   assert(B.n_rows() == n_rows());
   assert(B.n_cols() == n_cols());
@@ -528,9 +528,24 @@ Matrix::add(const double b, const Matrix& B)
     double* a_ij = data(i);
     const double* b_ij = B.data(i);
     for (size_t j = 0; j < n_cols(); ++j, ++a_ij, ++b_ij)
-      *a_ij += b * *b_ij;
+      *a_ij = a * *a_ij + b * *b_ij;
   }
   return *this;
+}
+
+
+Matrix&
+Matrix::sadd(const double a, const Matrix& B)
+{
+  return sadd(a, 1.0, B);
+}
+
+
+
+Matrix&
+Matrix::add(const double b, const Matrix& B)
+{
+  return sadd(1.0, b, B);
 }
 
 
@@ -563,48 +578,6 @@ Matrix::operator-(const Matrix& B) const
 
 
 Matrix&
-Matrix::Tadd(const double b, const Matrix& B)
-{
-  assert(B.n_rows() == n_cols());
-  assert(B.n_cols() == n_rows());
-
-  // Perform the operation
-  for (size_t i = 0; i < n_rows(); ++i)
-  {
-    double* a_ij = data(i);
-    for (size_t j = 0; j < n_cols(); ++j, ++a_ij)
-      *a_ij += b * B(j, i);
-  }
-  return *this;
-}
-
-
-Matrix&
-Matrix::sadd(const double a, const double b, const Matrix& B)
-{
-  assert(B.n_rows() == n_rows());
-  assert(B.n_cols() == n_cols());
-
-  // Perform the operation
-  for (size_t i = 0; i < n_rows(); ++i)
-  {
-    double* a_ij = data(i);
-    const double* b_ij = B.data(i);
-    for (size_t j = 0; j < n_cols(); ++j, ++a_ij, ++b_ij)
-      *a_ij = a * *a_ij + b * *b_ij;
-  }
-  return *this;
-}
-
-
-Matrix&
-Matrix::sadd(const double a, const Matrix& B)
-{
-  return sadd(a, 1.0, B);
-}
-
-
-Matrix&
 Matrix::sTadd(const double a, const double b, const Matrix& B)
 {
   assert(B.n_rows() == n_cols());
@@ -622,11 +595,17 @@ Matrix::sTadd(const double a, const double b, const Matrix& B)
 }
 
 
-
 Matrix&
 Matrix::sTadd(const double a, const Matrix& B)
 {
   return sTadd(a, 1.0, B);
+}
+
+
+Matrix&
+Matrix::Tadd(const double b, const Matrix& B)
+{
+  return sTadd(1.0, b, B);
 }
 
 

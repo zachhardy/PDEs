@@ -72,7 +72,7 @@ namespace Math
 
     /**
      * Construct a matrix with \p n_rows and \p n_cols from contiguously stored
-     * elements.
+     * entries.
      */
     Matrix(const size_t n_rows,
            const size_t n_cols,
@@ -139,19 +139,19 @@ namespace Math
     n_cols() const;
 
     /**
-     * Return the number of elements.
+     * Return the number of entries.
      */
     size_t
     size() const;
 
     /**
-     * Return the number of non-zero elements.
+     * Return the number of non-zero entries.
      */
     size_t
-    n_nonzero_elements() const;
+    n_nonzero_entries() const;
 
     /**
-     * Return whether the matrix is empty (no allocated elements) or not.
+     * Return whether the matrix is empty (no allocated entries) or not.
      */
     bool
     empty() const;
@@ -163,13 +163,13 @@ namespace Math
     transpose() const;
 
     /**
-     * Return whether all elements of two matrices are equivalent.
+     * Return whether all entries of two matrices are equivalent.
      */
     bool
     operator==(const Matrix& other) const;
 
     /**
-     * Return whether any elements of two matrices are different.
+     * Return whether any entries of two matrices are different.
      */
     bool
     operator!=(const Matrix& other) const;
@@ -247,13 +247,13 @@ namespace Math
     at(const size_t i, const size_t j) const;
 
     /**
-     * Read and write access for diagonal element \p i with bounds checking.
+     * Read and write access for diagonal entry \p i with bounds checking.
      */
     double&
     diag(const size_t i);
 
     /**
-     * Read access for diagonal element \p i with bounds checking.
+     * Read access for diagonal entry \p i with bounds checking.
      */
     const double&
     diag(const size_t i) const;
@@ -307,7 +307,7 @@ namespace Math
     end() const;
 
     /**
-     * Return an iterator to the first element of row \p i.
+     * Return an iterator to the first entry of row \p i.
      */
     std::vector<double>::iterator
     begin(const size_t i);
@@ -319,7 +319,7 @@ namespace Math
     end(const size_t i);
 
     /**
-     * Return a constant iterator to the first element of row \p i.
+     * Return a constant iterator to the first entry of row \p i.
      */
     std::vector<double>::const_iterator
     begin(const size_t i) const;
@@ -366,7 +366,7 @@ namespace Math
     /**
      * Resize the matrix to have \p n_rows and \p n_cols. If either dimension
      * is less than the its current size, entries are deleted from the back.
-     * If either is greater, new elements are allocated.
+     * If either is greater, new entries are allocated.
      */
     void
     resize(const size_t n_rows,
@@ -417,7 +417,7 @@ namespace Math
     /**
      * Set the diagonal of the matrix to a single scalar value. If the matrix
      * is empty, this initializes a matrix with one row and one column whose
-     * entry is set to \p value. If not empty, each diagonal element is set to
+     * entry is set to \p value. If not empty, each diagonal entry is set to
      * \p value.
      */
     void
@@ -437,7 +437,7 @@ namespace Math
     scale(const double factor);
 
     /**
-     * Negate the elements of the matrix such that \f$ \boldsymbol{A} = -
+     * Negate the entries of the matrix such that \f$ \boldsymbol{A} = -
      * \boldsymbol{A} \f$. This is equivalent to scaling by -1.0. See \ref
      * scale.
      */
@@ -445,33 +445,33 @@ namespace Math
     operator-();
 
     /**
-     * Return a matrix containing the negated elements of this matrix. See
+     * Return a matrix containing the negated entries of this matrix. See
      * \ref scale.
      */
     Matrix
     operator-() const;
 
     /**
-     * Multiply the elements of the matrix by a scalar. See \ref scale.
+     * Multiply the entries of the matrix by a scalar. See \ref scale.
      */
     Matrix&
     operator*=(const double factor);
 
     /**
-     * Return a matrix containing the elements of this matrix multiplied by
+     * Return a matrix containing the entries of this matrix multiplied by
      * a scalar. See \ref scale.
      */
     Matrix
     operator*(const double factor) const;
 
     /**
-     * Divide the elements of the matrix by a non-zero scalar. See \ref scale.
+     * Divide the entries of the matrix by a non-zero scalar. See \ref scale.
      */
     Matrix&
     operator/=(const double factor);
 
     /**
-     * Return a matrix containing the elements of this matrix divided by a
+     * Return a matrix containing the entries of this matrix divided by a
      * non-zero scalar. See \ref scale.
      */
     Matrix
@@ -484,16 +484,32 @@ namespace Math
     /* @{ */
 
     /**
-     * Addition by a scaled matrix to this one such that  \f$ \boldsymbol{A} =
-     * \boldsymbol{A} + b \boldsymbol{B} \f$. The dimensions of each matrix
-     * must agree for this operation to be permissible.
+     * Multiply this matrix by a scalar and add another scaled matrix to it
+     * such that \f$ \boldsymbol{A} = a \boldsymbol{A} + b \boldsymbol{B} \f$.
+     * The dimensions of each matrix must agree for this to be a permissible
+     * operation.
+     */
+    Matrix&
+    sadd(const double a, const double b, const Matrix& B);
+
+    /**
+     * Multiply this matrix by a scalar and add another to it. This is
+     * equivalent to calling the more general \ref sadd with <tt>b = 1.0</tt>.
+     * See \ref sadd.
+     */
+    Matrix&
+    sadd(const double a, const Matrix& B);
+
+    /**
+     * Add a scaled matrix to this one. This is equivalent to calling \ref sadd
+     * with <tt>a= 1.0</tt>. See \ref sadd.
      */
     Matrix&
     add(const double b, const Matrix& B);
 
     /**
-     * Add another matrix to this one. This is equivalent to adding a matrix
-     * scaled by 1.0. See \ref add.
+     * Add another matrix to this one. This is equivalent to calling \ref add
+     * with <tt>b = 1.0</tt>.
      */
     Matrix&
     operator+=(const Matrix& B);
@@ -505,8 +521,8 @@ namespace Math
     operator+(const Matrix& B) const;
 
     /**
-     * Subtract another matrix from this one. This is equivalent to adding a
-     * matrix scaled by -1.0. See \ref add.
+     * Subtract another matrix from this one. This is equivalent to calling
+     * \ref add with <tt>b = -1.0</tt>. See \ref add.
      */
     Matrix&
     operator-=(const Matrix& B);
@@ -518,46 +534,28 @@ namespace Math
     operator-(const Matrix& B) const;
 
     /**
-     * Add the scaled transpose of another matrix to this one such that
-     * \f$ \boldsymbol{A} = \boldsymbol{A} + b \boldsymbol{B}^T \f$. The
-     * dimensions of this matrix and the transpose of the other must agree in
-     * order for this operation to be permissible.
-     */
-    Matrix&
-    Tadd(const double b, const Matrix& B);
-
-    /**
-     * Multiply this matrix by a scalar and add another scaled matrix to it
-     * such that \f$ \boldsymbol{A} = a \boldsymbol{A} + b \boldsymbol{B} \f$.
-     */
-    Matrix&
-    sadd(const double a, const double b, const Matrix& B);
-
-    /**
-     * Multiply this matrix by a scalar and add another to it such that \f$
-     * \boldsymbol{A} = a \boldsymbol{A} + \boldymbol{B}. This is equivalent
-     * to scaling the other matrix by 1.0 using the more general \ref sadd
-     * routine. See \ref sadd.
-     */
-    Matrix&
-    sadd(const double a, const Matrix& B);
-
-    /**
      * Multiply this matrix by a scalar and add the scaled transpose of another
      * to it such that \f$ \boldsymbol{A} = a \boldymbol{A} + b \boldsymbol{B}^T
-     * \f$.
+     * \f$. The dimension of this matrix and the transpose of the other must
+     * agree for this operation to be permissible.
      */
     Matrix&
     sTadd(const double a, const double b, const Matrix& B);
 
     /**
-     * Multiply this matrix by a scalar and add the transpose of another to it
-     * such that \boldsymbol{A} = a \boldsymbol{A} + \boldsymbol{B}^T \f$. This
-     * is equivalent to scaling the other matrix by 1.0 using the more general
-     * \ref sTadd routine. See \ref sTadd.
+     * Multiply this matrix by a scalar and add the transpose of another to it.
+     * This is equivalent to calling \ref sTadd with <tt>b = 1.0</tt>. See \ref
+     * sTadd.
      */
     Matrix&
     sTadd(const double a, const Matrix& B);
+
+    /**
+     * Add the scaled transpose of another matrix to this one. This is
+     * equivalent to calling \ref sTadd with <tt>a = 1.0</tt>. See \ref sTadd.
+     */
+    Matrix&
+    Tadd(const double b, const Matrix& B);
 
     /* @} */
     /**

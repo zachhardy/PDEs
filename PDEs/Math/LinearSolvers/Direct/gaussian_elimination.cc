@@ -147,8 +147,8 @@ Math::gaussian_elimination<SparseMatrix>(SparseMatrix& A, Vector& b,
       {
         const double factor = a_ij/a_jj;
         for (const auto el : A.row_iterator(j))
-          if (el.column() >= j)
-            A.add(i, el.column(), -el.value()*factor);
+          if (el.column >= j)
+            A.add(i, el.column, -el.value*factor);
         b[i] -= b[j]*factor;
       }
     }
@@ -160,8 +160,8 @@ Math::gaussian_elimination<SparseMatrix>(SparseMatrix& A, Vector& b,
   {
     double value = b[i];
     for (const auto el : A.row_iterator(i))
-      if (el.column() > i)
-        value -= el.value()*x[el.column()];
+      if (el.column > i)
+        value -= el.value*x[el.column];
     x[i] = value/A.diag(i);
   }
   return x;
