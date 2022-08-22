@@ -31,7 +31,7 @@ namespace Math
       double tolerance = 1.0e-6;
 
       /**
-       * The maximum number of iterations to attempt to converge the solution.
+       * The maximum number of iterations allowed.
        */
       unsigned int max_iterations = 500;
 
@@ -173,7 +173,7 @@ namespace Math
       double tolerance;
 
       /**
-       * The maximum number of iterations to attempt to converge the solution.
+       * The maximum number of iterations allowed.
        */
       unsigned int max_iterations;
 
