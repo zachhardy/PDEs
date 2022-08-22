@@ -409,15 +409,30 @@ namespace Math
     shift(const double value);
 
     /**
-     * Add a scaled vector to this one such that \f$ \vec{x} = \vec{x} + a
-     * \vec{y} \f$.
+     * Multiply this vector by a scalar and add another scaled vector to it such
+     * that \f$ \vec{x} = a \vec{x} + b \vec{y} \f$. The vectors must be of the
+     * same length for this to be a permissible operation
      */
     Vector&
-    add(const double a, const Vector& y);
+    sadd(const double a, const double b, const Vector& y);
 
     /**
-     * Add another vector to this one. This is equivalent to adding a vector
-     * scaled by 1.0. See \ref add
+     * Scale this vector and add another. This is equivalent to calling \ref
+     * sadd with <tt>b = 1.0</tt>. See \ref sadd.
+     */
+    Vector&
+    sadd(const double a, const Vector& y);
+
+    /**
+     * Add b scaled vector to this one. This is equivalent to calling \ref
+     * sadd with <tt>a = 1.0</tt>. See \ref sadd.
+     */
+    Vector&
+    add(const double b, const Vector& y);
+
+    /**
+     * Add another vector to this one. This is equivalent calling \ref add with
+     * <tt>b = 1.0</tt>. See \ref add.
      */
     Vector&
     operator+=(const Vector& y);
@@ -429,8 +444,8 @@ namespace Math
     operator+(const Vector& y) const;
 
     /**
-     * Subtract another vector from this one. This is equivalent to adding a
-     * vector scaled by -1.0. See \ref add.
+     * Subtract another vector from this one. This is equivalent of calling
+     * \ref add with <tt>b = -1.0</tt>. See \ref add.
      */
     Vector&
     operator-=(const Vector& y);
@@ -440,22 +455,6 @@ namespace Math
      */
     Vector
     operator-(const Vector& y) const;
-
-    /**
-     * Multiply this vector by a scalar and add another scaled vector to it such
-     * that \f$ \vec{x} = a \vec{x} + b \vec{y} \f$.
-     */
-    Vector&
-    sadd(const double a, const double b, const Vector& y);
-
-    /**
-     * Scale this vector by a scalar and add another vector in place such
-     * that \f$ \vec{x} = a \vec{x} + \vec{y} \f$. This is equivalent to
-     * scaling the other vector by 1.0 using the more general \ref sadd routine.
-     * See \ref sadd.
-     */
-    Vector&
-    sadd(const double a, const Vector& y);
 
     /* @} */
     /**

@@ -17,8 +17,8 @@ Vector::Vector(const std::initializer_list<double>& list) :
 template<typename InputIterator>
 Vector::Vector(const InputIterator first, const InputIterator last)
 {
-  this->reinit(std::distance(first, last));
-  std::copy(first, last, this->begin());
+  reinit(std::distance(first, last));
+  std::copy(first, last, begin());
 }
 template Vector::Vector(const double*, const double*);
 
@@ -258,7 +258,7 @@ Vector::swap(Vector& other)
 Vector&
 Vector::equal(const Vector& y, const double factor)
 {
-  assert(y.size() == this->size());
+  assert(y.size() == size());
 
   // Get pointers for fast access
   double* x_ptr = data();
@@ -291,7 +291,7 @@ Vector::fabs() const
 double
 Vector::dot(const Vector& y) const
 {
-  assert(this->size() == y.size());
+  assert(size() == y.size());
   double c = 0.0;
   for (size_t i = 0; i < size(); ++i)
     c += values[i]*y.values[i];
@@ -352,7 +352,7 @@ Vector::scale(const double factor)
 Vector&
 Vector::scale(const Vector& scaling_factors)
 {
-  assert(scaling_factors.size() == this->size());
+  assert(scaling_factors.size() == size());
 
   // Get pointers for faster access
   double* el_ptr = data();
@@ -369,7 +369,7 @@ Vector::scale(const Vector& scaling_factors)
 Vector&
 Vector::operator-()
 {
-  return this->scale(-1.0);
+  return scale(-1.0);
 }
 
 
@@ -383,7 +383,7 @@ Vector::operator-() const
 Vector&
 Vector::operator*=(const double factor)
 {
-  return this->scale(factor);
+  return scale(factor);
 }
 
 
@@ -398,7 +398,7 @@ Vector&
 Vector::operator/=(const double factor)
 {
   assert(factor != 0.0);
-  return this->scale(1.0/factor);
+  return scale(1.0/factor);
 }
 
 
@@ -420,54 +420,9 @@ Vector::shift(const double value)
 
 
 Vector&
-Vector::add(const double a, const Vector& y)
-{
-  assert(y.size() == this->size());
-
-  // Get pointers for fast access
-  double* x_ptr = data();
-  const double* y_ptr = y.data();
-  double* end_ptr = data() + size();
-
-  // Perform the add operation
-  for (; x_ptr != end_ptr; ++x_ptr, ++y_ptr)
-    *x_ptr += a * *y_ptr;
-  return *this;
-}
-
-
-Vector&
-Vector::operator+=(const Vector& y)
-{
-  return this->add(1.0, y);
-}
-
-
-Vector
-Vector::operator+(const Vector& y) const
-{
-  return Vector(*this).add(1.0, y);
-}
-
-
-Vector&
-Vector::operator-=(const Vector& y)
-{
-  return this->add(-1.0, y);
-}
-
-
-Vector
-Vector::operator-(const Vector& y) const
-{
-  return Vector(*this).add(-1.0, y);
-}
-
-
-Vector&
 Vector::sadd(const double a, const double b, const Vector& y)
 {
-  assert(y.size() == this->size());
+  assert(y.size() == size());
 
   // Get pointers for fast access
   double* x_ptr = data();
@@ -484,7 +439,42 @@ Vector::sadd(const double a, const double b, const Vector& y)
 Vector&
 Vector::sadd(const double a, const Vector& y)
 {
-  return this->sadd(a, 1.0, y);
+  return sadd(a, 1.0, y);
+}
+
+
+Vector&
+Vector::add(const double b, const Vector& y)
+{
+  return sadd(1.0, b, y);
+}
+
+
+Vector&
+Vector::operator+=(const Vector& y)
+{
+  return add(1.0, y);
+}
+
+
+Vector
+Vector::operator+(const Vector& y) const
+{
+  return Vector(*this).add(1.0, y);
+}
+
+
+Vector&
+Vector::operator-=(const Vector& y)
+{
+  return add(-1.0, y);
+}
+
+
+Vector
+Vector::operator-(const Vector& y) const
+{
+  return Vector(*this).add(-1.0, y);
 }
 
 
@@ -522,7 +512,7 @@ Vector::print(std::ostream& os,
               const unsigned int precision,
               const unsigned int width) const
 {
-  os << this->str(scientific, precision, width);
+  os << str(scientific, precision, width);
 }
 
 
