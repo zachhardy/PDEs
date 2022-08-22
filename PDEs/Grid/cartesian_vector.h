@@ -126,15 +126,15 @@ namespace Grid
     operator!=(const CartesianVector& other) const;
 
     /**
-     * Return the Euclidean distance between two points. This is given by \f$
-     * d = \sqrt{(p_x - q_x)^2 + (p_y - q_y)^2 + (p_z - q_z)^2} \f$.
+     * Return the Euclidean distance between two points via \f$ d =
+     * \sqrt{(p_x - q_x)^2 + (p_y - q_y)^2 + (p_z - q_z)^2} \f$.
      */
     double
     distance(const CartesianVector& other) const;
 
     /**
-     * Return the Euclidean distance between two points squared. This is given
-     * by \f$ d^2 = (p_x - q_x)^2 + (p_y - q_y)^2 + (p_z - q_z)^2 \f$.
+     * Return the Euclidean distance between two points squared via \f$ d^2 =
+     * (p_x - q_x)^2 + (p_y - q_y)^2 + (p_z - q_z)^2 \f$.
      */
     double
     distance_squared(const CartesianVector& other) const;
@@ -153,7 +153,7 @@ namespace Grid
     length() const;
 
     /**
-     * Return the Euclidean distance to the origin squared. via \f$ \ell^2 =
+     * Return the Euclidean distance to the origin squared via \f$ \ell^2 =
      * x^2 + y^2 + z^2 \f$. See \ref length.
      */
     double
@@ -166,73 +166,76 @@ namespace Grid
     /* @{ */
 
     /**
-     * Element-wise multiplication by a scalar.
+     * Multiply the elements of the point by a scalar.
      */
     CartesianVector&
     operator*=(const double factor);
 
     /**
-     * Return a point multiplied by a scalar.
+     * Return a point that contains the elements of this point multiplied by a
+     * scalar.
      */
     CartesianVector
     operator*(const double factor) const;
 
     /**
-     * Element-wise division by a non-zero scalar.
+     * Divide the elements of the point by a non-zero scalar.
      */
     CartesianVector&
     operator/=(const double factor);
 
     /**
-     * Return a point divided by a non-zero scalar.
+     * Return a point containing the elements of this point divided by a
+     * non-zero scalar.
      */
      CartesianVector
      operator/(const double factor) const;
 
     /**
-      * Element-wise negation in place.
+      * Negate the elements of the point.
       */
     CartesianVector&
     operator-();
 
     /**
-     * Return the negative of a point.
+     * Return a point containing the negated elements of this point.
      */
     CartesianVector
     operator-() const;
 
     /**
-     * Element-wise addition in place.
+     * Add another point to this one.
      */
     CartesianVector&
     operator+=(const CartesianVector& other);
 
     /**
-     * Return the sum of two points.
+     * Return the sum of this point and another.
      */
     CartesianVector
     operator+(const CartesianVector& other) const;
 
     /**
-     * Element-wise subtraction in place.
+     * Subtract a point from this one.
      */
     CartesianVector&
     operator-=(const CartesianVector& other);
 
     /**
-     * Return the difference of two points.
+     * Return the difference between this point and another.
      */
     CartesianVector
     operator-(const CartesianVector& other) const;
 
     /**
-     * Element-wise absolute value in place.
+     * Take the absolute value of each element of the point.
      */
     CartesianVector&
     fabs();
 
     /**
-     * Return the absolute value of a point.
+     * Return a point containing the absolute value of each element of this
+     * point.
      */
     CartesianVector
     fabs() const;
@@ -281,10 +284,6 @@ namespace Grid
      */
     void
     print(std::ostream& os = std::cout) const;
-
-    /**
-     * Insert a point into an output stream.
-     */
 
     /* @} */
 

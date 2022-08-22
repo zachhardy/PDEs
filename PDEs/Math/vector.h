@@ -282,7 +282,7 @@ namespace Math
     equal(const Vector& y, const double factor = 1.0);
 
     /**
-     * Take the absolute value of each element of the vector in place.
+     * Take the absolute value of each element of the vector.
      */
     Vector&
     fabs();
