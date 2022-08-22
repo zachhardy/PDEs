@@ -8,16 +8,16 @@
 
 
 using namespace Math;
+using namespace Math::LinearSolver;
 
 
-LinearSolver::CG::
-CG(const Options& opts) : IterativeSolverBase(opts, "CG")
+CG::CG(const Options& opts) :
+  IterativeSolverBase(opts, "CG")
 {}
 
 
 void
-LinearSolver::CG::
-solve(Vector& x, const Vector& b) const
+CG::solve(Vector& x, const Vector& b) const
 {
   size_t n = A->n_rows();
   assert(b.size() == n);
@@ -37,7 +37,7 @@ solve(Vector& x, const Vector& b) const
   /* Initialize residual, residual norms, and search directions.
    * If the residual norm is smaller than the tolerance, exit because
    * the initial guess is the solution. */
-  r = (!x.all_zero())? b - A->vmult(x) : b;
+  r = (x.n_nonzero_elements() > 0)? b - A->vmult(x) : b;
   res = res_prev = r.dot(r);
   if (res < tolerance)
     return;
@@ -54,9 +54,8 @@ solve(Vector& x, const Vector& b) const
     alpha = res_prev/p.dot(q);
 
     // Update solution and residual vector
-    x.add(p, alpha);
-
-    r.add(q, -alpha);
+    x.add(alpha, p);
+    r.add(-alpha, q);
 
     // Update residual norm
     res = r.dot(r);

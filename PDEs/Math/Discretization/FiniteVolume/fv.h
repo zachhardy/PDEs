@@ -32,7 +32,7 @@ namespace Math
     unsigned int dofs_per_cell(const unsigned int n_components) const override;
 
     /** For FV, the only Node is the Centroid of the Cell. */
-    std::vector<Grid::Point> nodes(const Grid::Cell& cell) const override;
+    std::vector<Grid::CartesianVector> nodes(const Grid::Cell& cell) const override;
 
     /**
      * Define the sparsity pattern. This routine defines the column indices of

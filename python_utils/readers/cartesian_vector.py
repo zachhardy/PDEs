@@ -2,7 +2,7 @@ import copy
 import numpy as np
 
 
-class Point:
+class CartesianVector:
     """
     Implementation of a 3D spatial coordinate or vector.
     """
@@ -15,7 +15,7 @@ class Point:
         return f"({self.x}, {self.y}, {self.z})"
 
     def __repr__(self):
-        return f"Point{self.__str__()}"
+        return f"CartesianVector{self.__str__()}"
 
     def __iadd__(self, other):
         if not isinstance(other, type(self)):
@@ -88,10 +88,10 @@ class Point:
         return copy.deepcopy(self).__ipow__(power, modulo)
 
     def __abs__(self):
-        return Point(abs(self.x), abs(self.y), abs(self.z))
+        return CartesianVector(abs(self.x), abs(self.y), abs(self.z))
 
     def __neg__(self):
-        return Point(-self.x, -self.y, -self.z)
+        return CartesianVector(-self.x, -self.y, -self.z)
 
     def __eq__(self, other):
         if not isinstance(other, type(self)):
@@ -120,7 +120,7 @@ class Point:
         x = self.y * other.z - self.z * other.y
         y = self.z * other.x - self.x * other.z
         z = self.x * other.y - self.y * other.x
-        return Point(x, y, z)
+        return CartesianVector(x, y, z)
 
     def norm(self):
         return np.sqrt(self.dot(self))

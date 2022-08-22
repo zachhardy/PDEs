@@ -1,7 +1,7 @@
 #ifndef CELL_H
 #define CELL_H
 
-#include "point.h"
+#include "cartesian_vector.h"
 #include "face.h"
 
 #include <vector>

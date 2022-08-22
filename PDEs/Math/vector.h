@@ -10,246 +10,458 @@
 
 namespace Math
 {
-  /** Implementation of a general linear algebra vector. */
+  /**
+   * Implementation of a general linear algebra vector.
+   */
   class Vector
   {
   public:
+    /**
+     * Alias to an iterator over an STL vector of doubles.
+     */
     using iterator = std::vector<double>::iterator;
-    using const_iterator = std::vector<double>::const_iterator;
 
-  protected:
-    std::vector<double> vals;
+    /*
+     * Alias to a constant iterator over an STL vector of doubles.
+     */
+    using const_iterator = std::vector<double>::const_iterator;
 
   public:
 
-    //################################################## Initialization
+    /**
+     * \name Constructors and assignment
+     */
+    /* @{ */
 
-    /** \name Construction and Initialization */
-    // @{
-
+    /**
+     * Default constructor. Create an empty vector.
+     */
     Vector() = default;
 
-    /** Construct a vector with \p n uninitialized elements. */
-    explicit Vector(const size_t n);
-
-    /** Construct a vector with \p n elements set to \p value. */
-    explicit Vector(const size_t n, const double value);
-
-    Vector(const std::vector<double>& other);
-    Vector(std::vector<double>&& other);
-
-    Vector(const std::initializer_list<double> list);
-
-    Vector& operator=(const std::vector<double>& other);
-    Vector& operator=(std::vector<double>&& other);
-
-    Vector& operator=(const std::initializer_list<double> list);
-
-    /** Element-wise assignment to a scalar. */
-    Vector& operator=(const double value);
-
-    // @}
-
-    //################################################## Information
-
-    /** \name Information */
-    // @{
-
-    size_t size() const;
-
-    /** Return the number of nonzero elements in the Vector. */
-    size_t nnz() const;
-
-    bool empty() const;
-    bool all_zero() const;
-
-    bool operator==(const Vector& other) const;
-    bool operator!=(const Vector& other) const;
-
-    // @}
-
-    //################################################## Accessors
-
-    /** \name Accessors */
-    // @{
-
-    double& operator[](const size_t i);
-    const double& operator[](const size_t i) const;
-
-    double& operator()(const size_t i);
-    const double& operator()(const size_t i) const;
-
-    double& at(const size_t i);
-    const double& at(const size_t i) const;
-
-    double& front();
-    const double& front() const;
-
-    double& back();
-    const double& back() const;
-
-    double* data();
-    const double* data() const;
-
-    // @}
-
-    //################################################## Iterators
-
-    /** \name Iterators */
-    // @{
-
-    iterator begin();
-    iterator end();
-
-    const_iterator begin() const;
-    const_iterator end() const;
-
-    // @}
-
-    //################################################## Modifiers
-
-    /** \name Modifiers */
-    // @{
-
-    void clear();
-
-    void push_back(const double value);
-
-    void pop_back();
+    /**
+     * Copy constructor. Copy the internal data from another vector.
+     */
+    Vector(const Vector& other) = default;
 
     /**
-     * Resize the Vector to \p n elements. If \p n is less than the current
-     * size, elements are deleted from the back. If \p n is greater than the
-     * current size, all new elements are uninitialized.
+     * Move constructor. Steal the internal data from another vector.
      */
-    void resize(const size_t n);
+    Vector(Vector&& other) = default;
 
     /**
-     * Resize the Vector to \p n elements. If new elements are created, they
-     * are set to \p value.
+     * Construct a vector with \p n elements, optionally set to \p value.
      */
-    void resize(const size_t n, const double value);
+    Vector(const size_t n, const double value = 0.0);
 
-    void swap(Vector& y);
+    /**
+     * Copy construction from an initializer list.
+     */
+    Vector(const std::initializer_list<double>& list);
 
-    // @}
+    /**
+     * Constructor from iterators.
+     */
+    template<typename InputIterator>
+    Vector(const InputIterator first, const InputIterator last);
 
-    //################################################## Scalar Operations
+    /**
+     * Construct a vector from \p n contiguously stored elements.
+     */
+    Vector(const size_t n, const double* value_ptr);
 
-    /** \name Scalar Operations and Norms */
+    /**
+     * Copy assignment from another vector.
+     */
+    Vector&
+    operator=(const Vector& other);
+
+    /**
+     * Move assignment from another vector.
+     */
+    Vector&
+    operator=(Vector&& other);
+
+    /**
+     * Assign each element of the vector to the specified \p value. If the
+     * vector is empty, this will initialize a single element set to \p value.
+     */
+    Vector&
+    operator=(const double value);
+
+    /**
+     * Reinitialize the vector to have \p n elements set to \p value. This
+     * first clears the vector, then resizes it.
+     */
+    void
+    reinit(const size_t n, const double value = 0.0);
+
+    /* @} */
+    /**
+     * \name Information about the vector
+     */
     // @{
+
+    /**
+     * Return the number of elements.
+     */
+    size_t
+    size() const;
+
+    /**
+     * Return he number of non-zero elements.
+     */
+    size_t
+    n_nonzero_elements() const;
+
+    /**
+     * Return whether the vector is empty (no allocated elements) or not.
+     */
+    bool
+    empty() const;
+
+    /**
+     * Return whether all elements of two vectors are equivalent.
+     */
+    bool
+    operator==(const Vector& other) const;
+
+    /**
+     * Return whether any elements of two vectors are different.
+     */
+    bool
+    operator!=(const Vector& other) const;
+
+    /* @} */
+    /**
+     * \name Accessors and iterators
+     */
+    /* @{ */
+
+    /**
+     * Read and write access for element \p i.
+     * \note No bounds checking is performed. See \ref at.
+     */
+    double&
+    operator[](const size_t i);
+
+    /**
+     * Read access for element \p i.
+     * \note No bounds checking is performed. See \ref at.
+     */
+    const double&
+    operator[](const size_t i) const;
+
+    /**
+     * Read and write access for element \p i.
+     * \note No bounds checking is performed. See \ref at.
+     */
+    double&
+    operator()(const size_t i);
+
+    /**
+     * Read access for element \p i.
+     * \note No bounds checking is performed. See \ref at.
+     */
+    const double&
+    operator()(const size_t i) const;
+
+    /**
+     * Read and write access for element \p i with bounds checking.
+     */
+    double&
+    at(const size_t i);
+
+    /**
+     * Read access for element \p i with bounds checking.
+     */
+    const double&
+    at(const size_t i) const;
+
+    /**
+     * Read and write access to the first element.
+     */
+    double&
+    front();
+
+    /**
+     * Read access to the first element.
+     */
+    const double&
+    front() const;
+
+    /**
+     * Read and write access to the last element.
+     */
+    double&
+    back();
+
+    /**
+     * Read access to the last elements.
+     */
+    const double&
+    back() const;
+
+    /**
+     * Return a pointer to the underlying vector data.
+     */
+    double*
+    data();
+
+    /**
+     * Return a constant pointer to the underlying vector data.
+     */
+    const double*
+    data() const;
+
+    /**
+     * Return an iterator to the start of the vector.
+     */
+    iterator
+    begin();
+
+    /**
+     * Return an iterator that designates the end of the vector.
+     */
+    iterator
+    end();
+
+    /**
+     * Return a constant iterator to the start of the vector.
+     */
+    const_iterator
+    begin() const;
+
+    /**
+     * Return a constant iterator that designates the end of the vector.
+     */
+    const_iterator
+    end() const;
+
+    /* @} */
+    /**
+     * \name Modifying the vector
+     */
+    /* @{ */
+
+    /**
+     * Delete the contents of the vector.
+     */
+    void
+    clear();
+
+    /**
+     * Add an element set to \p value to the back of the vector.
+     */
+    void
+    push_back(const double value);
+
+    /**
+     * Remove the last element from the vector.
+     */
+    void
+    pop_back();
+
+    /**
+     * Resize the vector to \p n elements. If \p n is less than the current
+     * number of elements, elements are deleted from the back. If \p n is
+     * greater than the current size, all new elements are uninitialized.
+     */
+    void
+    resize(const size_t n, const double value = 0.0);
+
+    /**
+     * Swap the contents of two vectors.
+     */
+    void
+    swap(Vector& other);
+
+    /**
+     * Set the vector to \f$ \vec{x} = a \vec{y} \f$
+     */
+    Vector&
+    equal(const Vector& y, const double factor = 1.0);
+
+    /**
+     * Take the absolute value of each element of the vector.
+     */
+    Vector&
+    fabs();
+
+    /**
+     * Return th absolute value of the vector.
+     */
+    Vector
+    fabs() const;
+
+    /* @} */
+    /**
+     * \name Scalar operations and norms
+     */
+    /* @{ */
 
     /**
      * Take the dot product with another Vector via \f$ c = \vec{x} \cdot
-     * \vec{y} = \sum_{i=0}^{N} x_i y_i \f$.
+     * \vec{y} = \sum_i x_i y_i \f$.
      */
-    double dot(const Vector& y) const;
+    double
+    dot(const Vector& y) const;
 
     /**
-     * Return the \f$ \ell_\infty \f$-norm via \f$ || \vec{x} ||_{\infty} =
+     * Return the \f$ \ell_\infty \f$-norm via \f$ ||\vec{x}||_{\infty} =
      * \max_i |x_i| \f$.
      */
-    double linfty_norm() const;
+    double
+    linfty_norm() const;
 
     /**
-     * Return the \f$ \ell_1 \f$-norm via \f$ || \vec{x} ||_{\ell_1} =
+     * Return the \f$ \ell_1 \f$-norm via \f$ ||\vec{x}||_{\ell_1} =
      * \sum_i |x_i| \f$.
      */
-    double l1_norm() const;
+    double
+    l1_norm() const;
 
     /**
-     * Return the \f$ \ell_2 \f$-norm via \f$ || \vec{x} ||_{\ell_2} =
+     * Return the \f$ \ell_2 \f$-norm via \f$ ||\vec{x}||_{\ell_2} =
      * \sqrt{ \sum_i |x_i|^2 } \f$.
      */
-    double l2_norm() const;
+    double
+    l2_norm() const;
 
     /**
-     * Return the \f$ \ell_p \f$-norm via \f$ || \vec{x} ||_{\ell_p} =
+     * Return the \f$ \ell_p \f$-norm via \f$ ||\vec{x}||_{\ell_p} =
      * \left( \sum_i |x_i|^p \right)^{1/p} \f$.
      */
-    double lp_norm(const double p) const;
+    double
+    lp_norm(const double p) const;
 
-    // @}
-
-    //################################################## Linear Algebra
-
-    /** \name Linear Algebra */
-    // @{
+    /* @} */
+    /**
+     * \name Scaling operations
+     */
+    /* @{ */
 
     /**
-     * Element-wise multiplication by a scalar in place.
+     * Multiply each element of the vector by a scalar such that \f$ \vec{x} =
+     * a \vec{x} \f$.
      */
-    Vector& scale(const double factor);
-
-    /** Element-wise multiplication by a list of scalars in place. */
-    Vector& scale(const Vector scaling_factors);
-
-    /** Element-wise addition of a scalar value in place. */
-    Vector& add(const double value);
-
-    /** Element-wise addition with another Vector scaled by \p a in place. */
-    Vector& add(const Vector& y, const double a);
+    Vector&
+    scale(const double factor);
 
     /**
-     * Element-wise multiplication by a scalar followed by element-wise
-     * addition with a Vector in place.
+     * Multiply each element of the vector by the corresponding element in the
+     * argument such that \f$ x_i = a_i x_i \f$ where \f$ \vec{a} = (a_i, ...,
+     * a_n) \f$ is of the same length as \f$ \vec{x} \f$.
      */
-    Vector& sadd(const double a, const Vector& y);
+    Vector&
+    scale(const Vector& scaling_factors);
 
     /**
-     * Element-wise multiplication by a scalar \p a followed by element-wise
-     * addition with a Vector scaled by \p b in place.
+     * Negate each element of the vector. This is equivalent to scaling by -1.0.
+     * See \ref scale.
      */
-    Vector& sadd(const double a, const double b, const Vector& y);
-
-    /** Element-wise assignment to a scaled Vector. */
-    Vector& equal(const Vector& y, const double factor = 1.0);
-
-    /** Element-wise absolute value in place. */
-    Vector& fabs();
-
-    /** Return a Vector containing the absolute value of the elements. */
-    Vector fabs() const;
-
-    /** Element-wise negation in place. */
-    Vector& operator-();
-
-    /** Return a Vector containing the negated elements. */
-    Vector operator-() const;
-
-    /** Element-wise multiplication by a scalar in place. */
-    Vector& operator*=(const double factor);
-
-    /** Element-wise division by a scalar in place. */
-    Vector& operator/=(const double factor);
-
-    /** Element-wise addition with another Vector. */
-    Vector& operator+=(const Vector& y);
-
-    /** Element-wise subtraction with another Vector. */
-    Vector& operator-=(const Vector& y);
-
-    // @}
-
-    //################################################## Print Utilities
-
-    /** \name Print Utilities */
-    // @{
+    Vector&
+    operator-();
 
     /**
-     * Print the vector to an output stream.
-     *
-     * \param os The output stream to print the vector in.
-     * \param scientific A flag for using scientific notation.
-     * \param precision The precision to use when printing elements.
-     * \param width The width between elements.
-     *
-     * \see Vector::str
+     * Return a vector containing the negated elements of this vector. See
+     * \ref scale.
      */
-    void print(std::ostream& os = std::cout,
-               const bool scientific = true,
-               const unsigned int precision = 3,
-               const unsigned int width = 0) const;
+    Vector
+    operator-() const;
+
+    /**
+     * Multiply each element of the vector by the argument. See \ref scale.
+     */
+    Vector&
+    operator*=(const double factor);
+
+    /**
+     * Return a vector that contains the elements of this vector multiplied by
+     * a scalar. See \ref scale.
+     */
+    Vector
+    operator*(const double factor) const;
+
+    /**
+     * Divide the elements of the vector by a non-zero scalar. See \ref scale.
+     */
+    Vector&
+    operator/=(const double factor);
+
+    /**
+     * Return a vector that contains the elements of this vector divided by a
+     * non-zero scalar. See \ref scale.
+     */
+    Vector
+    operator/(const double factor) const;
+
+    /* @} */
+    /**
+     * \name Addition and subtraction operations
+     */
+    /* @{ */
+
+    /**
+     * Shift each element in a vector by \p such that \f$ x_i = x_i + a, ~
+     * \forall i \f$.
+     */
+    Vector&
+    shift(const double value);
+
+    /**
+     * Add a scaled vector to this one such that \f$ \vec{x} = \vec{x} + a
+     * \vec{y} \f$.
+     */
+    Vector&
+    add(const double a, const Vector& y);
+
+    /**
+     * Add another vector to this one. This is equivalent to adding a vector
+     * scaled by 1.0. See \ref add
+     */
+    Vector&
+    operator+=(const Vector& y);
+
+    /**
+     * Return the sum of this vector and another. See \ref add.
+     */
+    Vector
+    operator+(const Vector& y) const;
+
+    /**
+     * Subtract another vector from this one. This is equivalent to adding a
+     * vector scaled by -1.0. See \ref add.
+     */
+    Vector&
+    operator-=(const Vector& y);
+
+    /**
+     * Return the difference between this vector and another. See \ref add.
+     */
+    Vector
+    operator-(const Vector& y) const;
+
+    /**
+     * Multiply this vector by a scalar and add another scaled vector to it such
+     * that \f$ \vec{x} = a \vec{x} + b \vec{y} \f$.
+     */
+    Vector&
+    sadd(const double a, const double b, const Vector& y);
+
+    /**
+     * Scale this vector by a scalar and add another vector in place such
+     * that \f$ \vec{x} = a \vec{x} + \vec{y} \f$. This is equivalent to
+     * scaling the other vector by 1.0 using the more general \ref sadd routine.
+     * See \ref sadd.
+     */
+    Vector&
+    sadd(const double a, const Vector& y);
+
+    /* @} */
+    /**
+     * \name Print utilities
+     */
+    /* @{ */
 
     /**
      * Return the vector as a string.
@@ -257,53 +469,83 @@ namespace Math
      * \param scientific A flag for using scientific notation.
      * \param precision The precision to use when printing elements.
      * \param width The width between elements.
-     *
-     * \see Vector::print
      */
-    std::string str(const bool scientific = true,
-                    const unsigned int precision = 3,
-                    const unsigned int width = 0) const;
+    std::string
+    str(const bool scientific = true,
+        const unsigned int precision = 3,
+        const unsigned int width = 0) const;
 
-    // @}
+    /**
+     * Print the vector to an output stream. See \ref str.
+     *
+     * \param os The output stream to print the vector in.
+     * \param scientific A flag for using scientific notation.
+     * \param precision The precision to use when printing elements.
+     * \param width The width between elements.
+     */
+    void
+    print(std::ostream& os = std::cout,
+          const bool scientific = true,
+          const unsigned int precision = 3,
+          const unsigned int width = 0) const;
+
+    /* @} */
+
+  protected:
+    /**
+     * The underlying vector data.
+     */
+    std::vector<double> values;
   };
 
-  /** Element-wise multiplication by a scalar. */
-  Vector operator*(const Vector& x, const double factor);
-
-  /** Element-wise multiplication by a scalar. */
-  Vector operator*(const double factor, const Vector& x);
-
-  /** Element-wise division by a scalar. */
-  Vector operator/(const Vector& x, const double factor);
-
-  /** Element-wise addition. */
-  Vector operator+(const Vector& x, const Vector& y);
-
-  /** Element-wise subtraction. */
-  Vector operator-(const Vector& x, const Vector& y);
-
-  /** Compute a dot product. \see Vector::dot */
-  double dot(const Vector& x, const Vector& y);
-
-  /** Return the absolute value the elements of a Vector. */
-  Vector fabs(const Vector& x);
 
   /**
-   * Return the \f$ \ell_{\infty} \f$-norm of a vector.
-   * \see Vector::linfty_norm
+   * Multiply a vector by a scalar value.
    */
-  double linfty_norm(const Vector& x);
-
-  /** Return the \f$\ell_1\f$-norm of a vector. \see Vector::l1_norm */
-  double l1_norm(const Vector& x);
+  Vector
+  operator*(const double factor, const Vector& x);
 
   /**
-   * Return the \f$\ell_2\f$-norm of a vector. \see Vector::l2_norm */
-  double l2_norm(const Vector& x);
+   * Take the dot product between two vectors. See \ref Vector::dot.
+   */
+  double
+  dot(const Vector& x, const Vector& y);
 
-  /** Return the \f$\ell_p\f$-norm of a vector. \see Vector::lp_norm */
-  double lp_norm(const Vector& x, const double p);
+  /**
+   * Return the absolute value of a vector.
+   */
+  Vector
+  fabs(const Vector& x);
 
-  std::ostream& operator<<(std::ostream& os, const Vector& x);
+  /**
+   * Return the \f$ \ell_{\infty} \f$-norm of a vector. See \ref
+   * Vector::linfty_norm.
+   */
+  double
+  linfty_norm(const Vector& x);
+
+  /**
+   * Return the \f$ \ell_1 \f$-norm of a vector. See \ref Vector::l1_norm.
+   */
+  double
+  l1_norm(const Vector& x);
+
+  /**
+   * Return the \f$ \ell_2 \f$-norm of a vector. See \ref Vector::l2_norm.
+   */
+  double
+  l2_norm(const Vector& x);
+
+  /**
+   * Return the \f$\ell_p\f$-norm of a vector. See \ref Vector::lp_norm.
+   */
+  double
+  lp_norm(const Vector& x, const double p);
+
+  /**
+   * Insert a vector into an output stream.
+   */
+  std::ostream&
+  operator<<(std::ostream& os, const Vector& x);
 }
 #endif //VECTOR_H

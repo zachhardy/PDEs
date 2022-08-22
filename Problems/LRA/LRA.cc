@@ -59,39 +59,39 @@ int main(int argc, char** argv)
   for (auto& cell : mesh->cells)
   {
     auto& c = cell.centroid;
-    if (c.x < 15.0)
+    if (c.x() < 15.0)
     {
-      if (c.y < 15.0) cell.material_id = 1;
-      else if (c.y > 15.0 and c.y < 75.0) cell.material_id = 0;
-      else if (c.y > 75.0 and c.y < 105.0) cell.material_id = 1;
-      else if (c.y > 105.0 and c.y < 135.0) cell.material_id = 2;
+      if (c.y() < 15.0) cell.material_id = 1;
+      else if (c.y() > 15.0 and c.y() < 75.0) cell.material_id = 0;
+      else if (c.y() > 75.0 and c.y() < 105.0) cell.material_id = 1;
+      else if (c.y() > 105.0 and c.y() < 135.0) cell.material_id = 2;
       else cell.material_id = 5;
     }
-    else if (c.x > 15.0 and c.x < 75.0)
+    else if (c.x() > 15.0 and c.x() < 75.0)
     {
-      if (c.y < 105.0) cell.material_id = 0;
-      else if (c.y > 105.0 and c.y < 135.0) cell.material_id = 2;
+      if (c.y() < 105.0) cell.material_id = 0;
+      else if (c.y() > 105.0 and c.y() < 135.0) cell.material_id = 2;
       else cell.material_id = 5;
     }
-    else if (c.x > 75.0 and c.x < 105.0)
+    else if (c.x() > 75.0 and c.x() < 105.0)
     {
-      if (c.y < 15.0) cell.material_id = 1;
-      else if (c.y > 15.0 and c.y < 75.0) cell.material_id = 0;
-      else if (c.y > 75.0 and c.y < 105.0) cell.material_id = 1;
-      else if (c.y > 105.0 and c.y < 135.0) cell.material_id = 2;
+      if (c.y() < 15.0) cell.material_id = 1;
+      else if (c.y() > 15.0 and c.y() < 75.0) cell.material_id = 0;
+      else if (c.y() > 75.0 and c.y() < 105.0) cell.material_id = 1;
+      else if (c.y() > 105.0 and c.y() < 135.0) cell.material_id = 2;
       else cell.material_id = 5;
     }
-    else if (c.x > 105.0 and c.x < 120.0)
+    else if (c.x() > 105.0 and c.x() < 120.0)
     {
-      if (c.y < 75.0) cell.material_id = 2;
-      else if (c.y > 75.0 and c.y < 105.0) cell.material_id = 4;
-      else if (c.y > 105.0 and c.y < 120.0) cell.material_id = 3;
+      if (c.y() < 75.0) cell.material_id = 2;
+      else if (c.y() > 75.0 and c.y() < 105.0) cell.material_id = 4;
+      else if (c.y() > 105.0 and c.y() < 120.0) cell.material_id = 3;
       else cell.material_id = 5;
     }
-    else if (c.x > 120.0 and c.x < 135.0)
+    else if (c.x() > 120.0 and c.x() < 135.0)
     {
-      if (c.y < 75.0) cell.material_id = 2;
-      else if (c.y > 75.0 and c.y < 105.0) cell.material_id = 4;
+      if (c.y() < 75.0) cell.material_id = 2;
+      else if (c.y() > 75.0 and c.y() < 105.0) cell.material_id = 4;
       else cell.material_id = 5;
     }
     else
