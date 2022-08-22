@@ -9,9 +9,18 @@
 using namespace Math;
 
 
-Vector::Vector(const size_t n) :
-  values(n)
+Vector::Vector(const std::initializer_list<double>& list) :
+  Vector(list.begin(), list.end())
 {}
+
+
+template<typename InputIterator>
+Vector::Vector(const InputIterator first, const InputIterator last)
+{
+  this->reinit(std::distance(first, last));
+  std::copy(first, last, this->begin());
+}
+template Vector::Vector(const double*, const double*);
 
 
 Vector::Vector(const size_t n, const double value) :
@@ -19,41 +28,26 @@ Vector::Vector(const size_t n, const double value) :
 {}
 
 
-Vector::Vector(const std::vector<double>& other) :
-  values(other)
-{}
-
-
-Vector::Vector(std::vector<double>&& other) :
-  values(other)
-{}
-
-
-Vector::Vector(const std::initializer_list<double> list) :
-  values(list)
-{}
+Vector::Vector(const size_t n, const double* value_ptr)
+{
+  values.resize(n);
+  for (size_t i = 0; i < n; ++i, ++value_ptr)
+    values[i] = *value_ptr;
+}
 
 
 Vector&
-Vector::operator=(const std::vector<double>& other)
+Vector::operator=(const Vector& other)
 {
-  values = other;
+  values = other.values;
   return *this;
 }
 
 
 Vector&
-Vector::operator=(std::vector<double>&& other)
+Vector::operator=(Vector&& other)
 {
-  values = other;
-  return *this;
-}
-
-
-Vector&
-Vector::operator=(const std::initializer_list<double> list)
-{
-  values = list;
+  values = std::move(other.values);
   return *this;
 }
 
@@ -61,9 +55,19 @@ Vector::operator=(const std::initializer_list<double> list)
 Vector&
 Vector::operator=(const double value)
 {
-  for (auto& el : values)
-    el = value;
+  if (values.empty())
+    values.resize(1, value);
+  else
+    values.assign(values.size(), value);
   return *this;
+}
+
+
+void
+Vector::reinit(const size_t n, const double value)
+{
+  values.clear();
+  values.resize(n, value);
 }
 
 
@@ -238,13 +242,6 @@ Vector::pop_back()
 
 
 void
-Vector::resize(const size_t n)
-{
-  values.resize(n);
-}
-
-
-void
 Vector::resize(const size_t n, const double value)
 {
   values.resize(n, value);
@@ -259,7 +256,7 @@ Vector::swap(Vector& other)
 
 
 Vector&
-Vector::equal(const Vector& y, const double a)
+Vector::equal(const Vector& y, const double factor)
 {
   assert(y.size() == this->size());
 
@@ -270,7 +267,7 @@ Vector::equal(const Vector& y, const double a)
 
   // Perform the add operation
   for (; x_ptr != end_ptr; ++x_ptr, ++y_ptr)
-    *x_ptr = a * *y_ptr;
+    *x_ptr = factor * *y_ptr;
   return *this;
 }
 
@@ -353,7 +350,7 @@ Vector::scale(const double factor)
 
 
 Vector&
-Vector::scale(const Vector scaling_factors)
+Vector::scale(const Vector& scaling_factors)
 {
   assert(scaling_factors.size() == this->size());
 
@@ -378,7 +375,9 @@ Vector::operator-()
 
 Vector
 Vector::operator-() const
-{ return -Vector(values); }
+{
+  return -Vector(*this);
+}
 
 
 Vector&
@@ -406,7 +405,8 @@ Vector::operator/=(const double factor)
 Vector
 Vector::operator/(const double factor) const
 {
-  return Vector(*this) /= factor;
+  assert(factor != 0.0);
+  return Vector(*this).scale(1.0/factor);
 }
 
 
@@ -420,7 +420,7 @@ Vector::shift(const double value)
 
 
 Vector&
-Vector::add(const Vector& y, const double a)
+Vector::add(const double a, const Vector& y)
 {
   assert(y.size() == this->size());
 
@@ -437,19 +437,30 @@ Vector::add(const Vector& y, const double a)
 
 
 Vector&
-Vector::sadd(const double a, const Vector& y)
+Vector::operator+=(const Vector& y)
 {
-  assert(y.size() == this->size());
+  return this->add(1.0, y);
+}
 
-  // Get pointers for fast access
-  double* x_ptr = data();
-  const double* y_ptr = y.data();
-  double* end_ptr = data() + size();
 
-  // Perform the add operation
-  for (; x_ptr != end_ptr; ++x_ptr, ++y_ptr)
-    *x_ptr = a * *x_ptr + *y_ptr;
-  return *this;
+Vector
+Vector::operator+(const Vector& y) const
+{
+  return Vector(*this).add(1.0, y);
+}
+
+
+Vector&
+Vector::operator-=(const Vector& y)
+{
+  return this->add(-1.0, y);
+}
+
+
+Vector
+Vector::operator-(const Vector& y) const
+{
+  return Vector(*this).add(-1.0, y);
 }
 
 
@@ -471,50 +482,9 @@ Vector::sadd(const double a, const double b, const Vector& y)
 
 
 Vector&
-Vector::operator+=(const Vector& y)
+Vector::sadd(const double a, const Vector& y)
 {
-  assert(y.size() == this->size());
-
-  // Get pointers for fast access
-  double* x_ptr = data();
-  const double* y_ptr = y.data();
-  double* end_ptr = data() + size();
-
-  // Add the other vector
-  for (; x_ptr != end_ptr; ++x_ptr, ++y_ptr)
-    *x_ptr += *y_ptr;
-  return *this;
-}
-
-
-Vector
-Vector::operator+(const Vector& y) const
-{
-  return Vector(*this) += y;
-}
-
-
-Vector&
-Vector::operator-=(const Vector& y)
-{
-  assert(y.size() == this->size());
-
-  // Get pointers for fast access
-  double* x_ptr = data();
-  const double* y_ptr = y.data();
-  double* end_ptr = data() + size();
-
-  // Subtract the other vector
-  for (; x_ptr != end_ptr; ++x_ptr, ++y_ptr)
-    *x_ptr -= *y_ptr;
-  return *this;
-}
-
-
-Vector
-Vector::operator-(const Vector& y) const
-{
-  return Vector(*this) -= y;
+  return this->sadd(a, 1.0, y);
 }
 
 

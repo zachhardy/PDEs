@@ -34,73 +34,81 @@ namespace Math
     /* @{ */
 
     /**
-     * Default constructor.
+     * Default constructor. Create an empty vector.
      */
     Vector() = default;
 
     /**
-     * Construct a vector with \p n elements.
+     * Copy constructor. Copy the internal data from another vector.
      */
-    explicit Vector(const size_t n);
+    Vector(const Vector& other) = default;
 
     /**
-     * Construct a vector with \p n elements set to \p value.
+     * Move constructor. Steal the internal data from another vector.
      */
-    explicit Vector(const size_t n, const double value);
+    Vector(Vector&& other) = default;
 
     /**
-     * Copy construction from an STL vector.
+     * Construct a vector with \p n elements, optionally set to \p value.
      */
-    Vector(const std::vector<double>& other);
-
-    /**
-     * Move construction from an STL vector.
-     * \param other
-     */
-    Vector(std::vector<double>&& other);
+    Vector(const size_t n, const double value = 0.0);
 
     /**
      * Copy construction from an initializer list.
      */
-    Vector(const std::initializer_list<double> list);
+    Vector(const std::initializer_list<double>& list);
 
     /**
-     * Copy assignment with an STL vector.
+     * Constructor from iterators.
+     */
+    template<typename InputIterator>
+    Vector(const InputIterator first, const InputIterator last);
+
+    /**
+     * Construct a vector from \p n contiguously stored elements.
+     */
+    Vector(const size_t n, const double* value_ptr);
+
+    /**
+     * Copy assignment from another vector.
      */
     Vector&
-    operator=(const std::vector<double>& other);
+    operator=(const Vector& other);
 
     /**
-     * Move assignment with an STL vector.
+     * Move assignment from another vector.
      */
     Vector&
-    operator=(std::vector<double>&& other);
+    operator=(Vector&& other);
 
     /**
-     * Copy assignment with an initializer list.
+     * Assign each element of the vector to the specified \p value. If the
+     * vector is empty, this will initialize a single element set to \p value.
      */
     Vector&
-    operator=(const std::initializer_list<double> list);
+    operator=(const double value);
 
     /**
-     * Element-wise assignment to a scalar.
+     * Reinitialize the vector to have \p n elements set to \p value. This
+     * first clears the vector, then resizes it.
      */
-    Vector& operator=(const double value);
+    void
+    reinit(const size_t n, const double value = 0.0);
 
     /* @} */
     /**
-     * \name Characteristics
+     * \name Information about the vector
      */
     // @{
 
     /**
-     * Return the number of elements in the vector.
+     * Return the number of elements.
      */
     size_t
     size() const;
 
     /**
-     * Return he number of non-zero elements in the vector.
+     * Return he number of non-zero elements.
      */
     size_t
     n_nonzero_elements() const;
@@ -110,12 +118,6 @@ namespace Math
      */
     bool
     empty() const;
-
-    /* @} */
-    /**
-     * \name Comparison
-     */
-    /* @{ */
 
     /**
      * Return whether all elements of two vectors are equivalent.
@@ -131,7 +133,7 @@ namespace Math
 
     /* @} */
     /**
-     * \name Accessors
+     * \name Accessors and iterators
      */
     /* @{ */
 
@@ -211,12 +213,6 @@ namespace Math
     const double*
     data() const;
 
-    /* @} */
-    /**
-     * \name Iterators
-     */
-    /* @{ */
-
     /**
      * Return an iterator to the start of the vector.
      */
@@ -243,7 +239,7 @@ namespace Math
 
     /* @} */
     /**
-     * \name Modifiers
+     * \name Modifying the vector
      */
     /* @{ */
 
@@ -254,15 +250,13 @@ namespace Math
     clear();
 
     /**
-     * Add an element set to \p value to the back of the vector. This
-     * increases the size of the vector.
+     * Add an element set to \p value to the back of the vector.
      */
     void
     push_back(const double value);
 
     /**
-     * Remove the last element from the vector. This decreases the size of
-     * the vector.
+     * Remove the last element from the vector.
      */
     void
     pop_back();
@@ -273,14 +267,7 @@ namespace Math
      * greater than the current size, all new elements are uninitialized.
      */
     void
-    resize(const size_t n);
-
-    /**
-     * Resize the vector to \p n elements. If new elements are created, they
-     * are set to \p value.
-     */
-    void
-    resize(const size_t n, const double value);
+    resize(const size_t n, const double value = 0.0);
 
     /**
      * Swap the contents of two vectors.
@@ -289,23 +276,22 @@ namespace Math
     swap(Vector& other);
 
     /**
-     * Set this vector to \f$ \vec{y} \f$ scaled by \p a.
+     * Set the vector to \f$ \vec{x} = a \vec{y} \f$
      */
     Vector&
-    equal(const Vector& y, const double a = 1.0);
+    equal(const Vector& y, const double factor = 1.0);
 
     /**
-     * Element-wise absolute value in place.
+     * Take the absolute value of each element of the vector in place.
      */
     Vector&
     fabs();
 
     /**
-     * Return the absolute value of this vector.
+     * Return th absolute value of the vector.
      */
     Vector
     fabs() const;
-
 
     /* @} */
     /**
@@ -355,49 +341,56 @@ namespace Math
     /* @{ */
 
     /**
-     * Element-wise multiplication by a scalar in place.
+     * Multiply each element of the vector by a scalar such that \f$ \vec{x} =
+     * a \vec{x} \f$.
      */
     Vector&
     scale(const double factor);
 
     /**
-     * Element-wise multiplication by a list of scalars in place.
+     * Multiply each element of the vector by the corresponding element in the
+     * argument such that \f$ x_i = a_i x_i \f$ where \f$ \vec{a} = (a_i, ...,
+     * a_n) \f$ is of the same length as \f$ \vec{x} \f$.
      */
     Vector&
-    scale(const Vector scaling_factors);
+    scale(const Vector& scaling_factors);
 
     /**
-     * Element-wise negation in place.
+     * Negate each element of the vector. This is equivalent to scaling by -1.0.
+     * See \ref scale.
      */
     Vector&
     operator-();
 
     /**
-     * Return the negative of a vector.
+     * Return a vector containing the negated elements of this vector. See
+     * \ref scale.
      */
     Vector
     operator-() const;
 
     /**
-     * Element-wise multiplication by a scalar in place.
+     * Multiply each element of the vector by the argument. See \ref scale.
      */
     Vector&
     operator*=(const double factor);
 
     /**
-     * Return a vector multiplied by a scalar.
+     * Return a vector that contains the elements of this vector multiplied by
+     * a scalar. See \ref scale.
      */
     Vector
     operator*(const double factor) const;
 
     /**
-     * Element-wise division by a non-zero scalar in place.
+     * Divide the elements of the vector by a non-zero scalar. See \ref scale.
      */
     Vector&
     operator/=(const double factor);
 
     /**
-     * Return a vector divided by a non-zero scalar.
+     * Return a vector that contains the elements of this vector divided by a
+     * non-zero scalar. See \ref scale.
      */
     Vector
     operator/(const double factor) const;
@@ -409,55 +402,60 @@ namespace Math
     /* @{ */
 
     /**
-     * Shift each element in a vector by \p such that \f$ x_i = x_i + a \f$.
+     * Shift each element in a vector by \p such that \f$ x_i = x_i + a, ~
+     * \forall i \f$.
      */
     Vector&
     shift(const double value);
 
     /**
-     * Element-wise addition by vector \f$ a \vec{y} \f$ in place.
-     * This is computed via \f$ \vec{x} = \vec{x} + a \vec{y} = \sum_i x_i +
-     * a y_i \f$.
+     * Add a scaled vector to this one such that \f$ \vec{x} = \vec{x} + a
+     * \vec{y} \f$.
      */
     Vector&
-    add(const Vector& y, const double a = 1.0);
+    add(const double a, const Vector& y);
 
     /**
-     * Element-wise addition with another vector in place.
+     * Add another vector to this one. This is equivalent to adding a vector
+     * scaled by 1.0. See \ref add
      */
     Vector&
     operator+=(const Vector& y);
 
     /**
-     * Return the sum of two vector.
+     * Return the sum of this vector and another. See \ref add.
      */
     Vector
     operator+(const Vector& y) const;
 
     /**
-     * Element-wise subtraction by another vector in place.
+     * Subtract another vector from this one. This is equivalent to adding a
+     * vector scaled by -1.0. See \ref add.
      */
     Vector&
     operator-=(const Vector& y);
 
     /**
-     * Return the difference between two vectors.
+     * Return the difference between this vector and another. See \ref add.
      */
     Vector
     operator-(const Vector& y) const;
 
     /**
-     * Scale this vector by \p a and add vector \f$ \vec{y} \f$ in place.
-     */
-    Vector&
-    sadd(const double a, const Vector& y);
-
-    /**
-     * Scale this vector by \p a and add vector \f$ \vec{y} \f$ scaled by \p b
-     * in place.
+     * Multiply this vector by a scalar and add another scaled vector to it such
+     * that \f$ \vec{x} = a \vec{x} + b \vec{y} \f$.
      */
     Vector&
     sadd(const double a, const double b, const Vector& y);
+
+    /**
+     * Scale this vector by a scalar and add another vector in place such
+     * that \f$ \vec{x} = a \vec{x} + \vec{y} \f$. This is equivalent to
+     * scaling the other vector by 1.0 using the more general \ref sadd routine.
+     * See \ref sadd.
+     */
+    Vector&
+    sadd(const double a, const Vector& y);
 
     /* @} */
     /**
@@ -466,7 +464,19 @@ namespace Math
     /* @{ */
 
     /**
-     * Print the vector to an output stream.
+     * Return the vector as a string.
+     *
+     * \param scientific A flag for using scientific notation.
+     * \param precision The precision to use when printing elements.
+     * \param width The width between elements.
+     */
+    std::string
+    str(const bool scientific = true,
+        const unsigned int precision = 3,
+        const unsigned int width = 0) const;
+
+    /**
+     * Print the vector to an output stream. See \ref str.
      *
      * \param os The output stream to print the vector in.
      * \param scientific A flag for using scientific notation.
@@ -478,18 +488,6 @@ namespace Math
           const bool scientific = true,
           const unsigned int precision = 3,
           const unsigned int width = 0) const;
-
-    /**
-     * Return the vector as a string. See \ref print.
-     *
-     * \param scientific A flag for using scientific notation.
-     * \param precision The precision to use when printing elements.
-     * \param width The width between elements.
-     */
-    std::string
-    str(const bool scientific = true,
-        const unsigned int precision = 3,
-        const unsigned int width = 0) const;
 
     /* @} */
 
