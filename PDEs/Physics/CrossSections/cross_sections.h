@@ -15,16 +15,52 @@ namespace Physics
   /** A class holding nuclear data for neutron interactions. */
   class CrossSections : public MaterialProperty
   {
-  protected:
-    typedef std::vector<std::vector<double>> TransferMatrix;
-    typedef std::vector<std::vector<double>> EmissionSpectra;
-
   public:
+    /**
+     * An alias for a transfer matrix, or a group-to-group transfer matrix for
+     * a single scattering moment.
+     */
+    using TransferMatrix = std::vector<std::vector<double>>;
+
+    /**
+     * An alias for the delayed neutron precursor emission spectra. This outer
+     * index is for groups and the inner for delayed neutron precursor species.
+     */
+    using EmissionSpectra = std::vector<std::vector<double>>;
+
+    /**
+     * A convenient typedef for functional cross-sections. This function takes
+     * as input a group number, a vector of arguments, and a reference
+     * cross-section value. The function must have knowledge of how to parse
+     * the vector of arguments.
+     */
+    using XSFunction = std::function<double(const unsigned int group_num,
+                                            const std::vector<double>& args,
+                                            const double reference)>;
+
+    /**
+     * The number of energy groups.
+     */
     unsigned int n_groups;
+
+    /**
+     * The maximum Legendre expansion order of the scattering cross-sections.
+     */
     unsigned int scattering_order;
+
+    /**
+     * The number of delayed neutron precursors.
+     */
     unsigned int n_precursors;
 
-    double density = 1.0; ///< Atom density in atoms/b-cm.
+    /**
+     * Atom density in atoms/b-cm.
+     */
+    double density = 1.0;
+
+    /**
+     * A flag to easily identify if these cross-sections are fissile.
+     */
     bool is_fissile = false;
 
     std::vector<double> sigma_t;  ///< Total cross section
@@ -33,20 +69,33 @@ namespace Physics
     std::vector<double> sigma_f;  ///< Fission cross section
     std::vector<double> sigma_r;  ///< Removal cross section
 
-    /** Moment-wise group-to-group transfer matrices */
+    /**
+     * Moment-wise group-to-group transfer matrices
+     */
     std::vector<TransferMatrix> transfer_matrices;
 
-    std::vector<double> chi;        ///< Total fission spectrum.
+    std::vector<double> chi;  ///< Total fission spectrum.
     std::vector<double> chi_prompt; ///< Prompt fission spectrum.
-    EmissionSpectra chi_delayed;   ///< Delayed fission spectrum.
+    EmissionSpectra chi_delayed;  ///< Delayed fission spectrum.
 
-    std::vector<double> nu;         ///< Total neutrons per fission.
+    std::vector<double> nu;  ///< Total neutrons per fission.
     std::vector<double> nu_prompt;  ///< Prompt neutrons per fission.
-    std::vector<double> nu_delayed; ///< Delayed neutrons per fission.
-    std::vector<double> beta;       ///< Delayed neutron fraction.
+    std::vector<double> nu_delayed;  ///< Delayed neutrons per fission.
+    std::vector<double> beta;  ///< Delayed neutron fraction.
 
+    /**
+     * The total neutrons per fission multiplied by the fission cross-section.
+     */
     std::vector<double> nu_sigma_f;
+
+    /**
+     * The prompt neutrons per fission multiplied by the fission cross-section.
+     */
     std::vector<double> nu_prompt_sigma_f;
+
+    /**
+     * The delayed neutrons per fission multiplied by the fission cross-section.
+     */
     std::vector<double> nu_delayed_sigma_f;
 
     std::vector<double> precursor_lambda; ///< Decay constants in (s\f$^{-1}\f$).
@@ -56,39 +105,47 @@ namespace Physics
     std::vector<double> diffusion_coeff; ///< Diffusion coefficient (cm)
     std::vector<double> buckling; ///< Material buckling term
 
-    /** A convenient typedef for functional cross-sections. */
-    typedef std::function<double(const unsigned int group_num,
-                                 const std::vector<double>& args,
-                                 const double reference)> XSFunction;
+    /**
+     * A modifier function for the absorption cross-sections.
+     */
     XSFunction sigma_a_function;
 
 
   public:
 
-    //################################################## Constructors
+    /**
+     * \name Constructors and initialization
+     */
+    /* @{ */
 
-    /** \name Constructors and Initialization */
-    // @{
-
+    /**
+     * Default constructor.
+     */
     CrossSections();
-    CrossSections(const std::string property_name);
 
-    void reset();
+    /**
+     * Delete the current cross-section data.
+     */
+    void
+    reset();
 
-    /** Read a ".xs" file containing the cross-section information. */
-    void read_xs_file(const std::string file_name,
-                      const double rho = 1.0,
-                      const bool verbose = false);
+    /**
+     * Read a ".xs" file containing the cross-section information.
+     *
+     * \param rho The material density to scale cross-sections by.
+     */
+    void
+    read_xs_file(const std::string file_name,
+                 const double rho = 1.0,
+                 const bool verbose = false);
 
-    // @}
+    /* @} */
+    /**
+     * \name Cross Section operations
+     */
+    /* @{ */
 
   private:
-
-    //################################################## Cross Section Ops
-
-    /** \name Cross Section Operations */
-    // @{
-
     /**
      * Compute \f$ \sigma_s \f$ from the zeroth scattering moment.
      *
@@ -98,7 +155,8 @@ namespace Physics
      * \sum_{g^\prime} \sigma_{0, g \rightarrow g^\prime} \f$, which is obtained
      * via column-wise sums.
      */
-    void compute_scattering_from_transfers();
+    void
+    compute_scattering_from_transfers();
 
     /**
      * Enforce the relationship \f$ \sigma_t = \sigma_a + \sigma_s \f$.
@@ -111,7 +169,8 @@ namespace Physics
      * \f$ \sigma_a \f$ are provided, and they do not agree with the transfer
      * matrix, the \f$ \sigma_a \f$ values are taken as true.
      */
-    void reconcile_cross_sections();
+    void
+    reconcile_cross_sections();
 
     /**
      * Validate and process fission related properties.
@@ -134,7 +193,8 @@ namespace Physics
      *    checks for total \f$ \nu \f$ and \f$ \chi \f$ are performed and the
      *    fission spectrum is normalized to unity.
      */
-    void reconcile_fission_properties();
+    void
+    reconcile_fission_properties();
 
     /**
      * Compute the macroscopic cross-sections.
@@ -144,14 +204,14 @@ namespace Physics
      * If the \p diffusion_coeff was unspecified, it is computed via its standard
      * definition, given by \f$ D = \frac{1}{3 \Sigma_t} \f$.
      */
-    void compute_macroscopic_cross_sections();
+    void
+    compute_macroscopic_cross_sections();
 
-    // @}
-
-    //################################################## Read Operations
-
-    /** \name Read Operations */
-    // @{
+    /* @} */
+    /**
+     * \name Read operations
+     */
+    /* @{ */
 
     /**
      * Read a cross-section block from the ".xs" file.
@@ -162,11 +222,12 @@ namespace Physics
      * \param line_stream Storage for a line in the file.
      * \param line_number The current line number in the file.
      */
-    void read_cross_section(const std::string keyword,
-                            std::vector<double>& destination,
-                            std::ifstream& file,
-                            std::istringstream& line_stream,
-                            size_t& line_number);
+    void
+    read_cross_section(const std::string keyword,
+                       std::vector<double>& destination,
+                       std::ifstream& file,
+                       std::istringstream& line_stream,
+                       size_t& line_number);
 
     /**
      * Read the transfer matrix block of the cross-section file.
@@ -177,11 +238,12 @@ namespace Physics
      * \param line_stream Storage for a line in the file.
      * \param line_number The current line number in the file.
      */
-    void read_transfer_matrices(const std::string keyword,
-                                std::vector<TransferMatrix>& destination,
-                                std::ifstream& file,
-                                std::istringstream& line_stream,
-                                size_t& line_number);
+    void
+    read_transfer_matrices(const std::string keyword,
+                           std::vector<TransferMatrix>& destination,
+                           std::ifstream& file,
+                           std::istringstream& line_stream,
+                           size_t& line_number);
 
     /**
      * Read a precursor property from the cross-section file.
@@ -192,11 +254,12 @@ namespace Physics
      * \param line_stream Storage for a line in the file.
      * \param line_number The current line number in the file.
      */
-    void read_precursor_property(const std::string keyword,
-                                 std::vector<double>& destination,
-                                 std::ifstream& file,
-                                 std::istringstream& line_stream,
-                                 size_t& line_number);
+    void
+    read_precursor_property(const std::string keyword,
+                            std::vector<double>& destination,
+                            std::ifstream& file,
+                            std::istringstream& line_stream,
+                            size_t& line_number);
 
     /**
      * Read the delayed neutron spectra from the cross-section file.
@@ -207,15 +270,15 @@ namespace Physics
      * \param line_stream Storage for a line in the file.
      * \param line_number The current line number in the file.
      */
-    void read_delayed_spectra(const std::string keyword,
-                              EmissionSpectra& destination,
-                              std::ifstream& file,
-                              std::istringstream& line_stream,
-                              size_t& line_number);
+    void
+    read_delayed_spectra(const std::string keyword,
+                         EmissionSpectra& destination,
+                         std::ifstream& file,
+                         std::istringstream& line_stream,
+                         size_t& line_number);
 
-    // @}
+    /* @} */
   };
-
 }
 
 #endif //CROSS_SECTIONS_H

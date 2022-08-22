@@ -12,13 +12,6 @@ Physics::CrossSections::CrossSections() :
 {}
 
 
-Physics::CrossSections::CrossSections(const std::string property_name) :
-  MaterialProperty(MaterialPropertyType::CROSS_SECTIONS, property_name)
-{}
-
-//######################################################################
-
-
 void
 Physics::CrossSections::reset()
 {
@@ -55,9 +48,6 @@ Physics::CrossSections::reset()
 
   transfer_matrices.clear();
 }
-
-
-//######################################################################
 
 
 void
@@ -115,9 +105,6 @@ Physics::CrossSections::reconcile_cross_sections()
   for (unsigned int g = 0; g < n_groups; ++g)
     sigma_r[g] = sigma_t[g] - transfer_matrices[0][g][g];
 }
-
-
-//######################################################################
 
 
 void

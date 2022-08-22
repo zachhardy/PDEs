@@ -1,18 +1,18 @@
 #include "cross_sections.h"
 
 #include <iostream>
+#include <sstream>
 #include <fstream>
-
-#include "macros.h"
+#include <cassert>
 
 
 void
-Physics::CrossSections::read_cross_section(
-  const std::string keyword,
-  std::vector<double>& destination,
-  std::ifstream& file,
-  std::istringstream& line_stream,
-  size_t& line_number)
+Physics::CrossSections::
+read_cross_section(const std::string keyword,
+                   std::vector<double>& destination,
+                   std::ifstream& file,
+                   std::istringstream& line_stream,
+                   size_t& line_number)
 {
   std::string line;
 
@@ -20,7 +20,6 @@ Physics::CrossSections::read_cross_section(
   line_stream = std::istringstream(line);
   ++line_number;
 
-  //========== Go through entries
   unsigned int g = 0;
   int group;
   double value;
@@ -40,16 +39,13 @@ Physics::CrossSections::read_cross_section(
 }
 
 
-//######################################################################
-
-
 void
-Physics::CrossSections::read_transfer_matrices(
-  const std::string keyword,
-  std::vector<TransferMatrix>& destination,
-  std::ifstream& file,
-  std::istringstream& line_stream,
-  size_t& line_number)
+Physics::CrossSections::
+read_transfer_matrices(const std::string keyword,
+                       std::vector<TransferMatrix>& destination,
+                       std::ifstream& file,
+                       std::istringstream& line_stream,
+                       size_t& line_number)
 {
   std::string word, line;
 
@@ -57,7 +53,6 @@ Physics::CrossSections::read_transfer_matrices(
   line_stream = std::istringstream(line);
   ++line_number;
 
-  //========== Go through entries
   double value;
   int moment, group, gprime;
   while (line != keyword + "_END" and !file.eof())
@@ -81,16 +76,13 @@ Physics::CrossSections::read_transfer_matrices(
 }
 
 
-//######################################################################
-
-
 void
-Physics::CrossSections::read_precursor_property(
-  const std::string keyword,
-  std::vector<double>& destination,
-  std::ifstream& file,
-  std::istringstream& line_stream,
-  size_t& line_number)
+Physics::CrossSections::
+read_precursor_property(const std::string keyword,
+                        std::vector<double>& destination,
+                        std::ifstream& file,
+                        std::istringstream& line_stream,
+                        size_t& line_number)
 {
   std::string line;
 
@@ -98,7 +90,6 @@ Physics::CrossSections::read_precursor_property(
   line_stream = std::istringstream(line);
   ++line_number;
 
-  //========== Go through entries
   unsigned int j = 0;
   int precursor_num;
   double value;
@@ -118,16 +109,13 @@ Physics::CrossSections::read_precursor_property(
 }
 
 
-//######################################################################
-
-
 void
-Physics::CrossSections::read_delayed_spectra(
-  const std::string keyword,
-  EmissionSpectra& destination,
-  std::ifstream& file,
-  std::istringstream& line_stream,
-  size_t& line_number)
+Physics::CrossSections::
+read_delayed_spectra(const std::string keyword,
+                     EmissionSpectra& destination,
+                     std::ifstream& file,
+                     std::istringstream& line_stream,
+                     size_t& line_number)
 {
   std::string word, line;
 
@@ -135,7 +123,6 @@ Physics::CrossSections::read_delayed_spectra(
   line_stream = std::istringstream(line);
   ++line_number;
 
-  //========== Go through entries
   double value;
   int group, precursor_num;
   while (line != keyword + "_END")

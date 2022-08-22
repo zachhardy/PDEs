@@ -4,8 +4,7 @@
 #include <sstream>
 #include <fstream>
 #include <numeric>
-
-#include "macros.h"
+#include <cassert>
 
 
 void
