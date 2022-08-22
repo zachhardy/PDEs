@@ -12,13 +12,9 @@ using namespace Math;
 using namespace LinearSolver;
 
 
-//################################################## LinearSolverBase
-
-
 template<class MatrixType>
 Vector
-LinearSolverBase<MatrixType>::
-solve(const Vector& b) const
+LinearSolverBase<MatrixType>::solve(const Vector& b) const
 {
   Vector x(b.size(), 0.0);
   solve(x, b);
@@ -28,9 +24,10 @@ solve(const Vector& b) const
 
 template<class MatrixType>
 void
-LinearSolverBase<MatrixType>::
-set_matrix(const MatrixType& matrix)
-{ assert(matrix.n_rows() == matrix.n_cols()); }
+LinearSolverBase<MatrixType>::set_matrix(const MatrixType& matrix)
+{
+  assert(matrix.n_rows() == matrix.n_cols());
+}
 
 
 template class LinearSolver::LinearSolverBase<Matrix>;
@@ -48,27 +45,14 @@ DirectSolverBase() : LinearSolverBase<MatrixType>()
 
 template<class MatrixType>
 void
-DirectSolverBase<MatrixType>::
-set_matrix(const MatrixType& matrix)
+DirectSolverBase<MatrixType>::set_matrix(const MatrixType& matrix)
 {
   LinearSolverBase<MatrixType>::set_matrix(matrix);
   A = matrix;
   factorize();
 }
-
-
-template<typename MatrixType>
-const MatrixType&
-DirectSolverBase<MatrixType>::
-get_matrix() const
-{ return A; }
-
-
 template class LinearSolver::DirectSolverBase<Matrix>;
 template class LinearSolver::DirectSolverBase<SparseMatrix>;
-
-
-//################################################## IterativeSolverBase
 
 
 Options::Options(const double tolerance,
@@ -98,15 +82,9 @@ set_matrix(const SparseMatrix& matrix)
 }
 
 
-Options
-IterativeSolverBase::get_options() const
-{ return Options(tolerance, max_iterations, verbosity); }
-
-
-
 bool
 IterativeSolverBase::
-check(const size_t iteration, const double value) const
+check(const unsigned int iteration, const double value) const
 {
   bool converged = value <= tolerance;
 
@@ -130,7 +108,7 @@ check(const size_t iteration, const double value) const
 
 void
 IterativeSolverBase::
-throw_convergence_error(const size_t iteration,
+throw_convergence_error(const unsigned int iteration,
                         const double value) const
 {
   std::stringstream err;

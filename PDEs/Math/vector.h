@@ -276,7 +276,7 @@ namespace Math
     swap(Vector& other);
 
     /**
-     * Set the vector to \f$ \vec{x} = a \vec{y} \f$
+     * Set the vector to \f$ x = a y \f$
      */
     Vector&
     equal(const Vector& y, const double factor = 1.0);
@@ -300,36 +300,35 @@ namespace Math
     /* @{ */
 
     /**
-     * Take the dot product with another Vector via \f$ c = \vec{x} \cdot
-     * \vec{y} = \sum_i x_i y_i \f$.
+     * Take the dot product with another Vector via \f$ c = x \cdot y =
+     * \sum_i x_i y_i \f$.
      */
     double
     dot(const Vector& y) const;
 
     /**
-     * Return the \f$ \ell_\infty \f$-norm via \f$ ||\vec{x}||_{\infty} =
-     * \max_i |x_i| \f$.
+     * Return the \f$ \ell_\infty \f$-norm via \f$ ||x||_{\infty} = \max_i |x_i|
+     * \f$.
      */
     double
     linfty_norm() const;
 
     /**
-     * Return the \f$ \ell_1 \f$-norm via \f$ ||\vec{x}||_{\ell_1} =
-     * \sum_i |x_i| \f$.
+     * Return the \f$ \ell_1 \f$-norm via \f$ ||x||_{\ell_1} = \sum_i |x_i| \f$.
      */
     double
     l1_norm() const;
 
     /**
-     * Return the \f$ \ell_2 \f$-norm via \f$ ||\vec{x}||_{\ell_2} =
-     * \sqrt{ \sum_i |x_i|^2 } \f$.
+     * Return the \f$ \ell_2 \f$-norm via \f$ ||x||_{\ell_2} = \sqrt{ \sum_i
+     * |x_i|^2 } \f$.
      */
     double
     l2_norm() const;
 
     /**
-     * Return the \f$ \ell_p \f$-norm via \f$ ||\vec{x}||_{\ell_p} =
-     * \left( \sum_i |x_i|^p \right)^{1/p} \f$.
+     * Return the \f$ \ell_p \f$-norm via \f$ ||x||_{\ell_p} = \left( \sum_i
+     * |x_i|^p \right)^{1/p} \f$.
      */
     double
     lp_norm(const double p) const;
@@ -341,16 +340,15 @@ namespace Math
     /* @{ */
 
     /**
-     * Multiply each entry of the vector by a scalar such that \f$ \vec{x} =
-     * a \vec{x} \f$.
+     * Multiply each entry of the vector by a scalar such that \f$ x = a x \f$.
      */
     Vector&
     scale(const double factor);
 
     /**
      * Multiply each entry of the vector by the corresponding entry in the
-     * argument such that \f$ x_i = a_i x_i \f$ where \f$ \vec{a} = (a_i, ...,
-     * a_n) \f$ is of the same length as \f$ \vec{x} \f$.
+     * argument such that \f$ x_i = a_i x_i \f$ where \f$ a = (a_i, ...,
+     * a_n) \f$ is of the same length as \f$ x \f$.
      */
     Vector&
     scale(const Vector& scaling_factors);
@@ -410,7 +408,7 @@ namespace Math
 
     /**
      * Multiply this vector by a scalar and add another scaled vector to it such
-     * that \f$ \vec{x} = a \vec{x} + b \vec{y} \f$. The vectors must be of the
+     * that \f$ x = a x + b y \f$. The vectors must be of the
      * same length for this to be a permissible operation
      */
     Vector&
@@ -536,7 +534,7 @@ namespace Math
   l2_norm(const Vector& x);
 
   /**
-   * Return the \f$\ell_p\f$-norm of a vector. See \ref Vector::lp_norm.
+   * Return the \f$ \ell_p \f$-norm of a vector. See \ref Vector::lp_norm.
    */
   double
   lp_norm(const Vector& x, const double p);

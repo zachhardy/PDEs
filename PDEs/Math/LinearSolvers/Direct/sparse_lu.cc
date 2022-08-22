@@ -1,4 +1,4 @@
-#include "sparse_lu.h"
+#include "../direct_solvers.h"
 
 #include "vector.h"
 #include "Sparse/sparse_matrix.h"
@@ -7,13 +7,12 @@
 #include <cassert>
 
 
-using namespace Math::LinearSolver;
+using namespace Math;
+using namespace LinearSolver;
 
 
-//################################################## Setup
-
-
-SparseLU::SparseLU(const bool pivot) : pivot_flag(pivot)
+SparseLU::SparseLU(const bool pivot) :
+  pivot_flag(pivot)
 {}
 
 
@@ -23,9 +22,6 @@ SparseLU::set_matrix(const SparseMatrix& matrix)
   row_pivots.resize(matrix.n_rows());
   DirectSolverBase<SparseMatrix>::set_matrix(matrix);
 }
-
-
-//################################################## Methods
 
 
 void
@@ -40,8 +36,8 @@ SparseLU::factorize()
   //======================================== Apply Doolittle algorithm
   for (size_t j = 0; j < n; ++j)
   {
-    /* Find the row index for the largest magnitude entry in this column.
-     * This is only done for sub-diagonal elements. */
+    // Find the row index for the largest magnitude entry in this column.
+    // This is only done for sub-diagonal elements.
     if (pivot_flag)
     {
       const double a_jj = A.diag_el(j);
@@ -61,9 +57,9 @@ SparseLU::factorize()
       // If the sub-diagonal is uniformly zero, throw an error.
       assert(max != 0.0);
 
-      /* Swap the current row and the row containing the largest magnitude
-       * entry corresponding for the current column. This is done to improve
-       * the numerical stability of the algorithm. */
+      // Swap the current row and the row containing the largest magnitude
+      // entry corresponding for the current column. This is done to improve
+      // the numerical stability of the algorithm. */
       if (argmax != j)
       {
         std::swap(row_pivots[j], row_pivots[argmax]);
@@ -80,13 +76,12 @@ SparseLU::factorize()
       {
         double& a_ij = A(i, j);
 
-        // Get the
-        /* Lower triangular components. This represents the row operations
-         * performed to attain the upper-triangular, row-echelon matrix. */
+        // Lower triangular components. This represents the row operations
+        // performed to attain the upper-triangular, row-echelon matrix.
         a_ij /= a_jj;
 
-        /* Upper triangular components. This represents the row-echelon form
-         * of the original matrix. */
+        // Upper triangular components. This represents the row-echelon form
+        // of the original matrix.
         for (const auto el : A.row_iterator(j))
           if (el.column > j)
             A.add(i, el.column, -a_ij*el.value);
@@ -125,16 +120,3 @@ SparseLU::solve(Vector& x, const Vector& b) const
     x[i] = value/A.diag(i);
   }
 }
-
-
-//################################################## Properties
-
-
-void
-SparseLU::pivot(const bool flag)
-{ pivot_flag = flag; }
-
-
-bool
-SparseLU::pivot() const
-{ return pivot_flag; }

@@ -1,4 +1,4 @@
-#include "sparse_cholesky.h"
+#include "../direct_solvers.h"
 
 #include "vector.h"
 #include "Sparse/sparse_matrix.h"

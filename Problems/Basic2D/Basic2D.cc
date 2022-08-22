@@ -5,8 +5,8 @@
 
 #include "timer.h"
 
-#include "LinearSolvers/DirectSolvers"
-#include "LinearSolvers/IterativeSolvers"
+#include "LinearSolvers/iterative_solvers.h"
+#include "LinearSolvers/direct_solvers.h"
 #include "LinearSolvers/PETSc/petsc_solver.h"
 
 #include "NeutronDiffusion/KEigenvalueSolver/keigenvalue_solver.h"

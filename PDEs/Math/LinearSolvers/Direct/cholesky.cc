@@ -1,20 +1,18 @@
-#include "cholesky.h"
+#include "../direct_solvers.h"
 
 #include "vector.h"
 #include "matrix.h"
 
-#include "macros.h"
-
 #include <cmath>
+#include <cassert>
 
 
-using namespace Math::LinearSolver;
+using namespace Math;
+using namespace LinearSolver;
 
 
-//################################################## Constructors
-
-
-Cholesky::Cholesky() : DirectSolverBase<Matrix>()
+Cholesky::Cholesky() :
+  DirectSolverBase<Matrix>()
 {}
 
 
@@ -54,9 +52,9 @@ void
 Cholesky::solve(Vector& x, const Vector& b) const
 {
   size_t n = A.n_rows();
-  Assert(factorized, "Matrix must be factorized before solving.");
-  Assert(b.size() == n, "Dimension mismatch error.");
-  Assert(x.size() == n, "Dimension mismatch error.");
+  assert(factorized);
+  assert(b.size() == n);
+  assert(x.size() == n);
 
   //======================================== Forward solve
   for (size_t i = 0; i < n; ++i)

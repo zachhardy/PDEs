@@ -1,7 +1,7 @@
 #include "steadystate_solver.h"
 
 #include "Discretization/FiniteVolume/fv.h"
-#include "LinearSolvers/Direct/sparse_lu.h"
+#include "LinearSolvers/direct_solvers.h"
 
 #include <algorithm>
 #include <set>

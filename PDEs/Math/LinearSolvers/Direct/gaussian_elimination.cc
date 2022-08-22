@@ -4,31 +4,28 @@
 #include "matrix.h"
 #include "Sparse/sparse_matrix.h"
 
-#include "macros.h"
-
 #include <cmath>
-
+#include <cassert>
 
 using namespace Math;
 
 
 template<>
 Vector
-Math::gaussian_elimination<Matrix>(Matrix& A, Vector& b,
+Math::gaussian_elimination<Matrix>(Matrix& A,
+                                   Vector& b,
                                    const bool pivot)
 {
-  Assert(A.n_rows() == A.n_cols(),
-         "Square matrices are required for Gaussian elimination.")
-  Assert(b.size() == A.n_rows(), "Dimension mismatch error.")
-
+  assert(A.n_rows() == A.n_cols());
+  assert(b.size() == A.n_rows());
   size_t n = b.size();
 
   //======================================== Row-echelon factorization
   // Go through the columns of the matrix
   for (size_t j = 0; j < n; ++j)
   {
-    /* Find the row index for the largest magnitude entry in this column.
-     * This is only done for sub-diagonal elements. */
+    // Find the row index for the largest magnitude entry in this column.
+    // This is only done for sub-diagonal elements.
     if (pivot)
     {
       size_t argmax = j;
@@ -44,11 +41,11 @@ Math::gaussian_elimination<Matrix>(Matrix& A, Vector& b,
       }
 
       // If the sub-diagonal is uniformly zero, throw error
-      Assert(max != 0.0, "Singular matrix error.")
+      assert(max != 0.0);
 
-      /* Swap the current row and the row containing the largest magnitude
-       * entry corresponding for the current column. This is done to improve
-       * the numerical stability of the algorithm. */
+      // Swap the current row and the row containing the largest magnitude
+      // entry corresponding for the current column. This is done to improve
+      // the numerical stability of the algorithm.
       if (argmax != j)
       {
         std::swap(b[j], b[argmax]);
@@ -59,17 +56,17 @@ Math::gaussian_elimination<Matrix>(Matrix& A, Vector& b,
     const double* a_j = A.data(j); // accessor for row j
     const double a_jj = a_j[j]; // diagonal element for row j
 
-    /* Perform row-wise operations such that all sub-diagonal values are zero.
-     * This is done by subtracting the current row times the ratio of the
-     * sub-diagonal and the current row's leading value. */
+    // Perform row-wise operations such that all sub-diagonal values are zero.
+    // This is done by subtracting the current row times the ratio of the
+    // sub-diagonal and the current row's leading value.
     for (size_t i = j + 1; i < n; ++i)
     {
       double* a_i = A.data(i); // accessor for row i
 
-      const double factor = a_i[j]/a_jj;
-      for (size_t k = j; k < n; ++k)
-        a_i[k] -= a_j[k]*factor;
-      b[i] -= b[j]*factor;
+      const double factor = a_i[j] / a_jj;
+      for (size_t k = j; k < n; ++k, ++a_i)
+        *a_i -= a_j[k] * factor;
+      b[i] -= b[j] * factor;
     }
   }
 
@@ -82,8 +79,8 @@ Math::gaussian_elimination<Matrix>(Matrix& A, Vector& b,
     a_i += i + 1; // increment to first element after diagonal
 
     double value = b[i];
-    for (size_t j = i + 1; j < n; ++j)
-      value -= *a_i++*x[j];
+    for (size_t j = i + 1; j < n; ++j, ++a_i)
+      value -= *a_i * x[j];
     x[i] = value/a_ii;
   }
   return x;
@@ -92,20 +89,20 @@ Math::gaussian_elimination<Matrix>(Matrix& A, Vector& b,
 
 template<>
 Vector
-Math::gaussian_elimination<SparseMatrix>(SparseMatrix& A, Vector& b,
+Math::gaussian_elimination<SparseMatrix>(SparseMatrix& A,
+                                         Vector& b,
                                          const bool pivot)
 {
   assert(A.n_rows() == A.n_cols());
   assert(b.size() == A.n_rows());
-
   size_t n = b.size();
 
   //======================================== Row-echelon factorization
   // Go through the columns of the matrix
   for (size_t j = 0; j < n; ++j)
   {
-    /* Find the row index for the largest magnitude entry in this column.
-     * This is only done for sub-diagonal elements. */
+    // Find the row index for the largest magnitude entry in this column.
+    // This is only done for sub-diagonal elements.
     if (pivot)
     {
       const double a_jj = A.diag_el(j);
@@ -125,9 +122,9 @@ Math::gaussian_elimination<SparseMatrix>(SparseMatrix& A, Vector& b,
       // If the sub-diagonal is uniformly zero, throw an error
       assert(max != 0.0);
 
-      /* Swap the current row and the row containing the largest magnitude
-       * entry corresponding for the current column. This is done to improve
-       * the numerical stability of the algorithm. */
+      // Swap the current row and the row containing the largest magnitude
+      // entry corresponding for the current column. This is done to improve
+      // the numerical stability of the algorithm.
       if (argmax != j)
       {
         std::swap(b[j], b[argmax]);
@@ -137,9 +134,9 @@ Math::gaussian_elimination<SparseMatrix>(SparseMatrix& A, Vector& b,
 
     const double a_jj = A.diag(j);
 
-    /* Perform row-wise operations such that all sub-diagonal values are zero.
-     * This is done by subtracting the current row times the ratio of the
-     * sub-diagonal and the current row's leading value. */
+    // Perform row-wise operations such that all sub-diagonal values are zero.
+    // This is done by subtracting the current row times the ratio of the
+    // sub-diagonal and the current row's leading value.
     for (size_t i = j + 1; i < n; ++i)
     {
       const double a_ij = A.el(i, j);
@@ -148,7 +145,7 @@ Math::gaussian_elimination<SparseMatrix>(SparseMatrix& A, Vector& b,
         const double factor = a_ij/a_jj;
         for (const auto el : A.row_iterator(j))
           if (el.column >= j)
-            A.add(i, el.column, -el.value*factor);
+            A.add(i, el.column, -el.value * factor);
         b[i] -= b[j]*factor;
       }
     }
@@ -161,8 +158,8 @@ Math::gaussian_elimination<SparseMatrix>(SparseMatrix& A, Vector& b,
     double value = b[i];
     for (const auto el : A.row_iterator(i))
       if (el.column > i)
-        value -= el.value*x[el.column];
-    x[i] = value/A.diag(i);
+        value -= el.value * x[el.column];
+    x[i] = value / A.diag(i);
   }
   return x;
 }

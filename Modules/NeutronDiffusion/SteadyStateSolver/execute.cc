@@ -1,15 +1,5 @@
 #include "steadystate_solver.h"
 
-#include "LinearSolvers/Direct/sparse_lu.h"
-#include "LinearSolvers/Direct/sparse_cholesky.h"
-#include "LinearSolvers/Iterative/jacobi.h"
-#include "LinearSolvers/Iterative/gauss_seidel.h"
-#include "LinearSolvers/Iterative/sor.h"
-#include "LinearSolvers/Iterative/ssor.h"
-#include "LinearSolvers/Iterative/cg.h"
-
-#include "macros.h"
-
 #include <iomanip>
 #include <fstream>
 

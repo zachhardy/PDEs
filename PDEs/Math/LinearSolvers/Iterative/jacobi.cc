@@ -1,4 +1,4 @@
-#include "jacobi.h"
+#include "../iterative_solvers.h"
 
 #include "vector.h"
 #include "Sparse/sparse_matrix.h"
@@ -8,16 +8,16 @@
 
 
 using namespace Math;
+using namespace LinearSolver;
 
 
-LinearSolver::Jacobi::Jacobi(const Options& opts) :
+Jacobi::Jacobi(const Options& opts) :
   IterativeSolverBase(opts, "Jacobi")
 {}
 
 
 void
-LinearSolver::Jacobi::
-solve(Vector& x, const Vector& b) const
+Jacobi::solve(Vector& x, const Vector& b) const
 {
   size_t n = A->n_rows();
   assert(b.size() == n);
@@ -37,7 +37,7 @@ solve(Vector& x, const Vector& b) const
       double value = b[i];
       for (const auto el : A->row_iterator(i))
         if (el.column != i)
-          value -= el.value*x_ell[el.column];
+          value -= el.value * x_ell[el.column];
       value /= A->diag(i);
 
       //==================== Increment difference

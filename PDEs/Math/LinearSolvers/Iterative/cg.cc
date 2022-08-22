@@ -1,4 +1,4 @@
-#include "cg.h"
+#include "../iterative_solvers.h"
 
 #include "vector.h"
 #include "Sparse/sparse_matrix.h"

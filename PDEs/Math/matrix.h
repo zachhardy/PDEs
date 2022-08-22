@@ -430,16 +430,14 @@ namespace Math
     /* @{ */
 
     /**
-     * Multiply the matrix by a scalar such that \f$ \boldsymbol{A} = a
-     * \boldsymbol{A} \f$.
+     * Multiply the matrix by a scalar such that \f$ A = a A \f$.
      */
     Matrix&
     scale(const double factor);
 
     /**
-     * Negate the entries of the matrix such that \f$ \boldsymbol{A} = -
-     * \boldsymbol{A} \f$. This is equivalent to scaling by -1.0. See \ref
-     * scale.
+     * Negate the entries of the matrix such that \f$ A = -A \f$. This is
+     * equivalent to scaling by -1.0. See \ref scale.
      */
     Matrix&
     operator-();
@@ -485,9 +483,8 @@ namespace Math
 
     /**
      * Multiply this matrix by a scalar and add another scaled matrix to it
-     * such that \f$ \boldsymbol{A} = a \boldsymbol{A} + b \boldsymbol{B} \f$.
-     * The dimensions of each matrix must agree for this to be a permissible
-     * operation.
+     * such that \f$ A = a A + b B \f$. The dimensions of each matrix must
+     * agree for this to be a permissible operation.
      */
     Matrix&
     sadd(const double a, const double b, const Matrix& B);
@@ -535,9 +532,8 @@ namespace Math
 
     /**
      * Multiply this matrix by a scalar and add the scaled transpose of another
-     * to it such that \f$ \boldsymbol{A} = a \boldymbol{A} + b \boldsymbol{B}^T
-     * \f$. The dimension of this matrix and the transpose of the other must
-     * agree for this operation to be permissible.
+     * to it such that \f$ A = a A + b B^T \f$. The dimension of this matrix and
+     * the transpose of the other must agree for this operation to be permissible.
      */
     Matrix&
     sTadd(const double a, const double b, const Matrix& B);
@@ -564,8 +560,8 @@ namespace Math
     /* @{ */
 
     /**
-     * Compute a matrix-matrix product via \f$ \boldsymbol{C} = \boldsymbol{A}
-     * \boldsymbol{B} = \sum_{k=0}^{n} a_{ik} b_{kj}, ~ \forall i, j \f$.
+     * Compute a matrix-matrix product via \f$ C A B = \sum_k a_{ik}
+     * b_{kj}, ~ \forall i, j \f$.
      *
      * \param[in] B The multiplying Matrix.
      * \param[out] C The destination Matrix.
@@ -581,8 +577,8 @@ namespace Math
     mmult(const Matrix& B) const;
 
     /**
-     * Compute a transpose matrix-matrix product via \f$ \boldsymbol{C} =
-     * \boldsymbol{A}^T \boldsymbol{B} = \sum_{k=0}^{n} a_{ki} b_{kj}, ~
+     * Compute a transpose matrix-matrix product via \f$ C = A^T B =
+     * \sum_{k=0}^{n} a_{ki} b_{kj}, ~
      * \forall i, j \f$.
      *
      * \param[in] B The multiplying Matrix.
@@ -599,9 +595,8 @@ namespace Math
     Tmmult(const Matrix& B) const;
 
     /**
-     * Compute a matrix-transpose matrix product via \f$ \boldsymbol{C} =
-     * \boldsymbol{A} \boldsymbol{B}^T = \sum_{k=1}^{n} a_{ik} b_{jk}, ~
-     * \forall i, j \f$.
+     * Compute a matrix-transpose matrix product via \f$ C = A B^T = \sum_k
+     * a_{ik} b_{jk}, ~ \forall i, j \f$.
      *
      * \param[in] B The multiplying Matrix (not transposed).
      * \param[out] C The destination Matrix.
@@ -617,9 +612,8 @@ namespace Math
     mTmult(const Matrix& B) const;
 
     /**
-     * Compute a transpose matrix-transpose matrix product via \f$
-     * \boldsymbol{C} = \boldsymbol{A}^T \boldsymbol{B}^T = \sum_{k=1}^{n}
-     * a_{ki} b_{jk}, ~ \forall i, j \f$.
+     * Compute a transpose matrix-transpose matrix product via \f$  C = A^T B^T
+     * = \sum_k a_{ki} b_{jk}, ~ \forall i, j \f$.
      *
      * \param[in] B The multiplying Matrix (not transposed).
      * \param[out] C The destination Matrix.
@@ -641,8 +635,8 @@ namespace Math
     /* @{ */
 
     /**
-     * Compute a matrix-vector product via \f$ \vec{y} = \boldsymbol{A} \vec{x}
-     * = \sum_{j=1}^{n} a_{ij} x_j, ~ \forall i \f$.
+     * Compute a matrix-vector product via \f$ y = A x \sum_j a_{ij} x_j, ~
+     * \forall i \f$.
      *
      * \param[in] x The multiplying Vector.
      * \param[out] y The destination Vector.
@@ -673,8 +667,8 @@ namespace Math
     operator*(const Vector& x) const;
 
     /**
-     * Compute a transpose matrix-vector product via \f$ \vec{y} =
-     * \boldsymbol{A}^T \vec{x} = \sum_{i=1}^{n} a_{ji} x_i, ~ \forall  i \f$.
+     * Compute a transpose matrix-vector product via \f$ y = A^T x = \sum_i
+     * a_{ji} x_i, ~ \forall  i \f$.
      *
      * \param[in] x The multiplying Vector.
      * \param[out] y The destination Vector.
@@ -701,7 +695,7 @@ namespace Math
 
     /* @} */
     /**
-     * \name Print Utilities
+     * \name Print utilities
      */
     /* @{ */
 

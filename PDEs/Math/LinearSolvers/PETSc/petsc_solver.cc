@@ -17,11 +17,11 @@ using namespace LinearSolver;
 PETScSolver::PETScSolver(const std::string solver_type,
                          const std::string preconditioner_type,
                          const Options& opts) :
-  solver_type(solver_type),
-  preconditioner_type(preconditioner_type),
-  relative_residual_tolerance(opts.tolerance),
-  max_iterations(opts.max_iterations),
-  verbosity(opts.verbosity)
+    solver_type(solver_type),
+    preconditioner_type(preconditioner_type),
+    tolerance(opts.tolerance),
+    max_iterations(opts.max_iterations),
+    verbosity(opts.verbosity)
 {}
 
 
@@ -39,7 +39,7 @@ PETScSolver::set_matrix(const SparseMatrix& matrix)
 
   KSPSetConvergenceTest(ksp, &KSPConvergenceTest, NULL, NULL);
 
-  KSPSetTolerances(ksp, relative_residual_tolerance,
+  KSPSetTolerances(ksp, tolerance,
                    PETSC_DEFAULT, PETSC_DEFAULT, max_iterations);
 
   if (verbosity > 1)
@@ -68,8 +68,7 @@ PETScSolver::solve(Vector& x, const Vector& b) const
   PetscReal res;
   KSPGetResidualNorm(ksp, &res);
 
-  bool converged =
-    (reason == KSP_CONVERGED_RTOL)? true : false;
+  bool converged = reason == KSP_CONVERGED_RTOL;
 
   std::string solver_str = solver_type;
   std::transform(solver_str.begin(), solver_str.end(),

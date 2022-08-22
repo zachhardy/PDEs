@@ -1,17 +1,18 @@
-#include "lu.h"
+#include "../direct_solvers.h"
 
 #include "vector.h"
 #include "matrix.h"
 
-#include "macros.h"
-
 #include <cmath>
+#include <cassert>
 
 
-using namespace Math::LinearSolver;
+using namespace Math;
+using namespace LinearSolver;
 
 
-LU::LU(const bool pivot) : pivot_flag(pivot)
+LU::LU(const bool pivot) :
+  pivot_flag(pivot)
 {}
 
 
@@ -35,8 +36,8 @@ LU::factorize()
   //======================================== Apply Doolittle algorithm
   for (size_t j = 0; j < n; ++j)
   {
-    /* Find the row containing the largest magnitude entry for column j.
-     * This is only done for the sub-diagonal elements. */
+    // Find the row containing the largest magnitude entry for column j.
+    // This is only done for the sub-diagonal elements.
     if (pivot_flag)
     {
       size_t argmax = j;
@@ -52,11 +53,11 @@ LU::factorize()
       }
 
       // If the sub-diagonal is uniformly zero, throw error
-      Assert(max != 0.0, "Singular matrix error.");
+      assert(max != 0.0);
 
-      /* Swap the current row and the row containing the largest magnitude
-       * entry corresponding for the current column. This is done to improve
-       * the numerical stability of the algorithm. */
+      // Swap the current row and the row containing the largest magnitude
+      // entry corresponding for the current column. This is done to improve
+      // the numerical stability of the algorithm.
       if (argmax != j)
       {
         std::swap(row_pivots[j], row_pivots[argmax]);
@@ -73,14 +74,14 @@ LU::factorize()
       double* a_i = A.data(i); // accessor for row i
       double& a_ij = a_i[j]; // accessor for element i, j
 
-      /* Lower triangular components. This represents the row operations
-       * performed to attain the upper-triangular, row-echelon matrix. */
+      // Lower triangular components. This represents the row operations
+      // performed to attain the upper-triangular, row-echelon matrix.
       a_ij /= a_jj;
 
       a_i += j + 1; // increment to the correct element
 
-      /* Upper triangular components. This represents the row-echelon form of
-       * the original matrix. */
+      // Upper triangular components. This represents the row-echelon form of
+      // the original matrix.
       for (size_t k = j + 1; k < n; ++k)
         *a_i++ -= a_ij*a_j[k];
     }
@@ -93,9 +94,9 @@ void
 LU::solve(Vector& x, const Vector& b) const
 {
   size_t n = A.n_rows();
-  Assert(factorized, "Matrix must be factorized before solving.")
-  Assert(n == b.size(), "Dimension mismatch error.")
-  Assert(n == x.size(), "Dimension mismatch error.")
+  assert(factorized);
+  assert(n == b.size());
+  assert(n == x.size());
 
   //======================================== Forward solve
   for (size_t i = 0; i < n; ++i)
@@ -121,13 +122,3 @@ LU::solve(Vector& x, const Vector& b) const
     x[i] = value/a_ii;
   }
 }
-
-
-void
-LU::pivot(const bool flag)
-{ pivot_flag = flag; }
-
-
-bool
-LU::pivot() const
-{ return pivot_flag; }

@@ -607,15 +607,14 @@ namespace Math
 
     /**
      * Multiply the entries of sparse matrix by a scalar factor such that \f$
-     * \boldsymbol{A} = a \boldsymbol{A} \f$.
+     * A = a A \f$.
      */
     SparseMatrix&
     scale(const double factor);
 
     /**
-     * Negate the entries of the sparse matrix such that \f$ \boldsymbol{A} =
-     * -\boldsymbol{A} \f$. This is equivalent to scaling by -1.0. See \ref
-     * scale.
+     * Negate the entries of the sparse matrix such that \f$ A = -A \f$.
+     * This is equivalent to scaling by -1.0. See \ref scale.
      */
     SparseMatrix&
     operator-();
@@ -661,8 +660,7 @@ namespace Math
 
     /**
      * Scale this sparse matrix by a scalar and add another scaled sparse matrix
-     * to it such that \f$ \boldsymbol{A} = a \boldsymbol{A} + b \boldsymbol{B}
-     * \f$.
+     * to it such that \f$ A = a A + b B \f$.
      *
      * \note To avoid expensive modifications to underlying structure, the
      *       matrices must have the same sparsity pattern.
@@ -671,28 +669,22 @@ namespace Math
     sadd(const double a, const double b, const SparseMatrix& B);
 
     /**
-     * Scale this sparse matrix and add another sparse matrix to it such that
-     * \f$ \boldsymbol{A} = a \boldsymbol{A} + \boldsymbol{B} \f$. This is
-     * equivalent to scaling the other sparse matrix by 1.0 using the more
-     * general \ref sadd routine. See \ref sadd.
+     * Scale this sparse matrix and add another. This is equivalent to calling
+     * \ref sadd with <tt>b = 1.0</tt>. See \ref sadd.
      */
     SparseMatrix&
     sadd(const double a, const SparseMatrix& B);
 
     /**
-     * Add a scaled sparse matrix to this one such that \f$ \boldsymbol{A} =
-     * \boldsymbol{A} + b \boldsymbol{B} \f$. This is equivalent to calling
+     * Add a scaled sparse matrix to this one. This is equivalent to calling
      * \ref sadd with <tt>a = 1.0 </tt>. See \ref sadd.
      */
     SparseMatrix&
     add(const double b, const SparseMatrix& B);
 
     /**
-     * Add a sparse matrix to this one. This is equivalent to adding a
-     * sparse matrix scaled by 1.0. See \ref add.
-     *
-     * \note To avoid expensive modifications to underlying structure, the
-     *       matrices must have the same sparsity pattern.
+     * Add a sparse matrix to this one. This is equivalent to calling \ref add
+     * with <tt>b = 1.0</tt>. See \ref add.
      */
     SparseMatrix&
     operator+=(const SparseMatrix& B);
@@ -705,8 +697,8 @@ namespace Math
     operator+(const SparseMatrix& B) const;
 
     /**
-     * Subtract a sparse matrix from this one. This is equivalent to adding a
-     * sparse matrix scaled by -1.0. See \ref add.
+     * Subtract a sparse matrix from this one. This is equivalent to calling
+     * \ref add with <tt>b = -1.0</tt>. See \ref add.
      */
     SparseMatrix&
     operator-=(const SparseMatrix& B);
@@ -725,7 +717,8 @@ namespace Math
     /* @} */
 
     /**
-     * Compute a matrix-vector product.
+     * Compute a matrix-vector product via \f$ y = A x = \sum_j a_{ij} x_j ~
+     * \forall i \f$.
      *
      * \param[in] x The multiplying vector.
      * \param[out] y The destination vector.
@@ -756,14 +749,15 @@ namespace Math
     operator*(const Vector& x) const;
 
     /**
-     * Compute a transpose matrix-vector product.
+     * Compute a transpose matrix-vector product via \f$ y = A^T x = \sum_j
+     * a_{ji} x_i ~ \forall i
      *
      * \param[in] x The multiplying vector.
      * \param[out] y The destination vector.
      * \param adding A flag for adding to or setting the destination vector.
      */
-    void Tvmult(const Vector& x, Vector& y,
-                const bool adding = false) const;
+    void
+    Tvmult(const Vector& x, Vector& y, const bool adding = false) const;
 
     /**
      * Add a transpose matrix-vector product to the destination vector. See
@@ -772,12 +766,14 @@ namespace Math
      * \param[in] x The multiplying vector.
      * \param[out] y The destination vector.
      */
-    void Tvmult_add(const Vector& x, Vector& y) const;
+    void
+    Tvmult_add(const Vector& x, Vector& y) const;
 
     /**
      * Return a transpose matrix-vector product. See \ref Tvmult.
      */
-    Vector Tvmult(const Vector& x) const;
+    Vector
+    Tvmult(const Vector& x) const;
 
     /* @} */
     /**

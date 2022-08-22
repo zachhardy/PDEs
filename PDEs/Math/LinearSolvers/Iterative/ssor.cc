@@ -1,4 +1,4 @@
-#include "ssor.h"
+#include "../iterative_solvers.h"
 
 #include "vector.h"
 #include "Sparse/sparse_matrix.h"
@@ -9,16 +9,16 @@
 
 
 using namespace Math;
+using namespace LinearSolver;
 
 
-LinearSolver::SSOR::
-SSOR(const double omega, const Options& opts) :
+SSOR::SSOR(const double omega, const Options& opts) :
   SOR(omega, opts, "SSOR")
 {}
 
 
-void LinearSolver::SSOR::
-solve(Vector& x, const Vector& b) const
+void
+SSOR::solve(Vector& x, const Vector& b) const
 {
   size_t n = A->n_rows();
   assert(b.size() == n);

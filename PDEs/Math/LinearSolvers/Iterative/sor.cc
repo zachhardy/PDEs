@@ -1,4 +1,4 @@
-#include "sor.h"
+#include "../iterative_solvers.h"
 
 #include "vector.h"
 #include "Sparse/sparse_matrix.h"
@@ -8,16 +8,23 @@
 
 
 using namespace Math;
+using namespace LinearSolver;
 
 
-LinearSolver::SOR::
-SOR(const double omega, const Options& opts, const std::string solver_name) :
+SOR::SOR(const double omega,
+         const Options& opts,
+         const std::string solver_name) :
   IterativeSolverBase(opts, solver_name), omega(omega)
 { assert(omega > 0 && omega < 2); }
 
 
-void LinearSolver::SOR::
-solve(Vector& x, const Vector& b) const
+GaussSeidel::GaussSeidel(const Options& opts) :
+  SOR(1.0, opts, "Gauss-Seidel")
+{}
+
+
+void
+SOR::solve(Vector& x, const Vector& b) const
 {
   size_t n = A->n_rows();
   assert(b.size() == n);
@@ -36,7 +43,7 @@ solve(Vector& x, const Vector& b) const
       double value = 0.0;
       for (const auto el : A->row_iterator(i))
         if (el.column != i)
-          value += el.value*x[el.column];
+          value += el.value * x[el.column];
 
       double a_ii = A->diag(i);
       value = x[i] + omega*((b[i] - value)/a_ii - x[i]);
