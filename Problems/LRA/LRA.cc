@@ -217,7 +217,7 @@ int main(int argc, char** argv)
 
   solver.normalize_fission_xs = true;
   solver.normalization_method = NormalizationMethod::AVERAGE_POWER;
-  solver.power = 1.0e-6;
+  solver.initial_power = 1.0e-6;
 
   solver.write_outputs = true;
   solver.output_directory = outdir;

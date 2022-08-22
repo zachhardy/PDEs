@@ -15,12 +15,12 @@ initialize_materials()
   //============================================================
 
   // Determine the unique material IDs on the mesh
-  std::set<int> unique_material_ids;
+  std::set<unsigned int> unique_material_ids;
   std::vector<size_t> invalid_cells;
   for (const auto &cell: mesh->cells)
   {
     unique_material_ids.insert(cell.material_id);
-    if (cell.material_id < 0)
+    if (cell.material_id == -1)
       invalid_cells.emplace_back(cell.id);
   }
   assert(invalid_cells.size() == 0 ||

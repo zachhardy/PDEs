@@ -30,7 +30,7 @@ set_transient_source(SourceFlags source_flags)
 
     const auto src_id = matid_to_src_map[cell.material_id];
     const double* src = nullptr;
-    if (src_id >= 0 && apply_mat_src)
+    if (src_id < material_src.size() && apply_mat_src)
       src = material_src[src_id]->values.data();
 
     // Loop over groups

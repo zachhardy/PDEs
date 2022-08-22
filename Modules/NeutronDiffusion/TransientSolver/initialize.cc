@@ -36,7 +36,7 @@ TransientSolver::initialize()
       break;
     }
 
-  // Initialize auxiliary vector
+  // Initialize auxiliary vectors
   fission_rate.resize(mesh->cells.size(), 0.0);
   temperature.resize(mesh->cells.size(), initial_temperature);
 
@@ -90,7 +90,6 @@ TransientSolver::compute_initial_values()
   // Normalize the scalar flux
   if (normalization_method != NormalizationMethod::NONE)
   {
-    const auto initial_power = power;
     update_fission_rate();
     compute_bulk_properties();
 

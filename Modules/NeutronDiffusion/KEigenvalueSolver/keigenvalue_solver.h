@@ -7,18 +7,32 @@
 namespace NeutronDiffusion
 {
 
-  /** Implementation of a k-eigenvalue solver. */
+  /**
+   * Implementation of a \f$ k \f$-eigenvalue solver.
+   */
   class KEigenvalueSolver : public SteadyStateSolver
   {
   public:
+    /**
+     * The current estimate of the k-eigenvalue.
+     */
     double k_eff = 1.0;
 
-    unsigned int max_outer_iterations = 1000;
+    /**
+     * The convergence tolerance for the outer iterations.
+     */
     double outer_tolerance = 1.0e-8;
 
-    /*-------------------- Interface Routines ----------*/
-  public:
-    virtual void execute() override;
+    /**
+     * The maximum number of outer iterations allowed.
+     */
+    unsigned int max_outer_iterations = 1000;
+
+    /**
+     * Execute the multi-group diffusion \f$ k \f$-eigenvalue solver.
+     */
+    virtual void
+    execute() override;
 
     /**
      * Write the result of the simulation to an output file. This writes the
