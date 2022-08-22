@@ -8,12 +8,12 @@ make_sparsity_pattern(std::vector<std::vector<size_t>> pattern,
                       const bool is_coupled) const
 {
   // Resive based on the number of DoFs
-  pattern.resize(this->n_dofs(n_components));
+  pattern.resize(n_dofs(n_components));
 
   // Loop over cells
   for (const auto& cell : mesh->cells)
   {
-    const size_t ir = cell.id*n_components;
+    const size_t ir = cell.id * n_components;
 
     for (unsigned int c = 0; c < n_components; ++c)
     {

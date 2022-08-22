@@ -12,24 +12,34 @@ FiniteVolume(std::shared_ptr<Grid::Mesh> reference_mesh) :
 
 size_t
 FiniteVolume::n_nodes() const
-{ return mesh->cells.size(); }
+{
+  return mesh->cells.size();
+}
 
 
 unsigned int
 FiniteVolume::nodes_per_cell() const
-{ return 1; }
+{
+  return 1;
+}
 
 
 size_t
 FiniteVolume::n_dofs(const unsigned int n_components) const
-{ return n_components*mesh->cells.size(); }
+{
+  return n_components*mesh->cells.size();
+}
 
 
 unsigned int
 FiniteVolume::dofs_per_cell(const unsigned int n_components) const
-{ return n_components; }
+{
+  return n_components;
+}
 
 
-std::vector<Grid::CartesianVector>
+std::vector<Grid::Node>
 FiniteVolume::nodes(const Grid::Cell& cell) const
-{ return {cell.centroid}; }
+{
+  return {cell.centroid};
+}

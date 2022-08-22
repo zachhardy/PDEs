@@ -9,6 +9,9 @@
 namespace Math
 {
 
+  /**
+   * Available spatial discretization methods.
+   */
   enum class SpatialDiscretizationMethod
   {
     FINITE_VOLUME = 1,  ///< Finite volume (FV)
@@ -23,33 +26,68 @@ namespace Math
   /**
    * Abstracted base class for spatial discretizations.
    *
-   * A discretization is built upon a Mesh object. Derived classes
-   * are meant to contain all members and routines that are necessary to define
-   * the discrete representation of a solution and the operations necessary for
-   * aiding in the construction a linear system to solve.
+   * A discretization is built upon a mesh. Derived classes are meant to
+   * contain all members and routines that are necessary to define the discrete
+   * representation of a solution and the operations necessary for the
+   * construction a linear system to solve.
    */
   class Discretization
   {
   public:
+    /**
+     * A shared pointer to the mesh that is being discretized.
+     */
     const std::shared_ptr<Grid::Mesh> mesh;
-    const SpatialDiscretizationMethod type;
 
-    explicit
+    /**
+     * The spatial discretization method. This is used for identification,
+     * since in many instances, the discretization is stored as a shared
+     * pointer to the this base class.
+     */
+    const SpatialDiscretizationMethod method;
+
+  public:
+    /**
+     * Default constructor. This attaches a mesh to the discretization and
+     * sets the method used.
+     */
     Discretization(const std::shared_ptr<Grid::Mesh> reference_mesh,
-                   const SpatialDiscretizationMethod discretization_type)
-      : mesh(reference_mesh), type(discretization_type)
+                   const SpatialDiscretizationMethod discretization_method) :
+      mesh(reference_mesh), method(discretization_method)
     {}
 
-    virtual size_t n_nodes() const = 0;
+    /**
+     * Return the number of nodes in the discretization.
+     */
+    virtual size_t
+    n_nodes() const = 0;
+
+    /**
+     * Return the number of nodes per cell in the discretization.
+     */
     virtual unsigned int nodes_per_cell() const = 0;
 
-    virtual size_t n_dofs(const unsigned int n_components) const = 0;
+    /**
+     * Return the number of degrees of freedom (DoFs) in the discretization.
+     * The number of DoFs is defined as the number of nodes multiplied by the
+     * number of solution components.
+     */
+    virtual size_t
+    n_dofs(const unsigned int n_components) const = 0;
 
+    /**
+     * Return the number of degrees of freedom (DoFs) per cell in the
+     * discretization. The number of DoFs per cell is defined as the number of
+     * nodes per cell multiplied by the number of solution components.
+     */
     virtual unsigned int
     dofs_per_cell(const unsigned int n_components) const = 0;
 
-    /** Get the location of the nodes on a cell. */
-    virtual std::vector<Grid::CartesianVector> nodes(const Grid::Cell& cell) const = 0;
+    /**
+     * Return the coordinates of the nodes on the specified \p cell.
+     */
+    virtual std::vector<Grid::Node>
+    nodes(const Grid::Cell& cell) const = 0;
 
     /**
      * Define the sparsity pattern. This routine defines the column indices of
