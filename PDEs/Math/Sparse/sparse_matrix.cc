@@ -13,17 +13,13 @@ using namespace Math;
 
 
 SparseMatrix::Iterator::Entry::
-Entry(const size_t row,
-      const size_t column,
-      double& value) :
+Entry(const size_t row, const size_t column, double& value) :
   row(row), column(column), value(value)
 {}
 
 
 SparseMatrix::Iterator::
-Iterator(SparseMatrix* matrix,
-         const size_t row,
-         const unsigned int index) :
+Iterator(SparseMatrix* matrix, const size_t row, const unsigned int index) :
   matrix(matrix), row(row), index(index)
 {}
 
@@ -117,9 +113,7 @@ SparseMatrix::Iterator::advance()
 
 
 SparseMatrix::ConstIterator::ConstEntry::
-ConstEntry(const size_t row,
-           const size_t column,
-           const double& value) :
+ConstEntry(const size_t row, const size_t column, const double& value) :
     row(row), column(column), value(value)
 {}
 
@@ -269,16 +263,14 @@ SparseMatrix::SparseMatrix()
 }
 
 
-SparseMatrix::SparseMatrix(const size_t n_rows,
-                           const size_t n_cols)
+SparseMatrix::SparseMatrix(const size_t n_rows, const size_t n_cols)
 {
   reinit(n_rows, n_cols);
 }
 
 
 void
-SparseMatrix::reinit(const size_t n_rows,
-                     const size_t n_cols)
+SparseMatrix::reinit(const size_t n_rows, const size_t n_cols)
 {
   has_entries = false;
   rows = n_rows;
@@ -399,7 +391,7 @@ SparseMatrix::empty() const
 bool
 SparseMatrix::exists(const size_t row, const size_t column) const
 {
-  return (index(row, column) != -1) ? true : false;
+  return index(row, column) != -1;
 }
 
 

@@ -337,17 +337,7 @@ namespace Math
       const size_t row;
     };
 
-  private:
-    bool has_entries;
-
-    size_t rows;
-    size_t cols;
-
-    std::vector<std::vector<size_t>> colnums;
-    std::vector<std::vector<double>> values;
-
   public:
-
     /**
      * \name Constructors and initializers
      */
@@ -838,6 +828,27 @@ namespace Math
               const unsigned int precision = 3) const;
 
     /* @} */
+
+  private:
+    /**
+     * A flag for whether entries have been allocated.
+     */
+    bool has_entries;
+
+    size_t rows; ///< The number of rows.
+    size_t cols; ///< The number of columns.
+
+    /**
+     * Row-wise storage of the column indices which have non-zero entries on
+     * the particular row.
+     */
+    std::vector<std::vector<size_t>> colnums;
+
+    /**
+     * Row-wise storage of the values of the non-zero entries of the particular
+     * row.
+     */
+    std::vector<std::vector<double>> values;
   };
 
 
