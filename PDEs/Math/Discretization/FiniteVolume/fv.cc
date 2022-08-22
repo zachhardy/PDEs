@@ -30,6 +30,6 @@ FiniteVolume::dofs_per_cell(const unsigned int n_components) const
 { return n_components; }
 
 
-std::vector<Grid::Point>
+std::vector<Grid::CartesianVector>
 FiniteVolume::nodes(const Grid::Cell& cell) const
 { return {cell.centroid}; }

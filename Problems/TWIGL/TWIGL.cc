@@ -59,10 +59,10 @@ int main(int argc, char** argv)
   for (auto& cell : mesh->cells)
   {
     auto& c = cell.centroid;
-    if ((c.x > 24.0 and c.x < 56.0) and (c.y > 24.0 and c.y < 56.0))
+    if ((c.x() > 24.0 and c.x() < 56.0) and (c.y() > 24.0 and c.y() < 56.0))
       cell.material_id = 0;
-    else if (c.x < 24.0 and (c.y > 24.0 and c.y < 56.0) or
-             ((c.x > 24.0 and c.x < 56.0) and c.y < 24.0))
+    else if (c.x() < 24.0 and (c.y() > 24.0 and c.y() < 56.0) or
+             ((c.x() > 24.0 and c.x() < 56.0) and c.y() < 24.0))
       cell.material_id = 1;
     else
       cell.material_id = 2;

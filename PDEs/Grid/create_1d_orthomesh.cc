@@ -97,7 +97,6 @@ Grid::create_1d_orthomesh(const std::vector<double>& vertices,
   return mesh;
 }
 
-//######################################################################
 
 std::shared_ptr<Grid::Mesh>
 Grid::create_1d_orthomesh(const std::vector<double>& zone_edges,

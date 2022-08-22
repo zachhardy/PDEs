@@ -1,7 +1,7 @@
 #ifndef FACE_H
 #define FACE_H
 
-#include "point.h"
+#include "cartesian_vector.h"
 
 #include <vector>
 #include <cstddef>
