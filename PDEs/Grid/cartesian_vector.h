@@ -8,6 +8,15 @@
 namespace Grid
 {
 
+  // Useful Aliases
+  class CartesianVector;
+  using Point = CartesianVector;
+  using Vertex = CartesianVector;
+  using Node = CartesianVector;
+  using Centroid = CartesianVector;
+  using Normal = CartesianVector;
+  using Gradient = CartesianVector;
+
   /**
    * A class representing a Cartesian vector in space.
    *
@@ -336,15 +345,5 @@ namespace Grid
    */
   std::ostream&
   operator<<(std::ostream& os, const CartesianVector& p);
-
-  //================================================== Useful Aliases
-
-  using Point = CartesianVector;
-  using Vertex = CartesianVector;
-  using Node = CartesianVector;
-  using Centroid = CartesianVector;
-  using Normal = CartesianVector;
-  using Gradient = CartesianVector;
-
 }
 #endif //CARTESIAN_VECTOR_H
