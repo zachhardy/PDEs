@@ -11,6 +11,9 @@
 
 namespace Grid
 {
+  /**
+   * Coordinate systems available for meshes.
+   */
   enum class CoordinateSystemType
   {
     CARTESIAN = 0,  ///< \f$(x, y, z)\f$ coordinates.
@@ -19,9 +22,12 @@ namespace Grid
   };
 
 
-  std::string coordinate_system_str(const CoordinateSystemType coord_sys);
+  /**
+   * Return the coordinate system type as a string.
+   */
+  std::string
+  coordinate_system_str(const CoordinateSystemType coord_sys);
 
-  //###########################################################################
 
   /**
    * A class that represents a general computational mesh.
@@ -37,33 +43,53 @@ namespace Grid
   class Mesh
   {
   public:
+    /**
+     * The spatial dimension of the mesh.
+     */
     const unsigned int dim;
+
+    /**
+     * The coordinate system the mesh is defined in.
+     */
     const CoordinateSystemType coord_sys;
 
+    /**
+     * A list of the vertices on the mesh.
+     */
     std::vector<Vertex> vertices;
+
+    /**
+     * A list of the cells that make up the mesh. See \ref Cell.
+     */
     std::vector<Cell> cells;
 
+    /**
+     * A list of the boundary cell IDs. This is used as a convenience for
+     * access to boundary cells without having to iterate over interior cells.
+     */
     std::vector<size_t> boundary_cell_ids;
 
+    /**
+     * A mapping from the cell ID to its row(i), column(j), level(k) index.
+     * This is only used for orthogonal meshes.
+     */
     std::vector<std::vector<size_t>> ijk_mapping;
 
-  public:
     /**
      * Construct a mesh with the specified dimension and coordinate system.
      *
      * \param dimension The spatial dimension of the mesh.
      * \param coordinate_system The coordinate system of the mesh.
      */
-    explicit Mesh(const unsigned int dimension,
-                  const CoordinateSystemType coordinate_system);
+    Mesh(const unsigned int dimension,
+         const CoordinateSystemType coordinate_system);
 
-  public:
     /**
      * Establish the relationships between cells and their neighbors.
      *
      * Connectivity is established by
-     * 1. For each Vertex, determine which Cell objects the Vertex belongs to.
-     * 2. For each Face of each Cell, compare vertex ids to those of adjacent
+     * 1. For each vertex, determine which cell objects the vertex belongs to.
+     * 2. For each face of each cell, compare vertex ids to those of adjacent
      *    cells as defined by the step 1.
      * 3. If vertex IDs match, set the neighbor properties.
      *
@@ -71,10 +97,12 @@ namespace Grid
      *       connectivity cannot be established a-priori. Generally, this
      *       routine should only be utilized for unstructured meshes.
      */
-    void compute_geometric_info();
+    void
+    compute_geometric_info();
 
     /** Compute the geometric properties of the cells and faces. */
-    void establish_connectivity();
+    void
+    establish_connectivity();
   };
 
 }

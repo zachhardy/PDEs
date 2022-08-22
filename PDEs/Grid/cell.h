@@ -10,6 +10,9 @@
 
 namespace Grid
 {
+  /**
+   * Available cell geometries.
+   */
   enum class CellType
   {
     SLAB = 0, ///< 1D Cartesian geometry.
@@ -19,13 +22,15 @@ namespace Grid
   };
 
 
-  std::string cell_type_str(const CellType cell_type);
+  /**
+   * Return the cell type as a string.
+   */
+  std::string
+  cell_type_str(const CellType cell_type);
 
-
-  //######################################################################
 
   /**
-   * A class representing a cell on a Mesh.
+   * A class representing a cell on a mesh.
    *
    * A cell is defined as a <tt>dim</tt>-dimensional object bound by
    * <tt>dim - 1</tt>-dimensional face objects. The cell type largely depends on
@@ -49,24 +54,62 @@ namespace Grid
   class Cell
   {
   public:
+    /**
+     * The cell geometry. This is used to ensure the correct cell volume and
+     * face areas are computed upon initialization.
+     */
     const CellType type;
 
+    /**
+     * A unique cell ID used to identify the cell. This is often used for
+     * defining/mapping degrees of freedom.
+     */
     size_t id;
-    int material_id = -1;
 
+    /**
+     * A material ID used to ensure the correct material properties are used
+     * when performing cell-wise computations.
+     */
+    unsigned int material_id = -1;
+
+    /**
+     * The coordinate of the center of the cell.
+     */
     Centroid centroid;
+
+    /**
+     * The volume of the cell.
+     */
     double volume = 0.0;
 
+    /**
+     * A list of the vertex IDs that live on the cell.
+     */
     std::vector<size_t> vertex_ids;
+
+    /**
+     * A list of the faces that bound the cell. See \ref Face.
+     */
     std::vector<Face> faces;
 
   public:
+    /**
+     * Construct cell with the specified geometry.
+     */
     explicit Cell(const CellType cell_type);
 
-    std::string str() const;
+    /**
+     * Return the contents of the cell as a string.
+     */
+    std::string
+    str() const;
   };
 
 
-  std::ostream& operator<<(std::ostream& os, const Cell& cell);
+  /**
+   * Insert the contents of a cell into an output stream.
+   */
+  std::ostream&
+  operator<<(std::ostream& os, const Cell& cell);
 }
 #endif //CELL_H
