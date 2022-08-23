@@ -19,7 +19,7 @@ GaussLegendreQuadrature(const unsigned int n, const bool verbose) :
     Quadrature(n)
 {
   if (verbose)
-    std::cout << "\nInitializing Gauss-Chebyshev quadratures...\n"
+    std::cout << "\nInitializing Gauss-Legendre quadratures...\n"
               << "Number of Points:\t" << n << std::endl
               << "---------------------------" << std::endl
               << std::setw(3) << "n"
@@ -38,6 +38,11 @@ GaussLegendreQuadrature(const unsigned int n, const bool verbose) :
     const double& qp = qpoints[q];
     double dPn = dlegendre(n, qpoints[q]);
     weights.push_back(2.0 / (1.0 - qp * qp) / (dPn * dPn));
+
+    if (verbose)
+      std::cout << std::setw(3) << q
+                << std::setw(12) << qpoints[q]
+                << std::setw(12) << weights[q] << std::endl;
   }
 
   std::cout << "Quadrature Points: [";
