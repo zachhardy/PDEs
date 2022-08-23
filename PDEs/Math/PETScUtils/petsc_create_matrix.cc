@@ -51,7 +51,7 @@ PETScUtils::CreateMatrix(Mat& A, const SparseMatrix& mat)
                static_cast<PetscInt>(mat.n_cols()));
 
   // Add data to the PETSc matrix
-  for (const auto el : mat)
+  for (const auto el: mat)
     MatSetValue(A, el.row, el.column, el.value, ADD_VALUES);
 
   MatAssemblyBegin(A, MAT_FINAL_ASSEMBLY);

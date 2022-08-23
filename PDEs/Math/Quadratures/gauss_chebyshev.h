@@ -29,8 +29,8 @@ namespace PDEs
       /**
        * Return the roots of the degree \p n Chebyshev polynomial.
        */
-       static std::vector<double>
-       chebyshev_roots(const unsigned int n);
+      static std::vector<double>
+      chebyshev_roots(const unsigned int n);
     };
 
   } // Math

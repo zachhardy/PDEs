@@ -4,6 +4,8 @@
 #include <cmath>
 #include <limits>
 #include <algorithm>
+
+#include <iomanip>
 #include <cassert>
 
 
@@ -16,9 +18,18 @@ GaussLegendreQuadrature::
 GaussLegendreQuadrature(const unsigned int n, const bool verbose) :
     Quadrature(n)
 {
+  if (verbose)
+    std::cout << "\nInitializing Gauss-Chebyshev quadratures...\n"
+              << "Number of Points:\t" << n << std::endl
+              << "---------------------------" << std::endl
+              << std::setw(3) << "n"
+              << std::setw(12) << "Point"
+              << std::setw(12) << "Weight" << std::endl
+              << "---------------------------" << std::endl;
+
   // Compute the quadrature points
   auto qpoints = this->legendre_roots(n);
-  for (const auto& qpoint : qpoints)
+  for (const auto& qpoint: qpoints)
     quadrature_points.emplace_back(0.0, 0.0, qpoint);
 
   // Compute the weights
@@ -26,7 +37,7 @@ GaussLegendreQuadrature(const unsigned int n, const bool verbose) :
   {
     const double& qp = qpoints[q];
     double dPn = dlegendre(n, qpoints[q]);
-    weights.push_back(2.0 / (1.0 - qp*qp) / (dPn*dPn));
+    weights.push_back(2.0 / (1.0 - qp * qp) / (dPn * dPn));
   }
 
   std::cout << "Quadrature Points: [";

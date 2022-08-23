@@ -5,8 +5,8 @@
 
 #include "timer.h"
 
-#include "LinearSolvers/iterative_solvers.h"
-#include "LinearSolvers/direct_solvers.h"
+#include "Math/LinearSolvers/Iterative/cg.h"
+#include "Math/LinearSolvers/Direct/cholesky.h"
 #include "LinearSolvers/PETSc/petsc_solver.h"
 
 #include "NeutronDiffusion/TransientSolver/transient_solver.h"
@@ -21,7 +21,6 @@ using namespace Math;
 using namespace Physics;
 using namespace LinearSolvers;
 using namespace NeutronDiffusion;
-
 
 
 int main(int argc, char** argv)
@@ -64,13 +63,13 @@ int main(int argc, char** argv)
 
   auto mesh = create_2d_orthomesh(x_verts, y_verts);
 
-  for (auto& cell : mesh->cells)
+  for (auto& cell: mesh->cells)
   {
     auto& c = cell.centroid;
     if ((c.x() > 24.0 and c.x() < 56.0) and (c.y() > 24.0 and c.y() < 56.0))
       cell.material_id = 0;
     else if (c.x() < 24.0 and (c.y() > 24.0 and c.y() < 56.0) or
-             ((c.x() > 24.0 and c.x() < 56.0) and c.y() < 24.0))
+                              ((c.x() > 24.0 and c.x() < 56.0) and c.y() < 24.0))
       cell.material_id = 1;
     else
       cell.material_id = 2;
@@ -83,20 +82,18 @@ int main(int argc, char** argv)
   auto ramp_function =
       [magnitude, duration](const unsigned int group_num,
                             const std::vector<double>& args,
-                            const double reference)
-    {
-      const double t = args[0];
+                            const double reference) {
+        const double t = args[0];
 
-      if (group_num == 1)
-      {
-        if (t >= 0.0 and t <= duration)
-          return (1.0 + t / duration * magnitude) * reference;
-        else
-          return (1.0 + magnitude) * reference;
-      }
-      else
-        return reference;
-    };
+        if (group_num == 1)
+        {
+          if (t >= 0.0 and t <= duration)
+            return (1.0 + t / duration * magnitude) * reference;
+          else
+            return (1.0 + magnitude) * reference;
+        } else
+          return reference;
+      };
 
   std::vector<std::shared_ptr<Material>> materials;
   materials.emplace_back(std::make_shared<Material>("Fuel 0 Perturbed"));
@@ -143,7 +140,7 @@ int main(int argc, char** argv)
   TransientSolver solver;
 
   solver.mesh = mesh;
-  for (auto& material : materials)
+  for (auto& material: materials)
     solver.materials.emplace_back(material);
   solver.linear_solver = linear_solver;
 
@@ -192,7 +189,7 @@ int main(int argc, char** argv)
   // Run the problem
   //============================================================
 
-  PetscInitialize(&argc,&argv,(char*)0,NULL);
+  PetscInitialize(&argc, &argv, (char*) 0, NULL);
 
   Timer timer;
 

@@ -1,7 +1,7 @@
 #include "steadystate_solver.h"
 
 #include "Discretization/FiniteVolume/fv.h"
-#include "LinearSolvers/direct_solvers.h"
+#include "Math/LinearSolvers/Direct/cholesky.h"
 
 #include <algorithm>
 #include <set>
@@ -18,8 +18,7 @@ initialize()
   std::cout
     << "\n*********************************************\n"
     <<   "Initializing the multi-group diffusion solver"
-    << "\n*********************************************\n"
-    << "Number of groups:  " << groups.size() << "\n\n";
+    << "\n*********************************************\n\n";
 
   //============================================================
   // Check the mesh
@@ -73,10 +72,13 @@ initialize()
   b.resize(n_phi_dofs, 0.0);
 
   std::cout
-    << "\nSimulation Summary:\n"
-    <<   "-------------------\n"
-    << "# of cells             :  " << mesh->cells.size() << std::endl
-    << "# of nodes             :  " << discretization->n_nodes() << std::endl
-    << "# of phi unknowns      :  " << n_phi_dofs << std::endl
-    << "# of precursor unknowns:  " << n_precursor_dofs << std::endl;
+    << "\n------------------------------\n"
+    <<   "--- Simulation Information ---"
+    << "\n------------------------------\n"
+    << "Groups:              " << n_groups << std::endl
+    << "Precursors:          " << n_precursors << std::endl
+    << "Cells:               " << mesh->cells.size() << std::endl
+    << "Nodes:               " << discretization->n_nodes() << std::endl
+    << "Phi unknowns:        " << n_phi_dofs << std::endl
+    << "Precursor unknowns:  " << n_precursor_dofs << std::endl;
 }

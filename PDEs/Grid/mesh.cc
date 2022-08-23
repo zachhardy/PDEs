@@ -15,17 +15,21 @@ coordinate_system_str(const CoordinateSystemType coord_sys)
 {
   switch (coord_sys)
   {
-    case CoordinateSystemType::CARTESIAN: return "CARTESIAN";
-    case CoordinateSystemType::CYLINDRICAL: return "CYLINDRICAL";
-    case CoordinateSystemType::SPHERICAL: return "SPHERICAL";
-    default: return "UNDEFINED";
+    case CoordinateSystemType::CARTESIAN:
+      return "CARTESIAN";
+    case CoordinateSystemType::CYLINDRICAL:
+      return "CYLINDRICAL";
+    case CoordinateSystemType::SPHERICAL:
+      return "SPHERICAL";
+    default:
+      return "UNDEFINED";
   }
 }
 
 
 Mesh::Mesh(const unsigned int dimension,
            const CoordinateSystemType coordinate_system) :
-  dimension(dimension), coordinate_system(coordinate_system)
+    dimension(dimension), coordinate_system(coordinate_system)
 {}
 
 
@@ -39,16 +43,16 @@ Mesh::establish_connectivity()
   // which holds the unique cell ids in which the vertex is found.
   const size_t n_vertices = vertices.size();
   std::vector<std::set<size_t>> vertex_cell_map(n_vertices);
-  for (const auto& cell : cells)
-    for (const auto& v_id : cell.vertex_ids)
+  for (const auto& cell: cells)
+    for (const auto& v_id: cell.vertex_ids)
       vertex_cell_map.at(v_id).insert(cell.id);
 
   // Establish connectivity by going through each face of each cell and
   // finding faces on neighboring cells (as defined by vertex_cell_map) which
   // share vertex ids.
-  for (auto& cell : cells)
+  for (auto& cell: cells)
   {
-    for (auto& face : cell.faces)
+    for (auto& face: cell.faces)
     {
       // If there is a neighbor, this face has already been
       // encountered, continue to the next.
@@ -60,18 +64,18 @@ Mesh::establish_connectivity()
 
       // Use the vertex_cell_map to find neighbor cells
       std::set<size_t> cells_to_search;
-      for (const auto& v_id : face.vertex_ids)
-        for (const auto& c_id : vertex_cell_map.at(v_id))
+      for (const auto& v_id: face.vertex_ids)
+        for (const auto& c_id: vertex_cell_map.at(v_id))
           if (c_id != cell.id)
             cells_to_search.insert(c_id);
 
       // Search the neighbor cells for matching faces
-      for (const auto& adj_c_id : cells_to_search)
+      for (const auto& adj_c_id: cells_to_search)
       {
         auto& adj_cell = cells.at(adj_c_id);
 
         // Go through neighbor cell faces
-        for (auto& adj_face : adj_cell.faces)
+        for (auto& adj_face: adj_cell.faces)
         {
           // If neighbor has already been set, it is not a neighbor
           if (adj_face.has_neighbor) continue;
@@ -110,12 +114,12 @@ Mesh::compute_geometric_info()
   std::cout << "Computing geometric information on cells and faces.\n";
 
   // Loop over cells
-  for (auto& cell : cells)
+  for (auto& cell: cells)
   {
 
     // Compute cell centroid
     cell.centroid *= 0.0;
-    for (auto& v_id : cell.vertex_ids)
+    for (auto& v_id: cell.vertex_ids)
       cell.centroid += vertices[v_id];
     cell.centroid /= static_cast<double>(cell.vertex_ids.size());
 
@@ -129,9 +133,9 @@ Mesh::compute_geometric_info()
       if (cell.type == CellType::SLAB)
         cell.volume = v1 - v0;
       else if (cell.type == CellType::ANNULUS)
-        cell.volume = M_PI*(v1*v1 - v0*v0);
+        cell.volume = M_PI * (v1 * v1 - v0 * v0);
       else if (cell.type == CellType::SHELL)
-        cell.volume = 4.0/3.0*M_PI*(v1*v1*v1 - v0*v0*v0);
+        cell.volume = 4.0 / 3.0 * M_PI * (v1 * v1 * v1 - v0 * v0 * v0);
       else
         throw std::runtime_error("Unexpected 1D cell type.");
     }//if 1D
@@ -146,11 +150,11 @@ Mesh::compute_geometric_info()
 
 
     // Loop over faces
-    for (auto& face : cell.faces)
+    for (auto& face: cell.faces)
     {
       // Compute face centroids
       face.centroid *= 0.0;
-      for (auto& v_id : face.vertex_ids)
+      for (auto& v_id: face.vertex_ids)
         face.centroid += vertices[v_id];
       face.centroid /= static_cast<double>(face.vertex_ids.size());
 
@@ -162,9 +166,9 @@ Mesh::compute_geometric_info()
         if (cell.type == CellType::SLAB)
           face.area = 1.0;
         else if (cell.type == CellType::ANNULUS)
-          face.area = 2.0*M_PI * v;
+          face.area = 2.0 * M_PI * v;
         else if (cell.type == CellType::SHELL)
-          face.area = 4.0*M_PI * v*v;
+          face.area = 4.0 * M_PI * v * v;
       }// if 1D
       else if (face.vertex_ids.size() == 2)
       {

@@ -33,7 +33,7 @@ Grid::create_1d_orthomesh(const std::vector<double>& vertices,
   // Compute the vertices, starting from 0.0
   double current_pos = 0.0;
   mesh->vertices.emplace_back(0.0, 0.0, current_pos);
-  for (const auto& width : widths)
+  for (const auto& width: widths)
   {
     mesh->vertices.emplace_back(0.0, 0.0, current_pos + width);
     current_pos += width;
@@ -70,14 +70,14 @@ Grid::create_1d_orthomesh(const std::vector<double>& vertices,
     // Define the left face info, add to cell
     left_face.vertex_ids = {c};
     left_face.has_neighbor = (c > 0);
-    left_face.neighbor_id = (c > 0)? c - 1 : 0;
+    left_face.neighbor_id = (c > 0) ? c - 1 : 0;
     left_face.normal = Normal(0.0, 0.0, -1.0);
     cell.faces.push_back(left_face);
 
     // Define the right face info, add to cell
     right_face.vertex_ids = {c + 1};
     right_face.has_neighbor = {c < n_cells - 1};
-    right_face.neighbor_id = (c < n_cells - 1)? c + 1 : 1;
+    right_face.neighbor_id = (c < n_cells - 1) ? c + 1 : 1;
     right_face.normal = Normal(0.0, 0.0, 1.0);
     cell.faces.push_back(right_face);
 
@@ -121,7 +121,7 @@ Grid::create_1d_orthomesh(const std::vector<double>& zone_edges,
 
   // Count the number of cells
   auto n_cells = std::accumulate(zone_subdivisions.begin(),
-                                   zone_subdivisions.end(), (size_t)0);
+                                 zone_subdivisions.end(), (size_t) 0);
 
   // Initialize the vertices
   mesh->vertices.reserve(n_cells + 1);
@@ -134,7 +134,7 @@ Grid::create_1d_orthomesh(const std::vector<double>& zone_edges,
     // Define the width of cells in this zone z
     double zone_width = zone_edges[z + 1] - zone_edges[z];
     size_t n_zone_cells = zone_subdivisions[z];
-    double cell_width = zone_width/(double)n_zone_cells;
+    double cell_width = zone_width / (double) n_zone_cells;
 
     for (size_t c = 0; c < n_zone_cells; ++c)
     {
@@ -178,14 +178,14 @@ Grid::create_1d_orthomesh(const std::vector<double>& zone_edges,
       // Define the left face info, add to cell
       left_face.vertex_ids = {count};
       left_face.has_neighbor = (count > 0);
-      left_face.neighbor_id = (count > 0)? count - 1 : 0;
+      left_face.neighbor_id = (count > 0) ? count - 1 : 0;
       left_face.normal = Normal(0.0, 0.0, -1.0);
       cell.faces.push_back(left_face);
 
       // Define the right face info, add to cell
       right_face.vertex_ids = {count + 1};
       right_face.has_neighbor = {count < n_cells - 1};
-      right_face.neighbor_id = (count < n_cells - 1)? count + 1 : 1;
+      right_face.neighbor_id = (count < n_cells - 1) ? count + 1 : 1;
       right_face.normal = Normal(0.0, 0.0, 1.0);
       cell.faces.push_back(right_face);
 

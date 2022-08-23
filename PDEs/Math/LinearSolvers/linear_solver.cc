@@ -31,8 +31,11 @@ LinearSolverBase<MatrixType>::set_matrix(const MatrixType& matrix)
 }
 
 
-template class LinearSolvers::LinearSolverBase<Matrix>;
-template class LinearSolvers::LinearSolverBase<SparseMatrix>;
+template
+class LinearSolvers::LinearSolverBase<Matrix>;
+
+template
+class LinearSolvers::LinearSolverBase<SparseMatrix>;
 
 
 //################################################## DirectSolverBase
@@ -40,7 +43,8 @@ template class LinearSolvers::LinearSolverBase<SparseMatrix>;
 
 template<class MatrixType>
 DirectSolverBase<MatrixType>::
-DirectSolverBase() : LinearSolverBase<MatrixType>()
+DirectSolverBase() :
+    LinearSolverBase<MatrixType>()
 {}
 
 
@@ -52,25 +56,29 @@ DirectSolverBase<MatrixType>::set_matrix(const MatrixType& matrix)
   A = matrix;
   factorize();
 }
-template class LinearSolvers::DirectSolverBase<Matrix>;
-template class LinearSolvers::DirectSolverBase<SparseMatrix>;
+
+template
+class LinearSolvers::DirectSolverBase<Matrix>;
+
+template
+class LinearSolvers::DirectSolverBase<SparseMatrix>;
 
 
 Options::Options(const double tolerance,
                  const unsigned int max_iterations,
                  const unsigned int verbosity) :
-  tolerance(tolerance),
-  max_iterations(max_iterations),
-  verbosity(verbosity)
+    tolerance(tolerance),
+    max_iterations(max_iterations),
+    verbosity(verbosity)
 {}
 
 
 IterativeSolverBase::
 IterativeSolverBase(const Options& opts, const std::string name) :
-  tolerance(opts.tolerance),
-  max_iterations(opts.max_iterations),
-  verbosity(opts.verbosity),
-  solver_name(name)
+    tolerance(opts.tolerance),
+    max_iterations(opts.max_iterations),
+    verbosity(opts.verbosity),
+    solver_name(name)
 {}
 
 
@@ -93,7 +101,7 @@ check(const unsigned int iteration, const double value) const
     std::cout << solver_name << "::"
               << "Iteration   " << std::setw(4) << iteration << "    "
               << "Value   " << value
-              << (converged? "  CONVERGED\n" : "\n");
+              << (converged ? "  CONVERGED\n" : "\n");
 
   if (converged && verbosity == 1)
     std::cout << solver_name << "::  CONVERGED   "

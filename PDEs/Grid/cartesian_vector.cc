@@ -10,22 +10,22 @@ using namespace Grid;
 
 
 CartesianVector::CartesianVector() :
-  xyz({0.0, 0.0, 0.0})
+    xyz({0.0, 0.0, 0.0})
 {}
 
 
 CartesianVector::CartesianVector(const double a) :
-  xyz({a, 0.0, 0.0})
+    xyz({a, 0.0, 0.0})
 {}
 
 
 CartesianVector::CartesianVector(const double a, const double b) :
-  xyz({a, b, 0.0})
+    xyz({a, b, 0.0})
 {}
 
 
 CartesianVector::CartesianVector(const double a, const double b, const double c) :
-  xyz({a, b, c})
+    xyz({a, b, c})
 {}
 
 
@@ -123,7 +123,7 @@ CartesianVector::distance_squared(const CartesianVector& other) const
   double dx = this->x() - other.x();
   double dy = this->y() - other.y();
   double dz = this->z() - other.z();
-  return dx*dx + dy*dy + dz*dz;
+  return dx * dx + dy * dy + dz * dz;
 }
 
 
@@ -138,7 +138,7 @@ double
 CartesianVector::length_squared() const
 {
   double retval = 0.0;
-  for (const auto& v : xyz)
+  for (const auto& v: xyz)
     retval += v * v;
   return retval;
 }
@@ -164,7 +164,7 @@ CartesianVector&
 CartesianVector::operator/=(const double factor)
 {
   assert(factor != 0.0);
-  return *this *= 1.0/factor;
+  return *this *= 1.0 / factor;
 }
 
 
@@ -224,7 +224,7 @@ CartesianVector::operator-(const CartesianVector& other) const
 CartesianVector&
 CartesianVector::fabs()
 {
-  for (auto& v : xyz)
+  for (auto& v: xyz)
     v = std::fabs(v);
   return *this;
 }
@@ -241,7 +241,7 @@ CartesianVector&
 CartesianVector::normalize()
 {
   double len = this->length();
-  return (len > 0.0)? *this /= len : *this;
+  return (len > 0.0) ? *this /= len : *this;
 }
 
 
@@ -257,7 +257,7 @@ CartesianVector::dot(const CartesianVector& other) const
 {
   double retval = 0.0;
   for (unsigned int i = 0; i <= 2; ++i)
-    retval += xyz[i]*other.xyz[i];
+    retval += xyz[i] * other.xyz[i];
   return retval;
 }
 
@@ -265,9 +265,9 @@ CartesianVector::dot(const CartesianVector& other) const
 CartesianVector
 CartesianVector::cross(const CartesianVector& other) const
 {
-  double x = this->y()*other.z() - this->z()*other.y();
-  double y = this->z()*other.x() - this->x()*other.z();
-  double z = this->x()*other.y() - this->y()*other.x();
+  double x = this->y() * other.z() - this->z() * other.y();
+  double y = this->z() * other.x() - this->x() * other.z();
+  double z = this->x() * other.y() - this->y() * other.x();
   return CartesianVector(x, y, z);
 }
 

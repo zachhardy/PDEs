@@ -7,7 +7,7 @@ using namespace Math;
 
 FiniteVolume::
 FiniteVolume(std::shared_ptr<Grid::Mesh> reference_mesh) :
-  Discretization(reference_mesh, SpatialDiscretizationMethod::FINITE_VOLUME)
+    Discretization(reference_mesh, SpatialDiscretizationMethod::FINITE_VOLUME)
 {
   std::cout << "Creating Finite Volume spatial discretization.\n";
   std::cout << "Finished creating Finite Volume spatial discretization.\n";
@@ -31,7 +31,7 @@ FiniteVolume::nodes_per_cell() const
 size_t
 FiniteVolume::n_dofs(const unsigned int n_components) const
 {
-  return n_components*mesh->cells.size();
+  return n_components * mesh->cells.size();
 }
 
 

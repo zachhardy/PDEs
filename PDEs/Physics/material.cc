@@ -7,7 +7,7 @@ using namespace Physics;
 
 MaterialProperty::
 MaterialProperty(const MaterialPropertyType type) :
-  property_type(type)
+    property_type(type)
 {}
 
 
@@ -19,7 +19,7 @@ MaterialProperty::type() const
 
 
 Material::Material(const std::string name) :
-  material_name(name)
+    material_name(name)
 {}
 
 
@@ -31,12 +31,12 @@ Material::name() const
 
 
 ScalarProperty::ScalarProperty(const double value) :
-  MaterialProperty(MaterialPropertyType::SCALAR), value(value)
+    MaterialProperty(MaterialPropertyType::SCALAR), value(value)
 {}
 
 
 IsotropicMultiGroupSource::
-IsotropicMultiGroupSource(const std::vector<double> src) :
-  MaterialProperty(MaterialPropertyType::ISOTROPIC_MG_SOURCE),
-  values(src)
+IsotropicMultiGroupSource(const std::vector<double>& src) :
+    MaterialProperty(MaterialPropertyType::ISOTROPIC_MG_SOURCE),
+    values(src)
 {}

@@ -111,7 +111,7 @@ PETScSolver::KSPConvergenceTest(KSP solver, PetscInt it, PetscReal rnorm,
   KSPGetRhs(solver, &rhs);
   double rhs_norm;
   VecNorm(rhs, NORM_2, &rhs_norm);
-  rhs_norm = (rhs_norm < 1.0e-12)? 1.0 : rhs_norm;
+  rhs_norm = (rhs_norm < 1.0e-12) ? 1.0 : rhs_norm;
 
   double tol;
   PetscInt its;
@@ -146,4 +146,3 @@ PETScSolver::KSPMonitor(KSP solver, PetscInt it,
   std::cout << ss.str();
   return 0;
 }
-

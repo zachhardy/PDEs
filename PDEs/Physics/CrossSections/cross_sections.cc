@@ -12,7 +12,7 @@ using namespace Physics;
 
 
 CrossSections::CrossSections() :
-  MaterialProperty(MaterialPropertyType::CROSS_SECTIONS)
+    MaterialProperty(MaterialPropertyType::CROSS_SECTIONS)
 {}
 
 
@@ -103,7 +103,7 @@ CrossSections::reconcile_cross_sections()
     {
       assert(sigma_a[g] >= 0.0);
       sigma_t[g] = sigma_a[g] + sigma_s[g];
-  }
+    }
 
   // Compute the removal cross sections
   for (unsigned int g = 0; g < n_groups; ++g)
@@ -114,18 +114,16 @@ CrossSections::reconcile_cross_sections()
 void
 CrossSections::reconcile_fission_properties()
 {
-  auto check_xs = [](std::vector<double> x)
-  {
-    for (const auto& v : x)
+  auto check_xs = [](std::vector<double> x) {
+    for (const auto& v: x)
       if (v != 0.0)
         return true;
     return false;
   };
 
-  auto check_matrix = [](std::vector<std::vector<double>> A)
-  {
-    for (const auto& a : A)
-      for (const auto& v : a)
+  auto check_matrix = [](std::vector<std::vector<double>> A) {
+    for (const auto& a: A)
+      for (const auto& v: a)
         if (v != 0.0)
           return true;
     return false;
@@ -191,7 +189,7 @@ CrossSections::reconcile_fission_properties()
           beta[g] = nu_delayed[g] / nu[g];
       }
 
-      // Delayed-fraction specification
+        // Delayed-fraction specification
       else if (has_nusigf and has_nu and has_beta)
       {
         assert(std::all_of(nu_sigma_f.begin(), nu_sigma_f.end(),
@@ -214,10 +212,10 @@ CrossSections::reconcile_fission_properties()
       assert(std::all_of(chi_prompt.begin(), chi_prompt.end(),
                          [](double x) { return x >= 0.0; }));
       assert(std::all_of(chi_delayed.begin(), chi_delayed.end(),
-                         [](std::vector<double> x)
-                         { return std::all_of(x.begin(), x.end(),
-                                              [](double y)
-                                              { return y >= 0.0; }); }));
+                         [](std::vector<double> x) {
+                           return std::all_of(x.begin(), x.end(),
+                                              [](double y) { return y >= 0.0; });
+                         }));
 
       // Check precursor properties
       assert(std::all_of(precursor_yield.begin(), precursor_yield.end(),
@@ -284,9 +282,9 @@ CrossSections::reconcile_fission_properties()
         nu[g] = nu_prompt[g] + nu_delayed[g];
 
         // Compute the beta-weighted total fission spectra
-        chi[g] = (1.0 - beta[g])*chi_prompt[g];
+        chi[g] = (1.0 - beta[g]) * chi_prompt[g];
         for (unsigned int j = 0; j < n_precursors; ++j)
-          chi[g] += beta[g]*precursor_yield[j]*chi_delayed[g][j];
+          chi[g] += beta[g] * precursor_yield[j] * chi_delayed[g][j];
       }
 
       // Check values
@@ -298,7 +296,7 @@ CrossSections::reconcile_fission_properties()
       assert(std::abs(chi_sum - 1.0) < 1.0e-12);
     }//if precursors
 
-    // Total fission only
+      // Total fission only
     else
     {
       assert(has_chi && has_nu && (has_nusigf || has_sigf));
@@ -332,9 +330,9 @@ CrossSections::reconcile_fission_properties()
     // Compute nu_sigma_f terms
     for (unsigned int g = 0; g < n_groups; ++g)
     {
-      nu_sigma_f[g] = nu[g]*sigma_f[g];
-      nu_prompt_sigma_f[g] = nu_prompt[g]*sigma_f[g];
-      nu_delayed_sigma_f[g] = nu_delayed[g]*sigma_f[g];
+      nu_sigma_f[g] = nu[g] * sigma_f[g];
+      nu_prompt_sigma_f[g] = nu_prompt[g] * sigma_f[g];
+      nu_delayed_sigma_f[g] = nu_delayed[g] * sigma_f[g];
     }
   }//if fissile
 }
@@ -370,6 +368,6 @@ CrossSections::compute_macroscopic_cross_sections()
   if (sum < 1.0e-12)
   {
     for (unsigned int g = 0; g < n_groups; ++g)
-      diffusion_coeff[g] = 1.0/(3.0*sigma_t[g]);
+      diffusion_coeff[g] = 1.0 / (3.0 * sigma_t[g]);
   }
 }

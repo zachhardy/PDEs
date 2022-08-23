@@ -74,7 +74,7 @@ read_xs_file(const std::string file_name,
 
       line_stream >> scattering_order;
       transfer_matrices.resize(scattering_order + 1);
-      for (auto& transfer_matrix : transfer_matrices)
+      for (auto& transfer_matrix: transfer_matrices)
         transfer_matrix.resize(n_groups, std::vector<double>(n_groups));
     }
     if (word == "NUM_PRECURSORS")
@@ -99,14 +99,14 @@ read_xs_file(const std::string file_name,
     if (word == "SIGMA_F_BEGIN")
     {
       read_cross_section("SIGMA_F", sigma_f, f, ls, ln);
-      is_fissile =  (is_fissile) ||
-          std::accumulate(sigma_f.begin(), sigma_f.end(), 0.0) > 1.0e-12;
+      is_fissile = (is_fissile) ||
+                   std::accumulate(sigma_f.begin(), sigma_f.end(), 0.0) > 1.0e-12;
     }
     if (word == "NU_SIGMA_F_BEGIN")
     {
       read_cross_section("NU_SIGMA_F", nu_sigma_f, f, ls, ln);
       is_fissile = (is_fissile) ||
-          std::accumulate(nu_sigma_f.begin(), nu_sigma_f.end(), 0.0) > 1.0e-12;
+                   std::accumulate(nu_sigma_f.begin(), nu_sigma_f.end(), 0.0) > 1.0e-12;
     }
     if (word == "NU_PROMPT_SIGMA_F_BEGIN")
     {
@@ -140,7 +140,7 @@ read_xs_file(const std::string file_name,
     if (word == "VELOCITY_BEGIN" and !found_inv_velocity)
     {
       read_cross_section("VELOCITY", inv_velocity, f, ls, ln);
-      for (auto& v : inv_velocity) v = 1.0/v;
+      for (auto& v: inv_velocity) v = 1.0 / v;
     }
     if (word == "INV_VELOCITY_BEGIN")
     {
@@ -156,7 +156,7 @@ read_xs_file(const std::string file_name,
     // Read transfer matrix
     if (word == "TRANSFER_MOMENTS_BEGIN")
       read_transfer_matrices(
-        "TRANSFER_MOMENTS", transfer_matrices, f, ls, ln);
+          "TRANSFER_MOMENTS", transfer_matrices, f, ls, ln);
 
     // Read delayed neutron data
     if (n_precursors > 0)

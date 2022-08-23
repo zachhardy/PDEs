@@ -5,8 +5,8 @@
 
 #include "timer.h"
 
-#include "LinearSolvers/iterative_solvers.h"
-#include "LinearSolvers/direct_solvers.h"
+#include "Math/LinearSolvers/Iterative/cg.h"
+#include "Math/LinearSolvers/Direct/cholesky.h"
 #include "LinearSolvers/PETSc/petsc_solver.h"
 
 #include "NeutronDiffusion/KEigenvalueSolver/keigenvalue_solver.h"
@@ -23,7 +23,6 @@ using namespace LinearSolvers;
 using namespace NeutronDiffusion;
 
 
-
 int main(int argc, char** argv)
 {
   //============================================================
@@ -32,7 +31,7 @@ int main(int argc, char** argv)
 
   size_t n_cells = 100;
   double slab_width = 6.0;
-  double cell_width = slab_width/(double)n_cells;
+  double cell_width = slab_width / (double) n_cells;
 
   std::vector<double> vertices(1, 0.0);
   for (size_t i = 0; i < n_cells; ++i)
@@ -52,7 +51,7 @@ int main(int argc, char** argv)
   xs->read_xs_file("Problems/Sphere3g/xs/base3g.xs", 0.05);
   material->properties.emplace_back(xs);
 
-  const auto n_groups =xs->n_groups;
+  const auto n_groups = xs->n_groups;
 
   // Create the multigroup source
   std::vector<double> mg_source(n_groups, 1.0);
@@ -104,7 +103,7 @@ int main(int argc, char** argv)
   // Run the problem
   //============================================================
 
-  PetscInitialize(&argc,&argv,(char*)0,NULL);
+  PetscInitialize(&argc, &argv, (char*) 0, NULL);
 
   Timer timer;
 

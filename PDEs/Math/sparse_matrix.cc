@@ -16,19 +16,19 @@ using namespace Math;
 
 SparseMatrix::Iterator::Entry::
 Entry(const size_t row, const size_t column, double& value) :
-  row(row), column(column), value(value)
+    row(row), column(column), value(value)
 {}
 
 
 SparseMatrix::Iterator::
 Iterator(SparseMatrix* matrix, const size_t row, const unsigned int index) :
-  matrix(matrix), row(row), index(index)
+    matrix(matrix), row(row), index(index)
 {}
 
 
 SparseMatrix::Iterator::
 Iterator(SparseMatrix* matrix) :
-  matrix(matrix), row(-1), index(-1)
+    matrix(matrix), row(-1), index(-1)
 {}
 
 
@@ -107,7 +107,7 @@ SparseMatrix::Iterator::advance()
     if (row + 1 < matrix->n_rows())
       *this = matrix->begin(row + 1);
 
-    // If no more rows exist, set to invald
+      // If no more rows exist, set to invald
     else
       *this = matrix->end();
   }
@@ -221,7 +221,7 @@ SparseMatrix::ConstIterator::advance()
 
 SparseMatrix::RowIterator::
 RowIterator(SparseMatrix* matrix, const size_t row) :
-  matix(matrix), row(row)
+    matix(matrix), row(row)
 {}
 
 
@@ -289,8 +289,8 @@ SparseMatrix::reinit(const size_t n_rows, const size_t n_cols)
 SparseMatrix&
 SparseMatrix::operator=(const double value)
 {
-  for (auto& row : values)
-    for (auto& el : row)
+  for (auto& row: values)
+    for (auto& el: row)
       el = value;
   return *this;
 }
@@ -343,8 +343,7 @@ size_t
 SparseMatrix::n_nonzero_entries() const
 {
   return std::accumulate(colnums.begin(), colnums.end(), 0,
-                         [](size_t v, const std::vector<size_t>& row)
-                         { return v + row.size(); });
+                         [](size_t v, const std::vector<size_t>& row) { return v + row.size(); });
 }
 
 
@@ -414,7 +413,7 @@ SparseMatrix::operator!=(const SparseMatrix& other) const
 SparseMatrix::Iterator
 SparseMatrix::begin()
 {
-  return (rows > 0)? begin(0) : end();
+  return (rows > 0) ? begin(0) : end();
 }
 
 
@@ -449,14 +448,14 @@ SparseMatrix::Iterator
 SparseMatrix::end(const size_t row)
 {
   assert(row < rows);
-  return (row + 1 == rows)? end() : begin(row + 1);
+  return (row + 1 == rows) ? end() : begin(row + 1);
 }
 
 
 SparseMatrix::ConstIterator
 SparseMatrix::begin() const
 {
-  return (rows > 0)? begin(0) : end();
+  return (rows > 0) ? begin(0) : end();
 }
 
 
@@ -491,7 +490,7 @@ SparseMatrix::ConstIterator
 SparseMatrix::end(const size_t row) const
 {
   assert(row < rows);
-  return (row + 1 == rows)? end() : begin(row + 1);
+  return (row + 1 == rows) ? end() : begin(row + 1);
 }
 
 
@@ -650,8 +649,8 @@ SparseMatrix::swap(SparseMatrix& other)
 SparseMatrix&
 SparseMatrix::scale(const double factor)
 {
-  for (auto& row_vals : values)
-    for (auto& el : row_vals)
+  for (auto& row_vals: values)
+    for (auto& el: row_vals)
       el *= factor;
   return *this;
 }
@@ -689,7 +688,7 @@ SparseMatrix&
 SparseMatrix::operator/=(const double factor)
 {
   assert(factor != 0.0);
-  return scale(1.0/factor);
+  return scale(1.0 / factor);
 }
 
 
@@ -697,7 +696,7 @@ SparseMatrix
 SparseMatrix::operator/(const double factor) const
 {
   assert(factor != 0.0);
-  return SparseMatrix(*this).scale(1.0/factor);
+  return SparseMatrix(*this).scale(1.0 / factor);
 }
 
 
@@ -724,7 +723,6 @@ SparseMatrix::sadd(const double a,
 {
   return sadd(a, 1.0, B);
 }
-
 
 
 SparseMatrix&
@@ -776,9 +774,9 @@ SparseMatrix::vmult(const Vector& x, Vector& y, const bool adding) const
     const double* a_ij = &values[row][0];
     const double* const eor = a_ij + row_length(row);
 
-    double val = adding? *dst_ptr : 0.0;
+    double val = adding ? *dst_ptr : 0.0;
     while (a_ij != eor)
-      val += *a_ij++*x[*col_ptr++];
+      val += *a_ij++ * x[*col_ptr++];
     *dst_ptr++ = val;
   }
 }
@@ -823,7 +821,7 @@ SparseMatrix::Tvmult(const Vector& x, Vector& y, const bool adding) const
     const double* const eor = a_ij + row_length(row);
 
     while (a_ij != eor)
-      dst_ptr[*col_ptr++] += *a_ij++**x_ptr;
+      dst_ptr[*col_ptr++] += *a_ij++ * *x_ptr;
   }
 }
 
@@ -859,7 +857,7 @@ SparseMatrix::str(const bool formatted,
   else
     ss.setf(std::ios::fixed, std::ios::floatfield);
   if (!width)
-    w = scientific? precision + 9 : precision + 4;
+    w = scientific ? precision + 9 : precision + 4;
 
   if (formatted)
   {
@@ -875,8 +873,7 @@ SparseMatrix::str(const bool formatted,
       }
       ss << std::endl;
     }
-  }
-  else
+  } else
   {
     ss << "(row, column):\tvalue" << std::endl
        << "-----------------------" << std::endl;
@@ -888,7 +885,6 @@ SparseMatrix::str(const bool formatted,
   }
   return ss.str();
 }
-
 
 
 void
@@ -920,7 +916,7 @@ SparseMatrix::print_row(const size_t row,
 
   os << "(row,col):\tvalue" << std::endl
      << "----------------" << std::endl;
-  for (const auto& el : row_iterator(row))
+  for (const auto& el: row_iterator(row))
     os << "(" << el.row
        << ", " << el.column
        << ")\t" << el.value << std::endl;

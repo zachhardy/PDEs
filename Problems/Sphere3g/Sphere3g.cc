@@ -5,8 +5,8 @@
 
 #include "timer.h"
 
-#include "LinearSolvers/iterative_solvers.h"
-#include "LinearSolvers/direct_solvers.h"
+#include "Math/LinearSolvers/Iterative/cg.h"
+#include "Math/LinearSolvers/Direct/cholesky.h"
 #include "LinearSolvers/PETSc/petsc_solver.h"
 
 #include "NeutronDiffusion/SteadyStateSolver/steadystate_solver.h"
@@ -23,7 +23,6 @@ using namespace Math;
 using namespace Physics;
 using namespace LinearSolvers;
 using namespace NeutronDiffusion;
-
 
 
 int main(int argc, char** argv)
@@ -53,7 +52,7 @@ int main(int argc, char** argv)
   //============================================================
 
   size_t n_cells = 100;
-  double cell_width = radius/(double)n_cells;
+  double cell_width = radius / (double) n_cells;
 
   std::vector<double> vertices(1, 0.0);
   for (size_t i = 0; i < n_cells; ++i)
@@ -74,7 +73,7 @@ int main(int argc, char** argv)
   xs->transfer_matrices[0][1][0] = sigs_01 * density;
   material->properties.emplace_back(xs);
 
-  const auto n_groups =xs->n_groups;
+  const auto n_groups = xs->n_groups;
 
   // Create the multigroup source
   std::vector<double> mg_source(n_groups, 1.0);
@@ -134,8 +133,7 @@ int main(int argc, char** argv)
   solver.write_outputs = true;
   solver.output_directory = outdir;
 
-  auto ic = [radius](const Point p)
-  { return 1.0 - p.z()*p.z()/(radius*radius); };
+  auto ic = [radius](const Point p) { return 1.0 - p.z() * p.z() / (radius * radius); };
   solver.initial_conditions[0] = ic;
   solver.initial_conditions[1] = ic;
 
@@ -147,7 +145,7 @@ int main(int argc, char** argv)
   // Run the problem
   //============================================================
 
-  PetscInitialize(&argc,&argv,(char*)0,NULL);
+  PetscInitialize(&argc, &argv, (char*) 0, NULL);
 
   Timer timer;
 

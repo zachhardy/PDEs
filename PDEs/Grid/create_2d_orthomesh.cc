@@ -62,7 +62,7 @@ Grid::create_2d_orthomesh(const std::vector<double>& x_vertices,
     {
       // Initialize the cell
       Cell cell(CellType::QUADRILATERAL);
-      cell.id = i*(n_x - 1) + j;
+      cell.id = i * (n_x - 1) + j;
 
       // Vertices are numbered from lower-left, counter-clockwise
       cell.vertex_ids = {vmap[i][j], vmap[i][j + 1],
@@ -115,7 +115,7 @@ Grid::create_2d_orthomesh(const std::vector<double>& x_vertices,
       // Add the cell to the mesh
       mesh->ijk_mapping.push_back({j, i});
       mesh->cells.push_back(cell);
-      for (const auto& face : cell.faces)
+      for (const auto& face: cell.faces)
         if (not face.has_neighbor)
           mesh->boundary_cell_ids.push_back(cell.id);
     }
@@ -126,17 +126,15 @@ Grid::create_2d_orthomesh(const std::vector<double>& x_vertices,
   if (verbose)
   {
     double n_faces = 0;
-    for (const auto& cell : mesh->cells)
-      for (const auto& face : cell.faces)
-        n_faces += (face.has_neighbor)? 0.5 : 1.0;
+    for (const auto& cell: mesh->cells)
+      for (const auto& face: cell.faces)
+        n_faces += (face.has_neighbor) ? 0.5 : 1.0;
 
     std::cout << "Mesh Details:\n"
               << "\t# of Vertices: " << mesh->vertices.size() << "\n"
               << "\t# of Cells:    " << mesh->cells.size() << "\n"
-              << "\t# of Faces:    " << (size_t)n_faces << "\n";
+              << "\t# of Faces:    " << (size_t) n_faces << "\n";
   }
-
-
 
 
   return mesh;

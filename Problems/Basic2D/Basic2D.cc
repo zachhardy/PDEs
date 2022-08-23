@@ -5,8 +5,8 @@
 
 #include "timer.h"
 
-#include "LinearSolvers/iterative_solvers.h"
-#include "LinearSolvers/direct_solvers.h"
+#include "Math/LinearSolvers/Iterative/cg.h"
+#include "Math/LinearSolvers/Direct/cholesky.h"
 #include "LinearSolvers/PETSc/petsc_solver.h"
 
 #include "NeutronDiffusion/KEigenvalueSolver/keigenvalue_solver.h"
@@ -101,7 +101,7 @@ int main(int argc, char** argv)
   // Run the problem
   //============================================================
 
-  PetscInitialize(&argc,&argv,(char*)0,NULL);
+  PetscInitialize(&argc, &argv, (char*) 0, NULL);
 
   Timer timer;
 

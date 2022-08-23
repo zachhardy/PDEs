@@ -11,7 +11,7 @@ using namespace Math;
 
 
 Vector::Vector(const std::initializer_list<double>& list) :
-  Vector(list.begin(), list.end())
+    Vector(list.begin(), list.end())
 {}
 
 
@@ -21,11 +21,12 @@ Vector::Vector(const InputIterator first, const InputIterator last)
   reinit(std::distance(first, last));
   std::copy(first, last, begin());
 }
+
 template Vector::Vector(const double*, const double*);
 
 
 Vector::Vector(const size_t n, const double value) :
-  values(n, value)
+    values(n, value)
 {}
 
 
@@ -83,8 +84,7 @@ size_t
 Vector::n_nonzero_entries() const
 {
   return std::count_if(values.begin(), values.end(),
-                       [](const double v)
-                       { return v != 0.0; });
+                       [](const double v) { return v != 0.0; });
 }
 
 
@@ -276,7 +276,7 @@ Vector::equal(const Vector& y, const double factor)
 Vector&
 Vector::fabs()
 {
-  for (auto& el : values)
+  for (auto& el: values)
     el = std::fabs(el);
   return *this;
 }
@@ -295,7 +295,7 @@ Vector::dot(const Vector& y) const
   assert(size() == y.size());
   double c = 0.0;
   for (size_t i = 0; i < size(); ++i)
-    c += values[i]*y.values[i];
+    c += values[i] * y.values[i];
   return c;
 }
 
@@ -304,7 +304,7 @@ double
 Vector::linfty_norm() const
 {
   double norm = 0.0;
-  for (const auto& el : values)
+  for (const auto& el: values)
     if (std::fabs(el) > norm)
       norm = std::fabs(el);
   return norm;
@@ -315,7 +315,7 @@ double
 Vector::l1_norm() const
 {
   double norm = 0.0;
-  for (const auto& el : values)
+  for (const auto& el: values)
     norm += std::fabs(el);
   return norm;
 }
@@ -325,8 +325,8 @@ double
 Vector::l2_norm() const
 {
   double norm = 0.0;
-  for (const auto& el : values)
-    norm += std::fabs(el)*std::fabs(el);
+  for (const auto& el: values)
+    norm += std::fabs(el) * std::fabs(el);
   return std::sqrt(norm);
 }
 
@@ -335,16 +335,16 @@ double
 Vector::lp_norm(const double p) const
 {
   double norm = 0.0;
-  for (const auto& el : values)
+  for (const auto& el: values)
     norm += std::pow(std::fabs(el), p);
-  return std::pow(norm, 1.0/p);
+  return std::pow(norm, 1.0 / p);
 }
 
 
 Vector&
 Vector::scale(const double factor)
 {
-  for (auto& el : values)
+  for (auto& el: values)
     el *= factor;
   return *this;
 }
@@ -399,7 +399,7 @@ Vector&
 Vector::operator/=(const double factor)
 {
   assert(factor != 0.0);
-  return scale(1.0/factor);
+  return scale(1.0 / factor);
 }
 
 
@@ -407,14 +407,14 @@ Vector
 Vector::operator/(const double factor) const
 {
   assert(factor != 0.0);
-  return Vector(*this).scale(1.0/factor);
+  return Vector(*this).scale(1.0 / factor);
 }
 
 
 Vector&
 Vector::shift(const double value)
 {
-  for (auto& el : values)
+  for (auto& el: values)
     el += value;
   return *this;
 }
@@ -490,12 +490,11 @@ Vector::str(const bool scientific,
   if (scientific)
   {
     ss.setf(std::ios::scientific, std::ios::floatfield);
-    w = (!width)? precision + 10 : w;
-  }
-  else
+    w = (!width) ? precision + 10 : w;
+  } else
   {
     ss.setf(std::ios::fixed, std::ios::floatfield);
-    w = (!width)? precision + 5 : w;
+    w = (!width) ? precision + 5 : w;
   }
 
   ss << "[";

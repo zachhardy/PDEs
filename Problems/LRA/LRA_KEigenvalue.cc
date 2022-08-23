@@ -5,8 +5,8 @@
 
 #include "timer.h"
 
-#include "LinearSolvers/iterative_solvers.h"
-#include "LinearSolvers/direct_solvers.h"
+#include "Math/LinearSolvers/Iterative/cg.h"
+#include "Math/LinearSolvers/Direct/cholesky.h"
 #include "LinearSolvers/PETSc/petsc_solver.h"
 
 #include "NeutronDiffusion/TransientSolver/transient_solver.h"
@@ -60,7 +60,7 @@ int main(int argc, char** argv)
 
   auto mesh = create_2d_orthomesh(x_verts, y_verts);
 
-  for (auto& cell : mesh->cells)
+  for (auto& cell: mesh->cells)
   {
     auto& c = cell.centroid;
     if (c.x() < 15.0)
@@ -70,35 +70,30 @@ int main(int argc, char** argv)
       else if (c.y() > 75.0 and c.y() < 105.0) cell.material_id = 1;
       else if (c.y() > 105.0 and c.y() < 135.0) cell.material_id = 2;
       else cell.material_id = 5;
-    }
-    else if (c.x() > 15.0 and c.x() < 75.0)
+    } else if (c.x() > 15.0 and c.x() < 75.0)
     {
       if (c.y() < 105.0) cell.material_id = 0;
       else if (c.y() > 105.0 and c.y() < 135.0) cell.material_id = 2;
       else cell.material_id = 5;
-    }
-    else if (c.x() > 75.0 and c.x() < 105.0)
+    } else if (c.x() > 75.0 and c.x() < 105.0)
     {
       if (c.y() < 15.0) cell.material_id = 1;
       else if (c.y() > 15.0 and c.y() < 75.0) cell.material_id = 0;
       else if (c.y() > 75.0 and c.y() < 105.0) cell.material_id = 1;
       else if (c.y() > 105.0 and c.y() < 135.0) cell.material_id = 2;
       else cell.material_id = 5;
-    }
-    else if (c.x() > 105.0 and c.x() < 120.0)
+    } else if (c.x() > 105.0 and c.x() < 120.0)
     {
       if (c.y() < 75.0) cell.material_id = 2;
       else if (c.y() > 75.0 and c.y() < 105.0) cell.material_id = 4;
       else if (c.y() > 105.0 and c.y() < 120.0) cell.material_id = 3;
       else cell.material_id = 5;
-    }
-    else if (c.x() > 120.0 and c.x() < 135.0)
+    } else if (c.x() > 120.0 and c.x() < 135.0)
     {
       if (c.y() < 75.0) cell.material_id = 2;
       else if (c.y() > 75.0 and c.y() < 105.0) cell.material_id = 4;
       else cell.material_id = 5;
-    }
-    else
+    } else
       cell.material_id = 5;
   }
 
@@ -112,8 +107,7 @@ int main(int argc, char** argv)
       [magnitude, duration, feedback, T0](
           const unsigned int group_num,
           const std::vector<double>& args,
-          const double reference)
-      {
+          const double reference) {
         const double t = args[0], T = args[1];
 
         if (group_num == 0)
@@ -124,8 +118,7 @@ int main(int argc, char** argv)
             return (1.0 + t / duration * magnitude) * reference;
           else
             return (1.0 + magnitude) * reference;
-        }
-        else
+        } else
           return reference;
       };
 
@@ -133,8 +126,7 @@ int main(int argc, char** argv)
       [feedback, T0](
           const unsigned int group_num,
           const std::vector<double>& args,
-          const double reference)
-      {
+          const double reference) {
         const double T = args[1];
 
         if (group_num == 0)
@@ -195,7 +187,7 @@ int main(int argc, char** argv)
   KEigenvalueSolver solver;
 
   solver.mesh = mesh;
-  for (auto& material : materials)
+  for (auto& material: materials)
     solver.materials.emplace_back(material);
   solver.linear_solver = linear_solver;
 
@@ -227,7 +219,7 @@ int main(int argc, char** argv)
   // Run the problem
   //============================================================
 
-  PetscInitialize(&argc,&argv,(char*)0,NULL);
+  PetscInitialize(&argc, &argv, (char*) 0, NULL);
 
   Timer timer;
 

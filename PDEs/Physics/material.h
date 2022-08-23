@@ -121,7 +121,7 @@ namespace PDEs
        * Default constructor. Construct an isotropic multi-group source from a
        * vector of values.
        */
-      IsotropicMultiGroupSource(const std::vector<double> src);
+      IsotropicMultiGroupSource(const std::vector<double>& src);
 
     };
 

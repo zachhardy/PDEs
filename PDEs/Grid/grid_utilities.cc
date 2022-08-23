@@ -14,10 +14,14 @@ Grid::coordinate_system_str(const CoordinateSystemType coord_sys)
 {
   switch (coord_sys)
   {
-    case CoordinateSystemType::CARTESIAN: return "CARTESIAN";
-    case CoordinateSystemType::CYLINDRICAL: return "CYLINDRICAL";
-    case CoordinateSystemType::SPHERICAL: return "SPHERICAL";
-    default: return "UNDEFINED";
+    case CoordinateSystemType::CARTESIAN:
+      return "CARTESIAN";
+    case CoordinateSystemType::CYLINDRICAL:
+      return "CYLINDRICAL";
+    case CoordinateSystemType::SPHERICAL:
+      return "SPHERICAL";
+    default:
+      return "UNDEFINED";
   }
 }
 
@@ -27,17 +31,22 @@ Grid::cell_type_str(const CellType cell_type)
 {
   switch (cell_type)
   {
-    case CellType::SLAB: return "SLAB";
-    case CellType::ANNULUS: return "ANNULUS";
-    case CellType::SHELL: return "SHELL";
-    case CellType::QUADRILATERAL: return "QUADRILATERAL";
-    default: return "UNDEFINED";
+    case CellType::SLAB:
+      return "SLAB";
+    case CellType::ANNULUS:
+      return "ANNULUS";
+    case CellType::SHELL:
+      return "SHELL";
+    case CellType::QUADRILATERAL:
+      return "QUADRILATERAL";
+    default:
+      return "UNDEFINED";
   }
 }
 
 
 Grid::Cell::Cell(const CellType cell_type) :
-  type(cell_type)
+    type(cell_type)
 {}
 
 
@@ -53,13 +62,13 @@ Grid::Cell::str() const
 
   ss << "n_vertex_ids: " << vertex_ids.size() << "\n";
   ss << "vertices: [ ";
-  for (auto& v_id : vertex_ids)
+  for (auto& v_id: vertex_ids)
     ss << v_id << " ";
   ss << "]\n";
 
   int f = 0;
   ss << "n_faces: " << faces.size() << "\n";
-  for (auto& face : faces)
+  for (auto& face: faces)
     ss << "--- Face " << f++ << " ---\n"
        << face.str();
 
@@ -73,7 +82,7 @@ Grid::Face::str() const
   std::stringstream ss;
   ss << "n_vertex_ids: " << vertex_ids.size() << "\n";
   ss << "vertices: [ ";
-  for (auto& v_id : vertex_ids)
+  for (auto& v_id: vertex_ids)
     ss << v_id << " ";
   ss << "]\n";
 

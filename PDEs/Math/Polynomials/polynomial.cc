@@ -11,7 +11,6 @@ using namespace Math;
 using namespace Polynomials;
 
 
-
 double
 Polynomials::legendre(const unsigned int n, const double x)
 {
@@ -21,7 +20,7 @@ Polynomials::legendre(const unsigned int n, const double x)
   double P_m = 1.0, P = x, P_p;
   for (unsigned int p = 2; p <= n; ++p)
   {
-    P_p = (2.0*p - 1.0)/p * x * P - (p - 1.0)/p * P_m;
+    P_p = (2.0 * p - 1.0) / p * x * P - (p - 1.0) / p * P_m;
     P_m = P;
     P = P_p;
   }
@@ -39,9 +38,9 @@ Polynomials::dlegendre(const unsigned int n, const double x)
   double x_s = x;
   const double e_mach = std::numeric_limits<double>::epsilon();
   if (x == -1.0) x_s += 4.0 * e_mach;
-  if (x == 1.0)  x_s -= 4.0 * e_mach;
+  if (x == 1.0) x_s -= 4.0 * e_mach;
 
-  return n/(x_s*x_s - 1.0) * (x_s*legendre(n, x_s) - legendre(n - 1, x_s));
+  return n / (x_s * x_s - 1.0) * (x_s * legendre(n, x_s) - legendre(n - 1, x_s));
 }
 
 
@@ -53,8 +52,8 @@ Polynomials::d2legendre(const unsigned int n, const double x)
 
   // Invalid at x = -1 and x = 1, add or subtract epsilon
   double x_s = x;
-  if (x == -1.0) x_s += 4.0*std::numeric_limits<double>::epsilon();
-  if (x == 1.0)  x_s -= 4.0*std::numeric_limits<double>::epsilon();
+  if (x == -1.0) x_s += 4.0 * std::numeric_limits<double>::epsilon();
+  if (x == 1.0) x_s -= 4.0 * std::numeric_limits<double>::epsilon();
 
   // Compute an epsilon for the numerical derivative
   const double e_mach = std::numeric_limits<double>::epsilon();
@@ -80,7 +79,7 @@ Polynomials::chebyshev(const unsigned int n, const double x)
   double T_m = 1.0, T = x, T_p;
   for (unsigned int p = 2; p <= n; ++p)
   {
-    T_p = 2.0*x * T - T_m;
+    T_p = 2.0 * x * T - T_m;
     T_m = T;
     T = T_p;
   }

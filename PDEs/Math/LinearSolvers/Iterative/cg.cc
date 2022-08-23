@@ -1,4 +1,4 @@
-#include "../iterative_solvers.h"
+#include "cg.h"
 
 #include "vector.h"
 #include "Math/sparse_matrix.h"
@@ -13,7 +13,7 @@ using namespace LinearSolvers;
 
 
 CG::CG(const Options& opts) :
-  IterativeSolverBase(opts, "CG")
+    IterativeSolverBase(opts, "CG")
 {}
 
 
@@ -38,7 +38,7 @@ CG::solve(Vector& x, const Vector& b) const
   /* Initialize residual, residual norms, and search directions.
    * If the residual norm is smaller than the tolerance, exit because
    * the initial guess is the solution. */
-  r = (x.n_nonzero_entries() > 0)? b - A->vmult(x) : b;
+  r = (x.n_nonzero_entries() > 0) ? b - A->vmult(x) : b;
   res = res_prev = r.dot(r);
   if (res < tolerance)
     return;
@@ -52,7 +52,7 @@ CG::solve(Vector& x, const Vector& b) const
     A->vmult(p, q);
 
     // Recompute alpha factor
-    alpha = res_prev/p.dot(q);
+    alpha = res_prev / p.dot(q);
 
     // Update solution and residual vector
     x.add(alpha, p);
@@ -62,12 +62,12 @@ CG::solve(Vector& x, const Vector& b) const
     res = r.dot(r);
 
     // Check convergence
-    bool converged = check(nit + 1, std::sqrt(res)/norm);
+    bool converged = check(nit + 1, std::sqrt(res) / norm);
     if (converged)
       break;
 
     // If not converged, prep for next iteration
-    p.sadd(res/res_prev, r);
+    p.sadd(res / res_prev, r);
     res_prev = res;
   }
 }

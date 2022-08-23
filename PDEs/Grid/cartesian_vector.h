@@ -11,6 +11,7 @@ namespace PDEs
   {
     // Useful Aliases
     class CartesianVector;
+
     using Point = CartesianVector;
     using Vertex = CartesianVector;
     using Node = CartesianVector;

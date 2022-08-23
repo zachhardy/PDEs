@@ -1,7 +1,7 @@
-#include "../iterative_solvers.h"
+#include "jacobi.h"
 
 #include "vector.h"
-#include "Math/sparse_matrix.h"
+#include "sparse_matrix.h"
 
 #include <cassert>
 #include <cmath>
@@ -13,7 +13,7 @@ using namespace LinearSolvers;
 
 
 Jacobi::Jacobi(const Options& opts) :
-  IterativeSolverBase(opts, "Jacobi")
+    IterativeSolverBase(opts, "Jacobi")
 {}
 
 
@@ -36,13 +36,13 @@ Jacobi::solve(Vector& x, const Vector& b) const
     {
       // Compute element-wise update
       double value = b[i];
-      for (const auto el : A->row_iterator(i))
+      for (const auto el: A->row_iterator(i))
         if (el.column != i)
           value -= el.value * x_ell[el.column];
       value /= A->diag(i);
 
       // Increment difference
-      change += std::fabs(value - x_ell[i])/std::fabs(b[i]);
+      change += std::fabs(value - x_ell[i]) / std::fabs(b[i]);
       x[i] = value;
     }
 

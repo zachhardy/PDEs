@@ -89,7 +89,7 @@ LinearSolvers::gaussian_elimination<Matrix>(
     double value = b[i];
     for (size_t j = i + 1; j < n; ++j, ++a_i)
       value -= *a_i * x[j];
-    x[i] = value/a_ii;
+    x[i] = value / a_ii;
   }
   return x;
 }
@@ -152,11 +152,11 @@ LinearSolvers::gaussian_elimination<SparseMatrix>(
       const double a_ij = A.el(i, j);
       if (a_ij != 0.0)
       {
-        const double factor = a_ij/a_jj;
-        for (const auto el : A.row_iterator(j))
+        const double factor = a_ij / a_jj;
+        for (const auto el: A.row_iterator(j))
           if (el.column >= j)
             A.add(i, el.column, -el.value * factor);
-        b[i] -= b[j]*factor;
+        b[i] -= b[j] * factor;
       }
     }
   }
@@ -169,7 +169,7 @@ LinearSolvers::gaussian_elimination<SparseMatrix>(
   for (size_t i = n - 1; i != -1; --i)
   {
     double value = b[i];
-    for (const auto el : A.row_iterator(i))
+    for (const auto el: A.row_iterator(i))
       if (el.column > i)
         value -= el.value * x[el.column];
     x[i] = value / A.diag(i);
