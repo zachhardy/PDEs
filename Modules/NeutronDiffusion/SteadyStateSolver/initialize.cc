@@ -22,7 +22,7 @@ initialize()
   //============================================================
 
   assert(mesh != nullptr);
-  assert(mesh->dim < 3);
+  assert(mesh->dimension < 3);
 
   //============================================================
   // Initialize the discretization

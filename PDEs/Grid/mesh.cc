@@ -25,7 +25,7 @@ coordinate_system_str(const CoordinateSystemType coord_sys)
 
 Mesh::Mesh(const unsigned int dimension,
            const CoordinateSystemType coordinate_system) :
-  dim(dimension), coord_sys(coordinate_system)
+  dimension(dimension), coordinate_system(coordinate_system)
 {}
 
 
@@ -105,7 +105,8 @@ Mesh::establish_connectivity()
 void
 Mesh::compute_geometric_info()
 {
-  assert(dim < 3);
+  assert(dimension < 3);
+
   std::cout << "Computing geometric information on cells and faces.\n";
 
   // Loop over cells
@@ -167,8 +168,7 @@ Mesh::compute_geometric_info()
       }// if 1D
       else if (face.vertex_ids.size() == 2)
       {
-        assert(coord_sys == CoordinateSystemType::CARTESIAN);
-
+        assert(coordinate_system == CoordinateSystemType::CARTESIAN);
         const auto& v0 = vertices[face.vertex_ids[0]];
         const auto& v1 = vertices[face.vertex_ids[1]];
         face.area = v1.distance(v0);

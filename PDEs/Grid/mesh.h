@@ -48,12 +48,12 @@ namespace PDEs
       /**
        * The spatial dimension of the mesh.
        */
-      const unsigned int dim;
+      const unsigned int dimension;
 
       /**
        * The coordinate system the mesh is defined in.
        */
-      const CoordinateSystemType coord_sys;
+      const CoordinateSystemType coordinate_system;
 
       /**
        * A list of the vertices on the mesh.
