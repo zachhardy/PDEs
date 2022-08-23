@@ -7,13 +7,17 @@
 #include <numeric>
 
 
-Physics::CrossSections::CrossSections() :
+using namespace PDEs;
+using namespace Physics;
+
+
+CrossSections::CrossSections() :
   MaterialProperty(MaterialPropertyType::CROSS_SECTIONS)
 {}
 
 
 void
-Physics::CrossSections::reset()
+CrossSections::reset()
 {
   n_groups = 0;
   n_precursors = 0;
@@ -51,7 +55,7 @@ Physics::CrossSections::reset()
 
 
 void
-Physics::CrossSections::compute_scattering_from_transfers()
+CrossSections::compute_scattering_from_transfers()
 {
   sigma_s.assign(n_groups, 0.0);
   if (transfer_matrices.empty())
@@ -77,7 +81,7 @@ Physics::CrossSections::compute_scattering_from_transfers()
 
 
 void
-Physics::CrossSections::reconcile_cross_sections()
+CrossSections::reconcile_cross_sections()
 {
 
   // Determine whether sigma_a was specified
@@ -108,7 +112,7 @@ Physics::CrossSections::reconcile_cross_sections()
 
 
 void
-Physics::CrossSections::reconcile_fission_properties()
+CrossSections::reconcile_fission_properties()
 {
   auto check_xs = [](std::vector<double> x)
   {
@@ -340,7 +344,7 @@ Physics::CrossSections::reconcile_fission_properties()
 
 
 void
-Physics::CrossSections::compute_macroscopic_cross_sections()
+CrossSections::compute_macroscopic_cross_sections()
 {
   for (unsigned int g = 0; g < n_groups; ++g)
   {

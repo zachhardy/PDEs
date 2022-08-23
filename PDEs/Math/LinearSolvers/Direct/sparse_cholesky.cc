@@ -1,13 +1,15 @@
 #include "../direct_solvers.h"
 
 #include "vector.h"
-#include "Sparse/sparse_matrix.h"
+#include "Math/sparse_matrix.h"
 
 #include <cmath>
 #include <cassert>
 
 
-using namespace Math::LinearSolver;
+using namespace PDEs;
+using namespace Math;
+using namespace LinearSolvers;
 
 
 SparseCholesky::SparseCholesky() :

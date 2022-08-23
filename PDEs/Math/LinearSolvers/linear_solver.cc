@@ -2,14 +2,15 @@
 
 #include "vector.h"
 #include "matrix.h"
-#include "Sparse/sparse_matrix.h"
+#include "Math/sparse_matrix.h"
 
 #include <iomanip>
 #include <cassert>
 
 
+using namespace PDEs;
 using namespace Math;
-using namespace LinearSolver;
+using namespace LinearSolvers;
 
 
 template<class MatrixType>
@@ -30,8 +31,8 @@ LinearSolverBase<MatrixType>::set_matrix(const MatrixType& matrix)
 }
 
 
-template class LinearSolver::LinearSolverBase<Matrix>;
-template class LinearSolver::LinearSolverBase<SparseMatrix>;
+template class LinearSolvers::LinearSolverBase<Matrix>;
+template class LinearSolvers::LinearSolverBase<SparseMatrix>;
 
 
 //################################################## DirectSolverBase
@@ -51,8 +52,8 @@ DirectSolverBase<MatrixType>::set_matrix(const MatrixType& matrix)
   A = matrix;
   factorize();
 }
-template class LinearSolver::DirectSolverBase<Matrix>;
-template class LinearSolver::DirectSolverBase<SparseMatrix>;
+template class LinearSolvers::DirectSolverBase<Matrix>;
+template class LinearSolvers::DirectSolverBase<SparseMatrix>;
 
 
 Options::Options(const double tolerance,

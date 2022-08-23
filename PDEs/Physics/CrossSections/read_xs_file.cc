@@ -7,8 +7,12 @@
 #include <cassert>
 
 
+using namespace PDEs;
+using namespace Physics;
+
+
 void
-Physics::CrossSections::
+CrossSections::
 read_xs_file(const std::string file_name,
              const double rho,
              const bool verbose)

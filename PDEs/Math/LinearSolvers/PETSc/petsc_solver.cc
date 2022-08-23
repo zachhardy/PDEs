@@ -1,7 +1,7 @@
 #include "petsc_solver.h"
 
 #include "vector.h"
-#include "Sparse/sparse_matrix.h"
+#include "Math/sparse_matrix.h"
 
 #include "PETScUtils/petsc_utils.h"
 
@@ -10,8 +10,9 @@
 #include <cassert>
 
 
+using namespace PDEs;
 using namespace Math;
-using namespace LinearSolver;
+using namespace LinearSolvers;
 
 
 PETScSolver::PETScSolver(const std::string solver_type,

@@ -7,20 +7,24 @@
 #include <functional>
 
 
-namespace Math
+namespace PDEs
 {
-  /**
-   * Time-stepping method options.
-   */
-  enum class TimeSteppingMethod
+  namespace Math
   {
-    BACKWARD_EULER = 0,
-    CRANK_NICHOLSON = 1,
-    TBDF2 = 2
-  };
+    /**
+     * Time-stepping method options.
+     */
+    enum class TimeSteppingMethod
+    {
+      BACKWARD_EULER = 0,
+      CRANK_NICHOLSON = 1,
+      TBDF2 = 2
+    };
+  }
 }
 
 
+using namespace PDEs;
 using namespace Math;
 
 

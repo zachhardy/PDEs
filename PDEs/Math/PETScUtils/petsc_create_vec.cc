@@ -2,6 +2,7 @@
 #include "vector.h"
 
 
+using namespace PDEs;
 using namespace Math;
 
 

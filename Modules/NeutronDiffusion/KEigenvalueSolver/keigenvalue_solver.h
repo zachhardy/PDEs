@@ -28,6 +28,9 @@ namespace NeutronDiffusion
      */
     unsigned int max_outer_iterations = 1000;
 
+
+    using SteadyStateSolver::initialize;
+
     /**
      * Execute the multi-group diffusion \f$ k \f$-eigenvalue solver.
      */

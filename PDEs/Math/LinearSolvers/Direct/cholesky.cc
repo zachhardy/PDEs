@@ -7,8 +7,9 @@
 #include <cassert>
 
 
+using namespace PDEs;
 using namespace Math;
-using namespace LinearSolver;
+using namespace LinearSolvers;
 
 
 Cholesky::Cholesky() :

@@ -6,6 +6,7 @@
 #include <cmath>
 
 
+using namespace PDEs;
 using namespace Grid;
 
 

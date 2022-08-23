@@ -17,6 +17,15 @@
 #include <vector>
 
 
+using namespace PDEs;
+using namespace Grid;
+using namespace Math;
+using namespace Physics;
+using namespace LinearSolvers;
+using namespace NeutronDiffusion;
+
+
+
 int main(int argc, char** argv)
 {
   double radius = 6.0;
@@ -42,7 +51,6 @@ int main(int argc, char** argv)
   //============================================================
   // Mesh
   //============================================================
-  using namespace Grid;
 
   size_t n_cells = 100;
   double cell_width = radius/(double)n_cells;
@@ -57,7 +65,6 @@ int main(int argc, char** argv)
   //============================================================
   // Materials
   //============================================================
-  using namespace Physics;
 
   auto material = std::make_shared<Material>();
 
@@ -77,7 +84,6 @@ int main(int argc, char** argv)
   //============================================================
   // Linear Solver
   //============================================================
-  using namespace LinearSolver;
 
   Options opts;
   opts.verbosity = 0;
@@ -90,7 +96,6 @@ int main(int argc, char** argv)
   //============================================================
   // Create the diffusion solver
   //============================================================
-  using namespace NeutronDiffusion;
 
   TransientSolver solver;
 

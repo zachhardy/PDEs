@@ -1,15 +1,16 @@
 #include "../iterative_solvers.h"
 
 #include "vector.h"
-#include "Sparse/sparse_matrix.h"
+#include "Math/sparse_matrix.h"
 
 #include "macros.h"
 
 #include <cmath>
 
 
+using namespace PDEs;
 using namespace Math;
-using namespace LinearSolver;
+using namespace LinearSolvers;
 
 
 SSOR::SSOR(const double omega, const Options& opts) :
@@ -28,12 +29,12 @@ SSOR::solve(Vector& x, const Vector& b) const
   double change;
   Vector x_ell = x;
 
-  //======================================== Iteration loop
+  // Iteration loop
   for (nit = 0; nit < max_iterations; ++nit)
   {
     change = 0.0;
 
-    //==================== Compute forward sweep
+    // Compute forward sweep
     for (size_t i = 0; i < n; ++i)
     {
       double s = 0.0;
@@ -45,7 +46,7 @@ SSOR::solve(Vector& x, const Vector& b) const
       x[i] += omega*((b[i] - s)/a_ii - x[i]);
     }
 
-    //==================== Compute backward sweep
+    // Compute backward sweep
     for (size_t i = n - 1; i != -1; --i)
     {
       double s = 0.0;
@@ -58,7 +59,7 @@ SSOR::solve(Vector& x, const Vector& b) const
       change += std::fabs(x[i] - x_ell[i])/std::fabs(b[i]);
     }
 
-    //==================== Check convergence
+    // Check convergence
     x_ell = x;
     if (check(nit + 1, change))
       break;

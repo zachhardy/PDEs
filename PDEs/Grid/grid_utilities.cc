@@ -6,6 +6,9 @@
 #include <sstream>
 
 
+using namespace PDEs;
+
+
 std::string
 Grid::coordinate_system_str(const CoordinateSystemType coord_sys)
 {
@@ -33,7 +36,8 @@ Grid::cell_type_str(const CellType cell_type)
 }
 
 
-Grid::Cell::Cell(const CellType cell_type) : type(cell_type)
+Grid::Cell::Cell(const CellType cell_type) :
+  type(cell_type)
 {}
 
 
@@ -84,9 +88,13 @@ Grid::Face::str() const
 
 std::ostream&
 operator<<(std::ostream& os, const Grid::Cell& cell)
-{ return os << cell.str(); }
+{
+  return os << cell.str();
+}
 
 
 std::ostream&
 operator<<(std::ostream& os, const Grid::Face& face)
-{ return os << face.str(); }
+{
+  return os << face.str();
+}

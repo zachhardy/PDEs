@@ -2,25 +2,30 @@
 
 #include "vector.h"
 #include "matrix.h"
-#include "Sparse/sparse_matrix.h"
+#include "Math/sparse_matrix.h"
 
 #include <cmath>
 #include <cassert>
 
+
+using namespace PDEs;
 using namespace Math;
+using namespace LinearSolvers;
 
 
 template<>
 Vector
-Math::gaussian_elimination<Matrix>(Matrix& A,
-                                   Vector& b,
-                                   const bool pivot)
+LinearSolvers::gaussian_elimination<Matrix>(
+    Matrix& A, Vector& b, const bool pivot)
 {
   assert(A.n_rows() == A.n_cols());
   assert(b.size() == A.n_rows());
   size_t n = b.size();
 
-  //======================================== Row-echelon factorization
+  //========================================
+  // Row-echelon factorization
+  //========================================
+
   // Go through the columns of the matrix
   for (size_t j = 0; j < n; ++j)
   {
@@ -70,7 +75,10 @@ Math::gaussian_elimination<Matrix>(Matrix& A,
     }
   }
 
-  //======================================== Back substitution solve
+  //========================================
+  // Back substitution solve
+  //========================================
+
   Vector x(n, 0.0);
   for (size_t i = n - 1; i != -1; --i)
   {
@@ -89,15 +97,17 @@ Math::gaussian_elimination<Matrix>(Matrix& A,
 
 template<>
 Vector
-Math::gaussian_elimination<SparseMatrix>(SparseMatrix& A,
-                                         Vector& b,
-                                         const bool pivot)
+LinearSolvers::gaussian_elimination<SparseMatrix>(
+    SparseMatrix& A, Vector& b, const bool pivot)
 {
   assert(A.n_rows() == A.n_cols());
   assert(b.size() == A.n_rows());
   size_t n = b.size();
 
-  //======================================== Row-echelon factorization
+  //========================================
+  // Row-echelon factorization
+  //========================================
+
   // Go through the columns of the matrix
   for (size_t j = 0; j < n; ++j)
   {
@@ -151,7 +161,10 @@ Math::gaussian_elimination<SparseMatrix>(SparseMatrix& A,
     }
   }
 
-  //======================================== Back substitution solve
+  //========================================
+  // Back substitution solve
+  //========================================
+
   Vector x(n, 0.0);
   for (size_t i = n - 1; i != -1; --i)
   {

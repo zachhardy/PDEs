@@ -6,6 +6,7 @@
 #include <iomanip>
 
 
+using namespace PDEs;
 using namespace Math;
 
 

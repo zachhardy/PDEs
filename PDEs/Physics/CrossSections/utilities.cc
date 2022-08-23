@@ -6,8 +6,12 @@
 #include <cassert>
 
 
+using namespace PDEs;
+using namespace Physics;
+
+
 void
-Physics::CrossSections::
+CrossSections::
 read_cross_section(const std::string keyword,
                    std::vector<double>& destination,
                    std::ifstream& file,
@@ -40,7 +44,7 @@ read_cross_section(const std::string keyword,
 
 
 void
-Physics::CrossSections::
+CrossSections::
 read_transfer_matrices(const std::string keyword,
                        std::vector<TransferMatrix>& destination,
                        std::ifstream& file,
@@ -77,7 +81,7 @@ read_transfer_matrices(const std::string keyword,
 
 
 void
-Physics::CrossSections::
+CrossSections::
 read_precursor_property(const std::string keyword,
                         std::vector<double>& destination,
                         std::ifstream& file,
@@ -110,7 +114,7 @@ read_precursor_property(const std::string keyword,
 
 
 void
-Physics::CrossSections::
+CrossSections::
 read_delayed_spectra(const std::string keyword,
                      EmissionSpectra& destination,
                      std::ifstream& file,

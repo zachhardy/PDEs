@@ -15,12 +15,19 @@
 #include <vector>
 
 
+using namespace PDEs;
+using namespace Grid;
+using namespace Math;
+using namespace Physics;
+using namespace LinearSolvers;
+using namespace NeutronDiffusion;
+
+
 int main(int argc, char** argv)
 {
   //============================================================
   // Mesh
   //============================================================
-  using namespace Grid;
 
   size_t n_x = 3, n_y = 3;
   double X = 1.0, Y = 1.0;
@@ -39,7 +46,6 @@ int main(int argc, char** argv)
   //============================================================
   // Materials
   //============================================================
-  using namespace Physics;
 
   auto material = std::make_shared<Material>();
 
@@ -52,7 +58,6 @@ int main(int argc, char** argv)
   //============================================================
   // Linear Solver
   //============================================================
-  using namespace LinearSolver;
 
   Options opts;
   opts.verbosity = 0;
@@ -65,7 +70,7 @@ int main(int argc, char** argv)
   //============================================================
   // Create the diffusion solver
   //============================================================
-  using namespace NeutronDiffusion;
+
   KEigenvalueSolver solver;
   solver.mesh = mesh;
   solver.materials.emplace_back(material);

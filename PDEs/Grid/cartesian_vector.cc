@@ -5,6 +5,7 @@
 #include <cassert>
 
 
+using namespace PDEs;
 using namespace Grid;
 
 

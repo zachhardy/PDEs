@@ -4,10 +4,6 @@
 #include <fstream>
 
 
-using namespace Math;
-using namespace Math::LinearSolver;
-
-
 void
 NeutronDiffusion::SteadyStateSolver::execute()
 {

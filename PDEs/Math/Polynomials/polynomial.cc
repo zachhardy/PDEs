@@ -1,4 +1,4 @@
-#include "legendre.h"
+#include "polynomial.h"
 
 #include <cmath>
 #include <limits>
@@ -6,8 +6,14 @@
 #include <cassert>
 
 
+using namespace PDEs;
+using namespace Math;
+using namespace Polynomials;
+
+
+
 double
-Math::legendre(const unsigned int n, const double x)
+Polynomials::legendre(const unsigned int n, const double x)
 {
   if (n == 0) return 1.0;
   if (n == 1) return x;
@@ -24,7 +30,7 @@ Math::legendre(const unsigned int n, const double x)
 
 
 double
-Math::dlegendre(const unsigned int n, const double x)
+Polynomials::dlegendre(const unsigned int n, const double x)
 {
   if (n == 0) return 0.0;
   if (n == 1) return 1.0;
@@ -40,7 +46,7 @@ Math::dlegendre(const unsigned int n, const double x)
 
 
 double
-Math::d2legendre(const unsigned int n, const double x)
+Polynomials::d2legendre(const unsigned int n, const double x)
 {
   if (n == 0) return 0.0;
   if (n == 1) return 0.0;
@@ -66,7 +72,7 @@ Math::d2legendre(const unsigned int n, const double x)
 
 
 std::vector<double>
-Math::legendre_roots(const unsigned int n)
+Polynomials::legendre_roots(const unsigned int n)
 {
   assert(n > 0);
 
@@ -103,3 +109,32 @@ Math::legendre_roots(const unsigned int n)
   std::stable_sort(roots.begin(), roots.end());
   return roots;
 }
+
+
+double
+Polynomials::chebyshev(const unsigned int n, const double x)
+{
+  if (n == 0) return 1.0;
+  if (n == 1) return x;
+
+  double T_m = 1.0, T = x, T_p;
+  for (unsigned int p = 2; p <= n; ++p)
+  {
+    T_p = 2.0*x * T - T_m;
+    T_m = T;
+    T = T_p;
+  }
+  return T_p;
+}
+
+
+std::vector<double>
+Polynomials::chebyshev_roots(const unsigned int n)
+{
+  assert(n > 0);
+  std::vector<double> roots(n);
+  for (unsigned int k = 0; k < n; ++k)
+    roots[k] = -std::cos(M_PI * (k + 0.5)/n);
+  return roots;
+}
+

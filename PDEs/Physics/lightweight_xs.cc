@@ -1,6 +1,7 @@
 #include "lightweight_xs.h"
 
 
+using namespace PDEs;
 using namespace Physics;
 
 LightWeightCrossSections::

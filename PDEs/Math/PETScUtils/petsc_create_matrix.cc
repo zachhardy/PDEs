@@ -2,9 +2,10 @@
 
 #include "vector.h"
 #include "matrix.h"
-#include "Sparse/sparse_matrix.h"
+#include "Math/sparse_matrix.h"
 
 
+using namespace PDEs;
 using namespace Math;
 
 

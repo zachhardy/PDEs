@@ -1,14 +1,15 @@
 #include "../iterative_solvers.h"
 
 #include "vector.h"
-#include "Sparse/sparse_matrix.h"
+#include "Math/sparse_matrix.h"
 
 #include <cmath>
 #include <cassert>
 
 
+using namespace PDEs;
 using namespace Math;
-using namespace Math::LinearSolver;
+using namespace LinearSolvers;
 
 
 CG::CG(const Options& opts) :

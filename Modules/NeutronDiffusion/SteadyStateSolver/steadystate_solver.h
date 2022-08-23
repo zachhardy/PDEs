@@ -7,7 +7,7 @@
 #include "Discretization/discretization.h"
 
 #include "vector.h"
-#include "Sparse/sparse_matrix.h"
+#include "Math/sparse_matrix.h"
 #include "LinearSolvers/linear_solver.h"
 
 #include "material.h"
@@ -17,6 +17,7 @@
 #include <string>
 
 
+using namespace PDEs;
 using namespace Grid;
 using namespace Math;
 using namespace Physics;
@@ -109,7 +110,7 @@ namespace NeutronDiffusion
     /**
      * Shorthand for a linear solver.
      */
-    using LinearSolver = LinearSolver::LinearSolverBase<SparseMatrix>;
+    using LinearSolver = LinearSolvers::LinearSolverBase<SparseMatrix>;
 
     /*-------------------- General Information --------------------*/
   public:

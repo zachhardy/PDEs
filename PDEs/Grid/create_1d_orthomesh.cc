@@ -4,14 +4,17 @@
 #include <numeric>
 
 
-std::shared_ptr<Grid::Mesh>
+using namespace PDEs;
+using namespace Grid;
+
+
+std::shared_ptr<Mesh>
 Grid::create_1d_orthomesh(const std::vector<double>& vertices,
                           const CoordinateSystemType coordinate_system,
                           const bool verbose)
 {
-  std::cout << "Creating a 1D mesh from vertices.\n";
-
   assert(!vertices.empty());
+  std::cout << "Creating a 1D mesh from vertices.\n";
 
   // Create the Mesh
   auto mesh = std::make_shared<Mesh>(1, coordinate_system);
@@ -98,20 +101,20 @@ Grid::create_1d_orthomesh(const std::vector<double>& vertices,
 }
 
 
-std::shared_ptr<Grid::Mesh>
+std::shared_ptr<Mesh>
 Grid::create_1d_orthomesh(const std::vector<double>& zone_edges,
                           const std::vector<size_t>& zone_subdivisions,
                           const std::vector<int>& material_ids,
                           const CoordinateSystemType coordinate_system,
                           const bool verbose)
 {
-  std::cout << "Creating a 1D mesh from zones.\n";
-
   assert(!zone_edges.empty());
   assert(!zone_subdivisions.empty());
   assert(!material_ids.empty());
   assert(zone_edges.size() == zone_subdivisions.size() + 1);
   assert(zone_subdivisions.size() == material_ids.size());
+
+  std::cout << "Creating a 1D mesh from zones.\n";
 
   // Create the mesh
   auto mesh = std::make_shared<Mesh>(1, coordinate_system);

@@ -5,15 +5,19 @@
 #include <algorithm>
 
 
+using namespace PDEs;
+using namespace Grid;
+
+
 std::shared_ptr<Grid::Mesh>
 Grid::create_2d_orthomesh(const std::vector<double>& x_vertices,
                           const std::vector<double>& y_vertices,
                           const bool verbose)
 {
-  std::cout << "Creating 2D orthogonal mesh from vertices.\n";
-
   assert(!x_vertices.empty());
   assert(!y_vertices.empty());
+
+  std::cout << "Creating 2D orthogonal mesh from vertices.\n";
 
   // Create the mesh
   auto mesh = std::make_shared<Mesh>(2, CoordinateSystemType::CARTESIAN);

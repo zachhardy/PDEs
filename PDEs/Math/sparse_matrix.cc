@@ -1,14 +1,16 @@
 #include "sparse_matrix.h"
 #include "matrix.h"
 #include "vector.h"
-#include "macros.h"
+
 
 #include <cmath>
 #include <algorithm>
 #include <numeric>
 #include <iomanip>
+#include <cassert>
 
 
+using namespace PDEs;
 using namespace Math;
 
 
@@ -928,7 +930,6 @@ SparseMatrix::print_row(const size_t row,
   os.precision(old_precision);
   os.flags(old_flags);
 }
-
 
 
 std::ostream&

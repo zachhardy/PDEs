@@ -3,40 +3,43 @@
 
 #include "CrossSections/cross_sections.h"
 
-namespace Physics
+
+namespace PDEs
 {
-
-  /**
-   * A utility class for storing a limited amount of cross-section data. This
-   * is primarily used for storing current functional cross-section values.
-   */
-  class LightWeightCrossSections
+  namespace Physics
   {
-  public:
-    /**
-     * A copy of potentially modified total cross-section values.
-     */
-    std::vector<double> sigma_t;
 
     /**
-     * Default constructor.
+     * A utility class for storing a limited amount of cross-section data. This
+     * is primarily used for storing current functional cross-section values.
      */
-    LightWeightCrossSections(std::shared_ptr<CrossSections> xs);
+    class LightWeightCrossSections
+    {
+    public:
+      /**
+       * A copy of potentially modified total cross-section values.
+       */
+      std::vector<double> sigma_t;
 
-    /**
-     * Update the cross-section values stored in this object using functions
-     * within the cross-sections this points to.
-     */
-    void
-    update(const std::vector<double>& args);
+      /**
+       * Default constructor.
+       */
+      LightWeightCrossSections(std::shared_ptr<CrossSections> xs);
 
-  private:
-    /**
-     * A pointer to cross-section to obtain nominal values from.
-     */
-    std::shared_ptr<CrossSections> ref_xs;
-  };
+      /**
+       * Update the cross-section values stored in this object using functions
+       * within the cross-sections this points to.
+       */
+      void
+      update(const std::vector<double>& args);
+
+    private:
+      /**
+       * A pointer to cross-section to obtain nominal values from.
+       */
+      std::shared_ptr<CrossSections> ref_xs;
+    };
+  }
 }
-
 
 #endif //PDES_LIGHTWEIGHT_CROSS_SECTIONS_H

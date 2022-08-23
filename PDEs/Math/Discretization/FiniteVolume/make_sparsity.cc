@@ -1,8 +1,12 @@
 #include "fv.h"
 
 
+using namespace PDEs;
+using namespace Math;
+
+
 void
-Math::FiniteVolume::
+FiniteVolume::
 make_sparsity_pattern(std::vector<std::vector<size_t>> pattern,
                       const unsigned int n_components,
                       const bool is_coupled) const

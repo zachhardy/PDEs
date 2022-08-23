@@ -15,6 +15,15 @@
 #include <vector>
 
 
+using namespace PDEs;
+using namespace Grid;
+using namespace Math;
+using namespace Physics;
+using namespace LinearSolvers;
+using namespace NeutronDiffusion;
+
+
+
 int main(int argc, char** argv)
 {
   double magnitude = 0.97667 - 1.0;
@@ -40,7 +49,6 @@ int main(int argc, char** argv)
   //============================================================
   // Mesh
   //============================================================
-  using namespace Grid;
 
   size_t n_x = 41, n_y = 41;
   double X = 80.0, Y = 80.0;
@@ -71,7 +79,6 @@ int main(int argc, char** argv)
   //============================================================
   // Materials
   //============================================================
-  using namespace Physics;
 
   auto ramp_function =
       [magnitude, duration](const unsigned int group_num,
@@ -120,7 +127,6 @@ int main(int argc, char** argv)
   //============================================================
   // Linear Solver
   //============================================================
-  using namespace LinearSolver;
 
   Options opts;
   opts.verbosity = 0;
@@ -133,7 +139,6 @@ int main(int argc, char** argv)
   //============================================================
   // Create the diffusion solver
   //============================================================
-  using namespace NeutronDiffusion;
 
   TransientSolver solver;
 

@@ -8,9 +8,6 @@
 #include <cassert>
 
 
-using namespace Math;
-using namespace Math::LinearSolver;
-
 using namespace NeutronDiffusion;
 
 
