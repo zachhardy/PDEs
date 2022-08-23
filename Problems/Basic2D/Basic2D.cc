@@ -29,7 +29,7 @@ int main(int argc, char** argv)
   // Mesh
   //============================================================
 
-  size_t n_x = 3, n_y = 3;
+  size_t n_x = 21, n_y = 21;
   double X = 1.0, Y = 1.0;
   double dx = X / (n_x - 1), dy = Y / (n_y - 1);
 
@@ -41,7 +41,7 @@ int main(int argc, char** argv)
   for (size_t i = 0; i < n_y - 1; ++i)
     y_verts.push_back(y_verts.back() + dy);
 
-  auto mesh = create_2d_orthomesh(x_verts, y_verts, true);
+  auto mesh = create_2d_orthomesh(x_verts, y_verts);
 
   //============================================================
   // Materials

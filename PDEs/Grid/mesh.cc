@@ -34,24 +34,24 @@ Mesh::establish_connectivity()
 {
   std::cout << "Establishing cell connectivity.\n";
 
-  /* Determine the cells which contain a specific vertex. This is done using a
-   * list where each element represents a vertex and its value contains a set
-   * which holds the unique cell ids in which the vertex is found. */
+  // Determine the cells which contain a specific vertex. This is done using a
+  // list where each element represents a vertex and its value contains a set
+  // which holds the unique cell ids in which the vertex is found.
   const size_t n_vertices = vertices.size();
   std::vector<std::set<size_t>> vertex_cell_map(n_vertices);
   for (const auto& cell : cells)
     for (const auto& v_id : cell.vertex_ids)
       vertex_cell_map.at(v_id).insert(cell.id);
 
-  /* Establish connectivity by going through each face of each cell and
-   * finding faces on neighboring cells (as defined by vertex_cell_map) which
-   * share vertex ids. */
+  // Establish connectivity by going through each face of each cell and
+  // finding faces on neighboring cells (as defined by vertex_cell_map) which
+  // share vertex ids.
   for (auto& cell : cells)
   {
     for (auto& face : cell.faces)
     {
-      /* If there is a neighbor, this face has already been
-       * encountered, continue to the next. */
+      // If there is a neighbor, this face has already been
+      // encountered, continue to the next.
       if (face.has_neighbor) continue;
 
       // Get the vertex ids for this face
@@ -175,4 +175,6 @@ Mesh::compute_geometric_info()
       }
     }//for faces
   }//for cell
+
+  std::cout << "Done computing geometric information on cells and faces.\n";
 }

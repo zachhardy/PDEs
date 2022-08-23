@@ -8,7 +8,7 @@ void
 NeutronDiffusion::SteadyStateSolver::
 initialize_materials()
 {
-  std::cout << "Initializing materials...\n";
+  std::cout << "Initializing materials.\n";
 
   //============================================================
   // Check the material IDs on the mesh
@@ -120,5 +120,5 @@ initialize_materials()
       use_precursors = false;
   }//if use precursors
 
-  std::cout << "Materials initialized: " << materials.size() << "\n";
+  std::cout << "Materials initialized: " << materials.size() << std::endl;
 }

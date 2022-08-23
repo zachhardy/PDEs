@@ -7,9 +7,13 @@ using namespace NeutronDiffusion;
 
 
 void
-TransientSolver::
-execute()
+TransientSolver::execute()
 {
+  std::cout
+      << "\n****************************************************\n"
+      <<   "Executing the multi-group diffusion transient solver"
+      << "\n****************************************************\n";
+
   const double eps = 1.0e-10;
 
   // Output settings

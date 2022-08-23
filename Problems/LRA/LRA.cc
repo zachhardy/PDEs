@@ -61,7 +61,7 @@ int main(int argc, char** argv)
   for (size_t i = 0; i < n_y - 1; ++i)
     y_verts.push_back(y_verts.back() + dy);
 
-  auto mesh = create_2d_orthomesh(x_verts, y_verts, true);
+  auto mesh = create_2d_orthomesh(x_verts, y_verts);
 
   for (auto& cell : mesh->cells)
   {

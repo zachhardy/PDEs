@@ -7,6 +7,11 @@ using namespace NeutronDiffusion;
 void
 KEigenvalueSolver::execute()
 {
+  std::cout
+      << "\n*******************************************************\n"
+      <<   "Executing the multi-group diffusion k-eigenvalue solver"
+      << "\n*******************************************************\n";
+
   if (algorithm == Algorithm::DIRECT)
     assemble_matrix(ASSEMBLE_SCATTER);
   else

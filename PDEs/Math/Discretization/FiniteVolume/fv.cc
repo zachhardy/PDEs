@@ -8,7 +8,10 @@ using namespace Math;
 FiniteVolume::
 FiniteVolume(std::shared_ptr<Grid::Mesh> reference_mesh) :
   Discretization(reference_mesh, SpatialDiscretizationMethod::FINITE_VOLUME)
-{}
+{
+  std::cout << "Creating Finite Volume spatial discretization.\n";
+  std::cout << "Finished creating Finite Volume spatial discretization.\n";
+}
 
 
 size_t

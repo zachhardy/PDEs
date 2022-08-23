@@ -9,6 +9,7 @@ using namespace NeutronDiffusion;
 void
 TransientSolver::initialize()
 {
+
   KEigenvalueSolver::initialize();
   KEigenvalueSolver::execute();
 
@@ -19,6 +20,9 @@ TransientSolver::initialize()
   // Clear output directory
   if (write_outputs)
   {
+    std::cout
+      << "Setting up output directories at " << output_directory << std::endl;
+
     if (not std::filesystem::is_directory(output_directory))
       std::filesystem::create_directory(output_directory);
 
@@ -47,9 +51,13 @@ TransientSolver::initialize()
 void
 TransientSolver::compute_initial_values()
 {
+  std::cout << "Computing initial conditions.\n";
+
   // Evaluate initial condition functions, if provided
   if (not initial_conditions.empty())
   {
+    std::cout << "Evaluating specified initial condition functions.\n";
+
     for (const auto& cell : mesh->cells)
     {
       const auto& nodes = discretization->nodes(cell);
@@ -73,9 +81,16 @@ TransientSolver::compute_initial_values()
   // Otherwise, use the k-eigenvalue solver result
   else
   {
+    std::cout
+      << "Using the k-eigenvalue problem result for the initial condition.\n";
+
     // Normalize fission cross sections
     if (normalize_fission_xs)
     {
+      std::cout
+        << "Normalizing the fission cross-sections to the k-eigenvalue "
+        << "(" << k_eff << ").\n";
+
       for (auto &xs: material_xs)
         for (unsigned int g = 0; g < n_groups; ++g)
         {
@@ -88,14 +103,21 @@ TransientSolver::compute_initial_values()
   }
 
   // Normalize the scalar flux
-  if (normalization_method != NormalizationMethod::NONE)
+  if (normalization_method != NormMethod::NONE)
   {
+    std::cout
+      << "Normalizing the initial condition to the specified "
+      << (normalization_method == NormMethod::TOTAL_POWER? "total" : "average")
+      << " power "
+      << (normalization_method == NormMethod::TOTAL_POWER? "" : "density ")
+      << "(" << initial_power << ")\n";
+
     update_fission_rate();
     compute_bulk_properties();
 
-    if (normalization_method == NormalizationMethod::TOTAL_POWER)
+    if (normalization_method == NormMethod::TOTAL_POWER)
       phi.scale(initial_power / power);
-    else if (normalization_method == NormalizationMethod::AVERAGE_POWER)
+    else if (normalization_method == NormMethod::AVERAGE_POWER)
       phi.scale(initial_power / average_power_density);
   }
 

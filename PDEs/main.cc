@@ -1,4 +1,6 @@
 #include "Math/Polynomials/polynomial.h"
+#include "Math/Quadratures/gauss_legendre.h"
+#include "Math/Quadratures/gauss_chebyshev.h"
 
 #include <iostream>
 #include <fstream>
@@ -53,11 +55,10 @@ int main(int argc, char** argv)
     ofile.close();
     system("python plot.py");
 
-    auto leg_roots = legendre_roots(32);
-    auto cheb_roots = chebyshev_roots(32);
+    using namespace PDEs;
+    using namespace Math;
 
-    for (unsigned int i = 0; i < leg_roots.size(); ++i)
-      std::cout << leg_roots[i] << "  " << cheb_roots[i] << std::endl;
+    GaussChebyshevQuadrature(8, true);
   }
   catch (std::exception &exc) {
     std::cerr << std::endl

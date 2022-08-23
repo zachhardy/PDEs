@@ -10,8 +10,8 @@ using namespace NeutronDiffusion;
 void
 KEigenvalueSolver::power_method()
 {
-  std::cout << "********** Solving the k-eigenvalue problem "
-            << "using the Power Method.\n";
+  std::cout << "\n********** Solving the k-eigenvalue problem "
+            << "using the Power Method.\n\n";
 
   phi = 1.0;
   auto x = phi;
@@ -88,11 +88,11 @@ KEigenvalueSolver::power_method()
     summary << "\n!!*!! WARNING: k-Eigenvalue Solver NOT Converged !!*!!\n";
 
   summary << "Final k-Eigenvalue:         "
-          << std::left << std::setw(6) << k_eff << "\n"
+          << std::left << std::setw(6) << k_eff << std::endl
           << "Final k-Eigenvalue Change:  "
-          << std::left << std::setw(6) << k_eff_change << "\n"
+          << std::left << std::setw(6) << k_eff_change << std::endl
           << "Final Phi Change:           "
-          << std::left << std::setw(6) << phi_change << "\n"
-          << "# of Iterations:            " << nit;
+          << std::left << std::setw(6) << phi_change << std::endl
+          << "# of Iterations:            " << nit << std::endl;
   std::cout << summary.str() << std::endl;
 }

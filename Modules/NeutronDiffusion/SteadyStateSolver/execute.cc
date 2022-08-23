@@ -7,6 +7,11 @@
 void
 NeutronDiffusion::SteadyStateSolver::execute()
 {
+  std::cout
+      << "\n************************************************\n"
+      <<   "Executing the multi-group diffusion steady-state solver"
+      << "\n************************************************\n";
+
   // Initialize matrix and solve
   if (algorithm == Algorithm::DIRECT)
   {

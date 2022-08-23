@@ -184,4 +184,7 @@ read_xs_file(const std::string file_name,
               << "\t# of Groups    : " << n_groups << "\n"
               << "\t# of Precursors: " << n_precursors << "\n"
               << "\tFissile?       : " << is_fissile << "\n";
+
+  std::cout << "Done reading cross-sections file \"" << file_name << "\".\n";
+
 }
