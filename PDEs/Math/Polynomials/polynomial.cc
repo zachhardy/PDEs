@@ -71,46 +71,6 @@ Polynomials::d2legendre(const unsigned int n, const double x)
 }
 
 
-std::vector<double>
-Polynomials::legendre_roots(const unsigned int n)
-{
-  assert(n > 0);
-
-  // Define the tolerance
-  const double tol = 4.0 * std::numeric_limits<double>::epsilon();
-
-  // Approximate the zeros by detecting sign changes in the Legendre
-  // polynomial. This is done by using a partitioning of the domain into
-  // search intervals.
-  unsigned int n_bins = (n < 128)? 1000 : 10000;
-  const double delta = 2.0/n_bins;  //bin width
-
-  size_t count = 0;
-  std::vector<double> roots(n, 0.0);
-  for (size_t i = 0; i < n_bins; ++i)
-  {
-    const double x_i = -1.0 + i*delta;
-    const double x_ip = std::min(x_i + delta, 1.0);
-    if (legendre(n, x_i) * legendre(n, x_ip) < 0)
-      roots[count++] = 0.5*(x_i + x_ip);
-  }
-
-  // For each initial guess, apply Newton's method
-  for (unsigned int k = 0; k < n; ++k)
-  {
-    for (unsigned int nit = 0; nit < 1000; ++nit)
-    {
-      double x0 = roots[k];
-      roots[k] = x0 - legendre(n, x0)/dlegendre(n, x0);
-      if (std::fabs(roots[k] - x0) < tol)
-        break;
-    }
-  }
-  std::stable_sort(roots.begin(), roots.end());
-  return roots;
-}
-
-
 double
 Polynomials::chebyshev(const unsigned int n, const double x)
 {
@@ -126,15 +86,3 @@ Polynomials::chebyshev(const unsigned int n, const double x)
   }
   return T_p;
 }
-
-
-std::vector<double>
-Polynomials::chebyshev_roots(const unsigned int n)
-{
-  assert(n > 0);
-  std::vector<double> roots(n);
-  for (unsigned int k = 0; k < n; ++k)
-    roots[k] = -std::cos(M_PI * (k + 0.5)/n);
-  return roots;
-}
-
