@@ -31,31 +31,10 @@ if [ $DO_CLEAN = "YES" ]; then
   if [ -d "bin" ]; then
     rm -r bin
   fi
-
-  cd Problems || exit
-  for problemset in *; do
-    cd "$problemset" || exit
-    if [ -d "bin" ]; then
-      rm -r bin
-    fi
-    cd ..
-  done
-  cd ..
 fi
 
 if [ $DO_CMAKE = "YES" ]; then
   mkdir -p build && mkdir -p bin
-
-  cd Problems || exit
-  for problemset in *; do
-    if [ ! -d "bin" ]; then
-      mkdir -p "${problemset}/bin"
-    fi
-  done
-
-  cd ../build || exit
-  cmake .. \
-    -DCMAKE_C_COMPILER=/opt/homebrew/bin/mpicc \
-    -DCMAKE_CXX_COMPILER=/opt/homebrew/bin/mpicxx
-  cd ..
+  cd build || exit
+  cmake .. && cd ..
 fi
