@@ -124,19 +124,22 @@ int main(int argc, char** argv)
 {
   try{
 
-    auto quadrature = std::make_shared<GaussLegendreQuadrature>(8);
+    auto quadrature = std::make_shared<GaussLegendreQuadrature>(2);
 
     auto xs = std::make_shared<CrossSections>();
     xs->read_xs_file("xs_data/graphite_pure.xs");
 
     std::vector<double> src_vals(xs->n_groups, 0.0);
-    src_vals[xs->n_groups - 1] = 1.0;
+    src_vals[0] = 1.0;
     auto src = std::make_shared<IsotropicMultiGroupSource>(src_vals);
 
     InfiniteMedium solver;
     solver.xs = xs;
     solver.quadrature = quadrature;
     solver.src = src;
+
+    solver.tolerance = 1.0e-6;
+    solver.max_iterations = (unsigned int)1e5;
 
     solver.initialize();
     solver.execute();

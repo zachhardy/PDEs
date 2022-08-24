@@ -39,11 +39,11 @@ KEigenvalueSolver::power_method()
     //========================================
     // Solve the system
     //========================================
-
+    unsigned int inner_nit;
     if (algorithm == Algorithm::DIRECT)
       linear_solver->solve(phi, b);
     else
-      iterative_solve(APPLY_SCATTER_SOURCE);
+      inner_nit = iterative_solve(APPLY_SCATTER_SOURCE);
 
     //========================================
     // Recompute the k-eigenvalue
@@ -68,8 +68,8 @@ KEigenvalueSolver::power_method()
     {
       std::stringstream iter_info;
       iter_info
-        << std::left << "k-Eigenvalue::"
-        << "Step  " << std::setw(4) << nit
+        << std::left << "outer::"
+        << "Iteration  " << std::setw(4) << nit
         << "k_eff  " << std::setw(10) << k_eff
         << "k_eff Change  " << std::setw(14) << k_eff_change
         << "Phi Change  " << std::setw(14) << phi_change
@@ -77,7 +77,6 @@ KEigenvalueSolver::power_method()
       if (converged) iter_info << "   CONVERGED";
       std::cout << iter_info.str() << std::endl;
     }
-
     if (converged) break;
   }
 

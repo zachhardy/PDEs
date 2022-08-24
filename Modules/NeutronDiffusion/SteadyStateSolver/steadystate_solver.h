@@ -333,7 +333,7 @@ namespace NeutronDiffusion
      * \param source_flags Bitwise flags defining the source terms to iterate
      *      on and converge.
      */
-    void
+    unsigned int
     iterative_solve(SourceFlags source_flags);
 
     /*-------------------- Assembly Routines --------------------*/
