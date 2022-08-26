@@ -10,15 +10,35 @@
 #include "CrossSections/cross_sections.h"
 
 
-namespace NeutronTransport
-{
-  namespace InfiniteMedium
+namespace InfiniteMedium
   {
     using namespace PDEs;
     using namespace Math;
     using namespace Physics;
 
-    /**
+  /**
+   * Bitwise source flags for right-hand side vector construction.
+   */
+  enum SourceFlags : int
+  {
+    NO_SOURCE_FLAGS = 0,
+    APPLY_MATERIAL_SOURCE = (1 << 0),
+    APPLY_SCATTER_SOURCE = (1 << 1),
+    APPLY_FISSION_SOURCE = (1 << 2),
+  };
+
+  /**
+   * Bitwise source flag operator.
+   */
+  inline SourceFlags
+  operator|(const SourceFlags f1, const SourceFlags f2)
+  {
+    return static_cast<SourceFlags>(static_cast<int>(f1) |
+                                    static_cast<int>(f2));
+  }
+
+
+  /**
      * An infinite medium multi-group discrete ordinates solver.
      */
     class SteadyStateSolver
@@ -77,13 +97,13 @@ namespace NeutronTransport
        * Implementation of the source iterations routine.
        */
       std::pair<unsigned int, double>
-      source_iterations();
+      source_iterations(SourceFlags source_flags);
 
       /**
        * Compute the source moments.
        */
       void
-      set_source();
+      set_source(SourceFlags source_flags = NO_SOURCE_FLAGS);
 
       /**
        * Solve the system for the next angular flux and flux moment update.
@@ -96,6 +116,12 @@ namespace NeutronTransport
        */
       void
       dsa();
+
+      /**
+       * Compute the particle balance.
+       */
+      double
+      check_balance();
 
       /**
        * Compute the moment-to-discrete operator.
@@ -160,14 +186,7 @@ namespace NeutronTransport
        * The discrete-to-moment operator.
        */
       Matrix moment_to_discrete;
-
-      /**
-       * Compute the particle balance.
-       */
-      double
-      check_balance();
     };
   }
-}
 
 #endif //STEADYSTATE_SOLVER_H

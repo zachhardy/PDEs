@@ -1,12 +1,10 @@
 #ifndef KEIGENVALUE_SOLVER_H
 #define KEIGENVALUE_SOLVER_H
 
-#include "../SteadyStateSolver/steadystate_solver.h"
+#include "InfiniteMedium/SteadyStateSolver/steadystate_solver.h"
 
 
-namespace NeutronTransport
-{
-  namespace InfiniteMedium
+namespace InfiniteMedium
   {
 
     /**
@@ -48,7 +46,6 @@ namespace NeutronTransport
     };
 
   }
-}
 
 
 #endif //KEIGENVALUE_SOLVER_H

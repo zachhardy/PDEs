@@ -30,12 +30,12 @@ TransientSolver::execute()
 
   // Time stepping loop
   time = t_start;
-  size_t step = 0;
+  unsigned int step = 0;
   while (time < t_end - eps)
   {
-    /* This flag is used to tell the execute_time_step routine whether or not
-     * to reconstruct the matrices or not. This gets set to true when the
-     * time step changes or the cross-sections are modified. */
+    // This flag is used to tell the execute_time_step routine whether or not
+    // to reconstruct the matrices or not. This gets set to true when the
+    // time step changes or the cross-sections are modified.
     reconstruct_matrices = false;
 
     //==================================================

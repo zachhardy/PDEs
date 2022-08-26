@@ -343,10 +343,10 @@ namespace NeutronDiffusion
      * source is held constant (outer iterations) while the scattering source
      * is converged (inner iterations).
      *
-     * \param source_flags Bitwise flags defining the source terms to iterate
-     *      on and converge.
+     * \param source_flags Bitwise flags defining the source terms to be
+       *    added to the right-hand side vector.
      */
-    unsigned int
+    std::pair<unsigned int, double>
     iterative_solve(SourceFlags source_flags);
 
     /**
@@ -375,8 +375,8 @@ namespace NeutronDiffusion
      * include the inhomogeneous source, scattering source, fission source,
      * and boundary source
      *
-     * \param source_flags Bitwise flags used to specify which sources are
-     *      added to the source vector.
+     * \param source_flags Bitwise flags defining the source terms to be
+       *    added to the right-hand side vector.
      */
     void
     set_source(SourceFlags source_flags = NO_SOURCE_FLAGS);

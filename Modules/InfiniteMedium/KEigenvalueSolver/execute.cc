@@ -5,11 +5,11 @@
 #include <cassert>
 
 
-using namespace NeutronTransport;
 using namespace InfiniteMedium;
 
 
-void KEigenvalueSolver::execute()
+void
+KEigenvalueSolver::execute()
 {
   assert(xs->is_fissile);
 
@@ -26,12 +26,10 @@ void KEigenvalueSolver::execute()
   for (nit = 0; nit < max_outer_iterations; ++nit)
   {
     q_moments = 0.0;
-    for (unsigned int g = 0; g < n_groups; ++g)
-      for (unsigned int gp = 0; gp < n_groups; ++gp)
-        q_moments[g] += xs->chi[g]*xs->nu_sigma_f[gp]*phi[gp];
+    set_source(APPLY_FISSION_SOURCE);
     q_moments /= k_eff;
 
-    auto result = source_iterations();
+    auto result = source_iterations(APPLY_SCATTER_SOURCE);
     if (result.first == max_inner_iterations)
       std::cout
         << "!!*!! WARNING: Inner iterations did not converge... "

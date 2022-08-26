@@ -10,7 +10,6 @@
 using namespace PDEs;
 using namespace Math;
 using namespace Polynomials;
-using namespace NeutronTransport;
 using namespace InfiniteMedium;
 
 

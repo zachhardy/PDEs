@@ -106,7 +106,7 @@ namespace NeutronDiffusion
      * conditions are evaluated. Groups which do not have a specified initial
      * condition are assumed to be uniformly zero.
      */
-    std::map<size_t, IC> initial_conditions;
+    std::map<unsigned int, IC> initial_conditions;
 
     /**
      * The normalization method for the initial condition. This is used to map
@@ -140,7 +140,7 @@ namespace NeutronDiffusion
     /**
      * The simulation end time.
      */
-    double t_end =1.0;
+    double t_end = 1.0;
 
     /**
      * The initial time step size to use. If adaptivity is off, this remains the
@@ -208,7 +208,7 @@ namespace NeutronDiffusion
     /*-------------------- Time Step Routines --------------------*/
 
     /**
-     * Execute a time step by computing the end of time step solutions.
+     * Execute a time step.
      *
      * \param reconstruct_matrices A flag for whether the matrices need to be
      *      reconstructed this time step or not.
@@ -219,8 +219,8 @@ namespace NeutronDiffusion
     /**
      * Solve the time step system by iterating on the specified SourceFlags.
      *
-     * \param source_flags Bitwise flags defining the source terms to iterate
-     *      on and converge.
+     * \param source_flags Bitwise flags defining the source terms to be
+       *    added to the right-hand side vector.
      */
     void
     iterative_time_step_solve(SourceFlags source_flags);
@@ -271,8 +271,8 @@ namespace NeutronDiffusion
      * include the inhomogeneous source, scattering source, and fission source.
      * By default, the previous time step contributions are added.
      *
-     * \param source_flags Bitwise flags used to specify which sources are
-     *      added to the source vector.
+     * \param source_flags Bitwise flags defining the source terms to be
+       *    added to the right-hand side vector.
      */
     void
     set_transient_source(SourceFlags source_flags);
@@ -338,7 +338,7 @@ namespace NeutronDiffusion
      */
     const double conversion_factor = 3.83e-11;
 
-    /*-------------------- Macro Quantities --------------------*/
+    /*-------------------- Book-Keeping Quantities --------------------*/
 
     /**
      * The current simulation time.
@@ -374,8 +374,6 @@ namespace NeutronDiffusion
      * The current peak fuel temperature in the reactor.
      */
     double peak_fuel_temperature;
-
-    /*-------------------- Extra System Vectors --------------------*/
 
     /**
      * The multi-group scalar flux last time step. See #phi

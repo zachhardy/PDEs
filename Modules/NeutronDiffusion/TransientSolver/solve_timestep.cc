@@ -11,8 +11,6 @@ using namespace NeutronDiffusion;
 void
 TransientSolver::execute_time_step(bool reconstruct_matrices)
 {
-  auto x = phi_old;
-
   // Update cross sections
   if (has_dynamic_xs)
   {
@@ -53,17 +51,16 @@ TransientSolver::execute_time_step(bool reconstruct_matrices)
   }
 }
 
-//######################################################################
 
 void
 TransientSolver::iterative_time_step_solve(SourceFlags source_flags)
 {
   unsigned int nit;
   double change;
-  bool converged = false;
+  bool converged;
 
   // Start iterations
-  auto x = phi;
+  phi_ell = phi_old;
   for (nit = 0; nit < max_inner_iterations; ++nit)
   {
     // Compute the RHS and solve
@@ -72,27 +69,23 @@ TransientSolver::iterative_time_step_solve(SourceFlags source_flags)
     linear_solver->solve(phi, b);
 
     // Convergence check, finalize iteration
-    change = l1_norm(phi - x);
+    change = l1_norm(phi - phi_ell);
     converged = change < inner_tolerance;
-    x = phi;
+    phi_ell = phi;
 
     // Print iteration information
     if (verbosity > 1)
-    {
-      std::stringstream iter_info;
-      iter_info
-        << std::left << "SourceIteration::"
-        << "Step  " << std::setw(3) << nit << "   "
-        << "Value  " << change;
-      if (converged) iter_info << "  CONVERGED";
-      std::cout << iter_info.str() << std::endl;
-    }
+      std::cout
+        << std::left << "inner::"
+        << "Iteration  " << std::setw(3) << nit << "  "
+        << "Change  " << std::setw(8) << change
+        << (converged? "  CONVERGED" : "  ")
+        << std::endl;
 
     if (converged) break;
   }//for nit
 }
 
-//######################################################################
 
 void
 TransientSolver::refine_time_step()
@@ -109,7 +102,6 @@ TransientSolver::refine_time_step()
   }
 }
 
-//######################################################################
 
 void
 TransientSolver::coarsen_time_step()
@@ -124,7 +116,6 @@ TransientSolver::coarsen_time_step()
   }
 }
 
-//######################################################################
 
 void
 TransientSolver::step_solutions()
@@ -136,7 +127,6 @@ TransientSolver::step_solutions()
     precursors_old = precursors;
 }
 
-//######################################################################
 
 double
 TransientSolver::effective_time_step()
