@@ -1,4 +1,4 @@
-#include "infinite_medium.h"
+#include "steadystate_solver.h"
 
 #include "Math/Polynomials/polynomial.h"
 
@@ -11,10 +11,11 @@ using namespace PDEs;
 using namespace Math;
 using namespace Polynomials;
 using namespace NeutronTransport;
+using namespace InfiniteMedium;
 
 
 void
-InfiniteMedium::initialize()
+SteadyStateSolver::initialize()
 {
   assert(quadrature->size() % 2  == 0);
   assert(src == nullptr || src->values.size() == xs->n_groups);
@@ -48,7 +49,7 @@ InfiniteMedium::initialize()
 
 
 void
-InfiniteMedium::compute_moment_to_discrete_operator()
+SteadyStateSolver::compute_moment_to_discrete_operator()
 {
   moment_to_discrete.reinit(n_moments, n_angles);
 
@@ -77,7 +78,7 @@ InfiniteMedium::compute_moment_to_discrete_operator()
 
 
 void
-InfiniteMedium::compute_discrete_to_moment_operator()
+SteadyStateSolver::compute_discrete_to_moment_operator()
 {
   discrete_to_moment.reinit(n_moments, n_angles);
 

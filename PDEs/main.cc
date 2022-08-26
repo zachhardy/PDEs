@@ -4,7 +4,8 @@
 #include "material.h"
 #include "CrossSections/cross_sections.h"
 
-#include "NeutronTransport/InfiniteMedium/infinite_medium.h"
+#include "NeutronTransport/InfiniteMedium/SteadyStateSolver/steadystate_solver.h"
+#include "NeutronTransport/InfiniteMedium/KEigenvalueSolver/keigenvalue_solver.h"
 
 #include <iostream>
 #include <fstream>
@@ -113,7 +114,9 @@ plot_chebyshev(const size_t n_pts = 100, const unsigned int max_order = 3)
 
 using namespace PDEs;
 using namespace Math;
+using namespace Physics;
 using namespace NeutronTransport;
+using namespace InfiniteMedium;
 
 
 /**The main execution function.
@@ -127,21 +130,25 @@ int main(int argc, char** argv)
     auto quadrature = std::make_shared<GaussLegendreQuadrature>(2);
 
     auto xs = std::make_shared<CrossSections>();
-    xs->read_xs_file("xs_data/test_2g.xs");
+    xs->read_xs_file("xs_data/test_3g.xs", 0.05);
 
     std::vector<double> src_vals(xs->n_groups, 0.0);
-    src_vals[0] = 1.0;
+    src_vals[0] = 0.0;
     auto src = std::make_shared<IsotropicMultiGroupSource>(src_vals);
 
-    InfiniteMedium solver;
+    KEigenvalueSolver solver;
     solver.xs = xs;
     solver.quadrature = quadrature;
     solver.src = src;
 
-    solver.tolerance = 1.0e-6;
-    solver.max_iterations = (unsigned int)10;
+    solver.inner_tolerance = 1.0e-6;
+    solver.max_inner_iterations = (unsigned int)100;
 
-    solver.use_dsa = true;
+    solver.outer_tolerance = 1.0e-6;
+    solver.max_outer_iterations = 100;
+
+    solver.use_dsa = false;
+    solver.verbosity = 1;
 
     solver.initialize();
     solver.execute();

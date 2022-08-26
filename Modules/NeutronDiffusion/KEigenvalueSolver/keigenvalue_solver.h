@@ -14,12 +14,7 @@ namespace NeutronDiffusion
   {
   public:
     /**
-     * The current estimate of the k-eigenvalue.
-     */
-    double k_eff = 1.0;
-
-    /**
-     * The convergence tolerance for the outer iterations.
+     * The convergence inner_tolerance for the outer iterations.
      */
     double outer_tolerance = 1.0e-8;
 
@@ -62,6 +57,11 @@ namespace NeutronDiffusion
      */
     double
     compute_production();
+
+    /**
+     * The current estimate of the k-eigenvalue.
+     */
+    double k_eff = 1.0;
   };
 
 }
