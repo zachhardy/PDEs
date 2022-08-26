@@ -198,16 +198,6 @@ namespace NeutronDiffusion
     /*-------------------- Solver Information --------------------*/
 
     /**
-     * The multi-group flux solution vector.
-     */
-    Vector phi;
-
-    /**
-     * The delayed neutron precursor solution vector.
-     */
-    Vector precursors;
-
-    /**
      * A pointer to a linear solver to be used to solve the multi-group system.
      */
     std::shared_ptr<LinearSolver> linear_solver;
@@ -236,6 +226,7 @@ namespace NeutronDiffusion
           const std::string& file_prefix) const;
 
   protected:
+    /*-------------------- Problem Information --------------------*/
     /**
      * The number of energy groups in the simulation.
      */
@@ -295,6 +286,28 @@ namespace NeutronDiffusion
      */
     std::vector<std::vector<BndryPtr>> boundaries;
 
+    /*-------------------- Linear System Storage --------------------*/
+
+    /**
+     * The multi-group flux solution vector. This vector is group-contiguous,
+     * or \f$ \phi = [\phi_{i_1, g_1}, \ldots, \phi_{i_1, g_G}, \ldots,
+     * \phi_{i_N, g_1}, \ldots, \phi_{i_N, g_G}] \f$, where \f$ i_j \f$ is node
+     * \f$ j \f$ and \f$ g_i \f$ is group \f$ i \f$.
+     */
+    Vector phi;
+
+    /**
+     * The last iterate of the multi-group flux solution vector.
+     */
+    Vector phi_ell;
+
+    /**
+     * The delayed neutron precursor solution vector. This vector is
+     * precursor-contiguous with up to the maximum number of precursors on
+     * a material. See #phi and #max_precursors.
+     */
+    Vector precursors;
+
     /**
      * The sparse matrix for the multi-group system.
      */
@@ -336,6 +349,12 @@ namespace NeutronDiffusion
     unsigned int
     iterative_solve(SourceFlags source_flags);
 
+    /**
+     * Compute the steady-state precursor concentration profile.
+     */
+    void
+    compute_precursors();
+
     /*-------------------- Assembly Routines --------------------*/
 
     /**
@@ -361,12 +380,6 @@ namespace NeutronDiffusion
      */
     void
     set_source(SourceFlags source_flags = NO_SOURCE_FLAGS);
-
-    /**
-     * Compute the steady-state precursor concentration profile.
-     */
-    void
-    compute_precursors();
   };
 
 }

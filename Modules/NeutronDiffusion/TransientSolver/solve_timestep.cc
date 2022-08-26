@@ -48,7 +48,7 @@ TransientSolver::execute_time_step(bool reconstruct_matrices)
     phi.sadd(2.0, -1.0, phi_old);
     temperature.sadd(2.0, -1.0, temperature_old);
     if (use_precursors)
-      precursors.sadd(2.0, -1.0, precursor_old);
+      precursors.sadd(2.0, -1.0, precursors_old);
     update_fission_rate();
   }
 }
@@ -133,7 +133,7 @@ TransientSolver::step_solutions()
   phi_old = phi;
   temperature_old = temperature;
   if (use_precursors)
-    precursor_old = precursors;
+    precursors_old = precursors;
 }
 
 //######################################################################

@@ -67,7 +67,7 @@ set_transient_source(SourceFlags source_flags)
           if (not lag_precursors)
             coeff /= 1.0 + eff_dt * lambda[j];
 
-          rhs += coeff * precursor_old[uk_map_j + j];
+          rhs += coeff*precursors_old[uk_map_j + j];
         }
       }//if precursors
 

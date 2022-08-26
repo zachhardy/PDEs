@@ -35,7 +35,7 @@ update_precursors()
     for (unsigned int j = 0; j < xs->n_precursors; ++j)
     {
       const auto coeff = 1.0 + eff_dt*lambda[j];
-      const auto c_old = precursor_old[uk_map_j + j];
+      const auto c_old = precursors_old[uk_map_j + j];
       precursors[uk_map_j + j] = (c_old + eff_dt*gamma[j] * f) / coeff;
     }//for precursor
   }//for cell

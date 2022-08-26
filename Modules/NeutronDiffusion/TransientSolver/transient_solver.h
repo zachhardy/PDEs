@@ -41,9 +41,10 @@ namespace NeutronDiffusion
     AVERAGE_POWER = 2 ///< Normalize to the avererage power density.
   };
 
-  //############################################################
 
-  /** Implementation of a transient neutron diffusion solver. */
+  /**
+   * Implementation of a transient neutron diffusion solver.
+   */
   class TransientSolver : public KEigenvalueSolver
   {
   public:
@@ -377,6 +378,16 @@ namespace NeutronDiffusion
     /*-------------------- Extra System Vectors --------------------*/
 
     /**
+     * The multi-group scalar flux last time step. See #phi
+     */
+    Vector phi_old;
+
+    /**
+     * The delayed neutron precursors last time step. See #precursor.
+     */
+    Vector precursors_old;
+
+    /**
      * The fission rate defined at cell centers.
      */
     Vector fission_rate;
@@ -385,16 +396,6 @@ namespace NeutronDiffusion
      * The temperature defined at cell centers.
      */
     Vector temperature;
-
-    /**
-     * The multi-group scalar flux last time step.
-     */
-    Vector phi_old;
-
-    /**
-     * The delayed neutron precursors last time step.
-     */
-    Vector precursor_old;
 
     /**
      * The temperature last time step.

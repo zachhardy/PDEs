@@ -14,7 +14,8 @@ KEigenvalueSolver::power_method()
             << "using the Power Method.\n\n";
 
   phi = 1.0;
-  auto x = phi;
+  phi_ell = phi;
+  auto phi_tmp = phi_ell;
 
   auto production = compute_production();
   auto production_ell = production;
@@ -54,11 +55,11 @@ KEigenvalueSolver::power_method()
     rho = (k_eff - 1.0)/k_eff;
 
     k_eff_change = std::fabs(k_eff - k_eff_ell)/k_eff;
-    phi_change = l1_norm(phi - x) / l1_norm(phi);
+    phi_change = l1_norm(phi - phi_tmp) / l1_norm(phi);
 
     production_ell = production;
     k_eff_ell = k_eff;
-    x = phi;
+    phi_tmp = phi;
 
     converged = (k_eff_change < outer_tolerance &&
                  phi_change < outer_tolerance);

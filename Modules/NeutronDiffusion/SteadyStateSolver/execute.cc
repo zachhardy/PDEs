@@ -41,7 +41,7 @@ unsigned int
 NeutronDiffusion::SteadyStateSolver::
 iterative_solve(SourceFlags source_flags)
 {
-  auto x = phi;
+  phi_ell = phi;
   const auto b_init = b;
 
   // Start iterations
@@ -54,8 +54,9 @@ iterative_solve(SourceFlags source_flags)
     linear_solver->solve(phi, b);
 
     // Convergence check, finalize iteration
-    double change = l1_norm(phi - x);
+    double change = l1_norm(phi - phi_ell);
     bool converged = change < inner_tolerance;
+    phi_ell = phi;
 
     // Print iteration information
     if (verbosity > 1)
