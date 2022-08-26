@@ -23,6 +23,21 @@ namespace NeutronTransport
   {
   public:
     /**
+     * Inner iteration convergence tolerance.
+     */
+    double tolerance = 1.0e-6;
+
+    /**
+     * Maximum number of inner iterations to attempt.
+     */
+    unsigned int max_iterations = 100;
+
+    /**
+     * A flag for using diffusion synthetic acceleration.
+     */
+    bool use_dsa = false;
+
+    /**
      * The material cross-sections.
      */
     std::shared_ptr<CrossSections> xs;
@@ -36,16 +51,6 @@ namespace NeutronTransport
      * An optional isotropic multi-group source for the problem.
      */
     std::shared_ptr<IsotropicMultiGroupSource> src;
-
-    /**
-     * Inner iteration convergence tolerance.
-     */
-    double tolerance = 1.0e-6;
-
-    /**
-     * Maximum number of inner iterations to attempt.
-     */
-    unsigned int max_iterations = 100;
 
     /**
      * Initialize the infinite medium transport solver.
@@ -71,6 +76,12 @@ namespace NeutronTransport
      */
     void
     solve();
+
+    /**
+     * Implementation of an infinite medium DSA algorithm.
+     */
+    void
+    dsa();
 
     /**
      * Compute the moment-to-discrete operator.
@@ -117,6 +128,11 @@ namespace NeutronTransport
     Vector phi;
 
     /**
+     * The flux moments from last iteration.
+     */
+    Vector phi_ell;
+
+    /**
      * The source moments vector. This is ordered the same as #phi.
      */
     Vector q_moments;
@@ -131,6 +147,11 @@ namespace NeutronTransport
      */
     Matrix moment_to_discrete;
 
+    /**
+     * Compute the particle balance.
+     */
+    double
+    check_balance();
   };
 }
 

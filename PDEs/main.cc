@@ -127,7 +127,7 @@ int main(int argc, char** argv)
     auto quadrature = std::make_shared<GaussLegendreQuadrature>(2);
 
     auto xs = std::make_shared<CrossSections>();
-    xs->read_xs_file("xs_data/graphite_pure.xs");
+    xs->read_xs_file("xs_data/test_2g.xs");
 
     std::vector<double> src_vals(xs->n_groups, 0.0);
     src_vals[0] = 1.0;
@@ -139,7 +139,9 @@ int main(int argc, char** argv)
     solver.src = src;
 
     solver.tolerance = 1.0e-6;
-    solver.max_iterations = (unsigned int)1e5;
+    solver.max_iterations = (unsigned int)10;
+
+    solver.use_dsa = true;
 
     solver.initialize();
     solver.execute();
