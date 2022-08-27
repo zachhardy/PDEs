@@ -25,11 +25,12 @@ SteadyStateSolver::initialize()
     << "\n*********************************************************\n";
 
   n_groups = xs->n_groups;
-  n_moments = xs->scattering_order + 1;
+  n_moments = 1;
   n_angles = quadrature->size();
 
   psi.resize(n_groups * n_angles);
   phi.resize(n_groups * n_moments);
+  phi_ell.resize(n_groups * n_moments);
   q_moments.resize(n_groups * n_moments);
 
   compute_moment_to_discrete_operator();

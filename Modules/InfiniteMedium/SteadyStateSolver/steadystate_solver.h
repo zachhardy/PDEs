@@ -92,21 +92,42 @@ namespace InfiniteMedium
       virtual void
       execute();
 
+      /**
+       * Get the angular flux solution.
+       */
+      const Vector&
+      get_angular_flux() const;
+
+      /**
+       * Get the flux moment solution.
+       */
+      const Vector&
+      get_flux_moments() const;
+
     protected:
       /**
        * Implementation of the source iterations routine.
+       *
+       * \param source_flags Bitwise flags defining the source terms to be
+       *    added to the right-hand side vector.
        */
       std::pair<unsigned int, double>
       source_iterations(SourceFlags source_flags);
 
       /**
-       * Compute the source moments.
+       * Set the right-hand side source moments vector. This is an additive
+       * routine which will only add the specified sources to the source
+       * moments vector. Source options include the inhomogeneous source,
+       * scattering source, and fission source.
+       *
+       * \param source_flags Bitwise flags defining the source terms to be
+       *    added to the right-hand side vector.
        */
       void
       set_source(SourceFlags source_flags = NO_SOURCE_FLAGS);
 
       /**
-       * Solve the system for the next angular flux and flux moment update.
+       * Solve the system for the next angular flux and flux moment iterate.
        */
       void
       sweep();

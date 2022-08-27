@@ -1,5 +1,5 @@
 
 add_subdirectory("NeutronDiffusion")
-add_subdirectory("NeutronTransport")
+add_subdirectory("InfiniteMedium")
 
 set(SOURCES ${SOURCES} PARENT_SCOPE)

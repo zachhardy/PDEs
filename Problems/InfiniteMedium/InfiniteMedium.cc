@@ -16,12 +16,7 @@ using namespace Physics;
 using namespace InfiniteMedium;
 
 
-/**
- * The main execution function.
- * \param argc int      Number of supplied arguments.
- * \param argv char**   Array of strings for each argument.
- */
-int main(int argc, char** argv)
+int main()
 {
   try{
     auto quadrature = std::make_shared<GaussLegendreQuadrature>(2);
@@ -48,8 +43,8 @@ int main(int argc, char** argv)
     solver.inner_tolerance = 1.0e-6;
     solver.max_inner_iterations = (unsigned int)100;
 
-//    solver.outer_tolerance = 1.0e-6;
-//    solver.max_outer_iterations = 100;
+    //    solver.outer_tolerance = 1.0e-6;
+    //    solver.max_outer_iterations = 100;
 
     solver.use_dsa = false;
     solver.verbosity = 2;

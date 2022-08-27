@@ -90,16 +90,30 @@ target_link_libraries(PDELib ${MPI_CXX_LIBRARIES})
 add_executable(${TARGET} PDEs/main.cc)
 target_link_libraries(${TARGET} PDELib Eigen3::Eigen petsc)
 
-file(GLOB_RECURSE TEST_TARGETS ${PROJECT_SOURCE_DIR}/Problems/*.cc)
-foreach(testsource ${TEST_TARGETS})
-    get_filename_component(test ${testsource} NAME_WE)
-    get_filename_component(dirname ${testsource} DIRECTORY)
-    add_executable(${test} ${testsource})
-    target_link_libraries(${test} PDELib Eigen3::Eigen petsc)
-    set_target_properties(${test} PROPERTIES
+#-------------------- Problem executables
+file(GLOB_RECURSE PROBLEM_TARGETS ${PROJECT_SOURCE_DIR}/Problems/*.cc)
+foreach(problem_source ${PROBLEM_TARGETS})
+    get_filename_component(problem ${problem_source} NAME_WE)
+    get_filename_component(dirname ${problem_source} DIRECTORY)
+    add_executable(${problem} ${problem_source})
+    target_link_libraries(${problem} PDELib Eigen3::Eigen petsc)
+    set_target_properties(${problem} PROPERTIES
                           RUNTIME_OUTPUT_DIRECTORY
                           ${dirname}/../../bin/Problems)
-endforeach(testsource ${TEST_TARGETS})
+endforeach(problem_source ${PROBLEM_TARGETS})
+
+#-------------------- Test executables
+file(GLOB_RECURSE TEST_TARGETS ${PROJECT_SOURCE_DIR}/Test/*.cc)
+foreach(test_source ${TEST_TARGETS})
+    get_filename_component(test ${test_source} NAME_WE)
+    get_filename_component(dirname ${test_source} DIRECTORY)
+    add_executable(${test} ${test_source})
+    target_link_libraries(${test} PDELib Eigen3::Eigen petsc)
+    message(STATUS ${dirname})
+    set_target_properties(${test} PROPERTIES
+                          RUNTIME_OUTPUT_DIRECTORY
+                          ${dirname}/../bin/Test)
+endforeach(test_source ${TEST_TARGETS})
 
 #-------------------- Write Makefile to root directory
 set(CMAKE_VERBOSE_MAKEFILE OFF)

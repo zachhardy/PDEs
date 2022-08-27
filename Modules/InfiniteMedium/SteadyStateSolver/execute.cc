@@ -77,7 +77,6 @@ SteadyStateSolver::sweep()
 {
   phi = 0.0;
   for (unsigned int n = 0; n < n_angles; ++n)
-  {
     for (unsigned int g = 0; g < n_groups; ++g)
     {
       // Solve for the angular flux
@@ -93,7 +92,6 @@ SteadyStateSolver::sweep()
       for (unsigned int ell = 0; ell < n_moments; ++ell)
         phi[ell*n_groups + g] += discrete_to_moment[ell][n]*x;
     }//for g
-  }//for n
 }
 
 
@@ -124,7 +122,7 @@ SteadyStateSolver::set_source(SourceFlags source_flags)
       {
         const auto* sig_ell = xs->transfer_matrices[ell][g].data();
         for (unsigned int gp = 0; gp < n_groups; ++gp)
-          rhs += *sig_ell++ * phi[uk_map + gp];
+          rhs += *sig_ell++*phi[uk_map + gp];
       }
 
       // Fission term
@@ -133,9 +131,8 @@ SteadyStateSolver::set_source(SourceFlags source_flags)
         const auto chi = xs->chi[g];
         const auto* nusig_f = xs->nu_sigma_f.data();
         for (unsigned int gp = 0; gp < n_groups; ++gp)
-          rhs += chi * *nusig_f++ * phi[uk_map + gp];
+          rhs += chi**nusig_f++*phi[uk_map + gp];
       }
-
       q_moments[uk_map + g] += rhs;
     }//for group
   }//for moment
@@ -160,4 +157,18 @@ SteadyStateSolver::check_balance()
   for (unsigned int g = 0; g < n_groups; ++g)
     balance += src->values[g] - xs->sigma_a[g]*phi[g];
   return balance;
+}
+
+
+const Vector&
+SteadyStateSolver::get_angular_flux() const
+{
+  return psi;
+}
+
+
+const Vector&
+SteadyStateSolver::get_flux_moments() const
+{
+  return phi;
 }
