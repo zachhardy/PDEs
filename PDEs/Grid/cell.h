@@ -46,12 +46,12 @@ namespace PDEs
      *      - Spherical:   Shell
      *  - 2D:
      *      - Cartesian:   Polygon
-     *          - Traingle
-     *          - Quadrilaterals
+     *          - Triangle
+     *          - Quadrilateral
      *  - 3D:
      *      - Cartesian:   Polyhedron
-     *          - Tetrahedra
-     *          - Polyhedra
+     *          - Tetrahedron
+     *          - Polyhedron
      */
     class Cell
     {
