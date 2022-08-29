@@ -52,9 +52,6 @@ namespace PDEs
       get_weights() const;
 
     protected:
-      /**
-       * The number of quadrature points.
-       */
       const unsigned int n_quadrature_points;
 
       /**

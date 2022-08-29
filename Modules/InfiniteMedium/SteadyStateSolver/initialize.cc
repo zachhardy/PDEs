@@ -51,7 +51,7 @@ SteadyStateSolver::initialize()
 void
 SteadyStateSolver::compute_moment_to_discrete_operator()
 {
-  moment_to_discrete.reinit(n_moments, n_angles);
+  moment_to_discrete.resize(n_moments, n_angles, 0.0);
 
   const auto& wgts = quadrature->get_weights();
   const auto& qpoints = quadrature->get_quadrature_points();
@@ -80,7 +80,7 @@ SteadyStateSolver::compute_moment_to_discrete_operator()
 void
 SteadyStateSolver::compute_discrete_to_moment_operator()
 {
-  discrete_to_moment.reinit(n_moments, n_angles);
+  discrete_to_moment.resize(n_moments, n_angles, 0.0);
 
   const auto& wgts = quadrature->get_weights();
   const auto& qpoints = quadrature->get_quadrature_points();

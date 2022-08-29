@@ -14,8 +14,8 @@ using namespace PDEs;
 using namespace Math;
 
 
-SparseMatrix::Iterator::Entry::
-Entry(const size_t row, const size_t column, double& value) :
+SparseMatrix::Iterator::Element::
+Element(const size_t row, const size_t column, double& value) :
     row(row), column(column), value(value)
 {}
 
@@ -49,7 +49,7 @@ SparseMatrix::Iterator::operator++(int)
 }
 
 
-SparseMatrix::Iterator::Entry
+SparseMatrix::Iterator::Element
 SparseMatrix::Iterator::operator*() const
 {
   return {row,
@@ -114,8 +114,8 @@ SparseMatrix::Iterator::advance()
 }
 
 
-SparseMatrix::ConstIterator::ConstEntry::
-ConstEntry(const size_t row, const size_t column, const double& value) :
+SparseMatrix::ConstIterator::ConstElement::
+ConstElement(const size_t row, const size_t column, const double& value) :
     row(row), column(column), value(value)
 {}
 
@@ -151,7 +151,7 @@ SparseMatrix::ConstIterator::operator++(int)
 }
 
 
-SparseMatrix::ConstIterator::ConstEntry
+SparseMatrix::ConstIterator::ConstElement
 SparseMatrix::ConstIterator::operator*() const
 {
   return {row,
@@ -340,7 +340,7 @@ SparseMatrix::n_cols() const
 
 
 size_t
-SparseMatrix::n_nonzero_entries() const
+SparseMatrix::n_nonzero_elements() const
 {
   return std::accumulate(colnums.begin(), colnums.end(), 0,
                          [](size_t v, const std::vector<size_t>& row) { return v + row.size(); });
@@ -353,6 +353,73 @@ SparseMatrix::row_length(const size_t row) const
   assert(row < rows);
   assert(colnums[row].size() == values[row].size());
   return colnums[row].size();
+}
+
+
+bool
+SparseMatrix::empty() const
+{
+  return (rows == 0 && cols == 0 &&
+          colnums.empty() && values.empty());
+}
+
+
+bool
+SparseMatrix::exists(const size_t row, const size_t column) const
+{
+  return index(row, column) != -1;
+}
+
+
+double&
+SparseMatrix::operator()(const size_t i, const size_t j)
+{
+  const unsigned int idx = index(i, j);
+  assert(idx != -1);
+  return values[i][idx];
+}
+
+
+const double&
+SparseMatrix::operator()(const size_t i, const size_t j) const
+{
+  const unsigned int idx = index(i, j);
+  assert(idx != -1);
+  return values[i][idx];
+}
+
+
+double
+SparseMatrix::el(const size_t i, const size_t j)
+{
+  const unsigned int idx = index(i, j);
+  return (idx != -1) ? values[i][idx] : 0.0;
+}
+
+
+double&
+SparseMatrix::diag(const size_t i)
+{
+  const unsigned int idx = index(i, i);
+  assert(idx != -1);
+  return values[i][idx];
+}
+
+
+const double&
+SparseMatrix::diag(const size_t i) const
+{
+  const unsigned int idx = index(i, i);
+  assert(idx != -1);
+  return values[i][idx];
+}
+
+
+double
+SparseMatrix::diag_el(const size_t i) const
+{
+  const unsigned int idx = index(i, i);
+  return (idx != -1) ? values[i][idx] : 0.0;
 }
 
 
@@ -379,35 +446,6 @@ SparseMatrix::index(const size_t row, const size_t column) const
   else
     return -1;
 }
-
-
-bool
-SparseMatrix::empty() const
-{
-  return (rows == 0 && cols == 0 &&
-          colnums.empty() && values.empty());
-}
-
-
-bool
-SparseMatrix::exists(const size_t row, const size_t column) const
-{
-  return index(row, column) != -1;
-}
-
-
-bool
-SparseMatrix::operator==(const SparseMatrix& other) const
-{
-  return (has_entries == other.has_entries &&
-          rows == other.rows && cols == other.cols &&
-          colnums == other.colnums && values == other.values);
-}
-
-
-bool
-SparseMatrix::operator!=(const SparseMatrix& other) const
-{ return !(*this == other); }
 
 
 SparseMatrix::Iterator
@@ -507,58 +545,6 @@ SparseMatrix::row_iterator(const size_t row) const
 {
   assert(row < rows);
   return {this, row};
-}
-
-
-double&
-SparseMatrix::operator()(const size_t i, const size_t j)
-{
-  const unsigned int idx = index(i, j);
-  assert(idx != -1);
-  return values[i][idx];
-}
-
-
-const double&
-SparseMatrix::operator()(const size_t i, const size_t j) const
-{
-  const unsigned int idx = index(i, j);
-  assert(idx != -1);
-  return values[i][idx];
-}
-
-
-double
-SparseMatrix::el(const size_t i, const size_t j)
-{
-  const unsigned int idx = index(i, j);
-  return (idx != -1) ? values[i][idx] : 0.0;
-}
-
-
-double&
-SparseMatrix::diag(const size_t i)
-{
-  const unsigned int idx = index(i, i);
-  assert(idx != -1);
-  return values[i][idx];
-}
-
-
-const double&
-SparseMatrix::diag(const size_t i) const
-{
-  const unsigned int idx = index(i, i);
-  assert(idx != -1);
-  return values[i][idx];
-}
-
-
-double
-SparseMatrix::diag_el(const size_t i) const
-{
-  const unsigned int idx = index(i, i);
-  return (idx != -1) ? values[i][idx] : 0.0;
 }
 
 
@@ -790,18 +776,11 @@ SparseMatrix::vmult_add(const Vector& x, Vector& y) const
 
 
 Vector
-SparseMatrix::vmult(const Vector& x) const
-{
-  Vector y(rows);
-  vmult(x, y);
-  return y;
-}
-
-
-Vector
 SparseMatrix::operator*(const Vector& x) const
 {
-  return vmult(x);
+  Vector y(n_rows());
+  vmult(x, y);
+  return y;
 }
 
 
@@ -823,15 +802,6 @@ SparseMatrix::Tvmult(const Vector& x, Vector& y, const bool adding) const
     while (a_ij != eor)
       dst_ptr[*col_ptr++] += *a_ij++ * *x_ptr;
   }
-}
-
-
-Vector
-SparseMatrix::Tvmult(const Vector& x) const
-{
-  Vector y(cols);
-  Tvmult(x, y);
-  return y;
 }
 
 
@@ -925,6 +895,27 @@ SparseMatrix::print_row(const size_t row,
   // reset output stream format
   os.precision(old_precision);
   os.flags(old_flags);
+}
+
+
+bool
+SparseMatrix::operator==(const SparseMatrix& other) const
+{
+  return (has_entries == other.has_entries &&
+          rows == other.rows && cols == other.cols &&
+          colnums == other.colnums && values == other.values);
+}
+
+
+bool
+SparseMatrix::operator!=(const SparseMatrix& other) const
+{ return !(*this == other); }
+
+
+SparseMatrix
+Math::operator*(const double factor, const SparseMatrix& A)
+{
+  return A * factor;
 }
 
 

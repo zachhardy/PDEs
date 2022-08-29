@@ -33,9 +33,11 @@ namespace PDEs
       unsigned int
       nodes_per_cell() const override;
 
-      size_t n_dofs(const unsigned int n_components) const override;
+      size_t
+      n_dofs(const unsigned int n_components) const override;
 
-      unsigned int dofs_per_cell(const unsigned int n_components) const override;
+      unsigned int
+      dofs_per_cell(const unsigned int n_components) const override;
 
       std::vector<Grid::Node>
       nodes(const Grid::Cell& cell) const override;

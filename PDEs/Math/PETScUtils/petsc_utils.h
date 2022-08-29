@@ -11,9 +11,7 @@ namespace PDEs
   {
     // forward declarations
     class Vector;
-
     class Matrix;
-
     class SparseMatrix;
 
 

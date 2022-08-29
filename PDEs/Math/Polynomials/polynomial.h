@@ -11,38 +11,33 @@ namespace PDEs
     namespace Polynomials
     {
       /**
-       * Evaluate the order \p n Legendre polynomial.
+       * Evaluate the order \p n Legendre polynomial at \p x.
        *
-       * \param n The Legendre polynomial order.
-       * \param x The evaluation point. This must be in the range [-1, 1].
+       * \note \p x should be in the range [-1, 1].
        */
       double
       legendre(const unsigned int n, const double x);
 
       /**
-       * Evaluate the derivative of the order \p n Legendre polynomial.
+       * Evaluate the derivative of the order \p n Legendre polynomial at \p x.
        *
-       * \param n The Legendre polynomial order.
-       * \param x The evaluation point. This must be in the range [-1, 1].
+       * \note \p x should be in the range [-1, 1].
        */
       double
       dlegendre(const unsigned int n, const double x);
 
 
       /**
-       * Evaluate the second derivative of the order \p n Legendre polynomial.
+       * Evaluate the second derivative of the order \p n Legendre polynomial
+       * at \p x.
        *
-       * \param n The Legendre polynomial order.
-       * \param x The evaluation point. This must be in the range [-1, 1].
+       * \note \p x should be in the range [-1, 1].
        */
       double
       d2legendre(const unsigned int n, const double x);
 
       /**
-       * Evaluate the order \p n Chebyshev polynomial.
-       *
-       * \param n The Chebyshev polynomial order.
-       * \param x The evaluation point. This must be in the range [-1, 1].
+       * Evaluate the order \p n Chebyshev polynomial at \p x.
        */
       double
       chebyshev(const unsigned int n, const double x);

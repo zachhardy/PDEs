@@ -75,10 +75,24 @@ CartesianVector::operator()(const unsigned int i) const
 }
 
 
+double&
+CartesianVector::x()
+{
+  return xyz[0];
+}
+
+
 const double&
 CartesianVector::x() const
 {
   return xyz[0];
+}
+
+
+double&
+CartesianVector::y()
+{
+  return xyz[1];
 }
 
 
@@ -89,41 +103,17 @@ CartesianVector::y() const
 }
 
 
-const double&
-CartesianVector::z() const
+double&
+CartesianVector::z()
 {
   return xyz[2];
 }
 
 
-bool
-CartesianVector::operator==(const CartesianVector& other) const
+const double&
+CartesianVector::z() const
 {
-  return (xyz == other.xyz);
-}
-
-
-bool
-CartesianVector::operator!=(const CartesianVector& other) const
-{
-  return !(xyz == other.xyz);
-}
-
-
-double
-CartesianVector::distance(const CartesianVector& other) const
-{
-  return std::sqrt(this->distance_squared(other));
-}
-
-
-double
-CartesianVector::distance_squared(const CartesianVector& other) const
-{
-  double dx = this->x() - other.x();
-  double dy = this->y() - other.y();
-  double dz = this->z() - other.z();
-  return dx * dx + dy * dy + dz * dz;
+  return xyz[2];
 }
 
 
@@ -141,6 +131,23 @@ CartesianVector::length_squared() const
   for (const auto& v: xyz)
     retval += v * v;
   return retval;
+}
+
+
+double
+CartesianVector::distance(const CartesianVector& other) const
+{
+  return std::sqrt(this->distance_squared(other));
+}
+
+
+double
+CartesianVector::distance_squared(const CartesianVector& other) const
+{
+  double dx = this->x() - other.x();
+  double dy = this->y() - other.y();
+  double dz = this->z() - other.z();
+  return dx * dx + dy * dy + dz * dz;
 }
 
 
@@ -288,6 +295,20 @@ void
 CartesianVector::print(std::ostream& os) const
 {
   os << this->str();
+}
+
+
+bool
+CartesianVector::operator==(const CartesianVector& other) const
+{
+  return (xyz == other.xyz);
+}
+
+
+bool
+CartesianVector::operator!=(const CartesianVector& other) const
+{
+  return !(xyz == other.xyz);
 }
 
 

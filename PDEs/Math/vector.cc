@@ -18,12 +18,15 @@ Vector::Vector(const std::initializer_list<double>& list) :
 template<typename InputIterator>
 Vector::Vector(const InputIterator first, const InputIterator last)
 {
-  reinit(std::distance(first, last));
+  resize(std::distance(first, last));
   std::copy(first, last, begin());
 }
-
 template Vector::Vector(const double*, const double*);
 
+
+Vector::Vector(const size_t n) :
+    values(n)
+{}
 
 Vector::Vector(const size_t n, const double value) :
     values(n, value)
@@ -65,14 +68,6 @@ Vector::operator=(const double value)
 }
 
 
-void
-Vector::reinit(const size_t n, const double value)
-{
-  values.clear();
-  values.resize(n, value);
-}
-
-
 size_t
 Vector::size() const
 {
@@ -81,7 +76,7 @@ Vector::size() const
 
 
 size_t
-Vector::n_nonzero_entries() const
+Vector::n_nonzero_elements() const
 {
   return std::count_if(values.begin(), values.end(),
                        [](const double v) { return v != 0.0; });
@@ -95,87 +90,31 @@ Vector::empty() const
 }
 
 
-bool
-Vector::operator==(const Vector& y) const
-{
-  return (values == y.values);
-}
-
-
-bool
-Vector::operator!=(const Vector& y) const
-{
-  return (values != y.values);
-}
-
-
 double&
 Vector::operator[](const size_t i)
 {
-  return values[i];
+  return values.at(i);
 }
 
 
 const double&
 Vector::operator[](const size_t i) const
 {
-  return values[i];
+  return values.at(i);
 }
 
 
 double&
 Vector::operator()(const size_t i)
 {
-  return values[i];
+  return values.at(i);
 }
 
 
 const double&
 Vector::operator()(const size_t i) const
 {
-  return values[i];
-}
-
-
-double&
-Vector::at(const size_t i)
-{
   return values.at(i);
-}
-
-
-const double&
-Vector::at(const size_t i) const
-{
-  return values.at(i);
-}
-
-
-double&
-Vector::front()
-{
-  return values.front();
-}
-
-
-const double&
-Vector::front() const
-{
-  return values.front();
-}
-
-
-double&
-Vector::back()
-{
-  return values.back();
-}
-
-
-const double&
-Vector::back() const
-{
-  return values.back();
 }
 
 
@@ -229,16 +168,9 @@ Vector::clear()
 
 
 void
-Vector::push_back(const double value)
+Vector::resize(const size_t n)
 {
-  values.push_back(value);
-}
-
-
-void
-Vector::pop_back()
-{
-  values.pop_back();
+  values.resize(n);
 }
 
 
@@ -513,6 +445,20 @@ Vector::print(std::ostream& os,
               const unsigned int width) const
 {
   os << str(scientific, precision, width);
+}
+
+
+bool
+Vector::operator==(const Vector& y) const
+{
+  return (values == y.values);
+}
+
+
+bool
+Vector::operator!=(const Vector& y) const
+{
+  return (values != y.values);
 }
 
 

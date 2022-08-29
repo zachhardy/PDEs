@@ -22,22 +22,10 @@ namespace PDEs
     class Matrix
     {
     public:
-      /**
-       * Alias for an iterator over an STL vector of Vector objects.
-       */
       using iterator = std::vector<Vector>::iterator;
-
-      /**
-       * Alias for a constant iterator over an STL vector of Vector objects.
-       */
       using const_iterator = std::vector<Vector>::const_iterator;
 
-    public:
-
-      /**
-       * \name Constructors and assignment
-       */
-      /* @{ */
+      //################################################## Constructors
 
       /**
        * Default constructor. Create an empty matrix.
@@ -57,24 +45,34 @@ namespace PDEs
       /**
        * Construct a matrix with \p n_rows and \p n_cols.
        */
-      Matrix(const size_t n_rows,
-             const size_t n_cols,
-             const double value = 0.0);
+      Matrix(const size_t n_rows, const size_t n_cols);
 
       /**
-       * Copy construction with nested initializer lists.
+       * Construct a matrix with \p n_rows and \p n_cols whose elements are
+       * set to \p value.
+       */
+      Matrix(const size_t n_rows,
+             const size_t n_cols,
+             const double value);
+
+      /**
+       * Construct a matrix from initializer lists.
        */
       Matrix(const std::initializer_list<std::initializer_list<double>>& list);
 
       /**
-       * Construct a matrix from iterators.
+       * Construct with the values pointed to by iterators in the range
+       * <tt>[first, last)</tt>.
+       *
+       * Each iterator must point to another object with defined iterators
+       * which all have identical distances from first to last.
        */
       template<typename InputIterator>
       Matrix(const InputIterator first, const InputIterator last);
 
       /**
-       * Construct a matrix with \p n_rows and \p n_cols from contiguously stored
-       * entries.
+       * Construct a matrix with \p n_rows and \p n_cols from <tt>n_rows *
+       * n_cols</tt> contiguously stored entries.
        */
       Matrix(const size_t n_rows,
              const size_t n_cols,
@@ -91,18 +89,9 @@ namespace PDEs
       Matrix(Vector&& diagonal);
 
       /**
-       * Construct a diagonal matrix from an initializer list of doubles.
+       * Construct a diagonal matrix from an initializer list.
        */
       Matrix(const std::initializer_list<double>& diagonal);
-
-      /**
-       * Clear the Matrix and reinitialize it with \p n_rows and \p n_cols,
-       * optionally set to \p value.
-       */
-      void
-      reinit(const size_t n_rows,
-             const size_t n_cols,
-             const double value = 0.0);
 
       /**
        * Copy assignment from another matrix.
@@ -122,11 +111,7 @@ namespace PDEs
       Matrix&
       operator=(const double value);
 
-      /* @} */
-      /**
-       * \name Information about the matrix.
-       */
-      /* @{ */
+      //################################################## Capacity
 
       /**
        * Return the number of rows.
@@ -141,124 +126,60 @@ namespace PDEs
       n_cols() const;
 
       /**
-       * Return the number of entries.
+       * Return the number of elements.
        */
       size_t
       size() const;
 
       /**
-       * Return the number of non-zero entries.
+       * Return the number of non-zero elements.
        */
       size_t
-      n_nonzero_entries() const;
+      n_nonzero_elements() const;
 
       /**
-       * Return whether the matrix is empty (no allocated entries) or not.
+       * Return whether the matrix is empty (no allocated elements) or not.
        */
       bool
       empty() const;
 
-      /**
-       * Return the transpose of the matrix.
-       */
-      Matrix
-      transpose() const;
-
-      /**
-       * Return whether all entries of two matrices are equivalent.
-       */
-      bool
-      operator==(const Matrix& other) const;
-
-      /**
-       * Return whether any entries of two matrices are different.
-       */
-      bool
-      operator!=(const Matrix& other) const;
-
-      /* @} */
-      /**
-       * \name Accessors and iterators
-       */
-      /* @{ */
+      //################################################## Data Access
 
       /**
        * Read and write access for row \p i.
-       * \note No bounds checking is performed. See \ref at.
        */
       Vector&
       operator[](const size_t i);
 
       /**
        * Read access for row \p i.
-       * \note No bounds checking is performed. See \ref at.
        */
       const Vector&
       operator[](const size_t i) const;
 
       /**
        * Read and write access for row \p i.
-       * \note No bounds checking is performed. See \ref at.
        */
       Vector&
       operator()(const size_t i);
 
       /**
        * Read access for row \p i.
-       * \note No bounds checking is performed. See \ref at.
        */
       const Vector&
       operator()(const size_t i) const;
 
       /**
-       * Read and write access for row \p i with bounds checking.
-       */
-      Vector&
-      at(const size_t i);
-
-      /**
-       * Read access for row \p i with bounds checking.
-       */
-      const Vector&
-      at(const size_t i) const;
-
-      /**
        * Read and write access for row \p i column \p j.
-       * \note No bounds checking is performed. See \ref at.
        */
       double&
       operator()(const size_t i, const size_t j);
 
       /**
        * Read access for row \p i column \p j.
-       * \note No bounds checking is performed. See \ref at.
        */
       const double&
       operator()(const size_t i, const size_t j) const;
-
-      /**
-       * Read and write access for row \p i column \p j with bounds checking.
-       */
-      double&
-      at(const size_t i, const size_t j);
-
-      /**
-       * Read access for row \p i column \p j with bounds checking.
-       */
-      const double&
-      at(const size_t i, const size_t j) const;
-
-      /**
-       * Read and write access for diagonal entry \p i with bounds checking.
-       */
-      double&
-      diag(const size_t i);
-
-      /**
-       * Read access for diagonal entry \p i with bounds checking.
-       */
-      const double&
-      diag(const size_t i) const;
 
       /**
        * Return a pointer the underlying rows.
@@ -332,11 +253,7 @@ namespace PDEs
       std::vector<double>::const_iterator
       end(const size_t i) const;
 
-      /* @} */
-      /**
-       * \name Modifying the matrix
-       */
-      /* @} */
+      //################################################## Modifiers
 
       /**
        * Delete the contents of the matrix.
@@ -345,35 +262,28 @@ namespace PDEs
       clear();
 
       /**
-       * Add a row to the back of the matrix. The input Vector have the size as
-       * the number of columns in the matrix.
+       * Resize the matrix to \p n_rows and \p n_cols, setting new elements
+       * to \p value.
+       *
+       * If either dimension is less than its current size, elements are
+       * deleted from the back. If either is greater, new elements are
+       * allocated at the back of that dimension and set to \p value.
        */
       void
-      push_back(const Vector& row);
+      resize(const size_t n_rows, const size_t n_cols);
 
       /**
-       * Add a row to the back of the matrix. The input Vector have the size as
-       * the number of columns in the matrix.
-       * \note This operation clears the contents of the input Vector.
-       */
-      void
-      push_back(Vector&& row);
-
-      /**
-       * Remove the last row from the matrix.
-       */
-      void
-      pop_back();
-
-      /**
-       * Resize the matrix to have \p n_rows and \p n_cols. If either dimension
-       * is less than the its current size, entries are deleted from the back.
-       * If either is greater, new entries are allocated.
+       * Resize the matrix to \p n_rows and \p n_cols, setting new elements
+       * to \p value.
+       *
+       * If either dimension is less than its current size, elements are
+       * deleted from the back. If either is greater, new elements are
+       * allocated at the back of that dimension and set to \p value.
        */
       void
       resize(const size_t n_rows,
              const size_t n_cols,
-             const double value = 0.0);
+             const double value);
 
       /**
        * Swap two rows of the matrix.
@@ -394,319 +304,274 @@ namespace PDEs
       swap(Matrix& other);
 
       /**
-       * Set the diagonal of the matrix by copying from a Vector.
-       * If the matrix is empty, this creates a diagonal matrix with the
-       * specified values. If the matrix is not empty, the diagonal entries must
-       * be the same size as the minimum dimension of the matrix.
+       * Set the diagonal of the matrix by copying data from a vector.
+       *
+       * If the matrix is empty, this creates a diagonal matrix. If the matrix
+       * is not empty, the diagonal vector must be of the same size as the
+       * minimum dimension of the matrix.
        */
       void
-      set_diag(const Vector& diagonal);
+      set_diagonal(const Vector& diagonal);
 
       /**
-       * Set the diagonal of the matrix by moving from a Vector.
-       * See \ref set_diag.
+       * Set the diagonal of the matrix by stealing data from a vector.
+       *
+       * If the matrix is empty, this creates a diagonal matrix. If the matrix
+       * is not empty, the diagonal vector must be of the same size as the
+       * minimum dimension of the matrix.
        */
-      void
-      set_diag(Vector&& diagonal);
+       void
+       set_diagonal(Vector&& diagonal);
+
+       /**
+        * Set the diagonal of the matrix from an initializer list.
+        *
+        * If the matrix is empty, this creates a diagonal matrix. If the matrix
+        * is not empty, the diagonal vector must be of the same size as the
+        * minimum dimension of the matrix.
+        */
+       void
+       set_diagonal(const std::initializer_list<double>& diagonal);
 
       /**
-       * Set the diagonal of the matrix with an initializer list of doubles.
-       * See \ref set_diag.
-       */
-      void
-      set_diag(const std::initializer_list<double>& diagonal);
-
-      /**
-       * Set the diagonal of the matrix to a single scalar value. If the matrix
-       * is empty, this initializes a matrix with one row and one column whose
-       * entry is set to \p value. If not empty, each diagonal entry is set to
+       * Set the diagonal of the matrix to a single scalar value.
+       *
+       * If the matrix is empty, this initializes a matrix with a single element
+       * and sets it to \p value. If not empty, each diagonal entry is set to
        * \p value.
        */
       void
-      set_diag(const double value);
+      set_diagonal(const double value);
 
-      /* @} */
-      /**
-       * \name Scaling operations
-       */
-      /* @{ */
+      //################################################## Scaling Operations
 
       /**
-       * Multiply the matrix by a scalar such that \f$ A = a A \f$.
+       * Element-wise multiplication by a scalar.
        */
       Matrix&
       scale(const double factor);
 
       /**
-       * Negate the entries of the matrix such that \f$ A = -A \f$. This is
-       * equivalent to scaling by -1.0. See \ref scale.
+       * Element-wise negation.
        */
       Matrix&
       operator-();
 
       /**
-       * Return a matrix containing the negated entries of this matrix. See
-       * \ref scale.
+       * Return a matrix with the negated elements.
        */
       Matrix
       operator-() const;
 
       /**
-       * Multiply the entries of the matrix by a scalar. See \ref scale.
+       * Element-wise multiplication by a scalar.
        */
       Matrix&
       operator*=(const double factor);
 
       /**
-       * Return a matrix containing the entries of this matrix multiplied by
-       * a scalar. See \ref scale.
+       * Return a matrix with the elements multiplied by a scalar.
        */
       Matrix
       operator*(const double factor) const;
 
       /**
-       * Divide the entries of the matrix by a non-zero scalar. See \ref scale.
+       * Element-wise division by a non-zero scalar.
        */
       Matrix&
       operator/=(const double factor);
 
       /**
-       * Return a matrix containing the entries of this matrix divided by a
-       * non-zero scalar. See \ref scale.
+       * Return a matrix with the elements divided by a non-zero scalar.
        */
       Matrix
       operator/(const double factor) const;
 
-      /* @} */
-      /**
-       * \name Addition and subtraction operations
-       */
-      /* @{ */
+      //################################################## Matrix Addition and
+      //                                                   Subtraction
 
       /**
-       * Multiply this matrix by a scalar and add another scaled matrix to it
-       * such that \f$ A = a A + b B \f$. The dimensions of each matrix must
-       * agree for this to be a permissible operation.
+       * Element-wise multiplication by a scalar and addition by another
+       * scale matrix, i.e. \f$ A = a A + b B \f$.
        */
       Matrix&
       sadd(const double a, const double b, const Matrix& B);
 
       /**
-       * Multiply this matrix by a scalar and add another to it. This is
-       * equivalent to calling the more general \ref sadd with <tt>b = 1.0</tt>.
-       * See \ref sadd.
+       * Element-wise multiplication by a scalar and addition by another
+       * matrix, i.e. \f$ A = a A + B \f$.
        */
       Matrix&
       sadd(const double a, const Matrix& B);
 
       /**
-       * Add a scaled matrix to this one. This is equivalent to calling \ref sadd
-       * with <tt>a= 1.0</tt>. See \ref sadd.
+       * Element-wise addition by a scaled matrix, i.e. \f$ A = A + b B \f$.
        */
       Matrix&
       add(const double b, const Matrix& B);
 
       /**
-       * Add another matrix to this one. This is equivalent to calling \ref add
-       * with <tt>b = 1.0</tt>.
+       * Element-wise addition by another matrix.
        */
       Matrix&
       operator+=(const Matrix& B);
 
       /**
-       * Return the sum of this matrix and another. See \ref add.
+       * Return the sum of two matrices
        */
       Matrix
       operator+(const Matrix& B) const;
 
       /**
-       * Subtract another matrix from this one. This is equivalent to calling
-       * \ref add with <tt>b = -1.0</tt>. See \ref add.
+       * Element-wise subtraction by another matrix.
        */
       Matrix&
       operator-=(const Matrix& B);
 
       /**
-       * Return the difference between this matrix and another.
+       * Return the difference between two matrices.
        */
       Matrix
       operator-(const Matrix& B) const;
 
       /**
-       * Multiply this matrix by a scalar and add the scaled transpose of another
-       * to it such that \f$ A = a A + b B^T \f$. The dimension of this matrix and
-       * the transpose of the other must agree for this operation to be permissible.
+       * Element-wise multiplication by a scalar and addition by a scaled
+       * transpose matrix, i.e. \f$ A = a A + b B^T \f$.
+       *
+       * The transpose operation is applied within this routine by swapping
+       * the row and column indices when querying the matrix \p B. The original
+       * matrix \p B, and not its transpose, should be passed to this routine.
        */
       Matrix&
       sTadd(const double a, const double b, const Matrix& B);
 
       /**
-       * Multiply this matrix by a scalar and add the transpose of another to it.
-       * This is equivalent to calling \ref sTadd with <tt>b = 1.0</tt>. See \ref
-       * sTadd.
+       * Element-wise multiplication by a scalar and addition by a transpose
+       * matrix, i.e. \f$ A = a A + B \f$.
+       *
+       * The transpose operation is applied within this routine by swapping
+       * the row and column indices when querying the matrix \p B. The original
+       * matrix \p B, and not its transpose, should be passed to this routine.
        */
       Matrix&
       sTadd(const double a, const Matrix& B);
 
       /**
-       * Add the scaled transpose of another matrix to this one. This is
-       * equivalent to calling \ref sTadd with <tt>a = 1.0</tt>. See \ref sTadd.
+       * Element-wise addition of a scaled transpose matrix, i.e. \f$ A = A +
+       * b B^T \f$.
+       *
+       * The transpose operation is applied within this routine by swapping
+       * the row and column indices when querying the matrix \p B. The original
+       * matrix \p B, and not its transpose, should be passed to this routine.
        */
       Matrix&
       Tadd(const double b, const Matrix& B);
 
-      /* @} */
-      /**
-       * \name Matrix-matrix products
-       */
-      /* @{ */
+      //################################################## Matrix-Matrix
+      //                                                   Multiplication
 
       /**
-       * Compute a matrix-matrix product via \f$ C A B = \sum_k a_{ik}
-       * b_{kj}, ~ \forall i, j \f$.
+       * Compute a matrix-matrix product, i.e. \f$ C = A B \f$.
        *
-       * \param[in] B The multiplying Matrix.
-       * \param[out] C The destination Matrix.
-       * \param adding A flag for adding to or setting the destination Matrix.
+       * The optional \p adding flag dictates whether to write or add to the
+       * destination matrix \p C.
        */
       void
       mmult(const Matrix& B, Matrix& C, const bool adding = false) const;
 
-      /**
-       * Return a matrix-matrix product. See \ref mmult.
-       */
-      Matrix
-      mmult(const Matrix& B) const;
 
       /**
-       * Compute a transpose matrix-matrix product via \f$ C = A^T B =
-       * \sum_{k=0}^{n} a_{ki} b_{kj}, ~
-       * \forall i, j \f$.
+       * Return a matrix-matrix product.
+       */
+      Matrix
+      operator*(const Matrix& B) const;
+
+      /**
+       * Compute a transpose matrix-matrix product via \f$ C = A^T B \f$.
        *
-       * \param[in] B The multiplying Matrix.
-       * \param[out] C The destination Matrix.
-       * \param adding A flag for adding to or setting the destination Matrix.
+       * The optional \p adding flag dictates whether to write or add to the
+       * destination matrix \p C.
        */
       void
       Tmmult(const Matrix& B, Matrix& C, const bool adding = false) const;
 
       /**
-       * Return a transpose matrix-matrix product. See \ref Tmmult.
-       */
-      Matrix
-      Tmmult(const Matrix& B) const;
-
-      /**
-       * Compute a matrix-transpose matrix product via \f$ C = A B^T = \sum_k
-       * a_{ik} b_{jk}, ~ \forall i, j \f$.
+       * Compute a matrix-transpose matrix product, i.e. \f$ C = A B^T \f$.
        *
-       * \param[in] B The multiplying Matrix (not transposed).
-       * \param[out] C The destination Matrix.
-       * \param adding A flag for adding to or setting the destination Matrix.
+       * The optional \p adding flag dictates whether to write or add to the
+       * destination matrix \p C.
+       *
+       * The transpose operation is applied within this routine by swapping
+       * the row and column indices when querying the matrix \p B. The original
+       * matrix \p B, and not its transpose, should be passed to this routine.
        */
       void
       mTmult(const Matrix& B, Matrix& C, const bool adding = false) const;
 
       /**
-       * Return a matrix-transpose matrix product. See \ref mTmult.
-       */
-      Matrix
-      mTmult(const Matrix& B) const;
-
-      /**
-       * Compute a transpose matrix-transpose matrix product via \f$  C = A^T B^T
-       * = \sum_k a_{ki} b_{jk}, ~ \forall i, j \f$.
+       * Compute a transpose matrix-transpose matrix product via \f$ C = A^T B^T
+       * \f$.
        *
-       * \param[in] B The multiplying Matrix (not transposed).
-       * \param[out] C The destination Matrix.
-       * \param adding A flag for adding to or setting the destination Matrix.
+       * The optional \p adding flag dictates whether to write or add to the
+       * destination matrix \p C.
+       *
+       * The transpose operation is applied within this routine by swapping
+       * the row and column indices when querying the matrix \p B. The original
+       * matrix \p B, and not its transpose, should be passed to this routine.
        */
       void
       TTmult(const Matrix& B, Matrix& C, const bool adding = false) const;
 
-      /**
-       * Return a transpose matrix-transpose matrix product. See \ref TTmult.
-       */
-      Matrix
-      TTmult(const Matrix& B) const;
-
-      /* @} */
-      /**
-       * \name Matrix-vector products
-       */
-      /* @{ */
+      //################################################## Matrix-Vector
+      //                                                   Multiplication
 
       /**
-       * Compute a matrix-vector product via \f$ y = A x \sum_j a_{ij} x_j, ~
-       * \forall i \f$.
+       * Compute a matrix-vector product, i.e. \f$ y = A x \f$.
        *
-       * \param[in] x The multiplying Vector.
-       * \param[out] y The destination Vector.
-       * \param adding A flag for adding to or setting the destination Vector.
+       * The optional \p adding flag dictates whether to write or add to the
+       * destination vector \p y.
+       *
+       * \note It is acceptable for the vectors \f$ x \f$ and \f$ y \f$ to be
+       *    the same for square matrices.
        */
       void
       vmult(const Vector& x, Vector& y, const bool adding = false) const;
 
       /**
-       * Return a matrix-vector product. See \ref vmult.
-       */
-      Vector
-      vmult(const Vector& x) const;
-
-      /**
-       * Add a matrix-vector product to the destination Vector. See \ref vmult.
-       *
-       * \param[in] x The multiplying Vector.
-       * \param[out] y The destination Vector.
+       * Add a matrix-vector product to the destination vector \f$ y \f$.
        */
       void
       vmult_add(const Vector& x, Vector& y) const;
 
       /**
-       * Return a matrix-vector product. See \ref vmult.
+       * Return a matrix-vector product.
        */
       Vector
       operator*(const Vector& x) const;
 
       /**
-       * Compute a transpose matrix-vector product via \f$ y = A^T x = \sum_i
-       * a_{ji} x_i, ~ \forall  i \f$.
+       * Compute a transpose matrix-vector product, i.e. \f$ y = A^T x \f$.
        *
-       * \param[in] x The multiplying Vector.
-       * \param[out] y The destination Vector.
-       * \param adding A flag for adding to or setting the destination Vector.
+       * The optional \p adding flag dictates whether to write or add to the
+       * destination vector \p y.
+       *
+       * \note It is acceptable for the vectors \f$ x \f$ and \f$ y \f$ to be
+       *    the same for square matrices.
        */
       void
       Tvmult(const Vector& x, Vector& y, const bool adding = false) const;
 
       /**
-       * Return a transpose matrix-vector product. See \ref Tvmult.
-       */
-      Vector
-      Tvmult(const Vector& x) const;
-
-      /**
-       * Add a transpose matrix-vector product to the destination vector. See
-       * \ref Tvmult.
-       *
-       * \param[in] x The multiplying Vector.
-       * \param[out] y The destination Vector.
+       * Add a transpose matrix-vector product to the destination vector \f$
+       * y \f$.
        */
       void
       Tvmult_add(const Vector& x, Vector& y);
 
-      /* @} */
-      /**
-       * \name Print utilities
-       */
-      /* @{ */
+      //################################################## Print Utilities
 
       /**
-       * Return the matrix as a string.
-       *
-       * \param scientific A flag for scientific notation.
-       * \param precision The precision of the digits to display.
-       * \param width The spacing between entries.
+       * Return the matrix as a string with the specified formatting.
        */
       std::string
       str(const bool scientific = true,
@@ -714,12 +579,7 @@ namespace PDEs
           const unsigned int width = 0) const;
 
       /**
-       * Return the matrix as a string. See \ref str.
-       *
-       * \param os The output stream to print the matrix to.
-       * \param scientific A flag for scientific notation.
-       * \param precision The precision of the digits to display.
-       * \param width The spacing between entries.
+       * Print the matrix to an output stream with the specified formatting.
        */
       void
       print(std::ostream& os = std::cout,
@@ -727,114 +587,37 @@ namespace PDEs
             const unsigned int precision = 3,
             const unsigned int width = 0) const;
 
-      /* @} */
+      //################################################## Comparison
+
+      /**
+       * Return whether all entries of two matrices are equivalent.
+       */
+      bool
+      operator==(const Matrix& other) const;
+
+      /**
+       * Return whether any entries of two matrices are different.
+       */
+      bool
+      operator!=(const Matrix& other) const;
+
+      friend Matrix
+      operator*(const double factor, const Matrix& A);
+
+      friend std::ostream&
+      operator<<(std::ostream& os, const Matrix& A);
 
     protected:
-      /**
-       * The underlying matrix data as an STL vector of Vector objects.
-       */
       std::vector<Vector> values;
     };
 
 
     /**
-     * Compute a matrix-matrix product. See \ref Matrix::mmult.
-     *
-     * \param[in] A The left Matrix.
-     * \param[in] B The right multiplying Matrix.
-     * \param[out] C The destination Matrix.
-     */
-    void
-    mmult(const Matrix& A, const Matrix& B, Matrix& C);
-
-    /**
-     * Return a matrix-matrix product. See \ref Matrix::mmult.
+     * Multiplication by a scalar.
      */
     Matrix
-    mmult(const Matrix& A, const Matrix& B);
+    operator*(const double factor, const Matrix& A);
 
-    /**
-     * Compute a transpose matrix-matrix product. See \ref Matrix::Tmmult.
-     *
-     * \param[in] A The left Matrix.
-     * \param[in] B The right multiplying Matrix.
-     * \param[out] C The destination Matrix.
-     */
-    void
-    Tmmult(const Matrix& A, const Matrix& B, Matrix& C);
-
-    /**
-     * Return a transpose matrix-matrix product. See \ref Matrix::Tmmult.
-     */
-    Matrix
-    Tmmult(const Matrix& A, const Matrix& B);
-
-    /**
-     * Compute a matrix-transpose matrix product. See \ref Matrix::mTmult.
-     *
-     * \param[in] A The left Matrix.
-     * \param[in] B The right multiplying Matrix.
-     * \param[out] C The destination Matrix.
-     */
-    void
-    mTmult(const Matrix& A, const Matrix& B, Matrix& C);
-
-    /**
-     * Return a matrix-transpose matrix product. See \ref Matrix::mTmult.
-     */
-    Matrix
-    mTmult(const Matrix& A, const Matrix& B);
-
-    /**
-     * Compute a transpose matrix-transpose matrix product.
-     * See \ref Matrix::TTmult.
-     *
-     * \param[in] A The left Matrix.
-     * \param[in] B The right multiplying Matrix.
-     * \param[out] C The destination Matrix.
-     */
-    void
-    TTmult(const Matrix& A, const Matrix& B, Matrix& C);
-
-    /**
-     * Return a transpose matrix-transpose matrix product.
-     * See \ref Matrix::TTmult.
-     */
-    Matrix
-    TTmult(const Matrix& A, const Matrix& B);
-
-    /**
-     * Compute a matrix-vector product. See \ref Matrix::vmult.
-     *
-     * \param[in] A The Matrix.
-     * \param[in] x The multiplying Vector.
-     * \param[out] y The destination Vector.
-     */
-    void
-    vmult(const Matrix& A, const Vector& x, Vector& y);
-
-    /**
-     * Return a matrix-vector product. See \ref Matrix::vmult.
-     */
-    Vector
-    vmult(const Matrix& A, const Vector& x);
-
-    /**
-     * Compute a transpose matrix-vector product. See \ref Matrix::Tvmult.
-     *
-     * \param[in] A The Matrix.
-     * \param[in] x The multiplying Vector.
-     * \param[out] y The destination Vector.
-     *
-     */
-    void
-    Tvmult(const Matrix& A, const Vector& x, Vector& y);
-
-    /**
-     * Return a transpose matrix-vector product. See \ref Matrix::Tvmult.
-     */
-    Vector
-    Tvmult(const Matrix& A, const Vector& x);
 
     /**
      * Insert the matrix into an output stream.

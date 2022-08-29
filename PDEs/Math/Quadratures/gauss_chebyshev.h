@@ -11,8 +11,7 @@ namespace PDEs
 
     /**
      * Implementation of Gauss-Chebyshev 1D quadratures. See more at
-     * <a href="https://en.wikipedia.org/wiki/Chebyshev-Gauss_quadrature>
-     * https://en.wikipedia.org/wiki/Chebyshev-Gauss_quadrature</a>.
+     * https://en.wikipedia.org/wiki/Chebyshev-Gauss_quadrature.
      */
     class GaussChebyshevQuadrature : public Quadrature
     {

@@ -36,16 +36,7 @@ namespace PDEs
     class Discretization
     {
     public:
-      /**
-       * A shared pointer to the mesh that is being discretized.
-       */
       const std::shared_ptr<Grid::Mesh> mesh;
-
-      /**
-       * The spatial discretization method. This is used for identification,
-       * since in many instances, the discretization is stored as a shared
-       * pointer to the this base class.
-       */
       const SpatialDiscretizationMethod method;
 
     public:
@@ -96,13 +87,9 @@ namespace PDEs
        * Define the sparsity pattern. This routine defines the column indices of
        * non-zero entries per row for a problem with the specified number of
        * components. If the \p is_coupled flag is set to \p true, it is assumed
-       * that all components are coupled to one another, otherwise, it is assumed
-       * that the system is uncoupled in all components.
-       *
-       * \param[out] pattern The column indices per row to allocate for.
-       * \param n_components The number of components in the solution.
-       * \param is_coupled A flag for allocating storage for coupling between
-       *   solution components.
+       * that all components are coupled to one another, otherwise, it is
+       * assumed that the system is uncoupled in all components. The resulting
+       * sparsity pattern is written into \p pattern.
        */
       virtual void
       make_sparsity_pattern(std::vector<std::vector<size_t>> pattern,

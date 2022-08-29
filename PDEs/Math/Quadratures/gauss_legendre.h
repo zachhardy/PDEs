@@ -10,8 +10,7 @@ namespace PDEs
   {
     /**
      * Implementation of Gauss-Legendre 1D quadratures. See more at
-     * <a href="https://en.wikipedia.org/wiki/Gauss-Legendre_quadrature">
-     * https://en.wikipedia.org/wiki/Gauss-Legendre_quadrature</a>.
+     * https://en.wikipedia.org/wiki/Gauss-Legendre_quadrature.
      */
     class GaussLegendreQuadrature : public Quadrature
     {

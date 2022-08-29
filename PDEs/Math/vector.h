@@ -18,22 +18,11 @@ namespace PDEs
     class Vector
     {
     public:
-      /**
-       * Alias to an iterator over an STL vector of doubles.
-       */
       using iterator = std::vector<double>::iterator;
-
-      /*
-       * Alias to a constant iterator over an STL vector of doubles.
-       */
       using const_iterator = std::vector<double>::const_iterator;
 
     public:
-
-      /**
-       * \name Constructors and assignment
-       */
-      /* @{ */
+      //################################################## Constructors
 
       /**
        * Default constructor. Create an empty vector.
@@ -51,17 +40,23 @@ namespace PDEs
       Vector(Vector&& other) = default;
 
       /**
-       * Construct a vector with \p n entries, optionally set to \p value.
+       * Construct a vector with \p n elements.
        */
-      Vector(const size_t n, const double value = 0.0);
+      explicit Vector(const size_t n);
 
       /**
-       * Copy construction from an initializer list.
+       * Construct a vector with \p n elements set to \p value.
+       */
+      Vector(const size_t n, const double value);
+
+      /**
+       * Construct a vector from an initializer list.
        */
       Vector(const std::initializer_list<double>& list);
 
       /**
-       * Constructor from iterators.
+       * Construct with the values pointed to by iterators in the range
+       * <tt>[first, last)</tt>.
        */
       template<typename InputIterator>
       Vector(const InputIterator first, const InputIterator last);
@@ -84,36 +79,24 @@ namespace PDEs
       operator=(Vector&& other);
 
       /**
-       * Assign each entry of the vector to the specified \p value. If the
-       * vector is empty, this will initialize a single entry set to \p value.
+       * Assign each element to the specified \p value.
        */
       Vector&
       operator=(const double value);
 
-      /**
-       * Reinitialize the vector to have \p n entries set to \p value. This
-       * first clears the vector, then resizes it.
-       */
-      void
-      reinit(const size_t n, const double value = 0.0);
-
-      /* @} */
-      /**
-       * \name Information about the vector
-       */
-      // @{
+      //################################################## Capacity
 
       /**
-       * Return the number of entries.
+       * Return the number of elements.
        */
       size_t
       size() const;
 
       /**
-       * Return he number of non-zero entries.
+       * Return he number of non-zero elements.
        */
       size_t
-      n_nonzero_entries() const;
+      n_nonzero_elements() const;
 
       /**
        * Return whether the vector is empty (no allocated entries) or not.
@@ -121,87 +104,31 @@ namespace PDEs
       bool
       empty() const;
 
-      /**
-       * Return whether all entries of two vectors are equivalent.
-       */
-      bool
-      operator==(const Vector& other) const;
+      //################################################## Data Access
 
       /**
-       * Return whether any entries of two vectors are different.
-       */
-      bool
-      operator!=(const Vector& other) const;
-
-      /* @} */
-      /**
-       * \name Accessors and iterators
-       */
-      /* @{ */
-
-      /**
-       * Read and write access for entry \p i.
-       * \note No bounds checking is performed. See \ref at.
+       * Read and write access for element \p i/
        */
       double&
       operator[](const size_t i);
 
       /**
-       * Read access for entry \p i.
-       * \note No bounds checking is performed. See \ref at.
+       * Read access for element \p i.
        */
       const double&
       operator[](const size_t i) const;
 
       /**
-       * Read and write access for entry \p i.
-       * \note No bounds checking is performed. See \ref at.
+       * Read and write access for element \p i.
        */
       double&
       operator()(const size_t i);
 
       /**
-       * Read access for entry \p i.
-       * \note No bounds checking is performed. See \ref at.
+       * Read access for element \p i.
        */
       const double&
       operator()(const size_t i) const;
-
-      /**
-       * Read and write access for entry \p i with bounds checking.
-       */
-      double&
-      at(const size_t i);
-
-      /**
-       * Read access for entry \p i with bounds checking.
-       */
-      const double&
-      at(const size_t i) const;
-
-      /**
-       * Read and write access to the first entry.
-       */
-      double&
-      front();
-
-      /**
-       * Read access to the first entry.
-       */
-      const double&
-      front() const;
-
-      /**
-       * Read and write access to the last entry.
-       */
-      double&
-      back();
-
-      /**
-       * Read access to the last entries.
-       */
-      const double&
-      back() const;
 
       /**
        * Return a pointer to the underlying vector data.
@@ -239,11 +166,7 @@ namespace PDEs
       const_iterator
       end() const;
 
-      /* @} */
-      /**
-       * \name Modifying the vector
-       */
-      /* @{ */
+      //################################################## Modifiers
 
       /**
        * Delete the contents of the vector.
@@ -252,24 +175,25 @@ namespace PDEs
       clear();
 
       /**
-       * Add an entry set to \p value to the back of the vector.
+       * Resize the vector to \p n elements.
+       *
+       * If \p n is less than the current number of elements, elements are
+       * deleted from the back. If \p n is greater than the current size, new
+       * elements are allocated and left in an unspecified state.
        */
       void
-      push_back(const double value);
+      resize(const size_t n);
 
       /**
-       * Remove the last entry from the vector.
+       * Resize the vector to \p n elements and set any new elements to the
+       * specified \p value.
+       *
+       * If \p n is less than the current number of elements, elements are
+       * deleted from the back. If \p n is greater than the current size, new
+       * elements are allocated and set to \p value.
        */
       void
-      pop_back();
-
-      /**
-       * Resize the vector to \p n entries. If \p n is less than the current
-       * number of entries, entries are deleted from the back. If \p n is
-       * greater than the current size, all new entries are uninitialized.
-       */
-      void
-      resize(const size_t n, const double value = 0.0);
+      resize(const size_t n, const double value);
 
       /**
        * Swap the contents of two vectors.
@@ -284,190 +208,165 @@ namespace PDEs
       equal(const Vector& y, const double factor = 1.0);
 
       /**
-       * Take the absolute value of each entry of the vector.
+       * Element-wise absolute value of the vector.
        */
       Vector&
       fabs();
 
       /**
-       * Return th absolute value of the vector.
+       * Return a vector with the absolute value of the vector.
        */
       Vector
       fabs() const;
 
-      /* @} */
-      /**
-       * \name Scalar operations and norms
-       */
-      /* @{ */
+      //################################################## Scalar Operations
+      //                                                   and Norms
 
       /**
-       * Take the dot product with another Vector via \f$ c = x \cdot y =
-       * \sum_i x_i y_i \f$.
+       * Return the dot product with another vector.
+       *
+       * This is computed via
+       * \f[ c = x \cdot y = \sum_i x_i y_i \forall i. \f]
+       *
+       * This operation is only successful if the vectors are of the same size.
        */
       double
       dot(const Vector& y) const;
 
       /**
-       * Return the \f$ \ell_\infty \f$-norm via \f$ ||x||_{\infty} = \max_i |x_i|
-       * \f$.
+       * Return the \f$ \ell_\infty \f$-norm.
        */
       double
       linfty_norm() const;
 
       /**
-       * Return the \f$ \ell_1 \f$-norm via \f$ ||x||_{\ell_1} = \sum_i |x_i| \f$.
+       * Return the \f$ \ell_1 \f$-norm.
        */
       double
       l1_norm() const;
 
       /**
-       * Return the \f$ \ell_2 \f$-norm via \f$ ||x||_{\ell_2} = \sqrt{ \sum_i
-       * |x_i|^2 } \f$.
+       * Return the \f$ \ell_2 \f$-norm.
        */
       double
       l2_norm() const;
 
       /**
-       * Return the \f$ \ell_p \f$-norm via \f$ ||x||_{\ell_p} = \left( \sum_i
-       * |x_i|^p \right)^{1/p} \f$.
+       * Return the \f$ \ell_p \f$-norm.
        */
       double
       lp_norm(const double p) const;
 
-      /* @} */
-      /**
-       * \name Scaling operations
-       */
-      /* @{ */
+      //################################################## Linear Algebra
 
       /**
-       * Multiply each entry of the vector by a scalar such that \f$ x = a x \f$.
+       * Element-wise multiplication by a scalar.
        */
       Vector&
       scale(const double factor);
 
       /**
        * Multiply each entry of the vector by the corresponding entry in the
-       * argument such that \f$ x_i = a_i x_i \f$ where \f$ a = (a_i, ...,
-       * a_n) \f$ is of the same length as \f$ x \f$.
+       * argument.
+       *
+       * This operation is only successful if the two vectors are of the
+       * same size.
        */
       Vector&
       scale(const Vector& scaling_factors);
 
       /**
-       * Negate each entry of the vector. This is equivalent to scaling by -1.0.
-       * See \ref scale.
+       * Element-wise negation.
        */
       Vector&
       operator-();
 
       /**
-       * Return a vector containing the negated entries of this vector. See
-       * \ref scale.
+       * Return a vector with the negated elements.
        */
       Vector
       operator-() const;
 
       /**
-       * Multiply each entry of the vector by the argument. See \ref scale.
+       * Element-wise multiplication by a scalar.
        */
       Vector&
       operator*=(const double factor);
 
       /**
-       * Return a vector that contains the entries of this vector multiplied by
-       * a scalar. See \ref scale.
+       * Return a vector with the elements multiplied by a scalar.
        */
       Vector
       operator*(const double factor) const;
 
       /**
-       * Divide the entries of the vector by a non-zero scalar. See \ref scale.
+       * Element-wise division by a non-zero scalar.
        */
       Vector&
       operator/=(const double factor);
 
       /**
-       * Return a vector that contains the entries of this vector divided by a
-       * non-zero scalar. See \ref scale.
+       * Return a vector with the elements divided by a non-zero scalar.
        */
       Vector
       operator/(const double factor) const;
 
-      /* @} */
-      /**
-       * \name Addition and subtraction operations
-       */
-      /* @{ */
+      //################################################## Vector Operations
 
       /**
-       * Shift each entry in a vector by \p such that \f$ x_i = x_i + a, ~
-       * \forall i \f$.
+       * Element-wise addition by a scalar.
        */
       Vector&
       shift(const double value);
 
       /**
-       * Multiply this vector by a scalar and add another scaled vector to it such
-       * that \f$ x = a x + b y \f$. The vectors must be of the
-       * same length for this to be a permissible operation
+       * Element-wise multiplication by a scalar and addition of another scaled
+       * vector, i.e. \f$ x = a x + b y \f$.
        */
       Vector&
       sadd(const double a, const double b, const Vector& y);
 
       /**
-       * Scale this vector and add another. This is equivalent to calling \ref
-       * sadd with <tt>b = 1.0</tt>. See \ref sadd.
+       * Element-wise multiplication by a scalar and addition of another, i.e.
+       * \f$ x = a x + y \f$.
        */
       Vector&
       sadd(const double a, const Vector& y);
 
       /**
-       * Add b scaled vector to this one. This is equivalent to calling \ref
-       * sadd with <tt>a = 1.0</tt>. See \ref sadd.
+       * Element-wise addition of a scaled vector, i.e. \f$ x = x + b y \f$.
        */
       Vector&
       add(const double b, const Vector& y);
 
       /**
-       * Add another vector to this one. This is equivalent calling \ref add with
-       * <tt>b = 1.0</tt>. See \ref add.
+       * Element-wise addition of another vector, i.e. \f$ x = x + y \f$.
        */
       Vector&
       operator+=(const Vector& y);
 
       /**
-       * Return the sum of this vector and another. See \ref add.
+       * Return the sum of two vectors.
        */
       Vector
       operator+(const Vector& y) const;
 
       /**
-       * Subtract another vector from this one. This is equivalent of calling
-       * \ref add with <tt>b = -1.0</tt>. See \ref add.
+       * Element-wise subtraction by another vector, i.e. \f$ x = x - y \f$.
        */
       Vector&
       operator-=(const Vector& y);
 
       /**
-       * Return the difference between this vector and another. See \ref add.
+       * Return the difference between two vectors.
        */
       Vector
       operator-(const Vector& y) const;
 
-      /* @} */
-      /**
-       * \name Print utilities
-       */
-      /* @{ */
+      //################################################## Print Utilities
 
       /**
-       * Return the vector as a string.
-       *
-       * \param scientific A flag for using scientific notation.
-       * \param precision The precision to use when printing entries.
-       * \param width The width between entries.
+       * Return the vector as a string with the specified formatting.
        */
       std::string
       str(const bool scientific = true,
@@ -475,12 +374,7 @@ namespace PDEs
           const unsigned int width = 0) const;
 
       /**
-       * Print the vector to an output stream. See \ref str.
-       *
-       * \param os The output stream to print the vector in.
-       * \param scientific A flag for using scientific notation.
-       * \param precision The precision to use when printing entries.
-       * \param width The width between entries.
+       * Print the vector to an output stream with the specified formatting.
        */
       void
       print(std::ostream& os = std::cout,
@@ -488,12 +382,27 @@ namespace PDEs
             const unsigned int precision = 3,
             const unsigned int width = 0) const;
 
-      /* @} */
+      //################################################## Comparison
+
+      /**
+       * Return whether all entries of two vectors are equivalent.
+       */
+      bool
+      operator==(const Vector& other) const;
+
+      /**
+       * Return whether any entries of two vectors are different.
+       */
+      bool
+      operator!=(const Vector& other) const;
+
+      friend Vector
+      operator*(const double factor, const Vector& x);
+
+      friend std::ostream&
+      operator<<(std::ostream& os, const Vector& x);
 
     protected:
-      /**
-       * The underlying vector data.
-       */
       std::vector<double> values;
     };
 
@@ -505,7 +414,7 @@ namespace PDEs
     operator*(const double factor, const Vector& x);
 
     /**
-     * Take the dot product between two vectors. See \ref Vector::dot.
+     * Take the dot product between two vectors.
      */
     double
     dot(const Vector& x, const Vector& y);
@@ -517,26 +426,25 @@ namespace PDEs
     fabs(const Vector& x);
 
     /**
-     * Return the \f$ \ell_{\infty} \f$-norm of a vector. See \ref
-     * Vector::linfty_norm.
+     * Return the \f$ \ell_{\infty} \f$-norm of a vector.
      */
     double
     linfty_norm(const Vector& x);
 
     /**
-     * Return the \f$ \ell_1 \f$-norm of a vector. See \ref Vector::l1_norm.
+     * Return the \f$ \ell_1 \f$-norm of a vector.
      */
     double
     l1_norm(const Vector& x);
 
     /**
-     * Return the \f$ \ell_2 \f$-norm of a vector. See \ref Vector::l2_norm.
+     * Return the \f$ \ell_2 \f$-norm of a vector.
      */
     double
     l2_norm(const Vector& x);
 
     /**
-     * Return the \f$ \ell_p \f$-norm of a vector. See \ref Vector::lp_norm.
+     * Return the \f$ \ell_p \f$-norm of a vector.
      */
     double
     lp_norm(const Vector& x, const double p);
