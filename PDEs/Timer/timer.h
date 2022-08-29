@@ -38,14 +38,7 @@ namespace PDEs
     get_time();
 
   private:
-    /**
-     * The start time set for the timer.
-     */
     std::chrono::steady_clock::time_point start_time;
-
-    /**
-     * The end time set by the timer.
-     */
     std::chrono::steady_clock::time_point end_time;
   };
 }

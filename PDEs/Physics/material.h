@@ -39,10 +39,6 @@ namespace PDEs
       type() const;
 
     protected:
-      /**
-       * The material property type. This is used to distinguish between
-       * property types when stored as a pointer to this base class.
-       */
       const MaterialPropertyType property_type;
     };
 
@@ -55,9 +51,6 @@ namespace PDEs
     class Material
     {
     public:
-      /**
-       * A list of material properties that belong to this material.
-       */
       std::vector<std::shared_ptr<MaterialProperty>> properties;
 
       /**
@@ -77,9 +70,6 @@ namespace PDEs
       name() const;
 
     private:
-      /**
-       * The name of the material.
-       */
       const std::string material_name = "Generic Material";
     };
 
@@ -91,9 +81,6 @@ namespace PDEs
     class ScalarProperty : public MaterialProperty
     {
     public:
-      /**
-       * The scalar value of the property.
-       */
       double value;
 
       /**
@@ -112,9 +99,6 @@ namespace PDEs
     class IsotropicMultiGroupSource : public MaterialProperty
     {
     public:
-      /**
-       * The multi-group source values.
-       */
       std::vector<double> values;
 
       /**

@@ -26,7 +26,8 @@ namespace PDEs
 
       /**
        * An alias for the delayed neutron precursor emission spectra. This outer
-       * index is for groups and the inner for delayed neutron precursor species.
+       * index is for groups and the inner for delayed neutron precursor
+       * species.
        */
       using EmissionSpectra = std::vector<std::vector<double>>;
 
@@ -40,19 +41,8 @@ namespace PDEs
                                               const std::vector<double>& args,
                                               const double reference)>;
 
-      /**
-       * The number of energy groups.
-       */
       unsigned int n_groups;
-
-      /**
-       * The maximum Legendre expansion order of the scattering cross-sections.
-       */
       unsigned int scattering_order;
-
-      /**
-       * The number of delayed neutron precursors.
-       */
       unsigned int n_precursors;
 
       /**
@@ -60,9 +50,6 @@ namespace PDEs
        */
       double density = 1.0;
 
-      /**
-       * A flag to easily identify if these cross-sections are fissile.
-       */
       bool is_fissile = false;
 
       std::vector<double> sigma_t;  ///< Total cross section
@@ -85,19 +72,8 @@ namespace PDEs
       std::vector<double> nu_delayed;  ///< Delayed neutrons per fission.
       std::vector<double> beta;  ///< Delayed neutron fraction.
 
-      /**
-       * The total neutrons per fission multiplied by the fission cross-section.
-       */
       std::vector<double> nu_sigma_f;
-
-      /**
-       * The prompt neutrons per fission multiplied by the fission cross-section.
-       */
       std::vector<double> nu_prompt_sigma_f;
-
-      /**
-       * The delayed neutrons per fission multiplied by the fission cross-section.
-       */
       std::vector<double> nu_delayed_sigma_f;
 
       std::vector<double> precursor_lambda; ///< Decay constants in (s\f$^{-1}\f$).
@@ -112,13 +88,7 @@ namespace PDEs
        */
       XSFunction sigma_a_function;
 
-
-    public:
-
-      /**
-       * \name Constructors and initialization
-       */
-      /* @{ */
+      //################################################## Constructors
 
       /**
        * Default constructor.
@@ -132,30 +102,26 @@ namespace PDEs
       reset();
 
       /**
-       * Read a ".xs" file containing the cross-section information.
-       *
-       * \param rho The material density to scale cross-sections by.
+       * Read a ".xs" file containing the cross-section information. Once
+       * the cross-sections are parsed, multiply the relevant quantities by the
+       * specified atom density \p rho.
        */
       void
       read_xs_file(const std::string file_name,
                    const double rho = 1.0,
                    const bool verbose = false);
 
-      /* @} */
-      /**
-       * \name Cross Section operations
-       */
-      /* @{ */
+      //################################################## Operations
 
     private:
       /**
        * Compute \f$ \sigma_s \f$ from the zeroth scattering moment.
        *
-       * Compute the group-wise scattering cross sections from the zeroth transfer
-       * matrices. This is defined as the sum of all transfers from a fixed group
-       * to any other. Mathematically, this is given by \f$ \sigma_{s,g} =
-       * \sum_{g^\prime} \sigma_{0, g \rightarrow g^\prime} \f$, which is obtained
-       * via column-wise sums.
+       * Compute the group-wise scattering cross sections from the zeroth
+       * transfer matrices. This is defined as the sum of all transfers from a
+       * fixed group  to any other. Mathematically, this is given by \f$
+       * \sigma_{s,g} =  \sum_{g^\prime} \sigma_{0, g \rightarrow g^\prime} \f$,
+       * which is obtained via column-wise sums.
        */
       void
       compute_scattering_from_transfers();
@@ -166,10 +132,10 @@ namespace PDEs
        * If the absorption cross section was not specified, then compute it
        * via \f$ \sigma_a = \sigma_t - \sigma_s \f$, where \f$ \sigma_s \f$ is
        * obtained from the transfer matrix. Otherwise, modify \f$ \sigma_t \f$
-       * using the provided absorption cross-section and scattering cross-section
-       * obtained from the transfer matrix. If both \f$ \sigma_t \f$ and
-       * \f$ \sigma_a \f$ are provided, and they do not agree with the transfer
-       * matrix, the \f$ \sigma_a \f$ values are taken as true.
+       * using the provided absorption cross-section and scattering
+       * cross-section obtained from the transfer matrix. If both \f$ \sigma_t
+       * \f$ and \f$ \sigma_a \f$ are provided, and they do not agree with the
+       * transfer matrix, the \f$ \sigma_a \f$ values are taken as true.
        */
       void
       reconcile_cross_sections();
@@ -180,20 +146,20 @@ namespace PDEs
        * This routine does a number of things.
        * 1. If the cross sections are not fissile but delayed neutron precursor
        *    properties were specified, they are cleared.
-       * 2. If fissile and delayed neutron precursor properties were specified, checks
-       *    for prompt and delayed \f$ \nu \f$ and \f$ \chi \f$ are performed and
-       *    fission/emmission spectra as well as precursor yields \f$ \gamma \f$ are
-       *    normalized to unity. Lastly, the total \f$ \nu \f$ and \f$ \chi \f$
-       *    quantities are computed from their prompt and delayed counterparts.
-       *    The total neutrons per fission is computed via
+       * 2. If fissile and delayed neutron precursor properties were specified,
+       *    checks for prompt and delayed \f$ \nu \f$ and \f$ \chi \f$ are
+       *    performed and fission/emission spectra as well as precursor yields
+       *    \f$ \gamma \f$ are normalized to unity. Lastly, the total \f$ \nu
+       *    \f$ and \f$ \chi \f$ quantities are computed from their prompt and
+       *    delayed counterparts. The total neutrons per fission is computed via
        *    \f$ \nu = \nu_p + \nu_d \f$ and the total spectra via
        *    \f[ \chi = (1 - \beta) \chi_p + \beta \sum_j \gamma_j \chi_{d_j}
        *             = \frac{\nu_p}{\nu} \chi_p +
        *               \frac{\nu_d}{\nu} \sum_j \gamma_j \chi_{d,j}.
        *    \f]
-       * 3. If fissile and no delayed neutron precursor properties were specified,
-       *    checks for total \f$ \nu \f$ and \f$ \chi \f$ are performed and the
-       *    fission spectrum is normalized to unity.
+       * 3. If fissile and no delayed neutron precursor properties were
+       *    specified, checks for total \f$ \nu \f$ and \f$ \chi \f$ are
+       *    performed and the fission spectrum is normalized to unity.
        */
       void
       reconcile_fission_properties();
@@ -203,17 +169,13 @@ namespace PDEs
        *
        * Compute the macroscopic cross-sections via
        * \f$ \Sigma_x = \rho \sigma_x \f$.
-       * If the \p diffusion_coeff was unspecified, it is computed via its standard
-       * definition, given by \f$ D = \frac{1}{3 \Sigma_t} \f$.
+       * If the \p diffusion_coeff was unspecified, it is computed via its
+       * standard definition, given by \f$ D = \frac{1}{3 \Sigma_t} \f$.
        */
       void
       compute_macroscopic_cross_sections();
 
-      /* @} */
-      /**
-       * \name Read operations
-       */
-      /* @{ */
+      //################################################## Read Operations
 
       /**
        * Read a cross-section block from the ".xs" file.
@@ -278,8 +240,6 @@ namespace PDEs
                            std::ifstream& file,
                            std::istringstream& line_stream,
                            size_t& line_number);
-
-      /* @} */
     };
   }
 }
