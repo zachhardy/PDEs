@@ -198,8 +198,8 @@ namespace NeutronDiffusion
     /**
      * The multi-group scalar flux vector.
      *
-     * This vector stores group values contiguously. This means that for each
-     * node, all groups for that node are contiguous.
+     * This vector stores group contiguously. This means that for each node,
+     * all groups for that node are contiguous.
      */
     Vector phi;
     Vector phi_ell;  ///< The multi-group scalar flux last iteration.

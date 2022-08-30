@@ -25,7 +25,7 @@ SteadyStateSolver::initialize()
     << "\n*********************************************************\n";
 
   n_groups = xs->n_groups;
-  n_moments = 1;
+  n_moments = xs->n_moments;
   n_angles = quadrature->size();
 
   psi.resize(n_groups * n_angles);

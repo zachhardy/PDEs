@@ -15,7 +15,6 @@ namespace InfiniteMedium
   class TransientSolver : public KEigenvalueSolver
   {
   public:
-    /*-------------------- Outputting --------------------*/
     /*-------------------- Initial Conditions --------------------*/
 
     /**
@@ -29,8 +28,8 @@ namespace InfiniteMedium
     double t_end = 1.0;
     double dt = 0.01;
 
+  public:
     /*-------------------- Initialization Routines --------------------*/
-
 
     void initialize() override;
     void execute() override;
@@ -44,7 +43,6 @@ namespace InfiniteMedium
     /*-------------------- Book-Keeping Quantities --------------------*/
 
     double time = 0.0;
-
 
     Vector psi_old;
     Vector phi_old;
