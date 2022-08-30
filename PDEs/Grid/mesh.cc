@@ -1,9 +1,14 @@
 #include "mesh.h"
 #include "cell.h"
-#include "macros.h"
 
 #include <set>
 #include <cmath>
+
+#include <fstream>
+#include <cstring>
+#include <cassert>
+#include <filesystem>
+#include <iomanip>
 
 
 using namespace PDEs;
@@ -26,12 +31,14 @@ coordinate_system_str(const CoordinateSystemType coord_sys)
   }
 }
 
+//######################################################################
 
 Mesh::Mesh(const unsigned int dimension,
            const CoordinateSystemType coordinate_system) :
     dimension(dimension), coordinate_system(coordinate_system)
 {}
 
+//######################################################################
 
 void
 Mesh::establish_connectivity()
@@ -181,4 +188,129 @@ Mesh::compute_geometric_info()
   }//for cell
 
   std::cout << "Done computing geometric information on cells and faces.\n";
+}
+
+//######################################################################
+
+void
+Mesh::write_ascii(const std::string output_directory,
+                  const std::string file_prefix) const
+{
+  if (not std::filesystem::is_directory(output_directory))
+    std::filesystem::create_directory(output_directory);
+  assert(std::filesystem::is_directory(output_directory));
+
+  std::string filepath = output_directory + "/" + file_prefix;
+  if (filepath.find(".") != std::string::npos)
+    filepath = file_prefix.substr(0, file_prefix.rfind("."));
+  filepath = filepath + ".txt";
+
+  std::ofstream file(filepath,
+                     std::ofstream::out |
+                     std::ofstream::trunc);
+  assert(file.is_open());
+
+  file << "##################################################\n"
+          "# Mesh File\n"
+          "# _________"
+          "# For Each Vertex:\n"
+          "#   VertexID  x  y  z\n"
+          "# For Each Cell:\n"
+          "#   CellID  MaterialID  <VertexIDs>\n"
+       << "##################################################\n";
+
+  file << "vertices\n";
+  for (size_t i = 0; i < vertices.size(); ++i)
+    file << std::left
+         << std::setw(5) << i << "  "
+         << std::setw(8) << vertices[i].x() << "  "
+         << std::setw(8) << vertices[i].y() << "  "
+         << std::setw(8) << vertices[i].z() << "\n";
+
+  file << "cells\n";
+  for (const auto& cell : cells)
+  {
+    file << std::left << std::setw(5) << cell.id;
+    for (const auto& vid : cell.vertex_ids)
+      file << "  " << std::setw(5) << vid;
+    file << "\n";
+  }
+
+  file.close();
+}
+
+
+void
+Mesh::write_binary(const std::string output_directory,
+                   const std::string file_prefix) const
+{
+
+  if (not std::filesystem::is_directory(output_directory))
+    std::filesystem::create_directory(output_directory);
+  assert(std::filesystem::is_directory(output_directory));
+
+  std::string filepath = output_directory + "/" + file_prefix;
+  if (filepath.find(".") != std::string::npos)
+    filepath = file_prefix.substr(0, file_prefix.rfind("."));
+  filepath = filepath + ".txt";
+
+  std::ofstream file(filepath,
+                     std::ofstream::binary |
+                     std::ofstream::out |
+                     std::ofstream::trunc);
+  assert(file.is_open());
+
+  // Write the header_info
+  int size = 300;
+  std::string header_info =
+      "Mesh File\nHeader size: " + std::to_string(size) + "bytes\n";
+  header_info +=
+      "Structure(type - info)\n"
+      "Vertices:\n"
+      "  uint64_t  n_vertices\n"
+      "  Each Verex:\n"
+      "    uint64_t vertex_id\n"
+      "    double   x_position\n"
+      "    double   y_position\n"
+      "    double   z_position\n"
+      "Cells:\n"
+      "  uint64_t  n_cells\n"
+      "  Each Cell:\n"
+      "    uint64_t      cell_id\n"
+      "    unsigned int  material_id\n"
+      "    Each Vertex ID\n"
+      "      uint64_t  vertex_id\n";
+
+  int header_size = (int)header_info.length();
+
+  char header_bytes[size];
+  memset(header_bytes, '-', size);
+  strncpy(header_bytes, header_info.c_str(), std::min(header_size, size - 1));
+  header_bytes[size - 1] = '\0';
+
+  const auto n_vertices = vertices.size();
+  const auto n_cells = cells.size();
+
+  file << header_bytes;
+  file.write((char*)&n_vertices, sizeof(uint64_t));
+  for (uint64_t i = 0; i < vertices.size(); ++i)
+  {
+    const auto x = vertices[i].x();
+    const auto y = vertices[i].y();
+    const auto z = vertices[i].z();
+
+    file.write((char*)&i, sizeof(uint64_t));
+    file.write((char*)&x, sizeof(double));
+    file.write((char*)&y, sizeof(double));
+    file.write((char*)&z, sizeof(double));
+  }
+
+  file.write((char*)&n_cells, sizeof(uint64_t));
+  for (const auto& cell : cells)
+  {
+    file.write((char*) &cell.id, sizeof(uint64_t));
+    file.write((char*) &cell.material_id, sizeof(unsigned int));
+    for (const auto& vid: cell.vertex_ids)
+      file.write((char*) &vid, sizeof(uint64_t));
+  }
 }

@@ -80,6 +80,14 @@ namespace PDEs
        *       routine should only be utilized for unstructured meshes.
        */
       void establish_connectivity();
+
+      /*-------------------- Write Utilities --------------------*/
+
+      void write_ascii(const std::string output_directory = ".",
+                       const std::string file_prefix = "mesh") const;
+
+      void write_binary(const std::string output_directory = ".",
+                        const std::string file_prefix = "mesh") const;
     };
 
   }

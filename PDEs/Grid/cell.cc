@@ -7,23 +7,7 @@
 
 
 using namespace PDEs;
-
-
-std::string
-Grid::coordinate_system_str(const CoordinateSystemType coord_sys)
-{
-  switch (coord_sys)
-  {
-    case CoordinateSystemType::CARTESIAN:
-      return "CARTESIAN";
-    case CoordinateSystemType::CYLINDRICAL:
-      return "CYLINDRICAL";
-    case CoordinateSystemType::SPHERICAL:
-      return "SPHERICAL";
-    default:
-      return "UNDEFINED";
-  }
-}
+using namespace Grid;
 
 
 std::string
@@ -44,14 +28,15 @@ Grid::cell_type_str(const CellType cell_type)
   }
 }
 
+//######################################################################
 
-Grid::Cell::Cell(const CellType cell_type) :
+Cell::Cell(const CellType cell_type) :
     type(cell_type)
 {}
 
 
 std::string
-Grid::Cell::str() const
+Cell::str() const
 {
   std::stringstream ss;
   ss << "***** Cell " << id << " *****\n";
@@ -76,34 +61,9 @@ Grid::Cell::str() const
 }
 
 
-std::string
-Grid::Face::str() const
-{
-  std::stringstream ss;
-  ss << "n_vertex_ids: " << vertex_ids.size() << "\n";
-  ss << "vertices: [ ";
-  for (auto& v_id: vertex_ids)
-    ss << v_id << " ";
-  ss << "]\n";
-
-  ss << "normal: " << normal << "\n";
-  ss << "centroid: " << centroid << "\n";
-  ss << "area: " << area << "\n";
-  ss << "has_neighbor: " << has_neighbor << "\n";
-  ss << "neighbor_id: " << neighbor_id << "\n";
-  return ss.str();
-}
-
 
 std::ostream&
-operator<<(std::ostream& os, const Grid::Cell& cell)
+Grid::operator<<(std::ostream& os, const Grid::Cell& cell)
 {
   return os << cell.str();
-}
-
-
-std::ostream&
-operator<<(std::ostream& os, const Grid::Face& face)
-{
-  return os << face.str();
 }

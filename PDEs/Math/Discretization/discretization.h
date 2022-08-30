@@ -82,6 +82,12 @@ namespace PDEs
       make_sparsity_pattern(std::vector<std::vector<size_t>> pattern,
                             const unsigned int n_components = 1,
                             const bool is_coupled = false) const = 0;
+
+//      void write_ascii(const std::string output_directory = ".",
+//                       const std::string file_prefix = "grid") const;
+
+//      void write_binary(const std::string output_directory = ".",
+//                        const std::string file_prefix = "grid") const;
     };
 
   }
