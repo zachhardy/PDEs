@@ -11,8 +11,8 @@ using namespace NeutronDiffusion;
 
 void
 SteadyStateSolver::
-write(const std::string& output_directory,
-      const std::string& file_prefix) const
+write(const std::string output_directory,
+      const std::string file_prefix) const
 {
   if (not std::filesystem::is_directory(output_directory))
     std::filesystem::create_directory(output_directory);

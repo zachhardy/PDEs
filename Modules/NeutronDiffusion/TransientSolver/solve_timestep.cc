@@ -94,11 +94,13 @@ TransientSolver::refine_time_step()
   while (dP > refine_threshold)
   {
     dt /= 2.0;
+    dt = (dt > dt_min)? dt : dt_min;
 
     execute_time_step(true);
     compute_bulk_properties();
 
     dP = std::fabs(power - power_old)/std::fabs(power_old);
+    if (dt == dt_min) break;
   }
 }
 

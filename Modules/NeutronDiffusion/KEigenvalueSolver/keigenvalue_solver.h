@@ -13,55 +13,34 @@ namespace NeutronDiffusion
   class KEigenvalueSolver : public SteadyStateSolver
   {
   public:
-    /**
-     * The convergence inner_tolerance for the outer iterations.
-     */
-    double outer_tolerance = 1.0e-8;
 
-    /**
-     * The maximum number of outer iterations allowed.
-     */
+    double outer_tolerance = 1.0e-8;
     unsigned int max_outer_iterations = 1000;
 
+  protected:
+    /** The current estimate of the \f$ k \f$-eigenvalue. */
+    double k_eff = 1.0;
 
-    using SteadyStateSolver::initialize;
-
-    /**
-     * Execute the multi-group diffusion \f$ k \f$-eigenvalue solver.
-     */
-    virtual void
-    execute() override;
+  public:
+    virtual void execute() override;
 
     /**
-     * Write the result of the simulation to an output file. This writes the
-     * same file as that in the SteadyStateSolver, but also a file named
-     * \p k_eff.txt which contains the converged eigenvalue.
-     *
-     * \param output_directory The directory where the output should be placed.
-     * \param file_prefix The name of the file without a suffix. By default,
-     *      the suffix \p .data will be added to this input.
+     * Write the result of the simulation to an output file with the
+     * specified prefix. This creates a file named <tt><file_prefix>.data</tt>
+     * in the \p output_directory and file named \f$ k_eff.txt \f$ with the
+     * converged eigenvalue.
      */
     virtual void
-    write(const std::string& output_directory,
-          const std::string& file_prefix) const override;
+    write(const std::string output_directory,
+          const std::string file_prefix) const override;
 
   protected:
-    /**
-     * Implementation of the power method algorithm.
-     */
-    void
-    power_method();
 
-    /**
-     * Compute the total neutron production rate.
-     */
-    double
-    compute_production();
+    /** Implementation of the power method. */
+    void power_method();
 
-    /**
-     * The current estimate of the k-eigenvalue.
-     */
-    double k_eff = 1.0;
+    /** Compute the total neutron production rate. */
+    double compute_production();
   };
 
 }
