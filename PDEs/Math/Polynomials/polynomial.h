@@ -15,16 +15,14 @@ namespace PDEs
        *
        * \note \p x should be in the range [-1, 1].
        */
-      double
-      legendre(const unsigned int n, const double x);
+      double legendre(const unsigned int n, const double x);
 
       /**
        * Evaluate the derivative of the order \p n Legendre polynomial at \p x.
        *
        * \note \p x should be in the range [-1, 1].
        */
-      double
-      dlegendre(const unsigned int n, const double x);
+      double dlegendre(const unsigned int n, const double x);
 
 
       /**
@@ -33,14 +31,14 @@ namespace PDEs
        *
        * \note \p x should be in the range [-1, 1].
        */
-      double
-      d2legendre(const unsigned int n, const double x);
+      double d2legendre(const unsigned int n, const double x);
 
       /**
        * Evaluate the order \p n Chebyshev polynomial at \p x.
+       *
+       * \note \p x should be in the range [-1, 1].
        */
-      double
-      chebyshev(const unsigned int n, const double x);
+      double chebyshev(const unsigned int n, const double x);
     }
   }
 }

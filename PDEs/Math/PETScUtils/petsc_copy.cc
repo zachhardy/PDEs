@@ -9,7 +9,7 @@ using namespace Math;
 
 
 void
-PETScUtils::CopyToVector(Vec& x, Vector& vec)
+PETScUtils::copy_petsc_vector(Vec& x, Vector& vec)
 {
   PetscInt size;
   VecGetSize(x, &size);
@@ -35,7 +35,7 @@ PETScUtils::CopyToVector(Vec& x, Vector& vec)
 
 
 void
-PETScUtils::CopyToVector(Vec& x, std::vector<double>& vec)
+PETScUtils::copy_petsc_vector(Vec& x, std::vector<double>& vec)
 {
   PetscInt size;
   VecGetSize(x, &size);

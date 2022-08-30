@@ -19,20 +19,11 @@ namespace PDEs
      */
     class CrossSections : public MaterialProperty
     {
-    public:
-      /**
-       * An alias for a transfer matrix, or a group-to-group transfer matrix for
-       * a single scattering moment.
-       */
+    protected:
       using TransferMatrix = std::vector<std::vector<double>>;
-
-      /**
-       * An alias for the delayed neutron precursor emission spectra. This outer
-       * index is for groups and the inner for delayed neutron precursor
-       * species.
-       */
       using EmissionSpectra = std::vector<std::vector<double>>;
 
+    public:
       /**
        * A convenient typedef for functional cross-sections. This function takes
        * as input a group number, a vector of arguments, and a reference
@@ -43,8 +34,9 @@ namespace PDEs
                                               const std::vector<double>& args,
                                               const double reference)>;
 
+    public:
       unsigned int n_groups = 0;
-      unsigned int n_moments = 0; ///< Number of scattering moments.
+      unsigned int n_moments = 0; ///< The number of scattering moments.
       unsigned int n_precursors = 0;
 
       double density = 1.0; ///< Atom density in <tt>atoms/b-cm</tt>
@@ -83,24 +75,17 @@ namespace PDEs
       /// A modifier function for the absorption cross-sections.
       XSFunction sigma_a_function;
 
+    public:
       //################################################## Constructors
 
-      /**
-       * Default constructor.
-       */
+      /** Default constructor. */
       CrossSections();
 
-      /**
-       * Delete the current cross-section data.
-       */
-      void
-      reset();
+      /** Delete the current cross-section data. */
+      void reset();
 
-      /**
-       * Reinitialize the cross-section data.
-       */
-      void
-      reinit();
+      /** Reinitialize the cross-section data. */
+      void reinit();
 
       /**
        * Read a ".xs" file containing the cross-section information. Once
@@ -122,9 +107,9 @@ namespace PDEs
                     const double rho = 1.0,
                     const bool verbose = false);
 
+    private:
       //################################################## Operations
 
-    private:
       /**
        * Compute \f$ \sigma_s \f$ from the zeroth scattering moment.
        *
@@ -134,8 +119,7 @@ namespace PDEs
        * \sigma_{s,g} =  \sum_{g^\prime} \sigma_{0, g \rightarrow g^\prime} \f$,
        * which is obtained via column-wise sums.
        */
-      void
-      compute_scattering_from_transfers();
+      void compute_scattering_from_transfers();
 
       /**
        * Enforce the relationship \f$ \sigma_t = \sigma_a + \sigma_s \f$.
@@ -148,8 +132,7 @@ namespace PDEs
        * \f$ and \f$ \sigma_a \f$ are provided, and they do not agree with the
        * transfer matrix, the \f$ \sigma_a \f$ values are taken as true.
        */
-      void
-      reconcile_cross_sections();
+      void reconcile_cross_sections();
 
       /**
        * Validate and process fission related properties.
@@ -172,8 +155,7 @@ namespace PDEs
        *    specified, checks for total \f$ \nu \f$ and \f$ \chi \f$ are
        *    performed and the fission spectrum is normalized to unity.
        */
-      void
-      reconcile_fission_properties();
+      void reconcile_fission_properties();
 
       /**
        * Compute the macroscopic cross-sections.
@@ -183,8 +165,7 @@ namespace PDEs
        * computed via its standard definition, given by \f$ D =
        * \frac{1}{3 \Sigma_t} \f$.
        */
-      void
-      compute_macroscopic_cross_sections();
+      void compute_macroscopic_cross_sections();
     };
   }
 }
