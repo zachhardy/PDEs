@@ -51,10 +51,8 @@ int main(int argc, char** argv)
   xs->read_xs_file("Problems/Sphere3g/xs/base3g.xs", 0.05);
   material->properties.emplace_back(xs);
 
-  const auto n_groups = xs->n_groups;
-
   // Create the multigroup source
-  std::vector<double> mg_source(n_groups, 1.0);
+  std::vector<double> mg_source(xs->n_groups, 1.0);
   auto src = std::make_shared<IsotropicMultiGroupSource>(mg_source);
   material->properties.emplace_back(src);
 
@@ -84,13 +82,6 @@ int main(int argc, char** argv)
   solver.use_precursors = false;
 
   solver.algorithm = Algorithm::DIRECT;
-
-  //============================================================
-  // Initialize groups and groupsets
-  //============================================================
-
-  for (unsigned int g = 0; g < n_groups; ++g)
-    solver.groups.emplace_back(g);
 
   //============================================================
   // Define boundary conditions

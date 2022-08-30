@@ -120,13 +120,6 @@ namespace NeutronDiffusion
 
      std::vector<std::shared_ptr<Material>> materials;
 
-     /**
-      * A list of the group IDs to be used in the simulation. While this may
-      * seem useless, it allows for a subset of available groups within
-      * a cross-section library to be considered.
-      */
-     std::vector<unsigned int> groups;
-
      /*-------------------- Boundary Information --------------------*/
 
     /**
@@ -295,6 +288,17 @@ namespace NeutronDiffusion
      * sources are the inhomogeneous, scattering, fission, and boundary source.
      */
     void set_source(SourceFlags source_flags = NO_SOURCE_FLAGS);
+
+    /*-------------------- Write Routines --------------------*/
+
+    void write_flux_moments(const std::string directory = ".",
+                            const std::string file_prefix = "sflux") const;
+
+    void write_precursors(const std::string directory = ".",
+                          const std::string file_prefix = "precursors") const;
+
+    void write_fission_rate(const std::string directory = ".",
+                            const std::string file_prefix = "precursors") const;
   };
 
 }

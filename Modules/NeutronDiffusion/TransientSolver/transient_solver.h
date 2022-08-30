@@ -281,6 +281,13 @@ namespace NeutronDiffusion
      * half the true time step.
      */
     double effective_time_step();
+
+    /*-------------------- Write Routines --------------------*/
+
+    void write_snapshot(const unsigned int index) const;
+    void write_temperature(const std::string directory = ".",
+                           const std::string file_prefix = "temperature");
+
   };
 }
 

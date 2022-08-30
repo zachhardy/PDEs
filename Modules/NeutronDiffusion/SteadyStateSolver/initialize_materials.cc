@@ -63,7 +63,8 @@ initialize_materials()
       if (property->type() == MaterialPropertyType::CROSS_SECTIONS)
       {
         auto xs = std::static_pointer_cast<CrossSections>(property);
-        assert(xs->n_groups >= groups.size());
+        if (n_groups == 0) n_groups = xs->n_groups;
+        assert(xs->n_groups >= n_groups);
 
         material_xs.emplace_back(xs);
         matid_to_xs_map[material_id] = material_xs.size() - 1;
@@ -74,7 +75,7 @@ initialize_materials()
       else if (property->type() == MaterialPropertyType::ISOTROPIC_MG_SOURCE)
       {
         auto src = std::static_pointer_cast<IsotropicMGSource>(property);
-        assert(src->values.size() >= groups.size());
+        assert(src->values.size() >= n_groups);
 
         material_src.emplace_back(src);
         matid_to_src_map[material_id] = material_src.size() - 1;
@@ -95,11 +96,8 @@ initialize_materials()
   }
 
   //============================================================
-  // Define number of groups and precursors
+  // Define precursor quantities
   //============================================================
-
-  // Define the number of groups
-  n_groups = groups.size();
 
   // Define the precursor properties
   if (use_precursors)

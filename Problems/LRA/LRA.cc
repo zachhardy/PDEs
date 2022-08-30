@@ -169,8 +169,6 @@ int main(int argc, char** argv)
     materials[i]->properties.emplace_back(xs[i]);
   }
 
-  const auto n_groups = xs.front()->n_groups;
-
   //============================================================
   // Linear Solver
   //============================================================
@@ -221,13 +219,6 @@ int main(int argc, char** argv)
   solver.adaptive_time_stepping = true;
   solver.coarsen_threshold = 0.01;
   solver.refine_threshold = 0.1;
-
-  //============================================================
-  // Initialize groups
-  //============================================================
-
-  for (unsigned int g = 0; g < n_groups; ++g)
-    solver.groups.emplace_back(g);
 
   //============================================================
   // Define boundary conditions

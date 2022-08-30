@@ -19,8 +19,8 @@ KEigenvalueSolver::compute_production()
       const auto* nu_sigf = xs->nu_sigma_f.data();
 
       double cell_production = 0.0;
-      for (unsigned int gr = 0; gr < n_groups; ++gr)
-        cell_production += nu_sigf[groups[gr]] * phi[uk_map + gr];
+      for (unsigned int g = 0; g < n_groups; ++g)
+        cell_production += nu_sigf[g] * phi[uk_map + g];
       production += cell_production*volume;
     }
   }

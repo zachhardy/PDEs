@@ -30,8 +30,8 @@ SteadyStateSolver::compute_precursors()
     {
       double value = 0.0;
       const auto coeff = gamma[j]/lambda[j];
-      for (unsigned int gr = 0; gr < n_groups; ++gr)
-        value += coeff * nud_sigf[groups[gr]] * phi[uk_map_g + gr];
+      for (unsigned int g = 0; g < n_groups; ++g)
+        value += coeff * nud_sigf[g] * phi[uk_map_g + g];
       precursors[uk_map_j + j] = value;
     }
   }

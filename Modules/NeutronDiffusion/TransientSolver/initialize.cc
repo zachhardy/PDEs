@@ -69,7 +69,7 @@ TransientSolver::compute_initial_values()
         for (const auto& ic : initial_conditions)
         {
           const auto g = ic.first;
-          assert(g >= groups.front() && g <= groups.back());
+          assert(g < n_groups);
 
           const auto f = ic.second;
           phi[uk_map + g] = f(node);

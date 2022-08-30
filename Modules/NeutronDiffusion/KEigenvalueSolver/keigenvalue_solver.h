@@ -27,11 +27,11 @@ namespace NeutronDiffusion
     /**
      * Write the result of the simulation to an output file with the
      * specified prefix. This creates a file named <tt><file_prefix>.data</tt>
-     * in the \p output_directory and file named \f$ k_eff.txt \f$ with the
+     * in the \p directory and file named \f$ k_eff.txt \f$ with the
      * converged eigenvalue.
      */
     virtual void
-    write(const std::string output_directory,
+    write(const std::string directory,
           const std::string file_prefix) const override;
 
   protected:
