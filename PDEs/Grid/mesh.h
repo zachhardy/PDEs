@@ -45,30 +45,12 @@ namespace PDEs
     class Mesh
     {
     public:
-      /**
-       * The spatial dimension of the mesh.
-       */
       const unsigned int dimension;
-
-      /**
-       * The coordinate system the mesh is defined in.
-       */
       const CoordinateSystemType coordinate_system;
 
-      /**
-       * A list of the vertices on the mesh.
-       */
       std::vector<Vertex> vertices;
-
-      /**
-       * A list of the cells that make up the mesh. See \ref Cell.
-       */
       std::vector<Cell> cells;
 
-      /**
-       * A list of the boundary cell IDs. This is used as a convenience for
-       * access to boundary cells without having to iterate over interior cells.
-       */
       std::vector<size_t> boundary_cell_ids;
 
       /**
@@ -77,14 +59,12 @@ namespace PDEs
        */
       std::vector<std::vector<size_t>> ijk_mapping;
 
-      /**
-       * Construct a mesh with the specified dimension and coordinate system.
-       *
-       * \param dimension The spatial dimension of the mesh.
-       * \param coordinate_system The coordinate system of the mesh.
-       */
+      /** Default constructor. */
       Mesh(const unsigned int dimension,
            const CoordinateSystemType coordinate_system);
+
+      /** Compute the geometric properties of the cells and faces. */
+      void compute_geometric_info();
 
       /**
        * Establish the relationships between cells and their neighbors.
@@ -99,12 +79,7 @@ namespace PDEs
        *       connectivity cannot be established a-priori. Generally, this
        *       routine should only be utilized for unstructured meshes.
        */
-      void
-      compute_geometric_info();
-
-      /** Compute the geometric properties of the cells and faces. */
-      void
-      establish_connectivity();
+      void establish_connectivity();
     };
 
   }

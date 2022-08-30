@@ -27,51 +27,29 @@ namespace PDEs
     class Face
     {
     public:
-      /**
-       * A list of the vertex IDs that live on this face.
-       */
       std::vector<size_t> vertex_ids;
 
       /**
-       * On interior faces, this stores the global ID of the cell opposite the
-       * face. On boundary faces, this stores the boundary ID.
+       * The neighbor cell ID for interior faces, otherwise the boundary ID.
        */
       size_t neighbor_id = 0;
-
-      /**
-       * A flag for whether a face has a neighboring cell or is on boundary.
-       */
       bool has_neighbor = false;
 
-      /**
-       * An outward normal vector from the perspective of the cell the face
-       * belongs to.
-       */
+
       Normal normal;
-
-      /**
-       * The coordinate of the center of the face.
-       */
       Centroid centroid;
-
-      /**
-       * The area of the face.
-       */
       double area = 0.0;
 
-      /**
-       * Return the contents of the face as a string.
-       */
-      std::string
-      str() const;
+      /** Return the contents of the face as a string. */
+      std::string str() const;
+
+      friend std::ostream&
+      operator<<(std::ostream& os, const Face& face);
     };
 
 
-    /**
-     * Insert the contents of the face into an output stream.
-     */
-    std::ostream&
-    operator<<(std::ostream&, const Face& face);
+    /** Insert the contents of the face into an output stream. */
+    std::ostream& operator<<(std::ostream&, const Face& face);
   }
 }
 #endif //FACE_H

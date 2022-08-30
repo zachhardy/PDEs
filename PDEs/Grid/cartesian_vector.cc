@@ -9,22 +9,27 @@ using namespace PDEs;
 using namespace Grid;
 
 
+//################################################## Constructors
+
 CartesianVector::CartesianVector() :
     xyz({0.0, 0.0, 0.0})
 {}
 
 
-CartesianVector::CartesianVector(const double a) :
+CartesianVector::
+CartesianVector(const double a) :
     xyz({a, 0.0, 0.0})
 {}
 
 
-CartesianVector::CartesianVector(const double a, const double b) :
+CartesianVector::
+CartesianVector(const double a, const double b) :
     xyz({a, b, 0.0})
 {}
 
 
-CartesianVector::CartesianVector(const double a, const double b, const double c) :
+CartesianVector::
+CartesianVector(const double a, const double b, const double c) :
     xyz({a, b, c})
 {}
 
@@ -46,6 +51,7 @@ CartesianVector::operator=(const double value)
   return *this;
 }
 
+//################################################## Data Access
 
 double&
 CartesianVector::operator[](const unsigned int i)
@@ -116,6 +122,7 @@ CartesianVector::z() const
   return xyz[2];
 }
 
+//################################################## Scalar Operations
 
 double
 CartesianVector::length() const
@@ -150,6 +157,8 @@ CartesianVector::distance_squared(const CartesianVector& other) const
   return dx * dx + dy * dy + dz * dz;
 }
 
+//################################################## Cartesian vector
+//                                                   operations
 
 CartesianVector&
 CartesianVector::operator*=(const double factor)
@@ -278,6 +287,7 @@ CartesianVector::cross(const CartesianVector& other) const
   return CartesianVector(x, y, z);
 }
 
+//################################################## Print Utilities
 
 std::string
 CartesianVector::str() const
@@ -297,6 +307,7 @@ CartesianVector::print(std::ostream& os) const
   os << this->str();
 }
 
+//################################################## Comparisons
 
 bool
 CartesianVector::operator==(const CartesianVector& other) const
@@ -311,6 +322,7 @@ CartesianVector::operator!=(const CartesianVector& other) const
   return !(xyz == other.xyz);
 }
 
+//################################################## Non-Member Methods
 
 CartesianVector
 Grid::operator*(const double factor, const CartesianVector& p)

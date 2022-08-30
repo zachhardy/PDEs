@@ -56,63 +56,31 @@ namespace PDEs
     class Cell
     {
     public:
-      /**
-       * The cell geometry. This is used to ensure the correct cell volume and
-       * face areas are computed upon initialization.
-       */
       const CellType type;
 
-      /**
-       * A unique cell ID used to identify the cell. This is often used for
-       * defining/mapping degrees of freedom.
-       */
       size_t id;
-
-      /**
-       * A material ID used to ensure the correct material properties are used
-       * when performing cell-wise computations.
-       */
       unsigned int material_id = -1;
 
-      /**
-       * The coordinate of the center of the cell.
-       */
       Centroid centroid;
-
-      /**
-       * The volume of the cell.
-       */
       double volume = 0.0;
 
-      /**
-       * A list of the vertex IDs that live on the cell.
-       */
       std::vector<size_t> vertex_ids;
-
-      /**
-       * A list of the faces that bound the cell. See \ref Face.
-       */
       std::vector<Face> faces;
 
     public:
-      /**
-       * Construct cell with the specified geometry.
-       */
+      /** Construct cell with the specified geometry. */
       explicit Cell(const CellType cell_type);
 
-      /**
-       * Return the contents of the cell as a string.
-       */
-      std::string
-      str() const;
+      /** Return the contents of the cell as a string. */
+      std::string str() const;
+
+      friend std::ostream&
+      operator<<(std::ostream& os, const Cell& cell);
     };
 
 
-    /**
-     * Insert the contents of a cell into an output stream.
-     */
-    std::ostream&
-    operator<<(std::ostream& os, const Cell& cell);
+    /** Insert the contents of a cell into an output stream. */
+    std::ostream& operator<<(std::ostream& os, const Cell& cell);
   }
 }
 #endif //CELL_H
