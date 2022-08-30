@@ -97,6 +97,9 @@ namespace InfiniteMedium
     write_flux_moments(const std::string file_prefix,
                        const std::string output_directory = ".") const;
 
+    void
+    write_group_structure(const std::string output_directory = ".") const;
+
 
   protected:
     /** Apply source iterations on the sources within \p source_flags. */
@@ -118,7 +121,12 @@ namespace InfiniteMedium
      */
     void sweep();
 
-    /** Apply an infinite medium version of DSA for acceleration.*/
+    /**
+     * Apply an infinite medium version of DSA for acceleration.
+     *
+     * \note This can lead to unstable results when \f$ \sigma_{a, g} \ll
+     * \sigma_{s, g} \$.
+     */
     void dsa();
 
     void compute_moment_to_discrete_operator();

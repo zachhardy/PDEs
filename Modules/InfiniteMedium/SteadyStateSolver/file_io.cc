@@ -57,6 +57,8 @@ write_angular_flux(const std::string file_prefix,
 
   for (const auto& value : psi)
     file.write((char*)&value, sizeof(double));
+
+  file.close();
 }
 
 
@@ -108,4 +110,29 @@ write_flux_moments(const std::string file_prefix,
 
   for (const auto& value : phi)
     file.write((char*)&value, sizeof(double));
+
+  file.close();
+}
+
+
+void
+SteadyStateSolver::
+write_group_structure(const std::string output_directory) const
+{
+  if (not std::filesystem::is_directory(output_directory))
+    std::filesystem::create_directory(output_directory);
+  assert(std::filesystem::is_directory(output_directory));
+
+  std::string filepath = output_directory + "/e_bounds.txt";
+
+  // Open the file
+  std::ofstream file(filepath,
+                     std::ofstream::out |
+                     std::ofstream::trunc);
+  assert(file.is_open());
+
+  for (const auto& E : xs->E_bounds)
+    file << E << "\n";
+
+  file.close();
 }

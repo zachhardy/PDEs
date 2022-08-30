@@ -13,9 +13,9 @@ void
 SteadyStateSolver::execute()
 {
   std::cout
-    << "\n**********************************************************\n"
-    << "Executing the multi-group infinite medium transport solver"
-    << "\n**********************************************************\n";
+      << "\n**********************************************************\n"
+      << "Executing the multi-group infinite medium transport solver"
+      << "\n**********************************************************\n";
 
   auto result = source_iterations(APPLY_MATERIAL_SOURCE |
                                   APPLY_SCATTER_SOURCE |
@@ -25,14 +25,14 @@ SteadyStateSolver::execute()
 
   if (verbosity > 0)
     std::cout
-      << (converged?
-          "\n***** Steady State Solver CONVERGED *****\n" :
-          "\n!!*!! WARNING: Steady State Solver NOT CONVERGED *****\n")
-      << "# of Iterations:  "
-      << std::left << std::setw(6) << result.first << std::endl
-      << "Final Phi Change  "
-      << std::left << std::setw(6) << result.second << std::endl
-      << std::endl;
+        << (converged ?
+            "\n***** Steady State Solver CONVERGED *****\n" :
+            "\n!!*!! WARNING: Steady State Solver NOT CONVERGED *****\n")
+        << "# of Iterations:  "
+        << std::left << std::setw(6) << result.first << std::endl
+        << "Final Phi Change  "
+        << std::left << std::setw(6) << result.second << std::endl
+        << std::endl;
 }
 
 
@@ -58,12 +58,12 @@ SteadyStateSolver::source_iterations(SourceFlags source_flags)
 
     if (verbosity > 1)
       std::cout
-        << std::left << "inner::"
-        << "Iteration  " << std::setw(3) << nit << "   "
-        << "Value  " << std::setw(10) << change << "  "
-        << "Balance  " << std::setw(10) << balance << "  "
-        << (change < inner_tolerance? "CONVERGED" : "")
-        << std::endl;
+          << std::left << "inner::"
+          << "Iteration  " << std::setw(3) << nit << "   "
+          << "Value  " << std::setw(10) << change << "  "
+          << "Balance  " << std::setw(10) << balance << "  "
+          << (change < inner_tolerance ? "CONVERGED" : "")
+          << std::endl;
 
     if (change < inner_tolerance)
       break;
@@ -82,15 +82,15 @@ SteadyStateSolver::sweep()
       // Solve for the angular flux
       double x = 0.0;
       for (unsigned int ell = 0; ell < n_moments; ++ell)
-        x += moment_to_discrete[ell][n]*q_moments[ell*n_groups + g];
+        x += moment_to_discrete[ell][n] * q_moments[ell * n_groups + g];
       x /= xs->sigma_t[g];
 
       // Store the angular flux
-      psi[n*n_groups + g] = x;
+      psi[n * n_groups + g] = x;
 
       // Accumulate flux moment
       for (unsigned int ell = 0; ell < n_moments; ++ell)
-        phi[ell*n_groups + g] += discrete_to_moment[ell][n]*x;
+        phi[ell * n_groups + g] += discrete_to_moment[ell][n] * x;
     }//for g
 }
 
@@ -106,7 +106,7 @@ SteadyStateSolver::set_source(SourceFlags source_flags)
   for (unsigned int ell = 0; ell < n_moments; ++ell)
   {
     // The first DoF for this moment
-    const size_t uk_map = ell*n_groups;
+    const size_t uk_map = ell * n_groups;
 
     // Loop over groups
     for (unsigned int g = 0; g < n_groups; ++g)
@@ -122,7 +122,7 @@ SteadyStateSolver::set_source(SourceFlags source_flags)
       {
         const auto* sig_ell = xs->transfer_matrices[ell][g].data();
         for (unsigned int gp = 0; gp < n_groups; ++gp)
-          rhs += *sig_ell++*phi[uk_map + gp];
+          rhs += *sig_ell++ * phi[uk_map + gp];
       }
 
       // Fission term
@@ -131,7 +131,7 @@ SteadyStateSolver::set_source(SourceFlags source_flags)
         const auto chi = xs->chi[g];
         const auto* nusig_f = xs->nu_sigma_f.data();
         for (unsigned int gp = 0; gp < n_groups; ++gp)
-          rhs += chi**nusig_f++*phi[uk_map + gp];
+          rhs += chi * *nusig_f++ * phi[uk_map + gp];
       }
       q_moments[uk_map + g] += rhs;
     }//for group
@@ -145,7 +145,7 @@ SteadyStateSolver::dsa()
   for (unsigned int g = 0; g < n_groups; ++g)
   {
     double dphi = phi[g] - phi_ell[g];
-    phi[g] += xs->sigma_s[g]/xs->sigma_a[g]*dphi;
+    phi[g] += xs->sigma_s[g] / xs->sigma_a[g] * dphi;
   }
 }
 
@@ -155,7 +155,7 @@ SteadyStateSolver::check_balance()
 {
   double balance = 0.0;
   for (unsigned int g = 0; g < n_groups; ++g)
-    balance += src->values[g] - xs->sigma_a[g]*phi[g];
+    balance += src->values[g] - xs->sigma_a[g] * phi[g];
   return balance;
 }
 
