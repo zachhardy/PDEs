@@ -29,9 +29,96 @@ read_xs_file(const std::string file_name,
   file.open(file_name);
   assert(file.is_open());
 
-  // Book-Keeping
-  bool found_groups = false;
-  bool found_inv_velocity = false;
+  //############################################################
+  /** Lambda for reading vector data. */
+  auto read_1d_data =
+      [](const std::string keyword,
+         std::vector<double>& destination,
+         const unsigned int n,
+         std::ifstream& file,
+         std::istringstream& line_stream,
+         size_t& line_number)
+      {
+        std::string line;
+        std::getline(file, line);
+        line_stream = std::istringstream(line);
+        ++line_number;
+
+        unsigned int count = 0;
+        int i; double value;
+        while (line != keyword + "_END")
+        {
+          line_stream >> i >> value;
+          destination.at(i) = value;
+          assert(count++ <= n);
+
+          std::getline(file, line);
+          line_stream = std::istringstream(line);
+          ++line_number;
+        }
+      };
+
+  //############################################################
+  /** Lambda for reading transfer matrix data. */
+  auto read_transfer_matrix =
+      [](const std::string keyword,
+         std::vector<TransferMatrix>& destination,
+         std::ifstream& file,
+         std::istringstream& line_stream,
+         size_t& line_number)
+      {
+        std::string word, line;
+        std::getline(file, line);
+        line_stream = std::istringstream(line);
+        ++line_number;
+
+        int ell, g, gp;
+        double value;
+        while (line != keyword + "_END")
+        {
+          line_stream >> word;
+          if (word == "M_GPRIME_G_VAL")
+          {
+            line_stream >> ell >> gp >> g >> value;
+            destination.at(ell).at(g).at(gp) = value;
+          }
+
+          std::getline(file, line);
+          line_stream = std::istringstream(line);
+          ++line_number;
+        }
+      };
+
+  //############################################################
+  /** Lambda for reading delayed emission spectra data. */
+  auto read_chi_delayed =
+      [](const std::string keyword,
+         EmissionSpectra& destination,
+         std::ifstream& file,
+         std::istringstream& line_stream,
+         size_t& line_number)
+      {
+        std::string word, line;
+        std::getline(file, line);
+        line_stream = std::istringstream(line);
+        ++line_number;
+
+        int g, j;
+        double value;
+        while (line != keyword + "_END")
+        {
+          line_stream >> word;
+          if (word == "G_PRECURSORJ_VAL")
+          {
+            line_stream >> g >> j >> value;
+            destination.at(g).at(j) = value;
+          }
+
+          std::getline(file, line);
+          line_stream = std::istringstream(line);
+          ++line_number;
+        }
+      };
 
   // Read the file
   size_t line_number = 0;
@@ -49,37 +136,19 @@ read_xs_file(const std::string file_name,
     if (word == "NUM_GROUPS")
     {
       line_stream >> n_groups;
-      sigma_t.assign(n_groups, 0.0);
-      sigma_a.assign(n_groups, 0.0);
-      sigma_s.assign(n_groups, 0.0);
-      sigma_r.assign(n_groups, 0.0);
-      sigma_f.assign(n_groups, 0.0);
-      chi.assign(n_groups, 0.0);
-      chi_prompt.assign(n_groups, 0.0);
-      nu.assign(n_groups, 0.0);
-      nu_prompt.assign(n_groups, 0.0);
-      nu_delayed.assign(n_groups, 0.0);
-      beta.assign(n_groups, 0.0);
-      nu_sigma_f.assign(n_groups, 0.0);
-      nu_prompt_sigma_f.assign(n_groups, 0.0);
-      nu_delayed_sigma_f.assign(n_groups, 0.0);
-      inv_velocity.assign(n_groups, 0.0);
-      diffusion_coeff.assign(n_groups, 0.0);
-      buckling.assign(n_groups, 0.0);
-      found_groups = true;
+      reinit();
     }
-    if (word == "SCATTERING_ORDER")
+    if (word == "NUM_MOMENTS")
     {
-      assert(found_groups);
-
-      line_stream >> scattering_order;
-      transfer_matrices.resize(scattering_order + 1);
-      for (auto& transfer_matrix: transfer_matrices)
+      assert(n_groups > 0);
+      line_stream >> n_moments;
+      transfer_matrices.resize(n_moments);
+      for (auto& transfer_matrix : transfer_matrices)
         transfer_matrix.resize(n_groups, std::vector<double>(n_groups));
     }
     if (word == "NUM_PRECURSORS")
     {
-      assert(found_groups);
+      assert(n_groups > 0);
       line_stream >> n_precursors;
       precursor_lambda.assign(n_precursors, 0.0);
       precursor_yield.assign(n_precursors, 0.0);
@@ -93,80 +162,63 @@ read_xs_file(const std::string file_name,
 
     // Parse basic cross sections
     if (word == "SIGMA_T_BEGIN")
-      read_cross_section("SIGMA_T", sigma_t, f, ls, ln);
+      read_1d_data("SIGMA_T", sigma_t, n_groups, f, ls, ln);
     if (word == "SIGMA_A_BEGIN")
-      read_cross_section("SIGMA_A", sigma_a, f, ls, ln);
+      read_1d_data("SIGMA_A", sigma_a, n_groups, f, ls, ln);
     if (word == "SIGMA_F_BEGIN")
-    {
-      read_cross_section("SIGMA_F", sigma_f, f, ls, ln);
-      is_fissile = (is_fissile) ||
-                   std::accumulate(sigma_f.begin(), sigma_f.end(), 0.0) > 1.0e-12;
-    }
+      read_1d_data("SIGMA_F", sigma_f, n_groups, f, ls, ln);
+
     if (word == "NU_SIGMA_F_BEGIN")
-    {
-      read_cross_section("NU_SIGMA_F", nu_sigma_f, f, ls, ln);
-      is_fissile = (is_fissile) ||
-                   std::accumulate(nu_sigma_f.begin(), nu_sigma_f.end(), 0.0) > 1.0e-12;
-    }
+      read_1d_data("NU_SIGMA_F", nu_sigma_f, n_groups, f, ls, ln);
     if (word == "NU_PROMPT_SIGMA_F_BEGIN")
-    {
-      read_cross_section("NU_PROMPT_SIGMA_F", nu_prompt_sigma_f, f, ls, ln);
-      is_fissile = (is_fissile) ||
-                   std::accumulate(nu_prompt_sigma_f.begin(),
-                                   nu_prompt_sigma_f.end(), 0.0) > 1.0e-12;
-    }
+      read_1d_data("NU_PROMPT_SIGMA_F",
+                   nu_prompt_sigma_f, n_groups, f, ls, ln);
     if (word == "NU_DELAYED_SIGMA_F_BEGIN")
-    {
-      read_cross_section("NU_DELAYED_SIGMA_F", nu_delayed_sigma_f, f, ls, ln);
-      is_fissile = (is_fissile) ||
-                   std::accumulate(nu_delayed_sigma_f.begin(),
-                                   nu_delayed_sigma_f.end(), 0.0) > 1.0e-12;
-    }
+      read_1d_data("NU_DELAYED_SIGMA_F",
+                   nu_delayed_sigma_f, n_groups, f, ls, ln);
 
     if (word == "NU_BEGIN")
-      read_cross_section("NU", nu, f, ls, ln);
+      read_1d_data("NU", nu, n_groups, f, ls, ln);
     if (word == "NU_PROMPT_BEGIN")
-      read_cross_section("NU_PROMPT", nu_prompt, f, ls, ln);
+      read_1d_data("NU_PROMPT", nu_prompt, n_groups, f, ls, ln);
     if (word == "NU_DELAYED_BEGIN")
-      read_cross_section("NU_DELAYED", nu_delayed, f, ls, ln);
+      read_1d_data("NU_DELAYED", nu_delayed, n_groups, f, ls, ln);
     if (word == "BETA_BEGIN")
-      read_cross_section("BETA", beta, f, ls, ln);
+      read_1d_data("BETA", beta, n_groups, f, ls, ln);
 
     if (word == "CHI_BEGIN")
-      read_cross_section("CHI", chi, f, ls, ln);
+      read_1d_data("CHI", chi, n_groups, f, ls, ln);
     if (word == "CHI_PROMPT_BEGIN")
-      read_cross_section("CHI_PROMPT", chi_prompt, f, ls, ln);
+      read_1d_data("CHI_PROMPT", chi_prompt, n_groups, f, ls, ln);
 
-    if (word == "VELOCITY_BEGIN" and !found_inv_velocity)
+    if (word == "VELOCITY_BEGIN" and inv_velocity.front() == 0.0)
     {
-      read_cross_section("VELOCITY", inv_velocity, f, ls, ln);
+      read_1d_data("VELOCITY", inv_velocity, n_groups, f, ls, ln);
       for (auto& v: inv_velocity) v = 1.0 / v;
     }
     if (word == "INV_VELOCITY_BEGIN")
-    {
-      read_cross_section("INV_VELOCITY", inv_velocity, f, ls, ln);
-      found_inv_velocity = true;
-    }
+      read_1d_data("INV_VELOCITY", inv_velocity, n_groups, f, ls, ln);
 
     if (word == "DIFFUSION_COEFF_BEGIN")
-      read_cross_section("DIFFUSION_COEFF", diffusion_coeff, f, ls, ln);
+      read_1d_data("DIFFUSION_COEFF", diffusion_coeff, n_groups, f, ls, ln);
     if (word == "BUCKLING_BEGIN")
-      read_cross_section("BUCKLING", buckling, f, ls, ln);
+      read_1d_data("BUCKLING", buckling, n_groups, f, ls, ln);
 
     // Read transfer matrix
     if (word == "TRANSFER_MOMENTS_BEGIN")
-      read_transfer_matrices(
-          "TRANSFER_MOMENTS", transfer_matrices, f, ls, ln);
+      read_transfer_matrix("TRANSFER_MOMENTS", transfer_matrices, f, ls, ln);
 
     // Read delayed neutron data
     if (n_precursors > 0)
     {
       if (word == "PRECURSOR_LAMBDA_BEGIN")
-        read_precursor_property("PRECURSOR_LAMBDA", precursor_lambda, f, ls, ln);
+        read_1d_data("PRECURSOR_LAMBDA",
+                     precursor_lambda, n_precursors, f, ls, ln);
       if (word == "PRECURSOR_YIELD_BEGIN")
-        read_precursor_property("PRECURSOR_YIELD", precursor_yield, f, ls, ln);
+        read_1d_data("PRECURSOR_YIELD",
+                     precursor_yield, n_precursors, f, ls, ln);
       if (word == "CHI_DELAYED_BEGIN")
-        read_delayed_spectra("CHI_DELAYED", chi_delayed, f, ls, ln);
+        read_chi_delayed("CHI_DELAYED", chi_delayed, f, ls, ln);
     }
 
     word = "";

@@ -22,7 +22,7 @@ int main()
     auto quadrature = std::make_shared<GaussLegendreQuadrature>(2);
 
     auto xs = std::make_shared<CrossSections>();
-    xs->read_xs_file("xs_data/test_2g.xs");
+    xs->read_ndi_file("xs_data/1001.ndi");
 
     std::vector<double> src_vals(xs->n_groups, 0.0);
     auto src = std::make_shared<IsotropicMultiGroupSource>(src_vals);

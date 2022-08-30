@@ -27,9 +27,7 @@ namespace InfiniteMedium
     APPLY_FISSION_SOURCE = (1 << 2),
   };
 
-  /**
-   * Bitwise source flag operator.
-   */
+
   inline SourceFlags
   operator|(const SourceFlags f1, const SourceFlags f2)
   {
@@ -38,79 +36,33 @@ namespace InfiniteMedium
   }
 
 
-  /**
+   /**
      * An infinite medium multi-group discrete ordinates solver.
      */
     class SteadyStateSolver
     {
     public:
 
-      /**
-       * A flag for using diffusion synthetic acceleration.
-       */
       bool use_dsa = false;
 
-      /**
-       * Inner iteration convergence inner_tolerance.
-       */
       double inner_tolerance = 1.0e-6;
-
-      /**
-       * Maximum number of inner iterations to attempt.
-       */
       unsigned int max_inner_iterations = 100;
 
-      /**
-       * A flag for the level of screen output.
-       */
       unsigned int verbosity = 0;
 
-      /**
-       * The material cross-sections.
-       */
       std::shared_ptr<CrossSections> xs;
-
-      /**
-       * The angular quadrature set.
-       */
       std::shared_ptr<GaussLegendreQuadrature> quadrature;
-
-      /**
-       * An optional isotropic multi-group source for the problem.
-       */
       std::shared_ptr<IsotropicMultiGroupSource> src;
 
-      /**
-       * Initialize the infinite medium transport solver.
-       */
-      virtual void
-      initialize();
 
-      /**
-       * Execute the infinite medium transport solver.
-       */
-      virtual void
-      execute();
+      virtual void initialize();
+      virtual void execute();
 
-      /**
-       * Get the angular flux solution.
-       */
-      const Vector&
-      get_angular_flux() const;
-
-      /**
-       * Get the flux moment solution.
-       */
-      const Vector&
-      get_flux_moments() const;
+      const Vector& get_angular_flux() const;
+      const Vector& get_flux_moments() const;
 
     protected:
-      /**
-       * Implementation of the source iterations routine.
-       *
-       * \param source_flags Bitwise flags defining the source terms to be
-       *    added to the right-hand side vector.
-       */
+      /** Apply source iterations on the sources within \p source_flags. */
       std::pair<unsigned int, double>
       source_iterations(SourceFlags source_flags);
 
@@ -119,59 +71,27 @@ namespace InfiniteMedium
        * routine which will only add the specified sources to the source
        * moments vector. Source options include the inhomogeneous source,
        * scattering source, and fission source.
-       *
-       * \param source_flags Bitwise flags defining the source terms to be
-       *    added to the right-hand side vector.
        */
       void
       set_source(SourceFlags source_flags = NO_SOURCE_FLAGS);
 
       /**
-       * Solve the system for the next angular flux and flux moment iterate.
+       * Sweep over the energy angles and energy groups to solve for the
+       * next angular flux and flux moment updates.
        */
-      void
-      sweep();
+      void sweep();
 
-      /**
-       * Implementation of an infinite medium DSA algorithm.
-       */
-      void
-      dsa();
+      /** Apply an infinite medium version of DSA for acceleration.*/
+      void dsa();
 
-      /**
-       * Compute the particle balance.
-       */
-      double
-      check_balance();
+      void compute_moment_to_discrete_operator();
+      void compute_discrete_to_moment_operator();
 
-      /**
-       * Compute the moment-to-discrete operator.
-       */
-      void
-      compute_moment_to_discrete_operator();
-
-      /**
-       * Compute the discrete-to-moment operator.
-       */
-      void
-      compute_discrete_to_moment_operator();
+      double check_balance();
 
 
-      /**
-       * The number of energy groups. This is obtained from the cross-sections.
-       */
       unsigned int n_groups;
-
-      /**
-       * The number of flux moments. This is obtained from the cross-sections and
-       * is defined as <tt>scattering_order + 1</tt>.
-       */
       unsigned int n_moments;
-
-
-      /**
-       * The number of discrete angles. This is derived from the quadrature set.
-       */
       unsigned int n_angles;
 
       /**
@@ -188,24 +108,10 @@ namespace InfiniteMedium
        */
       Vector phi;
 
-      /**
-       * The flux moments from last iteration.
-       */
       Vector phi_ell;
-
-      /**
-       * The source moments vector. This is ordered the same as #phi.
-       */
       Vector q_moments;
 
-      /**
-       * The moment-to-discrete operator.
-       */
       Matrix discrete_to_moment;
-
-      /**
-       * The discrete-to-moment operator.
-       */
       Matrix moment_to_discrete;
     };
   }

@@ -15,6 +15,7 @@ namespace InfiniteMedium
   class TransientSolver : public KEigenvalueSolver
   {
   public:
+    /*-------------------- Outputting --------------------*/
     /*-------------------- Initial Conditions --------------------*/
 
     /**
@@ -25,60 +26,27 @@ namespace InfiniteMedium
 
     /*-------------------- Time Stepping --------------------*/
 
-    /**
-     * The simulation end time.
-     */
     double t_end = 1.0;
-
-    /**
-     * The time step size.
-     */
     double dt = 0.01;
 
     /*-------------------- Initialization Routines --------------------*/
 
-    /**
-     * Initialize the transient multi-group infinite medium solver.
-     */
-    void
-    initialize() override;
 
-    /**
-     * Execute the transient multi-group infinite medium solver.
-     */
-    void
-    execute() override;
+    void initialize() override;
+    void execute() override;
 
   protected:
     /*-------------------- Solve Time Step --------------------*/
 
-    /**
-     * Execute a time step.
-     */
-    void
-    execute_time_step();
-
-    /**
-     * Perform a transient sweep. See #sweep.
-     */
-    void
-    transient_sweep();
+    void execute_time_step();
+    void transient_sweep();
 
     /*-------------------- Book-Keeping Quantities --------------------*/
 
-    /**
-     * The current simulation time.
-     */
     double time = 0.0;
 
-    /**
-     * The multi-group angular flux from last time step. See #psi.
-     */
-    Vector psi_old;
 
-    /**
-     * The multi-group scalar flux from last time step. See #phi.
-     */
+    Vector psi_old;
     Vector phi_old;
   };
 }

@@ -14,7 +14,9 @@ namespace PDEs
   namespace Physics
   {
 
-    /** A class holding nuclear data for neutron interactions. */
+    /**
+     * A class holding nuclear data for neutron interactions.
+     */
     class CrossSections : public MaterialProperty
     {
     public:
@@ -41,14 +43,11 @@ namespace PDEs
                                               const std::vector<double>& args,
                                               const double reference)>;
 
-      unsigned int n_groups;
-      unsigned int scattering_order;
-      unsigned int n_precursors;
+      unsigned int n_groups = 0;
+      unsigned int n_moments = 0; ///< Number of scattering moments.
+      unsigned int n_precursors = 0;
 
-      /**
-       * Atom density in atoms/b-cm.
-       */
-      double density = 1.0;
+      double density = 1.0; ///< Atom density in <tt>atoms/b-cm</tt>
 
       bool is_fissile = false;
 
@@ -58,9 +57,7 @@ namespace PDEs
       std::vector<double> sigma_f;  ///< Fission cross section
       std::vector<double> sigma_r;  ///< Removal cross section
 
-      /**
-       * Moment-wise group-to-group transfer matrices
-       */
+      /// Moment-wise group-to-group transfer matrices
       std::vector<TransferMatrix> transfer_matrices;
 
       std::vector<double> chi;  ///< Total fission spectrum.
@@ -83,9 +80,7 @@ namespace PDEs
       std::vector<double> diffusion_coeff; ///< Diffusion coefficient (cm)
       std::vector<double> buckling; ///< Material buckling term
 
-      /**
-       * A modifier function for the absorption cross-sections.
-       */
+      /// A modifier function for the absorption cross-sections.
       XSFunction sigma_a_function;
 
       //################################################## Constructors
@@ -102,6 +97,12 @@ namespace PDEs
       reset();
 
       /**
+       * Reinitialize the cross-section data.
+       */
+      void
+      reinit();
+
+      /**
        * Read a ".xs" file containing the cross-section information. Once
        * the cross-sections are parsed, multiply the relevant quantities by the
        * specified atom density \p rho.
@@ -110,6 +111,16 @@ namespace PDEs
       read_xs_file(const std::string file_name,
                    const double rho = 1.0,
                    const bool verbose = false);
+
+      /**
+       * Read a ".ndi" file containing the cross-section information. Once
+       * the cross-sections are parsed, multiply the relevant quantities by the
+       * specified atom density \p rho.
+       */
+      void
+      read_ndi_file(const std::string file_name,
+                    const double rho = 1.0,
+                    const bool verbose = false);
 
       //################################################## Operations
 
@@ -167,79 +178,13 @@ namespace PDEs
       /**
        * Compute the macroscopic cross-sections.
        *
-       * Compute the macroscopic cross-sections via
-       * \f$ \Sigma_x = \rho \sigma_x \f$.
-       * If the \p diffusion_coeff was unspecified, it is computed via its
-       * standard definition, given by \f$ D = \frac{1}{3 \Sigma_t} \f$.
+       * Compute the macroscopic cross-sections via \f$ \Sigma_x = \rho
+       * \sigma_x \f$. If the \p diffusion_coeff was unspecified, it is
+       * computed via its standard definition, given by \f$ D =
+       * \frac{1}{3 \Sigma_t} \f$.
        */
       void
       compute_macroscopic_cross_sections();
-
-      //################################################## Read Operations
-
-      /**
-       * Read a cross-section block from the ".xs" file.
-       *
-       * \param keyword The identifier for the current property block.
-       * \param destination The cross-section vector to store the results in.
-       * \param file The file being parsed.
-       * \param line_stream Storage for a line in the file.
-       * \param line_number The current line number in the file.
-       */
-      void
-      read_cross_section(const std::string keyword,
-                         std::vector<double>& destination,
-                         std::ifstream& file,
-                         std::istringstream& line_stream,
-                         size_t& line_number);
-
-      /**
-       * Read the transfer matrix block of the cross-section file.
-       *
-       * \param keyword The identifier for the current property block.
-       * \param destination The vector of transfer matrices to store the result in.
-       * \param file The file being parsed.
-       * \param line_stream Storage for a line in the file.
-       * \param line_number The current line number in the file.
-       */
-      void
-      read_transfer_matrices(const std::string keyword,
-                             std::vector<TransferMatrix>& destination,
-                             std::ifstream& file,
-                             std::istringstream& line_stream,
-                             size_t& line_number);
-
-      /**
-       * Read a precursor property from the cross-section file.
-       *
-       * \param keyword The identifier for the current property block.
-       * \param destination The precursor property vector to store the result in.
-       * \param file The file being parsed.
-       * \param line_stream Storage for a line in the file.
-       * \param line_number The current line number in the file.
-       */
-      void
-      read_precursor_property(const std::string keyword,
-                              std::vector<double>& destination,
-                              std::ifstream& file,
-                              std::istringstream& line_stream,
-                              size_t& line_number);
-
-      /**
-       * Read the delayed neutron spectra from the cross-section file.
-       *
-       * \param keyword The identifier for the current property block.
-       * \param destination The vector of emission spectra to store the results in.
-       * \param file The file being parsed.
-       * \param line_stream Storage for a line in the file.
-       * \param line_number The current line number in the file.
-       */
-      void
-      read_delayed_spectra(const std::string keyword,
-                           EmissionSpectra& destination,
-                           std::ifstream& file,
-                           std::istringstream& line_stream,
-                           size_t& line_number);
     };
   }
 }

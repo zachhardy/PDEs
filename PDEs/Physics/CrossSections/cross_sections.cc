@@ -19,38 +19,34 @@ CrossSections::CrossSections() :
 void
 CrossSections::reset()
 {
-  n_groups = 0;
-  n_precursors = 0;
-  scattering_order = 0;
-
-  is_fissile = false;
-  density = 1.0;
+  n_groups = n_precursors = n_moments = 0;
+  is_fissile = false; density = 1.0;
 
   sigma_t.clear();
-  sigma_a.clear();
-  sigma_s.clear();
-  sigma_r.clear();
-  sigma_f.clear();
-
-  chi.clear();
-  chi_prompt.clear();
-  chi_delayed.clear();
-
-  nu.clear();
-  nu_prompt.clear();
-  nu_delayed.clear();
-
-  nu_sigma_f.clear();
-  nu_prompt_sigma_f.clear();
-  nu_delayed_sigma_f.clear();
+  sigma_a = sigma_s = sigma_f = sigma_r = sigma_t;
+  chi = chi_prompt = sigma_t;
+  nu = nu_prompt = nu_delayed = beta = sigma_t;
+  nu_sigma_f = nu_prompt_sigma_f = nu_delayed_sigma_f = sigma_t;
+  inv_velocity = diffusion_coeff = buckling = sigma_t;
 
   precursor_lambda.clear();
   precursor_yield.clear();
-
-  inv_velocity.clear();
-  diffusion_coeff.clear();
+  chi_delayed.clear();
 
   transfer_matrices.clear();
+}
+
+
+void
+CrossSections::reinit()
+{
+  assert(n_groups > 0);
+  sigma_t.assign(n_groups, 0.0);
+  sigma_a = sigma_s = sigma_f = sigma_r = sigma_t;
+  chi = chi_prompt = sigma_t;
+  nu = nu_prompt = nu_delayed = beta = sigma_t;
+  nu_sigma_f = nu_prompt_sigma_f = nu_delayed_sigma_f = sigma_t;
+  inv_velocity = diffusion_coeff = buckling = sigma_t;
 }
 
 
@@ -66,14 +62,12 @@ CrossSections::compute_scattering_from_transfers()
    * transfer matrices, the rows contain the destination groups and columns
    * the origin group. Due to this, computing sigma_s necessitates a column-
    * wise sum. */
-  for (unsigned int gp = 0; gp < n_groups; ++gp)
-  {
-    for (unsigned int g = 0; g < n_groups; ++g)
+  for (unsigned int g = 0; g < n_groups; ++g)
+    for (unsigned int gp = 0; gp < n_groups; ++gp)
     {
       assert(transfer_matrices[0][g][gp] >= 0.0);
       sigma_s[gp] += transfer_matrices[0][g][gp];
     }
-  }
 }
 
 
@@ -83,19 +77,21 @@ CrossSections::compute_scattering_from_transfers()
 void
 CrossSections::reconcile_cross_sections()
 {
-
   // Determine whether sigma_a was specified
   double sum = std::accumulate(sigma_a.begin(), sigma_a.end(), 0.0);
-  bool specified_sigma_a = (sum > 1.0e-12);
+  bool has_sigma_a = (sum > 1.0e-12);
 
-  /* Compute absorption xs from transfer matrix, if not specified. Otherwise,
-   * recompute the total cross-section from the specified scattering and
-   * absorption. */
-  if (not specified_sigma_a)
+  // Compute absorption xs from transfer matrix, if not specified. Otherwise,
+  // recompute the total cross-section from the specified scattering and
+  // absorption.
+  if (not has_sigma_a)
     for (unsigned int g = 0; g < n_groups; ++g)
     {
+      std::cout << "Group " << g << ": sigma_t  " << sigma_t[g] << "  "
+                << " sigma_s   " << sigma_s[g] << "  diff  "
+                << sigma_t[g] - sigma_s[g] << "\n";
       assert(sigma_t[g] >= 0.0);
-      assert(sigma_t[g] >= sigma_s[g]);
+//      assert(sigma_t[g] >= sigma_s[g]);
       sigma_a[g] = sigma_t[g] - sigma_s[g];
     }
   else
@@ -114,20 +110,47 @@ CrossSections::reconcile_cross_sections()
 void
 CrossSections::reconcile_fission_properties()
 {
-  auto check_xs = [](std::vector<double> x) {
-    for (const auto& v: x)
-      if (v != 0.0)
-        return true;
-    return false;
-  };
-
-  auto check_matrix = [](std::vector<std::vector<double>> A) {
-    for (const auto& a: A)
-      for (const auto& v: a)
+  //############################################################
+  /** Lambda for finding non-zero cross-sections. */
+  auto check_xs =
+      [](std::vector<double> x)
+      {
+      for (const auto& v: x)
         if (v != 0.0)
           return true;
-    return false;
-  };
+      return false;
+      };
+
+  //############################################################
+  /** Lambda for finding non-zero matrix entries. */
+  auto check_matrix =
+      [](std::vector<std::vector<double>> A)
+      {
+        for (const auto& a: A)
+          for (const auto& v: a)
+            if (v != 0.0)
+              return true;
+        return false;
+      };
+
+  // Check which quantities were specified
+  const bool has_sigf = check_xs(sigma_f);
+  const bool has_nusigf = check_xs(nu_sigma_f);
+  const bool has_nupsigf = check_xs(nu_prompt_sigma_f);
+  const bool has_nudsigf = check_xs(nu_delayed_sigma_f);
+
+  const bool has_nu = check_xs(nu);
+  const bool has_nup = check_xs(nu_prompt);
+  const bool has_nud = check_xs(nu_delayed);
+  const bool has_beta = check_xs(beta);
+
+  const bool has_chi = check_xs(chi);
+  const bool has_chip = check_xs(chi_prompt);
+  const bool has_chid = check_matrix(chi_delayed);
+
+  is_fissile = has_sigf || has_nusigf || has_nupsigf;
+
+  std::cout << "HERE\n";
 
   // Clear precursors if not fissile
   if (not is_fissile and n_precursors > 0)
@@ -145,37 +168,22 @@ CrossSections::reconcile_fission_properties()
   // Check fission properties
   if (is_fissile)
   {
-    // Check which quantities were specified
-    const bool has_sigf = check_xs(sigma_f);
-    const bool has_nusigf = check_xs(nu_sigma_f);
-    const bool has_nupsigf = check_xs(nu_prompt_sigma_f);
-    const bool has_nudsigf = check_xs(nu_delayed_sigma_f);
-
-    const bool has_nu = check_xs(nu);
-    const bool has_nup = check_xs(nu_prompt);
-    const bool has_nud = check_xs(nu_delayed);
-    const bool has_beta = check_xs(beta);
-
-    const bool has_chi = check_xs(chi);
-    const bool has_chip = check_xs(chi_prompt);
-    const bool has_chid = check_matrix(chi_delayed);
-
-    /* Check the specified properties from most general to least. Preference
-     * is given when the explicit properties are provided. For example, if
-     * prompt and delayed quantities are explicitly specified, the values are
-     * kept and others derived from them. If explicit prompt and delayed
-     * quantities are not specified, alternate specification forms are checked.
-     * At present, the only alternate way to specify prompt and delayed
-     * quantities is to use the ``delayed fraction'' method where nu_sigma_f,
-     * nu, and beta are specified group-wise. From these, all prompt and
-     * delayed quantities can be derived. If neither of these conditions are
-     * met, it is assumed that only total fission is desired and the prompt and
-     * delayed properties are set accordingly. */
+    // Check the specified properties from most general to least. Preference
+    // is given when the explicit properties are provided. For example, if
+    // prompt and delayed quantities are explicitly specified, the values are
+    // kept and others derived from them. If explicit prompt and delayed
+    // quantities are not specified, alternate specification forms are checked.
+    // At present, the only alternate way to specify prompt and delayed
+    // quantities is to use the ``delayed fraction'' method where nu_sigma_f,
+    // nu, and beta are specified group-wise. From these, all prompt and
+    // delayed quantities can be derived. If neither of these conditions are
+    // met, it is assumed that only total fission is desired and the prompt and
+    // delayed properties are set accordingly.
 
     // Begin with prompt/delayed quantities
     if (n_precursors > 0)
     {
-      // Full specification
+      //######################################## Prompt + delayed given
       if (has_sigf and has_nup and has_nud)
       {
         assert(std::all_of(sigma_f.begin(), sigma_f.end(),
@@ -189,7 +197,24 @@ CrossSections::reconcile_fission_properties()
           beta[g] = nu_delayed[g] / nu[g];
       }
 
-        // Delayed-fraction specification
+      //######################################## Delayed fraction given (1)
+      else if (has_sigf and has_nu and has_beta)
+      {
+        assert(std::all_of(sigma_f.begin(), sigma_f.end(),
+                           [](double x) { return x >= 0.0; }));
+        assert(std::all_of(nu.begin(), nu.end(),
+                           [](double x) { return x >= 1.0; }));
+        assert(std::all_of(beta.begin(), beta.end(),
+                           [](double x) { return x >= 0.0; }));
+
+        for (unsigned int g = 0; g < n_groups; ++g)
+        {
+          nu_prompt[g] = (1.0 - beta[g]) * nu[g];
+          nu_delayed[g] = beta[g] * nu[g];
+        }
+      }
+
+      //######################################## Delayed fraction given (2)
       else if (has_nusigf and has_nu and has_beta)
       {
         assert(std::all_of(nu_sigma_f.begin(), nu_sigma_f.end(),
@@ -207,23 +232,44 @@ CrossSections::reconcile_fission_properties()
         }
       }
 
-      // Check the spectra
+      //######################################## No nu given
+      if (has_nupsigf and has_nudsigf)
+      {
+        assert(std::all_of(nu_prompt_sigma_f.begin(), nu_prompt_sigma_f.end(),
+                           [](double x) { return x >= 0.0; }));
+        assert(std::all_of(nu_delayed_sigma_f.begin(), nu_delayed_sigma_f.end(),
+                           [](double x) { return x >= 0.0; }));
+
+        for (unsigned int g = 0; g < n_groups; ++g)
+        {
+          nu[g] = 1.0;
+          sigma_f[g] = nu_prompt_sigma_f[g] + nu_delayed_sigma_f[g];
+          nu_sigma_f[g] = sigma_f[g];
+
+          beta[g] = nu_delayed_sigma_f[g] / nu_sigma_f[g];
+          nu_prompt[g] = (1.0 - beta[g]);
+          nu_delayed[g] = beta[g];
+        }
+      }
+
+      //######################################## Check the spectra
       assert(has_chip && has_chid);
       assert(std::all_of(chi_prompt.begin(), chi_prompt.end(),
                          [](double x) { return x >= 0.0; }));
       assert(std::all_of(chi_delayed.begin(), chi_delayed.end(),
                          [](std::vector<double> x) {
                            return std::all_of(x.begin(), x.end(),
-                                              [](double y) { return y >= 0.0; });
+                                              [](double y)
+                                              { return y >= 0.0; });
                          }));
 
-      // Check precursor properties
+      //######################################## Check precursor properties
       assert(std::all_of(precursor_yield.begin(), precursor_yield.end(),
                          [](double x) { return x >= 0.0; }));
       assert(std::all_of(precursor_lambda.begin(), precursor_lambda.end(),
                          [](double x) { return x > 0.0; }));
 
-      // Normalize the prompt spectra
+      //######################################## Normalize prompt spectrum
       double prompt_sum =
           std::accumulate(chi_prompt.begin(), chi_prompt.end(), 0.0);
 
@@ -239,7 +285,7 @@ CrossSections::reconcile_fission_properties()
           chi_prompt[g] /= prompt_sum;
       }
 
-      // Normalize the delayed spectra
+      //######################################## Normalize delayed spectra
       for (unsigned int j = 0; j < n_precursors; ++j)
       {
         double delayed_sum_j = 0.0;
@@ -260,7 +306,7 @@ CrossSections::reconcile_fission_properties()
           chi_delayed[g][j] /= delayed_sum_j;
       }
 
-      // Normalize the precursor yields
+      //######################################## Normalize precursor yeilds
       double yield_sum =
           std::accumulate(precursor_yield.begin(), precursor_yield.end(), 0.0);
 
@@ -276,7 +322,7 @@ CrossSections::reconcile_fission_properties()
           precursor_yield[j] /= yield_sum;
       }
 
-      // Compute the total fission quantities from prompt and delayed
+      //######################################## Compute total quantities
       for (unsigned int g = 0; g < n_groups; ++g)
       {
         nu[g] = nu_prompt[g] + nu_delayed[g];
@@ -287,7 +333,8 @@ CrossSections::reconcile_fission_properties()
           chi[g] += beta[g] * precursor_yield[j] * chi_delayed[g][j];
       }
 
-      // Check values
+      //######################################## Check results of above
+      for (const auto& v : nu) std::cout << v << "\n";
       assert(std::all_of(nu.begin(), nu.end(),
                          [](double x) { return x >= 1.0; }));
       assert(std::all_of(chi.begin(), chi.end(),
@@ -296,7 +343,7 @@ CrossSections::reconcile_fission_properties()
       assert(std::abs(chi_sum - 1.0) < 1.0e-12);
     }//if precursors
 
-      // Total fission only
+    //######################################## Total fission only
     else
     {
       assert(has_chi && has_nu && (has_nusigf || has_sigf));
@@ -357,10 +404,10 @@ CrossSections::compute_macroscopic_cross_sections()
     nu_delayed_sigma_f[g] *= density;
   }
 
-  for (unsigned int m = 0; m <= scattering_order; ++m)
+  for (unsigned int ell = 0; ell < n_moments; ++ell)
     for (unsigned int g = 0; g < n_groups; ++g)
       for (unsigned int gp = 0; gp < n_groups; ++gp)
-        transfer_matrices[m][g][gp] *= density;
+        transfer_matrices[ell][g][gp] *= density;
 
   // Compute diffusion coefficient if unspecified
   double sum = std::accumulate(diffusion_coeff.begin(),

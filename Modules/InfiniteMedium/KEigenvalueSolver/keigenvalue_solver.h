@@ -13,35 +13,20 @@ namespace InfiniteMedium
     class KEigenvalueSolver : public SteadyStateSolver
     {
     public:
-      /**
-       * The convergence tolerance for the outer iterations.
-       */
-      double outer_tolerance = 1.0e-8;
 
-      /**
-       * The maximum number of outer iterations allowed.
-       */
+      double outer_tolerance = 1.0e-8;
       unsigned int max_outer_iterations = 1000;
 
 
       using SteadyStateSolver::initialize;
 
-      /**
-       * Execute the multi-group diffusion \f$ k \f$-eigenvalue solver.
-       */
-      virtual void
-      execute() override;
+      virtual void execute() override;
 
     protected:
-      /**
-       * Compute the total neutron production rate.
-       */
-      double
-      compute_production();
+      /** Compute the total neutron production rate. */
+      double compute_production();
 
-      /**
-       * The current estimate of the k-eigenvalue.
-       */
+
       double k_eff = 1.0;
     };
 
