@@ -34,21 +34,18 @@ int main()
     solver.quadrature = quadrature;
     solver.src = src;
 
+    solver.inner_tolerance = 1.0e-6;
+    solver.max_inner_iterations = (unsigned int)10000;
+
+    solver.use_dsa = false;
+    solver.verbosity = 2;
+
 //    std::map<unsigned int, double> ics;
 //    for (unsigned int g = 0; g < xs->n_groups; ++g)
 //      solver.inital_conditions[g] = 1.0;
 //
 //    solver.t_end = 100.0;
 //    solver.dt = 1.0;
-
-    solver.inner_tolerance = 1.0e-6;
-    solver.max_inner_iterations = (unsigned int)10000;
-
-    //    solver.outer_tolerance = 1.0e-6;
-    //    solver.max_outer_iterations = 100;
-
-    solver.use_dsa = true;
-    solver.verbosity = 2;
 
     solver.initialize();
     solver.execute();
