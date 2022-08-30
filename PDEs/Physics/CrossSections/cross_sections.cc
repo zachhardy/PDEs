@@ -15,12 +15,15 @@ CrossSections::CrossSections() :
     MaterialProperty(MaterialPropertyType::CROSS_SECTIONS)
 {}
 
+//######################################################################
 
 void
 CrossSections::reset()
 {
   n_groups = n_precursors = n_moments = 0;
   is_fissile = false; density = 1.0;
+
+  E_bounds.clear();
 
   sigma_t.clear();
   sigma_a = sigma_s = sigma_f = sigma_r = sigma_t;
@@ -36,11 +39,13 @@ CrossSections::reset()
   transfer_matrices.clear();
 }
 
+//######################################################################
 
 void
 CrossSections::reinit()
 {
   assert(n_groups > 0);
+  E_bounds.assign(n_groups + 1, 0.0);
   sigma_t.assign(n_groups, 0.0);
   sigma_a = sigma_s = sigma_f = sigma_r = sigma_t;
   chi = chi_prompt = sigma_t;
@@ -49,6 +54,7 @@ CrossSections::reinit()
   inv_velocity = diffusion_coeff = buckling = sigma_t;
 }
 
+//######################################################################
 
 void
 CrossSections::compute_scattering_from_transfers()
@@ -57,11 +63,11 @@ CrossSections::compute_scattering_from_transfers()
   if (transfer_matrices.empty())
     return;
 
-  /* A group's scattering cross section is defined as the sum of the
-   * transfer cross sections from a fixed group to all  other groups. In the
-   * transfer matrices, the rows contain the destination groups and columns
-   * the origin group. Due to this, computing sigma_s necessitates a column-
-   * wise sum. */
+  // A group's scattering cross section is defined as the sum of the
+  // transfer cross sections from a fixed group to all  other groups. In the
+  // transfer matrices, the rows contain the destination groups and columns
+  // the origin group. Due to this, computing sigma_s necessitates a column-
+  // wise sum.
   for (unsigned int g = 0; g < n_groups; ++g)
     for (unsigned int gp = 0; gp < n_groups; ++gp)
     {
@@ -70,9 +76,7 @@ CrossSections::compute_scattering_from_transfers()
     }
 }
 
-
 //######################################################################
-
 
 void
 CrossSections::reconcile_cross_sections()
@@ -91,7 +95,7 @@ CrossSections::reconcile_cross_sections()
                 << " sigma_s   " << sigma_s[g] << "  diff  "
                 << sigma_t[g] - sigma_s[g] << "\n";
       assert(sigma_t[g] >= 0.0);
-//      assert(sigma_t[g] >= sigma_s[g]);
+      assert(sigma_t[g] >= sigma_s[g]);
       sigma_a[g] = sigma_t[g] - sigma_s[g];
     }
   else
@@ -106,6 +110,7 @@ CrossSections::reconcile_cross_sections()
     sigma_r[g] = sigma_t[g] - transfer_matrices[0][g][g];
 }
 
+//######################################################################
 
 void
 CrossSections::reconcile_fission_properties()
@@ -384,9 +389,7 @@ CrossSections::reconcile_fission_properties()
   }//if fissile
 }
 
-
 //######################################################################
-
 
 void
 CrossSections::compute_macroscopic_cross_sections()

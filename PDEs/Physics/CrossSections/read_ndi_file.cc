@@ -147,13 +147,18 @@ read_ndi_file(const std::string file_name,
       reinit();
     }
 
+    if (word == "e_bounds")
+      read_1d_data(E_bounds, n_groups + 1, f, ls, ln);
+
     if (word == "vel")
     {
       read_1d_data(inv_velocity, n_groups, f, ls, ln);
       for (auto& v: inv_velocity) v = 1.0 / v;
     }
+
     if (word == "sig_tot")
       read_1d_data(sigma_t, n_groups, f, ls, ln);
+
     if (word == "pn_order")
     {
       std::getline(file, line);

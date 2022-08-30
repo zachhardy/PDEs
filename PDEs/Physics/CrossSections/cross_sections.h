@@ -43,6 +43,8 @@ namespace PDEs
 
       bool is_fissile = false;
 
+      std::vector<double> E_bounds; ///< Energy bin boundaries.
+
       std::vector<double> sigma_t;  ///< Total cross section
       std::vector<double> sigma_a;  ///< Absorption cross section
       std::vector<double> sigma_s;  ///< Scattering cross section
