@@ -9,6 +9,7 @@
 using namespace PDEs;
 using namespace Math;
 
+//################################################## Constructors
 
 Matrix::
 Matrix(const std::initializer_list<std::initializer_list<double>>& list) :
@@ -96,6 +97,7 @@ Matrix::operator=(const double value)
   return *this;
 }
 
+//################################################## Capacity
 
 size_t
 Matrix::n_rows() const
@@ -119,11 +121,11 @@ Matrix::size() const
 
 
 size_t
-Matrix::n_nonzero_elements() const
+Matrix::n_nonzero_entries() const
 {
   size_t count = 0;
   for (const auto& row: values)
-    count += row.n_nonzero_elements();
+    count += row.n_nonzero_entries();
   return count;
 }
 
@@ -134,6 +136,7 @@ Matrix::empty() const
   return values.empty();
 }
 
+//################################################## Data Access
 
 Vector&
 Matrix::operator[](const size_t i)
@@ -260,6 +263,7 @@ Matrix::end(const size_t i) const
   return values.at(i).end();
 }
 
+//################################################## Modifiers
 
 void
 Matrix::clear()
@@ -269,7 +273,8 @@ Matrix::clear()
 
 
 void
-Matrix::resize(const size_t n_rows, const size_t n_cols)
+Matrix::resize(const size_t n_rows,
+               const size_t n_cols)
 {
   values.resize(n_rows);
   for (auto& row : values)
@@ -368,6 +373,7 @@ Matrix::set_diagonal(const double value)
   }
 }
 
+//################################################## Scaling Operations
 
 Matrix&
 Matrix::scale(const double factor)
@@ -421,9 +427,13 @@ Matrix::operator/(const double factor) const
   return Matrix(*this).scale(1.0 / factor);
 }
 
+//################################################## Matrix Addition and
+//                                                   Subtraction
 
 Matrix&
-Matrix::sadd(const double a, const double b, const Matrix& B)
+Matrix::sadd(const double a,
+             const double b,
+             const Matrix& B)
 {
   assert(B.n_rows() == n_rows());
   assert(B.n_cols() == n_cols());
@@ -441,14 +451,16 @@ Matrix::sadd(const double a, const double b, const Matrix& B)
 
 
 Matrix&
-Matrix::sadd(const double a, const Matrix& B)
+Matrix::sadd(const double a,
+             const Matrix& B)
 {
   return sadd(a, 1.0, B);
 }
 
 
 Matrix&
-Matrix::add(const double b, const Matrix& B)
+Matrix::add(const double b,
+            const Matrix& B)
 {
   return sadd(1.0, b, B);
 }
@@ -483,7 +495,9 @@ Matrix::operator-(const Matrix& B) const
 
 
 Matrix&
-Matrix::sTadd(const double a, const double b, const Matrix& B)
+Matrix::sTadd(const double a,
+              const double b,
+              const Matrix& B)
 {
   assert(B.n_rows() == n_cols());
   assert(B.n_cols() == n_rows());
@@ -501,21 +515,27 @@ Matrix::sTadd(const double a, const double b, const Matrix& B)
 
 
 Matrix&
-Matrix::sTadd(const double a, const Matrix& B)
+Matrix::sTadd(const double a,
+              const Matrix& B)
 {
   return sTadd(a, 1.0, B);
 }
 
 
 Matrix&
-Matrix::Tadd(const double b, const Matrix& B)
+Matrix::Tadd(const double b,
+             const Matrix& B)
 {
   return sTadd(1.0, b, B);
 }
 
+//################################################## Matrix-Matrix
+//                                                   Multiplication
 
 void
-Matrix::mmult(const Matrix& B, Matrix& C, const bool adding) const
+Matrix::mmult(Matrix& C,
+              const Matrix& B,
+              const bool adding) const
 {
   assert(C.n_rows() == n_rows());
   assert(C.n_cols() == B.n_cols());
@@ -538,7 +558,9 @@ Matrix::mmult(const Matrix& B, Matrix& C, const bool adding) const
 
 
 void
-Matrix::Tmmult(const Matrix& B, Matrix& C, const bool adding) const
+Matrix::Tmmult(Matrix& C,
+               const Matrix& B,
+               const bool adding) const
 {
   assert(C.n_rows() == n_cols());
   assert(C.n_cols() == B.n_cols());
@@ -561,7 +583,9 @@ Matrix::Tmmult(const Matrix& B, Matrix& C, const bool adding) const
 
 
 void
-Matrix::mTmult(const Matrix& B, Matrix& C, const bool adding) const
+Matrix::mTmult(Matrix& C,
+               const Matrix& B,
+               const bool adding) const
 {
   assert(C.n_rows() == n_rows());
   assert(C.n_cols() == B.n_rows());
@@ -586,7 +610,8 @@ Matrix::mTmult(const Matrix& B, Matrix& C, const bool adding) const
 
 
 void
-Matrix::TTmult(const Matrix& B, Matrix& C,
+Matrix::TTmult(Matrix& C,
+               const Matrix& B,
                const bool adding) const
 {
   assert(C.n_rows() == n_cols());
@@ -609,9 +634,12 @@ Matrix::TTmult(const Matrix& B, Matrix& C,
   }
 }
 
+//################################################## Matrix-Vector
+//                                                   Multiplication
 
 void
-Matrix::vmult(const Vector& x, Vector& y,
+Matrix::vmult(Vector& y,
+              const Vector& x,
               const bool adding) const
 {
   assert(x.size() == n_cols());
@@ -632,9 +660,10 @@ Matrix::vmult(const Vector& x, Vector& y,
 
 
 void
-Matrix::vmult_add(const Vector& x, Vector& y) const
+Matrix::vmult_add(Vector& y,
+                  const Vector& x) const
 {
-  vmult(x, y, true);
+  vmult(y, x, true);
 }
 
 
@@ -642,14 +671,15 @@ Vector
 Matrix::operator*(const Vector& x) const
 {
   Vector y(n_rows(), 0.0);
-  vmult(x, y);
+  vmult(y, x);
   return y;
 
 }
 
 
 void
-Matrix::Tvmult(const Vector& x, Vector& y,
+Matrix::Tvmult(Vector& y,
+               const Vector& x,
                const bool adding) const
 {
   assert(x.size() == n_rows());
@@ -669,11 +699,12 @@ Matrix::Tvmult(const Vector& x, Vector& y,
 
 
 void
-Matrix::Tvmult_add(const Vector& x, Vector& y)
+Matrix::Tvmult_add(Vector& y, const Vector& x)
 {
-  Tvmult(x, y, true);
+  Tvmult(y, x, true);
 }
 
+//################################################## Print Utilities
 
 std::string
 Matrix::str(const bool scientific,
@@ -714,12 +745,28 @@ Matrix::print(std::ostream& os,
   os << str(scientific, precision, width);
 }
 
+//################################################## Comparison
+
+bool
+Matrix::operator==(const Matrix& other) const
+{
+  return values == other.values;
+}
+
+
+bool
+Matrix::operator!=(const Matrix& other) const
+{
+  return !(values == other.values);
+}
+
 
 Matrix
 Math::operator*(const double factor, const Matrix& A)
 {
   return A * factor;
 }
+
 
 std::ostream&
 Math::operator<<(std::ostream& os, const Matrix& A)

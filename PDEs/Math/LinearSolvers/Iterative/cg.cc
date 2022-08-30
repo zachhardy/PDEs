@@ -38,9 +38,9 @@ CG::solve(Vector& x, const Vector& b) const
   // Initialize residual, residual norms, and search directions.
   // If the residual norm is smaller than the tolerance, exit because
   // the initial guess is the solution.
-  if (x.n_nonzero_elements() > 0)
+  if (x.n_nonzero_entries() > 0)
   {
-    A->vmult(x, r);
+    A->vmult(r, x);
     r.sadd(-1.0, b);
   }
   else
@@ -56,7 +56,7 @@ CG::solve(Vector& x, const Vector& b) const
   for (nit = 0; nit < max_iterations; ++nit)
   {
     // Precompute necessary matrix-vector product q = Ap
-    A->vmult(p, q);
+    A->vmult(q, p);
 
     // Recompute alpha factor
     alpha = res_prev / p.dot(q);

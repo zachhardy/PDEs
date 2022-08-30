@@ -9,6 +9,7 @@
 using namespace PDEs;
 using namespace Math;
 
+//################################################## Contructors
 
 Vector::Vector(const std::initializer_list<double>& list) :
     Vector(list.begin(), list.end())
@@ -67,6 +68,7 @@ Vector::operator=(const double value)
   return *this;
 }
 
+//################################################## Capacity
 
 size_t
 Vector::size() const
@@ -76,7 +78,7 @@ Vector::size() const
 
 
 size_t
-Vector::n_nonzero_elements() const
+Vector::n_nonzero_entries() const
 {
   return std::count_if(values.begin(), values.end(),
                        [](const double v) { return v != 0.0; });
@@ -89,6 +91,7 @@ Vector::empty() const
   return values.empty();
 }
 
+//################################################## Data Access
 
 double&
 Vector::operator[](const size_t i)
@@ -159,6 +162,7 @@ Vector::end() const
   return values.end();
 }
 
+//################################################## Modifiers
 
 void
 Vector::clear()
@@ -220,6 +224,8 @@ Vector::fabs() const
   return Vector(*this).fabs();
 }
 
+//################################################## Scalar Operations and
+//                                                   Norms
 
 double
 Vector::dot(const Vector& y) const
@@ -272,6 +278,7 @@ Vector::lp_norm(const double p) const
   return std::pow(norm, 1.0 / p);
 }
 
+//################################################## Linear Algebra
 
 Vector&
 Vector::scale(const double factor)
@@ -353,7 +360,9 @@ Vector::shift(const double value)
 
 
 Vector&
-Vector::sadd(const double a, const double b, const Vector& y)
+Vector::sadd(const double a,
+             const double b,
+             const Vector& y)
 {
   assert(y.size() == size());
 
@@ -410,6 +419,7 @@ Vector::operator-(const Vector& y) const
   return Vector(*this).add(-1.0, y);
 }
 
+//################################################## Print Utilities
 
 std::string
 Vector::str(const bool scientific,
@@ -447,6 +457,7 @@ Vector::print(std::ostream& os,
   os << str(scientific, precision, width);
 }
 
+//################################################## Comparisons
 
 bool
 Vector::operator==(const Vector& y) const
@@ -461,6 +472,7 @@ Vector::operator!=(const Vector& y) const
   return (values != y.values);
 }
 
+//################################################## Non-Member Methods
 
 Vector
 Math::operator*(const double factor, const Vector& x)

@@ -54,7 +54,7 @@ namespace PDEs
        */
       static CartesianVector unit_vector(const unsigned int axis);
 
-      /** Element-wise assignment to a scalar value. */
+      /** Entry-wise assignment to a scalar value. */
       CartesianVector& operator=(const double value);
 
       //################################################## Data Access
@@ -117,7 +117,7 @@ namespace PDEs
       //################################################## Cartesian Vector
       //                                                   Operations
 
-      /** Element-wise multiplication by a scalar. */
+      /** Entry-wise multiplication by a scalar. */
       CartesianVector& operator*=(const double factor);
 
       /**
@@ -125,7 +125,7 @@ namespace PDEs
        */
       CartesianVector operator*(const double factor) const;
 
-      /** Element-wise division by a non-zero scalar. */
+      /** Entry-wise division by a non-zero scalar. */
       CartesianVector&
       operator/=(const double factor);
 
@@ -135,25 +135,25 @@ namespace PDEs
        */
       CartesianVector operator/(const double factor) const;
 
-      /** Element-wise negation. */
+      /** Entry-wise negation. */
       CartesianVector& operator-();
 
       /** Return a Cartesian vector with the negated elements. */
       CartesianVector operator-() const;
 
-      /** Element-wise addition of another Cartesian vector. */
+      /** Entry-wise addition of another Cartesian vector. */
       CartesianVector& operator+=(const CartesianVector& other);
 
       /** Return the element-wise sum of two Cartesian vectors. */
       CartesianVector operator+(const CartesianVector& other) const;
 
-      /** Element-wise subtraction by another Cartesian vector. */
+      /** Entry-wise subtraction by another Cartesian vector. */
       CartesianVector& operator-=(const CartesianVector& other);
 
       /** Return the element-wise difference of two Cartesian vectors. */
       CartesianVector operator-(const CartesianVector& other) const;
 
-      /** Element-wise absolute value. */
+      /** Entry-wise absolute value. */
       CartesianVector& fabs();
 
       /** Return a Cartesian vector with the element-wise absolute value. */

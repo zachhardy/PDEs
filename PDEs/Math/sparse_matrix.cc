@@ -13,15 +13,21 @@
 using namespace PDEs;
 using namespace Math;
 
+//################################################## Entry
 
-SparseMatrix::Iterator::Element::
-Element(const size_t row, const size_t column, double& value) :
+SparseMatrix::Iterator::Entry::
+Entry(const size_t row,
+      const size_t column,
+      double& value) :
     row(row), column(column), value(value)
 {}
 
+//################################################## Iterator
 
 SparseMatrix::Iterator::
-Iterator(SparseMatrix* matrix, const size_t row, const unsigned int index) :
+Iterator(SparseMatrix* matrix,
+         const size_t row,
+         const unsigned int index) :
     matrix(matrix), row(row), index(index)
 {}
 
@@ -49,7 +55,7 @@ SparseMatrix::Iterator::operator++(int)
 }
 
 
-SparseMatrix::Iterator::Element
+SparseMatrix::Iterator::Entry
 SparseMatrix::Iterator::operator*() const
 {
   return {row,
@@ -113,12 +119,16 @@ SparseMatrix::Iterator::advance()
   }
 }
 
+//################################################## ConstEntry
 
-SparseMatrix::ConstIterator::ConstElement::
-ConstElement(const size_t row, const size_t column, const double& value) :
+SparseMatrix::ConstIterator::ConstEntry::
+ConstEntry(const size_t row,
+           const size_t column,
+           const double& value) :
     row(row), column(column), value(value)
 {}
 
+//################################################## ConstIterator
 
 SparseMatrix::ConstIterator::
 ConstIterator(const SparseMatrix* matrix,
@@ -151,7 +161,7 @@ SparseMatrix::ConstIterator::operator++(int)
 }
 
 
-SparseMatrix::ConstIterator::ConstElement
+SparseMatrix::ConstIterator::ConstEntry
 SparseMatrix::ConstIterator::operator*() const
 {
   return {row,
@@ -218,6 +228,7 @@ SparseMatrix::ConstIterator::advance()
   }
 }
 
+//################################################## RowIterator
 
 SparseMatrix::RowIterator::
 RowIterator(SparseMatrix* matrix, const size_t row) :
@@ -238,6 +249,7 @@ SparseMatrix::RowIterator::end()
   return matix->end(row);
 }
 
+//################################################## ConstRowIterator
 
 SparseMatrix::ConstRowIterator::
 ConstRowIterator(const SparseMatrix* matrix, const size_t row) :
@@ -258,6 +270,7 @@ SparseMatrix::ConstRowIterator::end()
   return matix->end(row);
 }
 
+//################################################## Constructors
 
 SparseMatrix::SparseMatrix()
 {
@@ -324,6 +337,7 @@ SparseMatrix::copy_from(const SparseMatrix& matrix)
   has_entries = matrix.has_entries;
 }
 
+//################################################## Capacity
 
 size_t
 SparseMatrix::n_rows() const
@@ -340,7 +354,7 @@ SparseMatrix::n_cols() const
 
 
 size_t
-SparseMatrix::n_nonzero_elements() const
+SparseMatrix::n_nonzero_entries() const
 {
   return std::accumulate(colnums.begin(), colnums.end(), 0,
                          [](size_t v, const std::vector<size_t>& row) { return v + row.size(); });
@@ -370,6 +384,7 @@ SparseMatrix::exists(const size_t row, const size_t column) const
   return index(row, column) != -1;
 }
 
+//################################################## Data Access
 
 double&
 SparseMatrix::operator()(const size_t i, const size_t j)
@@ -547,6 +562,7 @@ SparseMatrix::row_iterator(const size_t row) const
   return {this, row};
 }
 
+//################################################## Modifiers
 
 void
 SparseMatrix::clear()
@@ -631,6 +647,7 @@ SparseMatrix::swap(SparseMatrix& other)
   values.swap(other.values);
 }
 
+//################################################## Scaling Operations
 
 SparseMatrix&
 SparseMatrix::scale(const double factor)
@@ -685,9 +702,14 @@ SparseMatrix::operator/(const double factor) const
   return SparseMatrix(*this).scale(1.0 / factor);
 }
 
+//################################################## Matrix Addition and
+//                                                   Subtraction
 
 SparseMatrix&
-SparseMatrix::sadd(const double a, const double b, const SparseMatrix& B)
+SparseMatrix::
+sadd(const double a,
+     const double b,
+     const SparseMatrix& B)
 {
   assert(colnums == B.colnums);
   for (size_t row = 0; row < rows; ++row)
@@ -704,8 +726,7 @@ SparseMatrix::sadd(const double a, const double b, const SparseMatrix& B)
 
 
 SparseMatrix&
-SparseMatrix::sadd(const double a,
-                   const SparseMatrix& B)
+SparseMatrix::sadd(const double a, const SparseMatrix& B)
 {
   return sadd(a, 1.0, B);
 }
@@ -747,7 +768,10 @@ SparseMatrix::operator-(const SparseMatrix& B) const
 
 
 void
-SparseMatrix::vmult(const Vector& x, Vector& y, const bool adding) const
+SparseMatrix::
+vmult(Vector& y,
+      const Vector& x,
+      const bool adding) const
 {
   assert(x.size() == cols);
   assert(y.size() == rows);
@@ -769,9 +793,9 @@ SparseMatrix::vmult(const Vector& x, Vector& y, const bool adding) const
 
 
 void
-SparseMatrix::vmult_add(const Vector& x, Vector& y) const
+SparseMatrix::vmult_add(Vector& y, const Vector& x) const
 {
-  vmult(x, y, true);
+  vmult(y, x, true);
 }
 
 
@@ -779,13 +803,16 @@ Vector
 SparseMatrix::operator*(const Vector& x) const
 {
   Vector y(n_rows());
-  vmult(x, y);
+  vmult(y, x);
   return y;
 }
 
 
 void
-SparseMatrix::Tvmult(const Vector& x, Vector& y, const bool adding) const
+SparseMatrix::
+Tvmult(Vector& y,
+       const Vector& x,
+       const bool adding) const
 {
   assert(x.size() == cols);
   assert(y.size() == rows);
@@ -806,9 +833,9 @@ SparseMatrix::Tvmult(const Vector& x, Vector& y, const bool adding) const
 
 
 void
-SparseMatrix::Tvmult_add(const Vector& x, Vector& y) const
+SparseMatrix::Tvmult_add(Vector& y, const Vector& x) const
 {
-  vmult(x, y, true);
+  vmult(y, x, true);
 }
 
 
