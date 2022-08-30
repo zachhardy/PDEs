@@ -18,69 +18,53 @@ namespace PDEs
     namespace LinearSolvers
     {
       /**
-       * A base class from which all linear solvers must derive. This is templated
-       * on the MatrixType in order to accommodate both dense matrices and sparse
-       * matrices.
+       * A base class from which all linear solvers must derive. This is
+       * templated on the MatrixType in order to accommodate both dense matrices
+       * and sparse matrices.
        */
       template<class MatrixType>
       class LinearSolverBase
       {
       public:
-        /**
-         * Abstract method for solving a linear system.
-         */
-        virtual void
-        solve(Vector& x, const Vector& b) const = 0;
+        /** Abstract method for solving a linear system. */
+        virtual void solve(Vector& x, const Vector& b) const = 0;
 
-        /**
-         * Return the solution to \f$ A x = b \f$.
-         */
-        Vector
-        solve(const Vector& b) const;
+        /**Return the solution to \f$ A x = b \f$.  */
+        Vector solve(const Vector& b) const;
 
-        /**
-         * Attach a matrix to the solver.
-         */
-        virtual void
-        set_matrix(const MatrixType& matrix);
+        /** Attach a matrix to the solver. */
+        virtual void set_matrix(const MatrixType& matrix);
       };
 
+      //############################################################
 
-      /**
-       * Base class for direct solvers.
-       */
+      /** Base class for direct solvers. */
       template<class MatrixType>
       class DirectSolverBase : public LinearSolverBase<MatrixType>
       {
+      protected:
+        MatrixType A;
+
+        /**
+         * A flag specifying whether the matrix is in its factorized form or
+         * still requires factorization before \ref solve can be called.
+         */
+        bool factorized = false;
+
       public:
         using LinearSolverBase<MatrixType>::solve;
 
-        /**
-         * Default constructor.
-         */
+        /** Default constructor. */
         DirectSolverBase();
 
         /**
          * An abstract routine for applying a particular factorization to the
          * attached matrix.
          */
-        virtual void
-        factorize() = 0;
+        virtual void factorize() = 0;
 
-        /**
-         * Attach a matrix to the direct solver.
-         */
-        virtual void
-        set_matrix(const MatrixType& matrix) override;
-
-      protected:
-        MatrixType A;
-
-        /**
-         * A flag specifying whether the matrix is in its factorized form or still
-         * requires factorization before \ref solve can be called.
-         */
-        bool factorized = false;
+        /** Attach a matrix to the direct solver. */
+        virtual void set_matrix(const MatrixType& matrix) override;
       };
 
 
@@ -105,6 +89,15 @@ namespace PDEs
        */
       class IterativeSolverBase : public LinearSolverBase<SparseMatrix>
       {
+      protected:
+        const SparseMatrix* A;
+
+        double tolerance;
+        unsigned int max_iterations;
+        unsigned int verbosity = 0;
+
+        const std::string solver_name;
+
       public:
         using LinearSolverBase<SparseMatrix>::solve;
 
@@ -118,39 +111,24 @@ namespace PDEs
         IterativeSolverBase(const Options& opts = Options(),
                             const std::string name = "Undefined");
 
-        /**
-         * Attach the sparse matrix to the iterative linear solver.
-         */
-        void
-        set_matrix(const SparseMatrix& matrix) override;
+        /** Attach the sparse matrix to the iterative linear solver. */
+        void set_matrix(const SparseMatrix& matrix) override;
 
 
       protected:
         /**
          * Check whether the solver has converged. This is an abstract class that
-         * should be overridden with the appropriate check for convergence for the
-         * particular iterative solver.
+         * should be overridden with the appropriate check for convergence for
+         * the particular iterative solver.
          */
         virtual bool
         check(const unsigned int iteration, const double value) const;
 
-        /**
-         * Throw an error when convergence criteria is not met.
-         */
+        /** Throw an error when convergence criteria is not met. */
         void
         throw_convergence_error(const unsigned int iteration,
                                 const double value) const;
-
-      protected:
-        const SparseMatrix* A;
-
-        double tolerance;
-        unsigned int max_iterations;
-        unsigned int verbosity = 0;
-
-        const std::string solver_name;
       };
-
     }
   }
 }

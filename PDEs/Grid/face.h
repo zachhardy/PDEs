@@ -29,17 +29,15 @@ namespace PDEs
     public:
       std::vector<size_t> vertex_ids;
 
-      /**
-       * The neighbor cell ID for interior faces, otherwise the boundary ID.
-       */
+      /** The neighbor cell ID on the interior, the boundary ID otherwise. */
       size_t neighbor_id = 0;
       bool has_neighbor = false;
-
 
       Normal normal;
       Centroid centroid;
       double area = 0.0;
 
+    public:
       /** Return the contents of the face as a string. */
       std::string str() const;
 

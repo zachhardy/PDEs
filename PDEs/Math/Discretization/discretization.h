@@ -40,25 +40,15 @@ namespace PDEs
       const SpatialDiscretizationMethod method;
 
     public:
-      /**
-       * Default constructor. This attaches a mesh to the discretization and
-       * sets the method used.
-       */
       Discretization(const std::shared_ptr<Grid::Mesh> reference_mesh,
-                     const SpatialDiscretizationMethod discretization_method)
-          :
+                     const SpatialDiscretizationMethod discretization_method) :
           mesh(reference_mesh), method(discretization_method)
       {}
 
-      /**
-       * Return the number of nodes in the discretization.
-       */
-      virtual size_t
-      n_nodes() const = 0;
+      /**Return the number of nodes in the discretization. */
+      virtual size_t n_nodes() const = 0;
 
-      /**
-       * Return the number of nodes per cell in the discretization.
-       */
+      /** Return the number of nodes per cell in the discretization. */
       virtual unsigned int nodes_per_cell() const = 0;
 
       /**
@@ -66,8 +56,7 @@ namespace PDEs
        * The number of DoFs is defined as the number of nodes multiplied by the
        * number of solution components.
        */
-      virtual size_t
-      n_dofs(const unsigned int n_components) const = 0;
+      virtual size_t n_dofs(const unsigned int n_components) const = 0;
 
       /**
        * Return the number of degrees of freedom (DoFs) per cell in the
@@ -77,9 +66,7 @@ namespace PDEs
       virtual unsigned int
       dofs_per_cell(const unsigned int n_components) const = 0;
 
-      /**
-       * Return the coordinates of the nodes on the specified \p cell.
-       */
+      /** Return the coordinates of the nodes on the specified \p cell. */
       virtual std::vector<Grid::Node>
       nodes(const Grid::Cell& cell) const = 0;
 

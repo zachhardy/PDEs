@@ -50,35 +50,7 @@ namespace PDEs
        */
       class LU : public DirectSolverBase<Matrix>
       {
-      public:
-        /**
-         * Default constructor. Construct an direct LU solver, optionally with
-         * row pivoting.
-         */
-        LU(const bool pivot = true);
-
-        /**
-         * Attach a dense matrix to the solver.
-         */
-        void
-        set_matrix(const Matrix& matrix) override;
-
-        /**
-         * Perform an LU factorization of the matrix \f$ A \f$ in place.
-         */
-        void
-        factorize() override;
-
-        /**
-         * Solve an LU factored linear system.
-         */
-        void
-        solve(Vector& x, const Vector& b) const override;
-
       private:
-        /**
-         * A flag designating whether or not to perform row pivots.
-         */
         bool pivot_flag;
 
         /**
@@ -87,6 +59,22 @@ namespace PDEs
          * the right-hand side vector to the correct row when solving.
          */
         std::vector<size_t> row_pivots;
+
+      public:
+        /**
+         * Default constructor. Construct an direct LU solver, optionally with
+         * row pivoting.
+         */
+        LU(const bool pivot = true);
+
+        /** Attach a dense matrix to the solver. */
+        void set_matrix(const Matrix& matrix) override;
+
+        /** Perform an LU factorization of the matrix \f$ A \f$ in place. */
+        void factorize() override;
+
+        /** Solve an LU factored linear system. */
+        void solve(Vector& x, const Vector& b) const override;
       };
 
 
@@ -96,34 +84,7 @@ namespace PDEs
        */
       class SparseLU : public DirectSolverBase<SparseMatrix>
       {
-      public:
-        /**
-         * Default constructor. Construct a sparse LU solver, optionally with
-         * row pivoting.
-         */
-        SparseLU(const bool pivot = true);
-
-        /**
-         * Attach a matrix to the solver.
-         */
-        void
-        set_matrix(const SparseMatrix& matrix) override;
-
-        /**
-         * Perform an LU factorization on the matrix \f$ A \f$ in
-         * place. See \ref LU::factorize
-         */
-        void
-        factorize() override;
-
-        /** Solve the LU factored linear system. See \ref LU::solve */
-        void
-        solve(Vector& x, const Vector& b) const override;
-
       private:
-        /**
-         * A flag designating whether or not to perform row pivots.
-         */
         bool pivot_flag = true;
 
         /**
@@ -132,6 +93,25 @@ namespace PDEs
          * right-hand side vector to the correct row when solving.
          */
         std::vector<size_t> row_pivots;
+
+      public:
+        /**
+         * Default constructor. Construct a sparse LU solver, optionally with
+         * row pivoting.
+         */
+        SparseLU(const bool pivot = true);
+
+        /** Attach a matrix to the solver. */
+        void set_matrix(const SparseMatrix& matrix) override;
+
+        /**
+         * Perform an LU factorization on the matrix \f$ A \f$ in
+         * place. See \ref LU::factorize
+         */
+        void factorize() override;
+
+        /** Solve the LU factored linear system. See \ref LU::solve */
+        void solve(Vector& x, const Vector& b) const override;
       };
 
     }

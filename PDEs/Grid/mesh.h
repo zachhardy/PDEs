@@ -24,12 +24,11 @@ namespace PDEs
     };
 
 
-    /**
-     * Return the coordinate system type as a string.
-     */
+    /** Return the coordinate system type as a string. */
     std::string
     coordinate_system_str(const CoordinateSystemType coord_sys);
 
+    //######################################################################
 
     /**
      * A class that represents a general computational mesh.
@@ -37,10 +36,10 @@ namespace PDEs
      * A Mesh is characterized by a spatial dimension and coordinate system type
      * and is defined by a collection geometric objects up to its dimension. At
      * the lowest level, a Mesh comprises 0D vertices. Connections between
-     * vertices define 1D edges. A closed collection of edges make up 2D surfaces.
-     * Lastly, a bound collection of surfaces then make up 3D volumes. Of course,
-     * a <tt>dim</tt>-dimensional mesh only contains objects up to dimension
-     * \p dim.
+     * vertices define 1D edges. A closed collection of edges make up 2D
+     * surfaces. Lastly, a bound collection of surfaces then make up 3D volumes.
+     * Of course, a <tt>dim</tt>-dimensional mesh only contains objects up to
+     * dimension \p dim.
      */
     class Mesh
     {
@@ -59,6 +58,7 @@ namespace PDEs
        */
       std::vector<std::vector<size_t>> ijk_mapping;
 
+    public:
       /** Default constructor. */
       Mesh(const unsigned int dimension,
            const CoordinateSystemType coordinate_system);

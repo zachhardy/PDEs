@@ -12,9 +12,7 @@ namespace PDEs
 {
   namespace Grid
   {
-    /**
-     * Available cell geometries.
-     */
+    /** Available cell geometries. */
     enum class CellType
     {
       SLAB = 0, ///< 1D Cartesian geometry.
@@ -24,19 +22,18 @@ namespace PDEs
     };
 
 
-    /**
-     * Return the cell type as a string.
-     */
+    /** Return the cell type as a string. */
     std::string
     cell_type_str(const CellType cell_type);
 
+    //######################################################################
 
     /**
      * A class representing a cell on a mesh.
      *
      * A cell is defined as a <tt>dim</tt>-dimensional object bound by
-     * <tt>dim - 1</tt>-dimensional face objects. The cell type largely depends on
-     * the dimension and the coordinate system type. Each cell is uniquely
+     * <tt>dim - 1</tt>-dimensional face objects. The cell type largely depends
+     * on the dimension and the coordinate system type. Each cell is uniquely
      * identified by its \p id and can store a \p material_id to identify
      * material properties that live on the cell. Examples of cell per dimension
      * and coordinate system are:
