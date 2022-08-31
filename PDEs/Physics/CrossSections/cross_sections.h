@@ -89,6 +89,9 @@ namespace PDEs
       /** Reinitialize the cross-section data. */
       void reinit();
 
+      /** Make pure scatterer. */
+      void make_pure_scatterer();
+
       /**
        * Read a ".xs" file containing the cross-section information. Once
        * the cross-sections are parsed, multiply the relevant quantities by the
@@ -108,6 +111,11 @@ namespace PDEs
       read_ndi_file(const std::string file_name,
                     const double rho = 1.0,
                     const bool verbose = false);
+
+      /** Write the energy bin boundaries to a file. */
+      void write_group_structure(
+          const std::string directory = ".",
+          const std::string file_prefix = "e_bounds") const;
 
     private:
       //################################################## Operations

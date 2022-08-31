@@ -39,7 +39,6 @@ CrossSections::reset()
   transfer_matrices.clear();
 }
 
-//######################################################################
 
 void
 CrossSections::reinit()
@@ -52,6 +51,29 @@ CrossSections::reinit()
   nu = nu_prompt = nu_delayed = beta = sigma_t;
   nu_sigma_f = nu_prompt_sigma_f = nu_delayed_sigma_f = sigma_t;
   inv_velocity = diffusion_coeff = buckling = sigma_t;
+}
+
+
+void
+CrossSections::make_pure_scatterer()
+{
+  assert(n_groups > 0);
+
+  // Set total cross-section to scattering cross-section
+  sigma_t = sigma_s;
+
+  // Zero out capture reactions
+  sigma_a.assign(sigma_a.size(), 0.0);
+  sigma_r = sigma_f = sigma_a;
+  chi = chi_prompt = sigma_a;
+  nu = nu_prompt = nu_delayed = beta = sigma_a;
+  nu_sigma_f = nu_prompt_sigma_f = nu_delayed_sigma_f = sigma_a;
+
+  // Recompute diffusion coefficient with standard definition
+  for (unsigned int g = 0; g < n_groups; ++g)
+    diffusion_coeff[g] = 1.0 / (3.0 * sigma_t[g]);
+
+  is_fissile = false;
 }
 
 //######################################################################
@@ -91,9 +113,6 @@ CrossSections::reconcile_cross_sections()
   if (not has_sigma_a)
     for (unsigned int g = 0; g < n_groups; ++g)
     {
-      std::cout << "Group " << g << ": sigma_t  " << sigma_t[g] << "  "
-                << " sigma_s   " << sigma_s[g] << "  diff  "
-                << sigma_t[g] - sigma_s[g] << "\n";
       assert(sigma_t[g] >= 0.0);
       assert(sigma_t[g] >= sigma_s[g]);
       sigma_a[g] = sigma_t[g] - sigma_s[g];
@@ -154,8 +173,6 @@ CrossSections::reconcile_fission_properties()
   const bool has_chid = check_matrix(chi_delayed);
 
   is_fissile = has_sigf || has_nusigf || has_nupsigf;
-
-  std::cout << "HERE\n";
 
   // Clear precursors if not fissile
   if (not is_fissile and n_precursors > 0)
