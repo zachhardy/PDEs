@@ -11,15 +11,15 @@ using namespace InfiniteMedium;
 
 void
 SteadyStateSolver::
-write_angular_flux(const std::string file_prefix,
-                   const std::string output_directory) const
+write_angular_flux(const std::string directory,
+                   const std::string file_prefix) const
 
 {
-  if (not std::filesystem::is_directory(output_directory))
-    std::filesystem::create_directory(output_directory);
-  assert(std::filesystem::is_directory(output_directory));
+  if (not std::filesystem::is_directory(directory))
+    std::filesystem::create_directory(directory);
+  assert(std::filesystem::is_directory(directory));
 
-  std::string filepath = output_directory + "/" + file_prefix;
+  std::string filepath = directory + "/" + file_prefix;
   if (filepath.find(".") != std::string::npos)
     filepath = file_prefix.substr(0, file_prefix.rfind("."));
   filepath = filepath + ".data";
@@ -64,15 +64,15 @@ write_angular_flux(const std::string file_prefix,
 
 void
 SteadyStateSolver::
-write_flux_moments(const std::string file_prefix,
-                   const std::string output_directory) const
+write_flux_moments(const std::string directory,
+                   const std::string file_prefix) const
 
 {
-  if (not std::filesystem::is_directory(output_directory))
-    std::filesystem::create_directory(output_directory);
-  assert(std::filesystem::is_directory(output_directory));
+  if (not std::filesystem::is_directory(directory))
+    std::filesystem::create_directory(directory);
+  assert(std::filesystem::is_directory(directory));
 
-  std::string filepath = output_directory + "/" + file_prefix;
+  std::string filepath = directory + "/" + file_prefix;
   if (filepath.find(".") != std::string::npos)
     filepath = file_prefix.substr(0, file_prefix.rfind("."));
   filepath = filepath + ".data";
@@ -110,29 +110,6 @@ write_flux_moments(const std::string file_prefix,
 
   for (const auto& value : phi)
     file.write((char*)&value, sizeof(double));
-
-  file.close();
-}
-
-
-void
-SteadyStateSolver::
-write_group_structure(const std::string output_directory) const
-{
-  if (not std::filesystem::is_directory(output_directory))
-    std::filesystem::create_directory(output_directory);
-  assert(std::filesystem::is_directory(output_directory));
-
-  std::string filepath = output_directory + "/e_bounds.txt";
-
-  // Open the file
-  std::ofstream file(filepath,
-                     std::ofstream::out |
-                     std::ofstream::trunc);
-  assert(file.is_open());
-
-  for (const auto& E : xs->E_bounds)
-    file << E << "\n";
 
   file.close();
 }

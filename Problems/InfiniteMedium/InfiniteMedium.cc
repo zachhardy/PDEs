@@ -23,6 +23,7 @@ int main()
 
     auto xs = std::make_shared<CrossSections>();
     xs->read_ndi_file("xs_data/1001.ndi");
+    xs->make_pure_scatterer();
 
     std::vector<double> src_vals(xs->n_groups, 0.0);
     src_vals[xs->n_groups - 2] = 1.0;
@@ -50,8 +51,9 @@ int main()
     solver.initialize();
     solver.execute();
 
-    solver.write_angular_flux("psi");
-    solver.write_flux_moments("phi");
+    solver.write_angular_flux("Problems/InfiniteMedium/outputs");
+    solver.write_flux_moments("Problems/InfiniteMedium/outputs");
+    xs->write_group_structure("Problems/InfiniteMedium/outputs");
   }
   catch (std::exception &exc) {
     std::cerr << std::endl

@@ -90,15 +90,12 @@ namespace InfiniteMedium
     const Vector& get_flux_moments() const;
 
     void
-    write_angular_flux(const std::string file_prefix,
-                       const std::string output_directory = ".") const;
+    write_angular_flux(const std::string directory = ".",
+                       const std::string file_prefix = "aflux") const;
 
     void
-    write_flux_moments(const std::string file_prefix,
-                       const std::string output_directory = ".") const;
-
-    void
-    write_group_structure(const std::string output_directory = ".") const;
+    write_flux_moments(const std::string directory = ".",
+                       const std::string file_prefix = "sflux") const;
 
 
   protected:
