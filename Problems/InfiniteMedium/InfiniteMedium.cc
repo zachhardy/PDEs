@@ -75,6 +75,7 @@ int main(int argc, char** argv)
     std::string outdir = dirpath + "outputs/";
     std::string grp = std::to_string(n_grps);
 
+
     // Path to cross sections
     xspath += zaid + "_" + grp + "g.ndi";
     assert(std::filesystem::is_regular_file(xspath));
@@ -84,7 +85,7 @@ int main(int argc, char** argv)
     assert(std::filesystem::is_regular_file(icpath));
 
     // Path to output directory
-    outdir = grp + "g/" + ic;
+    outdir += grp + "g/" + ic;
     if (!std::filesystem::is_directory(outdir))
       std::filesystem::create_directories(outdir);
 

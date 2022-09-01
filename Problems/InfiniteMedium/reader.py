@@ -8,7 +8,6 @@ import matplotlib.pyplot as plt
 from scipy.constants import physical_constants as constants
 
 k = constants["Boltzmann constant in eV/K"][0]/1.0e6
-print(k*293)
 
 
 def read_psi(file_path):
@@ -93,22 +92,16 @@ if __name__ == "__main__":
     # Initialize the figure
     plt.figure()
     plt.xlabel("Energy (MeV)", fontsize=12)
-    plt.ylabel(rf"$\phi(E)$", fontsize=12)
+    plt.ylabel(rf"$\phi(E) / \Delta E$", fontsize=12)
     plt.grid(True)
 
     # Plot the infinite medium results at various times
 
     for i in range(0, len(phi), len(phi)//5):
         vals = phi[i][0]
-        plt.semilogx(E_avg, vals, label=f"n = {int(i)}")
-
-    # Plot the true Maxwellian
-    # T = 293 K or 2.530064236e-08 in MeV
-    # E = E_bounds
-    # E = np.linspace(min(E), max(E_bounds), 1001)
-    # M = maxwell(E, 293.0)
-    # plt.plot(E, M,  label="Maxwellian")
-
-    # # Post processing
+        plt.semilogx(E_avg, vals/np.diff(E_bounds[::-1]), label=f"n = {int(i)}")
     plt.legend()
+
+    savepath = os.path.abspath(os.path.dirname(__file__))
+    plt.savefig(f"{savepath}/maxwellians.pdf")
     plt.show()
