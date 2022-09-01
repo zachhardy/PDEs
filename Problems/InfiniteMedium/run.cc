@@ -6,7 +6,6 @@
 #include "InfiniteMedium/KEigenvalueSolver/keigenvalue_solver.h"
 #include "InfiniteMedium/TransientSolver/transient_solver.h"
 
-#include <cmath>
 #include <vector>
 #include <cassert>
 
@@ -21,24 +20,6 @@ using namespace Physics;
 using namespace InfiniteMedium;
 
 
-/**
- * Evaluate a Maxwellian distribution at temperature \p T at the
- * energy \p E.
- *
- * \param E The energy in MeV.
- * \param T The temperature in K.
- * \return
- */
-double
-maxwellian(const double E, const double kT)
-{
-  // Boltzmann constant in MeV/K
-  const double k = 8.617333262e-11;
-  return 2.0 * M_PI / std::pow(M_PI * kT, 1.5) *
-         std::sqrt(E) * std::exp(-E / (kT));
-}
-
-
 int main(int argc, char** argv)
 {
   try{
@@ -47,9 +28,9 @@ int main(int argc, char** argv)
     // Parse the command line inputs
     //##################################################
 
-    unsigned int n_grps = 30;
+    unsigned int n_grps = 618;
     std::string zaid = "1001";
-    std::string ic = "maxwell_0";
+    std::string ic = "maxwell_room";
 
     for (int i = 1; i < argc; ++i)
     {
@@ -57,11 +38,11 @@ int main(int argc, char** argv)
       std::cout << "Parsing argument " << i << " " << arg << std::endl;
 
       if (arg.find("ng") == 0)
-        n_grps = std::stoi(arg.substr(arg.find("=") + 1));
+        n_grps = std::stoi(arg.substr(arg.find('=') + 1));
       else if (arg.find("zaid") == 0)
-        zaid = arg.substr(arg.find("=") + 1);
+        zaid = arg.substr(arg.find('=') + 1);
       else if (arg.find("ic") == 0)
-        ic = arg.substr(arg.find("=") + 1);
+        ic = arg.substr(arg.find('=') + 1);
     }
 
     //##################################################
@@ -69,7 +50,7 @@ int main(int argc, char** argv)
     //##################################################
 
     std::string filepath = __FILE__;
-    std::string dirpath = filepath.substr(0, filepath.rfind("/") + 1);
+    std::string dirpath = filepath.substr(0, filepath.rfind('/') + 1);
     std::string xspath = dirpath + "xs/";
     std::string icpath = dirpath + "ics/";
     std::string outdir = dirpath + "outputs/";
@@ -119,7 +100,7 @@ int main(int argc, char** argv)
     std::string line;
     unsigned int group; double val;
     while (std::getline(file, line))
-      if (line.find("#") != 0)
+      if (line.find('#') != 0)
       {
         std::istringstream line_stream(line);
         line_stream >> group >> val;

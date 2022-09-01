@@ -51,7 +51,6 @@ initialize_materials()
   // cross-sections and multi-group sources and perform checks
   // to ensure these are valid.
   //============================================================
-
   for (const int& material_id: unique_material_ids)
   {
     const auto material = materials[material_id];
@@ -64,7 +63,7 @@ initialize_materials()
       {
         auto xs = std::static_pointer_cast<CrossSections>(property);
         if (n_groups == 0) n_groups = xs->n_groups;
-        assert(xs->n_groups >= n_groups);
+        assert(xs->n_groups == n_groups);
 
         material_xs.emplace_back(xs);
         matid_to_xs_map[material_id] = material_xs.size() - 1;
