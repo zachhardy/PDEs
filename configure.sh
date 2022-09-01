@@ -31,10 +31,34 @@ if [ $DO_CLEAN = "YES" ]; then
   if [ -d "bin" ]; then
     rm -r bin
   fi
+
+  # Remove problem executables
+  cd Problems || exit
+  for problem in *; do
+    cd "$problem" || exit
+    if [ -d "bin" ]; then
+      rm -r bin
+    fi
+    cd ..
+  done
+  cd ..
 fi
 
 if [ $DO_CMAKE = "YES" ]; then
   mkdir -p build && mkdir -p bin
+
+  # Create directores for problems
+  cd Problems || exit
+  ls
+  for problem in *; do
+    cd "${problem}" || exit
+    if [ ! -d "bin" ]; then
+      mkdir -p bin
+    fi
+    cd ..
+  done
+  cd ..
+
   cd build || exit
   cmake .. && cd ..
 fi
