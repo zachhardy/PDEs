@@ -112,3 +112,12 @@ be set via:
 
 As before, it is recommended that this be included in the terminal startup
 script.
+
+
+### Documentation
+
+The documentation can be generated locally via:
+
+```command
+    # doxygen
+```

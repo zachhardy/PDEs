@@ -4,6 +4,7 @@ lib
 
 doc/html
 doc/latex
+*.html
 
 Makefile
 cmake-build-debug
