@@ -1,6 +1,10 @@
 #include "transient_solver.h"
 
 #include <iomanip>
+#include <fstream>
+#include <cstring>
+#include <cassert>
+#include <filesystem>
 
 
 using namespace InfiniteMedium;
@@ -16,11 +20,19 @@ TransientSolver::execute()
 
   const double eps = 1.0e-10;
 
+  unsigned int count = 0;
+  if (write_outputs)
+    write_snapshot(count++);
+
   unsigned int step = 0;
   while (time < t_end - eps)
   {
     // Solve the time step
     execute_time_step();
+    double balance = check_balance();
+
+    if (write_outputs)
+      write_snapshot(count++);
 
     // Post-process the time step
     time += dt;
@@ -29,11 +41,12 @@ TransientSolver::execute()
     phi_old = phi_ell = phi;
     psi_old = psi;
 
+
     std::cout
       << "\n***** Time Step " << step << " *****\n"
       << "Simulation Time:        " << time << " s\n"
       << "Time Step Size :        " << dt << " s\n"
-      << "Magnitude:              " << psi.l2_norm() << "\n";
+      << "Balance:                " << balance << "\n";
   }
 }
 
@@ -94,4 +107,51 @@ TransientSolver::transient_sweep()
       for (unsigned int ell = 0; ell < n_moments; ++ell)
         phi[ell*n_groups + g] += discrete_to_moment[ell][n] * x;
     }//for g
+}
+
+
+double
+TransientSolver::balance_check()
+{
+  double balance = 0.0;
+  for (unsigned int g = 0; g < n_groups; ++g)
+  {
+    balance += src->values[g];
+    balance += phi_old[g] / (xs->inv_velocity[g] * dt);
+    balance -= phi[g] / (xs->inv_velocity[g] * dt);
+    balance -= xs->sigma_a[g] * phi[g];
+  }
+  return balance;
+}
+
+
+void
+TransientSolver::write_snapshot(const unsigned int index) const
+{
+  std::string directory(std::to_string(index));
+  directory.insert(0, 4 - directory.size(), '0');
+  directory = output_directory + "/" + directory;
+  directory = std::filesystem::absolute(directory);
+
+  if (not std::filesystem::is_directory(directory))
+    std::filesystem::create_directory(directory);
+  assert(std::filesystem::is_directory(directory));
+
+  //================================================== Write snapshot summary
+
+  std::string filepath = directory + "/" + "macro.txt";
+  std::ofstream file(filepath, std::ofstream::out | std::ofstream::trunc);
+  assert(file.is_open());
+
+  file << "########################################\n"
+       << "# Snapshot " << index << " Summary\n"
+       << "########################################\n"
+       << "Output= " << std::setprecision(5) << index << "\n"
+       << "Time= " << std::setprecision(12) << time << "\n";
+
+  file.close();
+
+  //================================================== Write simulation data
+  write_flux_moments(directory);
+  write_angular_flux(directory);
 }

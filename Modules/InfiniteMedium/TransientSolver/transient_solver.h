@@ -15,6 +15,10 @@ namespace InfiniteMedium
   class TransientSolver : public KEigenvalueSolver
   {
   public:
+
+    bool write_outputs = false;
+    std::string output_directory;
+
     /*-------------------- Initial Conditions --------------------*/
 
     /**
@@ -28,8 +32,14 @@ namespace InfiniteMedium
     double t_end = 1.0;
     double dt = 0.01;
 
+  protected:
+    double time = 0.0;
+
+    Vector psi_old;
+    Vector phi_old;
+
   public:
-    /*-------------------- Initialization Routines --------------------*/
+    /*-------------------- Public Routines --------------------*/
 
     void initialize() override;
     void execute() override;
@@ -39,13 +49,12 @@ namespace InfiniteMedium
 
     void execute_time_step();
     void transient_sweep();
+    double balance_check();
 
-    /*-------------------- Book-Keeping Quantities --------------------*/
+    /*-------------------- Write Operations --------------------*/
 
-    double time = 0.0;
+    void write_snapshot(const unsigned int index) const;
 
-    Vector psi_old;
-    Vector phi_old;
   };
 }
 
