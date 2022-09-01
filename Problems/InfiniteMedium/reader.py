@@ -86,21 +86,17 @@ if __name__ == "__main__":
 
     phi = np.array(phi)
     E_avg = np.zeros(len(E_bounds) - 1)
-    dE = np.zeros(len(E_bounds) - 1)
     for g in range(len(E_bounds) - 1):
         E_avg[g] = 0.5 * (E_bounds[g] + E_bounds[g + 1])
-        dE[g] = E_bounds[g] - E_bounds[g + 1]
-        phi[:, :, g] *= E_avg[g]/dE[g]
 
     # Initialize the figure
     plt.figure()
     plt.xlabel("Energy (MeV)", fontsize=12)
-    plt.ylabel(rf"$\phi(E) \bar{{E}} / \Delta E$", fontsize=12)
+    plt.ylabel(rf"$\phi(E)$", fontsize=12)
     plt.grid(True)
 
     # Plot the infinite medium results at various times\
     for i in range(0, len(phi), len(phi)//5):
-        vals = phi[i][0]
         plt.semilogx(E_avg, phi[i][0], label=f"n = {int(i)}")
     plt.legend()
 
