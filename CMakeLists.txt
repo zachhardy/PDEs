@@ -19,16 +19,6 @@ if (NOT DEFINED PETSC_ROOT)
 endif()
 message(STATUS "PETSC_ROOT set to ${PETSC_ROOT}")
 
-
-if (NOT DEFINED EIGEN_DIR)
-    if (NOT (DEFINED ENV{EIGEN_DIR}))
-        message(FATAL_ERROR "***** EIGEN_DIR is not set *****")
-    else()
-        set(EIGEN_DIR "$ENV{EIGEN_DIR}" )
-    endif()
-endif()
-message(STATUS "EIGEN_DIR set to ${EIGEN_DIR}")
-
 #-------------------- Define project
 set(TARGET PDEs)
 project(${TARGET} C CXX)
@@ -53,12 +43,10 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 #-------------------- Find packages
 find_package(MPI)
-find_package(Eigen3 3.4 REQUIRED NO_MODULE)
 
 #-------------------- Include directories
 include_directories(SYSTEM ${MPI_CXX_INCLUDE_PATH})
 include_directories(SYSTEM "${PETSC_ROOT}/include")
-include_directories(SYSTEM "${EIGEN_DIR}/include/eigen3")
 
 include_directories("${PROJECT_SOURCE_DIR}/PDEs")
 include_directories("${PROJECT_SOURCE_DIR}/PDEs/Grid")
@@ -67,12 +55,10 @@ include_directories("${PROJECT_SOURCE_DIR}/PDEs/Physics")
 include_directories("${PROJECT_SOURCE_DIR}/PDEs/Timer")
 
 include_directories("${PROJECT_SOURCE_DIR}/Modules")
-include_directories("${PROJECT_SOURCE_DIR}/Modules/NeutronDiffusion")
 
 
 #-------------------- Source directories
 set(SOURCES PDEs/main.cc)
-#add_subdirectory(${PROJECT_SOURCE_DIR}/Test)
 add_subdirectory("${PROJECT_SOURCE_DIR}/PDEs/Grid")
 add_subdirectory("${PROJECT_SOURCE_DIR}/PDEs/Math")
 add_subdirectory("${PROJECT_SOURCE_DIR}/PDEs/Physics")
@@ -85,22 +71,10 @@ link_directories("${PETSC_ROOT}/lib")
 
 #-------------------- Define targets
 add_library(PDELib STATIC ${SOURCES})
-target_link_libraries(PDELib ${MPI_CXX_LIBRARIES})
+target_link_libraries(PDELib ${MPI_CXX_LIBRARIES} petsc)
 
 add_executable(${TARGET} PDEs/main.cc)
-target_link_libraries(${TARGET} PDELib Eigen3::Eigen petsc)
-
-#-------------------- Problem executables
-file(GLOB_RECURSE PROBLEM_TARGETS ${PROJECT_SOURCE_DIR}/Problems/*.cc)
-foreach(problem_source ${PROBLEM_TARGETS})
-    get_filename_component(problem ${problem_source} NAME_WE)
-    get_filename_component(dirname ${problem_source} DIRECTORY)
-    add_executable(${problem} ${problem_source})
-    target_link_libraries(${problem} PDELib Eigen3::Eigen petsc)
-    set_target_properties(${problem} PROPERTIES
-                          RUNTIME_OUTPUT_DIRECTORY
-                          ${dirname}/bin/)
-endforeach(problem_source ${PROBLEM_TARGETS})
+target_link_libraries(${TARGET} PDELib)
 
 #-------------------- Test executables
 file(GLOB_RECURSE TEST_TARGETS ${PROJECT_SOURCE_DIR}/Test/*.cc)
@@ -108,7 +82,7 @@ foreach(test_source ${TEST_TARGETS})
     get_filename_component(test ${test_source} NAME_WE)
     get_filename_component(dirname ${test_source} DIRECTORY)
     add_executable(${test} ${test_source})
-    target_link_libraries(${test} PDELib Eigen3::Eigen petsc)
+    target_link_libraries(${test} PDELib)
     message(STATUS ${dirname})
     set_target_properties(${test} PROPERTIES
                           RUNTIME_OUTPUT_DIRECTORY

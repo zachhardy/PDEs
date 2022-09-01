@@ -28,7 +28,7 @@ int main(int argc, char** argv)
   double magnitude = 0.97667 - 1.0;
   double duration = 0.2;
   double sigs_01 = 0.01;
-  std::string outdir = "Problems/TWIGL/outputs";
+  std::string outdir = "outputs";
 
   for (int i = 0; i < argc; ++i)
   {
@@ -36,13 +36,13 @@ int main(int argc, char** argv)
     std::cout << "Parsing argument " << i << " " << arg << std::endl;
 
     if (arg.find("magnitude") == 0)
-      magnitude = std::stod(arg.substr(arg.find("=") + 1));
+      magnitude = std::stod(arg.substr(arg.find('=') + 1));
     else if (arg.find("duration") == 0)
-      duration = std::stod(arg.substr(arg.find("=") + 1));
+      duration = std::stod(arg.substr(arg.find('=') + 1));
     else if (arg.find("scatter") == 0)
-      sigs_01 = std::stod(arg.substr(arg.find("=") + 1));
+      sigs_01 = std::stod(arg.substr(arg.find('=') + 1));
     else if (arg.find("output_directory") == 0)
-      outdir = arg.substr(arg.find("=") + 1);
+      outdir = arg.substr(arg.find('=') + 1);
   }
 
   //============================================================
@@ -105,9 +105,9 @@ int main(int argc, char** argv)
     xs.emplace_back(std::make_shared<CrossSections>());
 
   std::vector<std::string> xs_paths;
-  xs_paths.emplace_back("Problems/TWIGL/xs/fuel0.xs");
-  xs_paths.emplace_back("Problems/TWIGL/xs/fuel0.xs");
-  xs_paths.emplace_back("Problems/TWIGL/xs/fuel1.xs");
+  xs_paths.emplace_back("xs/fuel0.xs");
+  xs_paths.emplace_back("xs/fuel0.xs");
+  xs_paths.emplace_back("xs/fuel1.xs");
 
   for (unsigned int i = 0; i < materials.size(); ++i)
   {
@@ -135,7 +135,7 @@ int main(int argc, char** argv)
   // Create the diffusion solver
   //============================================================
 
-  KEigenvalueSolver solver;
+  TransientSolver solver;
 
   solver.mesh = mesh;
   for (auto& material: materials)
@@ -149,6 +149,23 @@ int main(int argc, char** argv)
   solver.max_outer_iterations = 1000;
 
   solver.algorithm = Algorithm::DIRECT;
+
+  //============================================================
+  // Define transient parameters
+  //============================================================
+
+  solver.t_end = 0.5;
+  solver.dt = 0.01;
+  solver.time_stepping_method = TimeSteppingMethod::CRANK_NICHOLSON;
+  solver.normalization_method = NormalizationMethod::TOTAL_POWER;
+  solver.normalize_fission_xs = true;
+
+  solver.write_outputs = true;
+  solver.output_directory = outdir;
+
+  solver.adaptive_time_stepping = true;
+  solver.coarsen_threshold = 0.01;
+  solver.refine_threshold = 0.05;
 
   //============================================================
   // Define boundary conditions

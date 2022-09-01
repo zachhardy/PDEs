@@ -356,7 +356,6 @@ CrossSections::reconcile_fission_properties()
       }
 
       //######################################## Check results of above
-      for (const auto& v : nu) std::cout << v << "\n";
       assert(std::all_of(nu.begin(), nu.end(),
                          [](double x) { return x >= 1.0; }));
       assert(std::all_of(chi.begin(), chi.end(),

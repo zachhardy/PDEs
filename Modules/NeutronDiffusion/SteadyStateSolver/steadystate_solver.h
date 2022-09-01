@@ -147,7 +147,7 @@ namespace NeutronDiffusion
   protected:
     /*-------------------- Problem Information --------------------*/
 
-    unsigned int n_groups;
+    unsigned int n_groups = 0;
 
     /**
      * The total number of delayed neutron precursors across all materials.

@@ -9,7 +9,9 @@
 #include "Math/LinearSolvers/Direct/cholesky.h"
 #include "LinearSolvers/PETSc/petsc_solver.h"
 
+#include "NeutronDiffusion/SteadyStateSolver/steadystate_solver.h"
 #include "NeutronDiffusion/KEigenvalueSolver/keigenvalue_solver.h"
+#include "NeutronDiffusion/TransientSolver/transient_solver.h"
 
 #include <iostream>
 #include <vector>
@@ -25,13 +27,32 @@ using namespace NeutronDiffusion;
 
 int main(int argc, char** argv)
 {
+  double radius = 6.0;
+  double density = 0.05;
+  double sigs_01 = 1.46;
+  std::string outdir = "outputs";
+
+  for (int i = 0; i < argc; ++i)
+  {
+    std::string arg(argv[i]);
+    std::cout << "Parsing argument " << i << " " << arg << std::endl;
+
+    if (arg.find("radius") == 0)
+      radius = std::stod(arg.substr(arg.find('=') + 1));
+    else if (arg.find("density") == 0)
+      density = std::stod(arg.substr(arg.find('=') + 1));
+    else if (arg.find("scatter") == 0)
+      sigs_01 = std::stod(arg.substr(arg.find('=') + 1));
+    else if (arg.find("output_directory") == 0)
+      outdir = arg.substr(arg.find('=') + 1);
+  }
+
   //============================================================
   // Mesh
   //============================================================
 
   size_t n_cells = 100;
-  double slab_width = 6.0;
-  double cell_width = slab_width / (double) n_cells;
+  double cell_width = radius / (double) n_cells;
 
   std::vector<double> vertices(1, 0.0);
   for (size_t i = 0; i < n_cells; ++i)
@@ -48,7 +69,8 @@ int main(int argc, char** argv)
 
   // Create the cross sections
   auto xs = std::make_shared<CrossSections>();
-  xs->read_xs_file("Problems/Sphere3g/xs/base3g.xs", 0.05);
+  xs->read_xs_file("xs/base3g.xs", density);
+  xs->transfer_matrices[0][1][0] = sigs_01 * density;
   material->properties.emplace_back(xs);
 
   // Create the multigroup source
@@ -72,13 +94,13 @@ int main(int argc, char** argv)
   // Create the diffusion solver
   //============================================================
 
-  KEigenvalueSolver solver;
+  TransientSolver solver;
 
   solver.mesh = mesh;
   solver.materials.emplace_back(material);
   solver.linear_solver = linear_solver;
 
-  solver.verbosity = 1;
+  solver.verbosity = 0;
   solver.use_precursors = false;
 
   solver.algorithm = Algorithm::DIRECT;
@@ -89,6 +111,26 @@ int main(int argc, char** argv)
 
   solver.boundary_info.emplace_back(BoundaryType::REFLECTIVE, -1);
   solver.boundary_info.emplace_back(BoundaryType::ZERO_FLUX, -1);
+
+  //============================================================
+  // Define transient parameters
+  //============================================================
+
+  solver.t_end = 0.1;
+  solver.dt = solver.t_end / 50;
+  solver.time_stepping_method = TimeSteppingMethod::CRANK_NICHOLSON;
+  solver.normalization_method = NormalizationMethod::TOTAL_POWER;
+
+  solver.write_outputs = true;
+  solver.output_directory = outdir;
+
+  auto ic = [radius](const Point p) { return 1.0 - p.z() * p.z() / (radius * radius); };
+  solver.initial_conditions[0] = ic;
+  solver.initial_conditions[1] = ic;
+
+  solver.adaptive_time_stepping = false;
+  solver.coarsen_threshold = 0.01;
+  solver.refine_threshold = 0.025;
 
   //============================================================
   // Run the problem
