@@ -119,5 +119,7 @@ script.
 The documentation can be generated locally via:
 
 ```command
-    # doxygen
+    $ doxygen doc/DoxyConfig
 ```
+
+and can be viewed via HTML using the file <tt>doc/html/index.html</tt>.
