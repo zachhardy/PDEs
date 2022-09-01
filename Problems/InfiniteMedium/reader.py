@@ -1,12 +1,14 @@
 import os
 import struct
+import sys
 
 import numpy as np
 import matplotlib.pyplot as plt
 
 from scipy.constants import physical_constants as constants
 
-k = constants["Boltzmann constant in eV/K"][0]
+k = constants["Boltzmann constant in eV/K"][0]/1.0e6
+print(k*293)
 
 
 def read_psi(file_path):
@@ -61,19 +63,52 @@ def read_phi(file_path):
 
 def maxwell(E, T):
     assert isinstance(E, np.ndarray)
-    print(k, T)
-    return (2.0 * np.sqrt(E / np.pi) *
-            (1.0 / (k * T)) ** (3 / 2) *
-            np.exp(-E / (k * T)))
+    return (2.0 * np.pi / (np.pi * k * T)**(3/2) *
+            np.sqrt(E) * np.exp(- E / (k * T)))
 
 
 if __name__ == "__main__":
-    path = os.path.abspath(os.path.dirname(__file__))
+    assert len(sys.argv)
+    assert os.path.isdir(sys.argv[1])
+    path = os.path.abspath(sys.argv[1])
 
-    psi = read_psi(os.path.join(path, "..", "psi.data"))
-    phi = read_phi(os.path.join(path, "..", "phi.data"))
-    E_bounds = np.loadtxt(os.path.join(path, "..", "e_bounds.txt"))
+    phi, E_bounds = [], []
+    for entry in sorted(os.listdir(sys.argv[1])):
+        entry_path = os.path.join(path, entry)
 
-    T_therm = 293.0  # in K or 2.530064236e-08 in MeV
-    plt.semilogx(E_bounds, maxwell(E_bounds, T_therm), "")
+        if "e_bounds.txt" in entry_path:
+            E_bounds = np.loadtxt(os.path.join(entry_path))[:, 1]
+
+        elif os.path.isdir(entry_path):
+            for file in sorted(os.listdir(entry_path)):
+                fpath = os.path.join(entry_path, file)
+                if "sflux" in fpath:
+                    phi.append(read_phi(fpath))
+
+    phi = np.array(phi)
+    E_avg = np.zeros(len(E_bounds) - 1)
+    for g in range(len(E_bounds) - 1):
+        E_avg[g] = 0.5*(E_bounds[g] + E_bounds[g + 1])
+
+    # Initialize the figure
+    plt.figure()
+    plt.xlabel("Energy (MeV)", fontsize=12)
+    plt.ylabel(rf"$\phi(E)$", fontsize=12)
+    plt.grid(True)
+
+    # Plot the infinite medium results at various times
+
+    for i in range(0, len(phi), len(phi)//5):
+        vals = phi[i][0]
+        plt.semilogx(E_avg, vals, label=f"n = {int(i)}")
+
+    # Plot the true Maxwellian
+    # T = 293 K or 2.530064236e-08 in MeV
+    # E = E_bounds
+    # E = np.linspace(min(E), max(E_bounds), 1001)
+    # M = maxwell(E, 293.0)
+    # plt.plot(E, M,  label="Maxwellian")
+
+    # # Post processing
+    plt.legend()
     plt.show()

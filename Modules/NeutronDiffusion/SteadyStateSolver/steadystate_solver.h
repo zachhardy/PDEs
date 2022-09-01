@@ -225,10 +225,10 @@ namespace NeutronDiffusion
     /**
      * Write the result of the simulation to an output file with the
      * specified prefix. This creates a file named <tt><file_prefix>.data</tt>
-     * in the \p output_directory
+     * in the \p directory
      */
     virtual void
-    write(const std::string output_directory,
+    write(const std::string directory,
           const std::string file_prefix) const;
 
   protected:

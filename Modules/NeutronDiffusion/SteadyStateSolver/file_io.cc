@@ -11,14 +11,14 @@ using namespace NeutronDiffusion;
 
 void
 SteadyStateSolver::
-write(const std::string output_directory,
+write(const std::string directory,
       const std::string file_prefix) const
 {
-  if (not std::filesystem::is_directory(output_directory))
-    std::filesystem::create_directory(output_directory);
-  assert(std::filesystem::is_directory(output_directory));
+  if (!std::filesystem::is_directory(directory))
+    std::filesystem::create_directory(directory);
+  assert(std::filesystem::is_directory(directory));
 
-  std::string filepath = output_directory + "/" + file_prefix;
+  std::string filepath = directory + "/" + file_prefix;
   if (filepath.find(".") != std::string::npos)
     filepath = file_prefix.substr(0, file_prefix.rfind("."));
   filepath += ".data";
@@ -195,7 +195,7 @@ SteadyStateSolver::
 write_flux_moments(const std::string directory,
                    const std::string file_prefix) const
 {
-  if (not std::filesystem::is_directory(directory))
+  if (!std::filesystem::is_directory(directory))
     std::filesystem::create_directory(directory);
   assert(std::filesystem::is_directory(directory));
 
@@ -270,7 +270,7 @@ SteadyStateSolver::
 write_precursors(const std::string directory,
                  const std::string file_prefix) const
 {
-  if (not std::filesystem::is_directory(directory))
+  if (!std::filesystem::is_directory(directory))
     std::filesystem::create_directory(directory);
   assert(std::filesystem::is_directory(directory));
 
@@ -334,7 +334,7 @@ SteadyStateSolver::
 write_fission_rate(const std::string directory,
                    const std::string file_prefix) const
 {
-  if (not std::filesystem::is_directory(directory))
+  if (!std::filesystem::is_directory(directory))
     std::filesystem::create_directory(directory);
   assert(std::filesystem::is_directory(directory));
 

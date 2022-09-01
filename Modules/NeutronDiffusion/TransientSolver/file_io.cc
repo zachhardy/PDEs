@@ -245,17 +245,17 @@ TransientSolver::write(const unsigned int output_index) const
 void TransientSolver::
 write_snapshot(const unsigned int index) const
 {
-  std::string dir(std::to_string(index));
-  dir.insert(0, 4 - dir.size(), '0');
-  dir = output_directory + "/" + dir;
+  std::string directoy(std::to_string(index));
+  directoy.insert(0, 4 - directoy.size(), '0');
+  directoy = output_directory + "/" + directoy;
 
-  if (not std::filesystem::is_directory(dir))
-    std::filesystem::create_directory(dir);
-  assert(std::filesystem::is_directory(dir));
+  if (!std::filesystem::is_directory(directoy))
+    std::filesystem::create_directory(directoy);
+  assert(std::filesystem::is_directory(directoy));
 
   //================================================== Write snapshot summary
 
-  std::string filepath = dir + "/" + "macro.txt";
+  std::string filepath = directoy + "/" + "macro.txt";
   std::ofstream file(filepath, std::ofstream::out | std::ofstream::trunc);
   assert(file.is_open());
 
@@ -277,9 +277,9 @@ write_snapshot(const unsigned int index) const
   file.close();
 
   //================================================== Write simulation data
-  write_flux_moments(dir);
-  write_precursors(dir);
-  write_fission_rate(dir);
+  write_flux_moments(directoy);
+  write_precursors(directoy);
+  write_fission_rate(directoy);
 }
 
 
@@ -288,7 +288,7 @@ TransientSolver::
 write_temperature(const std::string directory,
                   const std::string file_prefix)
 {
-  if (not std::filesystem::is_directory(directory))
+  if (!std::filesystem::is_directory(directory))
     std::filesystem::create_directory(directory);
   assert(std::filesystem::is_directory(directory));
 

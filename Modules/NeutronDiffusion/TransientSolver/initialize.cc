@@ -26,9 +26,8 @@ TransientSolver::initialize()
     if (not std::filesystem::is_directory(output_directory))
       std::filesystem::create_directory(output_directory);
 
-    typedef std::filesystem::directory_iterator DirectoryIterator;
+    using DirectoryIterator = std::filesystem::directory_iterator;
     for (const auto& entry: DirectoryIterator(output_directory))
-      if (entry.path().string().find("log.txt") == std::string::npos)
         std::filesystem::remove_all(entry.path());
   }
 
