@@ -9,22 +9,27 @@ using namespace PDEs;
 using namespace Grid;
 
 
+//################################################## Constructors
+
 CartesianVector::CartesianVector() :
     xyz({0.0, 0.0, 0.0})
 {}
 
 
-CartesianVector::CartesianVector(const double a) :
+CartesianVector::
+CartesianVector(const double a) :
     xyz({a, 0.0, 0.0})
 {}
 
 
-CartesianVector::CartesianVector(const double a, const double b) :
+CartesianVector::
+CartesianVector(const double a, const double b) :
     xyz({a, b, 0.0})
 {}
 
 
-CartesianVector::CartesianVector(const double a, const double b, const double c) :
+CartesianVector::
+CartesianVector(const double a, const double b, const double c) :
     xyz({a, b, c})
 {}
 
@@ -46,6 +51,7 @@ CartesianVector::operator=(const double value)
   return *this;
 }
 
+//################################################## Data Access
 
 double&
 CartesianVector::operator[](const unsigned int i)
@@ -75,10 +81,24 @@ CartesianVector::operator()(const unsigned int i) const
 }
 
 
+double&
+CartesianVector::x()
+{
+  return xyz[0];
+}
+
+
 const double&
 CartesianVector::x() const
 {
   return xyz[0];
+}
+
+
+double&
+CartesianVector::y()
+{
+  return xyz[1];
 }
 
 
@@ -89,24 +109,35 @@ CartesianVector::y() const
 }
 
 
+double&
+CartesianVector::z()
+{
+  return xyz[2];
+}
+
+
 const double&
 CartesianVector::z() const
 {
   return xyz[2];
 }
 
+//################################################## Scalar Operations
 
-bool
-CartesianVector::operator==(const CartesianVector& other) const
+double
+CartesianVector::length() const
 {
-  return (xyz == other.xyz);
+  return std::sqrt(this->length_squared());
 }
 
 
-bool
-CartesianVector::operator!=(const CartesianVector& other) const
+double
+CartesianVector::length_squared() const
 {
-  return !(xyz == other.xyz);
+  double retval = 0.0;
+  for (const auto& v: xyz)
+    retval += v * v;
+  return retval;
 }
 
 
@@ -126,23 +157,8 @@ CartesianVector::distance_squared(const CartesianVector& other) const
   return dx * dx + dy * dy + dz * dz;
 }
 
-
-double
-CartesianVector::length() const
-{
-  return std::sqrt(this->length_squared());
-}
-
-
-double
-CartesianVector::length_squared() const
-{
-  double retval = 0.0;
-  for (const auto& v: xyz)
-    retval += v * v;
-  return retval;
-}
-
+//################################################## Cartesian vector
+//                                                   operations
 
 CartesianVector&
 CartesianVector::operator*=(const double factor)
@@ -271,6 +287,7 @@ CartesianVector::cross(const CartesianVector& other) const
   return CartesianVector(x, y, z);
 }
 
+//################################################## Print Utilities
 
 std::string
 CartesianVector::str() const
@@ -290,6 +307,22 @@ CartesianVector::print(std::ostream& os) const
   os << this->str();
 }
 
+//################################################## Comparisons
+
+bool
+CartesianVector::operator==(const CartesianVector& other) const
+{
+  return (xyz == other.xyz);
+}
+
+
+bool
+CartesianVector::operator!=(const CartesianVector& other) const
+{
+  return !(xyz == other.xyz);
+}
+
+//################################################## Non-Member Methods
 
 CartesianVector
 Grid::operator*(const double factor, const CartesianVector& p)

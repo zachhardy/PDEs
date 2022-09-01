@@ -25,8 +25,8 @@ update_precursors()
     const auto* nud_sigf = xs->nu_delayed_sigma_f.data();
 
     double f = 0.0;
-    for (unsigned int gr = 0; gr < n_groups; ++gr)
-      f += nud_sigf[groups[gr]] * phi[uk_map_g + gr];
+    for (unsigned int g = 0; g < n_groups; ++g)
+      f += nud_sigf[g] * phi[uk_map_g + g];
 
     // Update the precursors
     const auto* lambda = xs->precursor_lambda.data();
@@ -35,7 +35,7 @@ update_precursors()
     for (unsigned int j = 0; j < xs->n_precursors; ++j)
     {
       const auto coeff = 1.0 + eff_dt*lambda[j];
-      const auto c_old = precursor_old[uk_map_j + j];
+      const auto c_old = precursors_old[uk_map_j + j];
       precursors[uk_map_j + j] = (c_old + eff_dt*gamma[j] * f) / coeff;
     }//for precursor
   }//for cell
@@ -56,8 +56,8 @@ update_fission_rate()
     const auto uk_map = n_groups * cell.id;
     const auto* sig_f = xs->sigma_f.data();
 
-    for (unsigned int gr = 0; gr < n_groups; ++gr)
-      fission_rate[cell.id] += sig_f[groups[gr]] * phi[uk_map + gr];
+    for (unsigned int g = 0; g < n_groups; ++g)
+      fission_rate[cell.id] += sig_f[g] * phi[uk_map + g];
   }
 }
 

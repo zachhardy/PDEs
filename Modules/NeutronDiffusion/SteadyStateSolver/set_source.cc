@@ -30,10 +30,9 @@ set_source(SourceFlags source_flags)
       src = material_src[src_id]->values.data();
 
     // Loop over groups
-    for (unsigned int gr = 0; gr < n_groups; ++gr)
+    for (unsigned int g = 0; g < n_groups; ++g)
     {
       double rhs = 0.0;
-      const auto g = groups[gr];
 
       //========================================
       // Inhomogeneous source term
@@ -48,8 +47,8 @@ set_source(SourceFlags source_flags)
       if (apply_scatter_src)
       {
         const auto* sig_s = xs->transfer_matrices[0][g].data();
-        for (unsigned int gpr = 0; gpr < n_groups; ++gpr)
-          rhs += sig_s[groups[gpr]] * phi[uk_map + gpr];
+        for (unsigned int gp = 0; gp < n_groups; ++gp)
+          rhs += sig_s[gp] * phi[uk_map + gp];
       }//if scattering
 
       //========================================
@@ -63,8 +62,8 @@ set_source(SourceFlags source_flags)
         {
           const auto chi = xs->chi[g];
           const auto* nu_sigf = xs->nu_sigma_f.data();
-          for (unsigned int gpr = 0; gpr < n_groups; ++gpr)
-            rhs += chi * nu_sigf[groups[gpr]] * phi[uk_map + gpr];
+          for (unsigned int gp = 0; gp < n_groups; ++gp)
+            rhs += chi * nu_sigf[gp] * phi[uk_map + gp];
         }//if total fission
 
         // Prompt + delayed fission
@@ -77,20 +76,20 @@ set_source(SourceFlags source_flags)
           const auto* gamma = xs->precursor_yield.data();
 
           // Prompt fission
-          for (unsigned int gpr = 0; gpr < n_groups; ++gpr)
-            rhs += chi_p * nup_sigf[groups[gpr]] * phi[uk_map + gpr];
+          for (unsigned int gp = 0; gp < n_groups; ++gp)
+            rhs += chi_p * nup_sigf[gp] * phi[uk_map + gp];
 
           // Delayed fission
           double coeff = 0.0;
           for (unsigned int j = 0; j < xs->n_precursors; ++j)
             coeff += chi_d[j] * gamma[j];
 
-          for (unsigned int gpr = 0; gpr < n_groups; ++gpr)
-            rhs += coeff * nud_sigf[groups[gpr]] * phi[uk_map + gpr];
+          for (unsigned int gp = 0; gp < n_groups; ++gp)
+            rhs += coeff * nud_sigf[gp] * phi[uk_map + gp];
         }//if prompt+delayed fission
       }//if fission
 
-      b[uk_map + gr] += rhs * volume;
+      b[uk_map + g] += rhs * volume;
 
     }//for group
 
@@ -119,12 +118,12 @@ set_source(SourceFlags source_flags)
           const auto *D = xs->diffusion_coeff.data();
           const auto d_pf = cell.centroid.distance(face.centroid);
 
-          for (unsigned int gr = 0; gr < n_groups; ++gr)
+          for (unsigned int g = 0; g < n_groups; ++g)
           {
-            const auto &bndry = boundaries[bndry_id][gr];
+            const auto &bndry = boundaries[bndry_id][g];
             const auto bc = std::static_pointer_cast<DirichletBoundary>(bndry);
 
-            b[uk_map + gr] += D[groups[gr]] / d_pf * bc->value * face.area;
+            b[uk_map + g] += D[g] / d_pf * bc->value * face.area;
           }
         }//if Dirichlet
 
@@ -134,12 +133,12 @@ set_source(SourceFlags source_flags)
 
         if (bndry_type == BoundaryType::NEUMANN)
         {
-          for (unsigned int gr = 0; gr < n_groups; ++gr)
+          for (unsigned int g = 0; g < n_groups; ++g)
           {
-            const auto &bndry = boundaries[bndry_id][gr];
+            const auto &bndry = boundaries[bndry_id][g];
             const auto bc = std::static_pointer_cast<NeumannBoundary>(bndry);
 
-            b[uk_map + gr] += bc->value * face.area;
+            b[uk_map + g] += bc->value * face.area;
           }
         }//if Neumann
 
@@ -153,14 +152,13 @@ set_source(SourceFlags source_flags)
           const auto *D = xs->diffusion_coeff.data();
           const auto d_pf = cell.centroid.distance(face.centroid);
 
-          for (unsigned int gr = 0; gr < n_groups; ++gr)
+          for (unsigned int g = 0; g < n_groups; ++g)
           {
-            const auto g = groups[gr];
-            const auto &bndry = boundaries[bndry_id][gr];
+            const auto &bndry = boundaries[bndry_id][g];
             const auto bc = std::static_pointer_cast<RobinBoundary>(bndry);
 
             const double coeff = D[g] / (bc->b * D[g] + bc->a * d_pf);
-            b[uk_map + gr] += coeff * bc->f * face.area;
+            b[uk_map + g] += coeff * bc->f * face.area;
           }
         }//if Robin
       }//for face

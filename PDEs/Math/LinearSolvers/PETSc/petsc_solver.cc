@@ -29,7 +29,7 @@ PETScSolver::PETScSolver(const std::string solver_type,
 void
 PETScSolver::set_matrix(const SparseMatrix& matrix)
 {
-  PETScUtils::CreateMatrix(A, matrix);
+  PETScUtils::create_petsc_matrix(A, matrix);
 
   KSPCreate(PETSC_COMM_WORLD, &ksp);
   KSPSetOperators(ksp, A, A);
@@ -54,8 +54,8 @@ void
 PETScSolver::solve(Vector& x, const Vector& b) const
 {
   Vec rhs, solution;
-  PETScUtils::CreateVector(rhs, b);
-  PETScUtils::CreateVector(solution, x);
+  PETScUtils::create_petsc_vector(rhs, b);
+  PETScUtils::create_petsc_vector(solution, x);
 
   KSPSolve(ksp, rhs, solution);
 
@@ -96,7 +96,7 @@ PETScSolver::solve(Vector& x, const Vector& b) const
     throw std::runtime_error(err.str());
   }
 
-  PETScUtils::CopyToVector(solution, x);
+  PETScUtils::copy_petsc_vector(solution, x);
 
   VecDestroy(&rhs);
   VecDestroy(&solution);

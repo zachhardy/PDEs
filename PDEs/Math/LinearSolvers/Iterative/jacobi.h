@@ -26,16 +26,11 @@ namespace PDEs
       class Jacobi : public IterativeSolverBase
       {
       public:
-        /**
-         * Default constructor.
-         */
+        /** Default constructor. */
         Jacobi(const Options& opts = Options());
 
-        /**
-         * Iteratively solve the system using the Jacobi method.
-         */
-        void
-        solve(Vector& x, const Vector& b) const override;
+        /** Iteratively solve the system using the Jacobi method. */
+        void solve(Vector& x, const Vector& b) const override;
       };
 
     }

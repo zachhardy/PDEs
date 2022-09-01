@@ -53,8 +53,6 @@ int main(int argc, char** argv)
   xs->read_xs_file("Problems/Basic2D/xs/test_1g.xs");
   material->properties.emplace_back(xs);
 
-  const auto n_groups = xs->n_groups;
-
   //============================================================
   // Linear Solver
   //============================================================
@@ -80,13 +78,6 @@ int main(int argc, char** argv)
   solver.use_precursors = true;
 
   solver.algorithm = Algorithm::DIRECT;
-
-  //============================================================
-  // Initialize groups and groupsets
-  //============================================================
-
-  for (unsigned int g = 0; g < n_groups; ++g)
-    solver.groups.emplace_back(g);
 
   //============================================================
   // Define boundary conditions

@@ -10,12 +10,12 @@ using namespace Math;
 
 
 void
-PETScUtils::CreateMatrix(Mat& A, PetscInt n)
-{ CreateMatrix(A, n, n); }
+PETScUtils::create_petsc_matrix(Mat& A, PetscInt n)
+{ create_petsc_matrix(A, n, n); }
 
 
 void
-PETScUtils::CreateMatrix(Mat& A, PetscInt n_rows, PetscInt n_cols)
+PETScUtils::create_petsc_matrix(Mat& A, PetscInt n_rows, PetscInt n_cols)
 {
   MatCreate(PETSC_COMM_WORLD, &A);
   MatSetSizes(A, PETSC_DECIDE, PETSC_DECIDE, n_rows, n_cols);
@@ -26,10 +26,10 @@ PETScUtils::CreateMatrix(Mat& A, PetscInt n_rows, PetscInt n_cols)
 
 
 void
-PETScUtils::CreateMatrix(Mat& A, const Matrix& mat)
+PETScUtils::create_petsc_matrix(Mat& A, const Matrix& mat)
 {
-  CreateMatrix(A, static_cast<PetscInt>(mat.n_rows()),
-               static_cast<PetscInt>(mat.n_cols()));
+  create_petsc_matrix(A, static_cast<PetscInt>(mat.n_rows()),
+                      static_cast<PetscInt>(mat.n_cols()));
 
   for (PetscInt i = 0; i < mat.n_rows(); ++i)
     for (PetscInt j = 0; j < mat.n_cols(); ++j)
@@ -45,10 +45,10 @@ PETScUtils::CreateMatrix(Mat& A, const Matrix& mat)
 
 
 void
-PETScUtils::CreateMatrix(Mat& A, const SparseMatrix& mat)
+PETScUtils::create_petsc_matrix(Mat& A, const SparseMatrix& mat)
 {
-  CreateMatrix(A, static_cast<PetscInt>(mat.n_rows()),
-               static_cast<PetscInt>(mat.n_cols()));
+  create_petsc_matrix(A, static_cast<PetscInt>(mat.n_rows()),
+                      static_cast<PetscInt>(mat.n_cols()));
 
   // Add data to the PETSc matrix
   for (const auto el: mat)

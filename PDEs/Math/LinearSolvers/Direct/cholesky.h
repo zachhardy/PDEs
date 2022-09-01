@@ -35,9 +35,7 @@ namespace PDEs
       class Cholesky : public DirectSolverBase<Matrix>
       {
       public:
-        /**
-         * Default constructor.
-         */
+        /**  Default constructor. */
         Cholesky();
 
         /**
@@ -47,16 +45,13 @@ namespace PDEs
          *       definiteness.  The user is responsible for ensuring the matrix
          *       fits this criteria.
          */
-        void
-        factorize() override;
+        void factorize() override;
 
-        /**
-         * Solve the Cholesky factored linear system. See \ref LU::solve
-         */
-        void
-        solve(Vector& x, const Vector& b) const override;
+        /** Solve the Cholesky factored linear system. See \ref LU::solve */
+        void solve(Vector& x, const Vector& b) const override;
       };
 
+      //######################################################################
 
       /**
        * Implementation of a sparse Cholesky solver. For descriptions of the
@@ -71,14 +66,13 @@ namespace PDEs
          * Perform a Cholesky factorization on the matrix \f$ A \f$.
          * See \ref Cholesky::solve
          */
-        void
-        factorize() override;
+        void factorize() override;
 
         /**
-         * Solve the Cholesky factored linear system. See \ref Cholesky::solve
+         * Solve the Cholesky factored linear system.
+         * See \ref Cholesky::solve
          */
-        void
-        solve(Vector& x, const Vector& b) const override;
+        void solve(Vector& x, const Vector& b) const override;
       };
 
     }

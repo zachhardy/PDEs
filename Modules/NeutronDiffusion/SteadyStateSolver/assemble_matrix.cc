@@ -15,7 +15,7 @@ assemble_matrix(AssemblerFlags assembler_flags)
   A = 0.0;
 
   // Loop over cells
-  for (const auto& cell : mesh->cells)
+  for (const auto& cell: mesh->cells)
   {
     const auto& volume = cell.volume;
     const auto& xs = material_xs[matid_to_xs_map[cell.material_id]];
@@ -26,15 +26,13 @@ assemble_matrix(AssemblerFlags assembler_flags)
     const auto* B = xs->buckling.data();
 
     // Loop over groups
-    for (unsigned int gr = 0; gr < n_groups; ++gr)
+    for (unsigned int g = 0; g < n_groups; ++g)
     {
-      const auto g = groups[gr];
-
       //========================================
       // Total interaction term + buckling
       //========================================
 
-      A.add(i + gr, i + gr, (sig_t[g] + D[g]*B[g]) * volume);
+      A.add(i + g, i + g, (sig_t[g] + D[g] * B[g]) * volume);
 
       //========================================
       // Scattering term
@@ -43,8 +41,8 @@ assemble_matrix(AssemblerFlags assembler_flags)
       if (assemble_scatter)
       {
         const auto* sig_s = xs->transfer_matrices[0][g].data();
-        for (unsigned int gpr = 0; gpr < n_groups; ++gpr)
-          A.add(i + gr, i + gpr, -sig_s[groups[gpr]] * volume);
+        for (unsigned int gp = 0; gp < n_groups; ++gp)
+          A.add(i + g, i + gp, -sig_s[gp] * volume);
       }
 
       //========================================
@@ -59,8 +57,8 @@ assemble_matrix(AssemblerFlags assembler_flags)
           const auto chi = xs->chi[g];
           const auto* nu_sigf = xs->nu_sigma_f.data();
 
-          for (unsigned int gpr = 0; gpr < n_groups; ++gpr)
-            A.add(i + gr, i + gpr, -chi * nu_sigf[groups[gpr]] * volume);
+          for (unsigned int gp = 0; gp < n_groups; ++gp)
+            A.add(i + g, i + gp, -chi * nu_sigf[gp] * volume);
         }
 
         // Prompt + delayed fission
@@ -72,19 +70,19 @@ assemble_matrix(AssemblerFlags assembler_flags)
           const auto* nud_sigf = xs->nu_delayed_sigma_f.data();
           const auto* gamma = xs->precursor_yield.data();
 
-          for (unsigned int gpr = 0; gpr < n_groups; ++gpr)
+          for (unsigned int gp = 0; gp < n_groups; ++gp)
           {
-            double f = chi_p*nup_sigf[groups[gpr]];
+            double f = chi_p * nup_sigf[gp];
             for (unsigned int j = 0; j < xs->n_precursors; ++j)
-              f += chi_d[j] * gamma[j] * nud_sigf[groups[gpr]];
-            A.add(i + gr, i + gpr, -f * volume);
+              f += chi_d[j] * gamma[j] * nud_sigf[gp];
+            A.add(i + g, i + gp, -f * volume);
           }
         }
       }//if fissile
     }//for group
 
     // Loop over faces
-    for (const auto& face : cell.faces)
+    for (const auto& face: cell.faces)
     {
       //========================================
       // Diffusion term on interior faces
@@ -103,23 +101,21 @@ assemble_matrix(AssemblerFlags assembler_flags)
         // Geometric quantities
         const auto d_pf = cell.centroid.distance(face.centroid);
         const auto d_pn = cell.centroid.distance(nbr_cell.centroid);
-        const auto w = d_pf/d_pn; // harmonic mean weighting factor
+        const auto w = d_pf / d_pn; // harmonic mean weighting factor
 
-        for (unsigned int gr = 0; gr < n_groups; ++gr)
+        for (unsigned int g = 0; g < n_groups; ++g)
         {
-          const auto g = groups[gr];
+          const double D_eff = 1.0 / (w / D[g] + (1.0 - w) / D_nbr[g]);
+          const double value = D_eff / d_pn * face.area;
 
-          const double D_eff = 1.0/(w/D[g] + (1.0 - w)/D_nbr[g]);
-          const double value = D_eff/d_pn * face.area;
-
-          A.add(i + gr, i + gr, value);
-          A.add(i + gr, j + gr, -value);
+          A.add(i + g, i + g, value);
+          A.add(i + g, j + g, -value);
         }
       }//if interior face
 
-      //========================================
-      // Boundary terms
-      //========================================
+        //========================================
+        // Boundary terms
+        //========================================
 
       else
       {
@@ -134,28 +130,26 @@ assemble_matrix(AssemblerFlags assembler_flags)
             bndry_type == BoundaryType::DIRICHLET)
         {
           const auto d_pf = cell.centroid.distance(face.centroid);
-          for (unsigned int gr = 0; gr < n_groups; ++gr)
-            A.add(i + gr, i + gr, D[groups[gr]]/d_pf * face.area);
+          for (unsigned int g = 0; g < n_groups; ++g)
+            A.add(i + g, i + g, D[g] / d_pf * face.area);
         }
 
-        //========================================
-        // Robin boundary term
-        //========================================
+          //========================================
+          // Robin boundary term
+          //========================================
 
         else if (bndry_type == BoundaryType::VACUUM or
                  bndry_type == BoundaryType::MARSHAK or
                  bndry_type == BoundaryType::ROBIN)
         {
           const auto d_pf = cell.centroid.distance(face.centroid);
-          for (unsigned int gr = 0; gr < n_groups; ++gr)
+          for (unsigned int g = 0; g < n_groups; ++g)
           {
-            const auto g = groups[gr];
-
             const auto& bndry = boundaries[bndry_id][g];
             const auto bc = std::static_pointer_cast<RobinBoundary>(bndry);
 
-            const auto value = bc->a*D[g]/(bc->b*D[g] + bc->a*d_pf);
-            A.add(i + gr, i + gr, value * face.area);
+            const auto value = bc->a * D[g] / (bc->b * D[g] + bc->a * d_pf);
+            A.add(i + g, i + g, value * face.area);
           }
         }
       }//if boundary face

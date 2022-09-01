@@ -11,9 +11,6 @@ namespace PDEs
 {
   namespace Math
   {
-    /**
-     * Time-stepping method options.
-     */
     enum class TimeSteppingMethod
     {
       BACKWARD_EULER = 0,
@@ -41,22 +38,17 @@ namespace NeutronDiffusion
     AVERAGE_POWER = 2 ///< Normalize to the avererage power density.
   };
 
-  //############################################################
 
-  /** Implementation of a transient neutron diffusion solver. */
+  /**
+   * Implementation of a transient neutron diffusion solver.
+   */
   class TransientSolver : public KEigenvalueSolver
   {
-  public:
-    /**
-     * Shorthand for the time stepping method.
-     */
+  protected:
     using TSMethod = TimeSteppingMethod;
-
-    /**
-     * Shorthand for the initial condition normalization method.
-     */
     using NormMethod = NormalizationMethod;
 
+  public:
     /**
      * A convenient typedef for group-wise initial condition functions. Each
      * function should take a point object as input and returns a the
@@ -64,13 +56,12 @@ namespace NeutronDiffusion
      */
     using IC = std::function<double(const Grid::CartesianVector p)>;
 
-    /*-------------------- Outputting --------------------*/
+  public:
 
-    /**
-     * A flag for writing outputs. When true, outputs are written for each
-     * time step.
-     */
+    /*-------------------- General Options --------------------*/
+
     bool write_outputs = false;
+    std::string output_directory;
 
     /**
      * The frequency that outputs should be written. If -1.0, the solution
@@ -84,28 +75,7 @@ namespace NeutronDiffusion
      */
     double output_frequency = -1.0;
 
-    /**
-     * The output directory where the time step snapshots should be written.
-     */
-    std::string output_directory;
-
-    /*-------------------- Precursor Options --------------------*/
-
-    /**
-     * A flag for lagging precursors to the previous time step.
-     */
     bool lag_precursors = false;
-
-    /*-------------------- Initial Conditions --------------------*/
-
-    /**
-     * A map holding the initial condition functions used to initialize
-     * the transient solver. If the map is empty, a k-eigenvalue solver is
-     * used for the initial condition. Otherwise, the provided initial
-     * conditions are evaluated. Groups which do not have a specified initial
-     * condition are assumed to be uniformly zero.
-     */
-    std::map<size_t, IC> initial_conditions;
 
     /**
      * The normalization method for the initial condition. This is used to map
@@ -114,208 +84,46 @@ namespace NeutronDiffusion
      */
     NormMethod normalization_method = NormMethod::TOTAL_POWER;
 
-    /**
-     * A flag for normalizing fission cross-sections to the \f$k\f$-eigenvalue.
-     */
+    /** A flag for normalizing \f$ \sigma_f \f$ to the \f$ k \f$-eigenvalue. */
     bool normalize_fission_xs = false;
 
-    /**
-     * The initial power level in the reactor.
-     */
+    /*-------------------- Initial Conditions --------------------*/
+
     double initial_power = 1.0;
+    double initial_temperature = 300.0;
 
     /**
-     * The initial temperature in the reactor.
+     * A map holding the initial condition functions used to initialize
+     * the transient solver. If the map is empty, a k-eigenvalue solver is
+     * used for the initial condition. Otherwise, the provided initial
+     * conditions are evaluated. Groups which do not have a specified initial
+     * condition are assumed to be uniformly zero.
      */
-    double initial_temperature = 300.0;
+    std::map<unsigned int, IC> initial_conditions;
 
     /*-------------------- Time Stepping --------------------*/
 
-    /**
-     * The simulation start time.
-     */
     double t_start = 0.0;
-
-    /**
-     * The simulation end time.
-     */
-    double t_end =1.0;
-
-    /**
-     * The initial time step size to use. If adaptivity is off, this remains the
-     * time step size through the simulation.
-     */
+    double t_end = 1.0;
     double dt = 0.1;
 
-    /**
-     * The minimum time step to allow during the simulation. This is only
-     * relevant when adaptive time stepping is turned on.
-     */
-    double dt_min = 1.0e-6;
-
-    /**
-     * The time stepping method to use.
-     */
     TSMethod time_stepping_method = TSMethod::CRANK_NICHOLSON;
 
     /**
      * A flag for whether to use adaptive time stepping or not. Currently,
      * adaptive time stepping is based only on the relative change in power
-     * over a time step. When certain bounds are exceeded, the time step size
-     * is either halved or doubled.
+     * over a time step. When the change in power is greater than the \p
+     * refine_threshold, the time step is halved. When it is less than the \p
+     * coarsen_threshold, it is doubled. If the time-step becomes smaller than
+     * \p dt_min, it is defaulted to \p dt_min and not refined further.
      */
     bool adaptive_time_stepping = false;
-
-    /**
-     * The relative power change that triggers refinement.
-     */
-    double refine_threshold = 0.01;
-
-    /**
-     * The relative power change that triggers coarsening.
-     */
-    double coarsen_threshold = 0.05;
-
-    /**
-     * Initialize the transient multi-group diffusion solver.
-     */
-    void
-    initialize() override;
-
-    /**
-     * Execute the transient multi-group diffusion solver.
-     */
-    void
-    execute() override;
-
-    /**
-     * Write the current simulation state to an output file.
-     *
-     * \param output_index The output number. This defines the file name that
-     *      the system state is saved to.
-     */
-    void
-    write(const unsigned int output_index) const;
+    double refine_threshold = 0.05;
+    double coarsen_threshold = 0.01;
+    double dt_min = 1.0e-6;
 
   protected:
-    /**
-     * Evaluate the specified initial conditions.
-     */
-    void
-    compute_initial_values();
-
-    /*-------------------- Time Step Routines --------------------*/
-
-    /**
-     * Execute a time step by computing the end of time step solutions.
-     *
-     * \param reconstruct_matrices A flag for whether the matrices need to be
-     *      reconstructed this time step or not.
-     */
-    void
-    execute_time_step(bool reconstruct_matrices = false);
-
-    /**
-     * Solve the time step system by iterating on the specified SourceFlags.
-     *
-     * \param source_flags Bitwise flags defining the source terms to iterate
-     *      on and converge.
-     */
-    void
-    iterative_time_step_solve(SourceFlags source_flags);
-
-    /**
-     * Refine the time step when the relative change in power is greater than
-     * \p refine_threshold. When this routine is called, the previous time step
-     * results are discarded and the time step is rerun until the new time step
-     * is accepted.
-     */
-    void
-    refine_time_step();
-
-    /**
-     * Coarsen the time step when the relative change in power is less than the
-     * \p coarsen_threshold. When this routine is called, the previous  time
-     * step is accepted and the increase time step size goes into effect in the
-     * following time step.
-     */
-    void
-    coarsen_time_step();
-
-    /**
-     * Set the last time step quantities to the current values.
-     */
-    void
-    step_solutions();
-
-    /*-------------------- Assembly Routines --------------------*/
-
-    /**
-     * Assemble the multi-group matrix according to the specified
-     * AssemblerFlags. By default, the within-group terms (time derivative,
-     * total interaction, buckling, diffusion, and boundary) are included in
-     * the matrix. When specified, the cross-group scattering and fission terms
-     * may be included.
-     *
-     * \param assembler_flags Bitwise flags used to specify which cross-group
-     *      terms to include in the matrix.
-     */
-    void
-    assemble_transient_matrix(AssemblerFlags assembler_flags);
-
-
-    /**
-     * Set the right-hand side source vector. This is an additive routine which
-     * will only add the specified sources to the source vector. Source options
-     * include the inhomogeneous source, scattering source, and fission source.
-     * By default, the previous time step contributions are added.
-     *
-     * \param source_flags Bitwise flags used to specify which sources are
-     *      added to the source vector.
-     */
-    void
-    set_transient_source(SourceFlags source_flags);
-
-    /**
-     * Rebuild the system matrix. This is a shorthand notation to avoid
-     * repetitive condition checking throughout the code.
-     */
-    void
-    rebuild_matrix();
-
-    /*-------------------- Auxiliary Quantities --------------------*/
-
-    /**
-     * Compute the fission rate with the most recent multi-group scalar flux.
-     */
-    void
-    update_fission_rate();
-
-    /**
-     * Take a time step for the delayed neutron precursors concentrations using
-     * the most recent multi-group scalar flux.
-     */
-    void
-    update_precursors();
-
-    /**
-     * Take a time step for the adiabatic model using the most recent
-     * multi-group scalar flux.
-     */
-    void
-    update_temperature();
-
-    /** Update the averaged and peak powers and temperatures. */
-    void
-    compute_bulk_properties();
-
-    /**
-     * Return the effective time step size based on the time stepping method.
-     * For example, when using Crank-Nicholson, the effective time step is
-     * half the true time step.
-     */
-    double
-    effective_time_step();
+    /*-------------------- Problem Information --------------------*/
 
     /**
      * A flag for whether or not the problem has dynamic cross-sections
@@ -323,8 +131,6 @@ namespace NeutronDiffusion
      * necessary.
      */
     bool has_dynamic_xs = false;
-
-    /*-------------------- Constants --------------------*/
 
     /**
      * Energy release per fission (J/fission).
@@ -337,69 +143,151 @@ namespace NeutronDiffusion
      */
     const double conversion_factor = 3.83e-11;
 
-    /*-------------------- Macro Quantities --------------------*/
-
-    /**
-     * The current simulation time.
-     */
     double time = 0.0;
 
-    /**
-     * The current total reactor power.
-     */
     double power = 1.0;
-
-    /**
-     * The total reactor power last time step.
-     */
     double power_old = 1.0;
 
-    /**
-     * The current average power density in the reactor.
-     */
-    double average_power_density;
 
-    /**
-     * The current peak power density in the reactor.
-     */
+    double average_power_density;
     double peak_power_density;
 
-    /**
-     * The current average fuel temperature in the reactor.
-     */
     double average_fuel_temperature;
-
-    /**
-     * The current peak fuel temperature in the reactor.
-     */
     double peak_fuel_temperature;
 
-    /*-------------------- Extra System Vectors --------------------*/
+
+    Vector phi_old; ///< The multi-group scalar flux last time step.
+    Vector precursors_old; ///< The precursor concentrations last time step.
+
+    Vector fission_rate; ///< The cell-wise fission rate.
+
+    Vector temperature; ///< The cell-wise temperature.
+    Vector temperature_old; ///< The temperature last time step.
+
+  public:
+    /*-------------------- Public Routines --------------------*/
+
+    void initialize() override;
+    void execute() override;
 
     /**
-     * The fission rate defined at cell centers.
+     * Write the current simulation state to an output file at the specified
+     * \p output_frequency.
+     *
+     * This routine writes the simulation state to an output file within
+     * the specified \p output_directory. The \p output_index corresponds to
+     * the number of outputs that have already been printed. The output files
+     * are saved as <tt><output_index>.data</tt> where the integer is padded
+     * with to ensure that all output file names have the same number of
+     * characters.
      */
-    Vector fission_rate;
+    void write(const unsigned int output_index) const;
+
+  protected:
+    /*-------------------- Initialization Routines --------------------*/
 
     /**
-     * The temperature defined at cell centers.
+     * Evaluate the specified initial conditions.
+     *
+     * If \p initial_conditions is empty, the initial condition will default
+     * to the result of a \f$ k \f$-eigenvalue simulation, otherwise, the
+     * group-wise initial conditions are evaluated. This routine also normalizes
+     * the multi-group scalar flux to the specified power level and the fission
+     * cross-sections to the \f$ k \f$-eigenvalue, if specified.
      */
-    Vector temperature;
+    void compute_initial_values();
+
+    /*-------------------- Time Step Routines --------------------*/
 
     /**
-     * The multi-group scalar flux last time step.
+     * Execute a time step. When the \p reconstruct_matrices flag is \p true,
+     * this routine will rebuild the multi-group operator using the current
+     * simulation state.
      */
-    Vector phi_old;
+    void execute_time_step(bool reconstruct_matrices = false);
 
     /**
-     * The delayed neutron precursors last time step.
+     * Lag the specified sources within \p source_flags and iteratively solve
+     * the multi-group system over a time step.
      */
-    Vector precursor_old;
+    void iterative_time_step_solve(SourceFlags source_flags);
 
     /**
-     * The temperature last time step.
+     * Refine the time step when the relative change in power is greater than
+     * \p refine_threshold.
+     *
+     * When this routine is called, the previous time step
+     * results are discarded and the time step is rerun until the new time step
+     * is accepted. If the time step sizes becomes smaller than \p dt_min, the
+     * refinement is stopped.
      */
-    Vector temperature_old;
+    void refine_time_step();
+
+    /**
+     * Coarsen the time step when the relative change in power is less than the
+     * \p coarsen_threshold. When this routine is called, the previous  time
+     * step is accepted and the increase time step size goes into effect in the
+     * following time step.
+     */
+    void coarsen_time_step();
+
+    /** Set the last time step quantities to the current values. */
+    void step_solutions();
+
+    /*-------------------- Assembly Routines --------------------*/
+
+    /**
+     * Assemble the multi-group matrix according to the specified
+     * \p assembler_flags.
+     *
+     * By default, the within-group terms (time derivative, total interaction,
+     * buckling, diffusion, and boundary) are included in the matrix. When
+     * specified, the cross-group scattering and fission terms may be included.
+     */
+    void assemble_transient_matrix(
+        AssemblerFlags assembler_flags = NO_ASSEMBLER_FLAGS);
+
+    /**
+     * Accumulate sources into the right-hand side according to the specified
+     * \p source_flags.
+     *
+     * This routine is additive, implying that if the right-hand side needs to
+     * be cleared, this must be done external to this routine. Available
+     * sources are the inhomogeneous, scattering, fission, and boundary source.
+     */
+    void set_transient_source(SourceFlags source_flags);
+
+    /**
+     * Rebuild the multi-group matrix.
+     *
+     * This is shorthand for the conditional construction based on the
+     * \p algorithm option.
+     */
+    void rebuild_matrix();
+
+    /*-------------------- Auxiliary Quantities --------------------*/
+
+    void update_fission_rate();
+    void update_precursors();
+    void update_temperature();
+
+    /** Update the averaged and peak powers and temperatures. */
+    void compute_bulk_properties();
+
+    /**
+     * Return the effective time step size based on the time stepping method.
+     *
+     * For example, when using Crank-Nicholson, the effective time step is
+     * half the true time step.
+     */
+    double effective_time_step();
+
+    /*-------------------- Write Routines --------------------*/
+
+    void write_snapshot(const unsigned int index) const;
+    void write_temperature(const std::string directory = ".",
+                           const std::string file_prefix = "temperature");
+
   };
 }
 

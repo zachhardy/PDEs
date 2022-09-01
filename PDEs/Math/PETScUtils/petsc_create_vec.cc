@@ -7,7 +7,7 @@ using namespace Math;
 
 
 void
-PETScUtils::CreateVector(Vec& x, PetscInt n)
+PETScUtils::create_petsc_vector(Vec& x, PetscInt n)
 {
   VecCreate(PETSC_COMM_WORLD, &x);
   VecSetSizes(x, PETSC_DECIDE, n);
@@ -17,9 +17,9 @@ PETScUtils::CreateVector(Vec& x, PetscInt n)
 
 
 void
-PETScUtils::CreateVector(Vec& x, const Vector& vec)
+PETScUtils::create_petsc_vector(Vec& x, const Vector& vec)
 {
-  CreateVector(x, vec.size());
+  create_petsc_vector(x, vec.size());
 
   const double* v_ptr = vec.data();
   for (size_t i = 0; i < vec.size(); ++i)
@@ -28,9 +28,9 @@ PETScUtils::CreateVector(Vec& x, const Vector& vec)
 
 
 void
-PETScUtils::CreateVector(Vec& x, const std::vector<double>& vec)
+PETScUtils::create_petsc_vector(Vec& x, const std::vector<double>& vec)
 {
-  CreateVector(x, vec.size());
+  create_petsc_vector(x, vec.size());
 
   const double* v_ptr = vec.data();
   for (size_t i = 0; i < vec.size(); ++i)

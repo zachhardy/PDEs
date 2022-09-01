@@ -119,8 +119,6 @@ int main(int argc, char** argv)
 
   xs[0]->sigma_a_function = ramp_function;
 
-  const unsigned int n_groups = xs.front()->n_groups;
-
   //============================================================
   // Linear Solver
   //============================================================
@@ -151,13 +149,6 @@ int main(int argc, char** argv)
   solver.max_outer_iterations = 1000;
 
   solver.algorithm = Algorithm::DIRECT;
-
-  //============================================================
-  // Initialize groups and groupsets
-  //============================================================
-
-  for (unsigned int g = 0; g < n_groups; ++g)
-    solver.groups.emplace_back(g);
 
   //============================================================
   // Define boundary conditions

@@ -16,9 +16,21 @@ namespace PDEs
 
       /**
        * Implementation of a PETSc solver.
-       * */
+       */
       class PETScSolver : public LinearSolverBase<SparseMatrix>
       {
+      protected:
+        Mat A;
+        KSP ksp;
+        PC pc;
+
+        std::string solver_type = KSPCG;
+        std::string preconditioner_type = PCNONE;
+
+        double tolerance;
+        unsigned int max_iterations;
+        unsigned int verbosity = 0;
+
       public:
         using LinearSolverBase::solve;
 
@@ -32,74 +44,23 @@ namespace PDEs
                     const std::string preconditioner_type = PCNONE,
                     const Options& opts = Options());
 
-        /**
-         * Attach a sparse matrix to the solver.
-         */
-        void
-        set_matrix(const SparseMatrix& matrix) override;
+        /** Attach a sparse matrix to the solver. */
+        void set_matrix(const SparseMatrix& matrix) override;
 
-        /**
-         * Solve the system using PETSc.
-         */
-        void
-        solve(Vector& x, const Vector& b) const override;
-
-      protected:
-        /**
-         * The PETSc matrix.
-         */
-        Mat A;
-
-        /**
-         * The PETSc linear Krylov solver.
-         */
-        KSP ksp;
-
-        /**
-         * The PETSc preconditioner.
-         */
-        PC pc;
-
-        /**
-         * The PETSc macro that specifies the solver type.
-         */
-        std::string solver_type = KSPCG;
-
-        /**
-         * The PETSc macro that specifies the preconditioner type.
-         */
-        std::string preconditioner_type = PCNONE;
-
-        /**
-            * The iteration convergence tolerance.
-            */
-        double tolerance;
-
-        /**
-         * The maximum number of iterations to attempt to converge the solution.
-         */
-        unsigned int max_iterations;
-
-        /**
-         * The level of screen output from the linear solver.
-         */
-        unsigned int verbosity = 0;
+        /** Solve the system using PETSc. */
+        void solve(Vector& x, const Vector& b) const override;
 
       private:
 
-        /**
-         * A routine used to monitor the progress of the PETSc solver.
-         */
+        /**A routine used to monitor the progress of the PETSc solver. */
         static PetscErrorCode
-        KSPMonitor(KSP solver, PetscInt it, PetscReal rnorm,
-                   void* monitordestroy);
+        KSPMonitor(KSP solver, PetscInt it,
+                   PetscReal rnorm, void* monitordestroy);
 
-        /**
-         * A routine used to check the convergence of the PETSc solver.
-         */
+        /** A routine used to check the convergence of the PETSc solver. */
         static PetscErrorCode
-        KSPConvergenceTest(KSP solver, PetscInt it, PetscReal rnorm,
-                           KSPConvergedReason* reason, void*);
+        KSPConvergenceTest(KSP solver, PetscInt it,
+                           PetscReal rnorm, KSPConvergedReason* reason, void*);
       };
     }
   }

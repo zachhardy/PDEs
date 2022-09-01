@@ -8,16 +8,13 @@ doc/latex
 Makefile
 cmake-build-debug
 
+__pycache__
+.DS_Store
+.idea
+.git
+
 *.data
 k_eff.txt
 log.txt
 studies
-<<<<<<< HEAD
-
-__pycache__
-=======
->>>>>>> development
-
-.DS_Store
-.idea
-.git
+outputs

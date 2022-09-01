@@ -3,6 +3,7 @@
 #include <fstream>
 #include <cstring>
 #include <cassert>
+#include <filesystem>
 
 using namespace NeutronDiffusion;
 
@@ -238,4 +239,100 @@ TransientSolver::write(const unsigned int output_index) const
   ++record_type;
 
   file.close();
+}
+
+
+void TransientSolver::
+write_snapshot(const unsigned int index) const
+{
+  std::string directoy(std::to_string(index));
+  directoy.insert(0, 4 - directoy.size(), '0');
+  directoy = output_directory + "/" + directoy;
+
+  if (!std::filesystem::is_directory(directoy))
+    std::filesystem::create_directory(directoy);
+  assert(std::filesystem::is_directory(directoy));
+
+  //================================================== Write snapshot summary
+
+  std::string filepath = directoy + "/" + "macro.txt";
+  std::ofstream file(filepath, std::ofstream::out | std::ofstream::trunc);
+  assert(file.is_open());
+
+  file << "########################################\n"
+       << "# Snapshot " << index << " Summary\n"
+       << "########################################\n"
+       << "Output= " << std::setprecision(5) << index << "\n"
+       << "Time= " << std::setprecision(12) << time << "\n"
+       << "Power= " << std::setprecision(12) << power << "\n"
+       << "PeakPowerDensity= "
+       << std::setprecision(12) << peak_power_density << "\n"
+       << "AveragePowerDensity= "
+       << std::setprecision(12) << average_power_density << "\n"
+       << "PeakFuelTemperature= "
+       << std::setprecision(12) << peak_fuel_temperature << "\n"
+       << "AverageFuelTemperature= "
+       << std::setprecision(12) << average_fuel_temperature << "\n";
+
+  file.close();
+
+  //================================================== Write simulation data
+  write_flux_moments(directoy);
+  write_precursors(directoy);
+  write_fission_rate(directoy);
+}
+
+
+void
+TransientSolver::
+write_temperature(const std::string directory,
+                  const std::string file_prefix)
+{
+  if (!std::filesystem::is_directory(directory))
+    std::filesystem::create_directory(directory);
+  assert(std::filesystem::is_directory(directory));
+
+  std::string filepath = directory + "/" + file_prefix;
+  if (filepath.find(".") != std::string::npos)
+    filepath = file_prefix.substr(0, file_prefix.rfind("."));
+  filepath += ".data";
+
+  // Open the file
+  std::ofstream file(filepath,
+                     std::ofstream::binary |
+                     std::ofstream::out |
+                     std::ofstream::trunc);
+  assert(file.is_open());
+
+  // Write the header
+  int size = 200;
+  std::stringstream ss;
+  ss
+      << "Fission Rate Snapshot\n"
+         "Header size: " << size  << " bytes\n"
+      << "Structure(type-info)\n"
+         "uint64_t      n_cells\n"
+         "Each Record:\n"
+         "  uint64_t      cell\n"
+         "  double        value\n";
+
+  std::string header_info = ss.str();
+  int header_size = (int)header_info.length();
+
+  char header_bytes[size];
+  memset(header_bytes, '-', size);
+  strncpy(header_bytes, header_info.c_str(), std::min(header_size, size - 1));
+  header_bytes[size - 1] = '\0';
+
+  // Write the data
+  file << header_bytes;
+
+  const uint64_t n_cells = mesh->cells.size();
+  file.write((char*)&n_cells, sizeof(uint64_t));
+
+  for (const auto& cell : mesh->cells)
+  {
+    file.write((char*) &cell.id, sizeof(uint64_t));
+    file.write((char*)&temperature[cell.id], sizeof(double));
+  }//for cell
 }

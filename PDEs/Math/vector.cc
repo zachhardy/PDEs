@@ -9,6 +9,7 @@
 using namespace PDEs;
 using namespace Math;
 
+//################################################## Contructors
 
 Vector::Vector(const std::initializer_list<double>& list) :
     Vector(list.begin(), list.end())
@@ -18,12 +19,15 @@ Vector::Vector(const std::initializer_list<double>& list) :
 template<typename InputIterator>
 Vector::Vector(const InputIterator first, const InputIterator last)
 {
-  reinit(std::distance(first, last));
+  resize(std::distance(first, last));
   std::copy(first, last, begin());
 }
-
 template Vector::Vector(const double*, const double*);
 
+
+Vector::Vector(const size_t n) :
+    values(n)
+{}
 
 Vector::Vector(const size_t n, const double value) :
     values(n, value)
@@ -64,14 +68,7 @@ Vector::operator=(const double value)
   return *this;
 }
 
-
-void
-Vector::reinit(const size_t n, const double value)
-{
-  values.clear();
-  values.resize(n, value);
-}
-
+//################################################## Capacity
 
 size_t
 Vector::size() const
@@ -94,88 +91,33 @@ Vector::empty() const
   return values.empty();
 }
 
-
-bool
-Vector::operator==(const Vector& y) const
-{
-  return (values == y.values);
-}
-
-
-bool
-Vector::operator!=(const Vector& y) const
-{
-  return (values != y.values);
-}
-
+//################################################## Data Access
 
 double&
 Vector::operator[](const size_t i)
 {
-  return values[i];
+  return values.at(i);
 }
 
 
 const double&
 Vector::operator[](const size_t i) const
 {
-  return values[i];
+  return values.at(i);
 }
 
 
 double&
 Vector::operator()(const size_t i)
 {
-  return values[i];
+  return values.at(i);
 }
 
 
 const double&
 Vector::operator()(const size_t i) const
 {
-  return values[i];
-}
-
-
-double&
-Vector::at(const size_t i)
-{
   return values.at(i);
-}
-
-
-const double&
-Vector::at(const size_t i) const
-{
-  return values.at(i);
-}
-
-
-double&
-Vector::front()
-{
-  return values.front();
-}
-
-
-const double&
-Vector::front() const
-{
-  return values.front();
-}
-
-
-double&
-Vector::back()
-{
-  return values.back();
-}
-
-
-const double&
-Vector::back() const
-{
-  return values.back();
 }
 
 
@@ -220,6 +162,7 @@ Vector::end() const
   return values.end();
 }
 
+//################################################## Modifiers
 
 void
 Vector::clear()
@@ -229,16 +172,9 @@ Vector::clear()
 
 
 void
-Vector::push_back(const double value)
+Vector::resize(const size_t n)
 {
-  values.push_back(value);
-}
-
-
-void
-Vector::pop_back()
-{
-  values.pop_back();
+  values.resize(n);
 }
 
 
@@ -288,6 +224,8 @@ Vector::fabs() const
   return Vector(*this).fabs();
 }
 
+//################################################## Scalar Operations and
+//                                                   Norms
 
 double
 Vector::dot(const Vector& y) const
@@ -340,6 +278,7 @@ Vector::lp_norm(const double p) const
   return std::pow(norm, 1.0 / p);
 }
 
+//################################################## Linear Algebra
 
 Vector&
 Vector::scale(const double factor)
@@ -421,7 +360,9 @@ Vector::shift(const double value)
 
 
 Vector&
-Vector::sadd(const double a, const double b, const Vector& y)
+Vector::sadd(const double a,
+             const double b,
+             const Vector& y)
 {
   assert(y.size() == size());
 
@@ -478,6 +419,7 @@ Vector::operator-(const Vector& y) const
   return Vector(*this).add(-1.0, y);
 }
 
+//################################################## Print Utilities
 
 std::string
 Vector::str(const bool scientific,
@@ -515,6 +457,22 @@ Vector::print(std::ostream& os,
   os << str(scientific, precision, width);
 }
 
+//################################################## Comparisons
+
+bool
+Vector::operator==(const Vector& y) const
+{
+  return (values == y.values);
+}
+
+
+bool
+Vector::operator!=(const Vector& y) const
+{
+  return (values != y.values);
+}
+
+//################################################## Non-Member Methods
 
 Vector
 Math::operator*(const double factor, const Vector& x)

@@ -86,42 +86,15 @@ namespace NeutronDiffusion
   class SteadyStateSolver
   {
   protected:
-    /**
-     * Shorthand for the spatial discretization method.
-     */
     using SDMethod = SpatialDiscretizationMethod;
-
-    /**
-     * Shorthand for an isotropic multi-group source.
-     */
     using IsotropicMGSource = IsotropicMultiGroupSource;
-
-    /**
-     * Shorthand for Robin boundary values. Recall that generalized Robin
-     * boundaries have three components.
-     */
-    using RobinBndryVals = std::vector<double>;
-
-    /**
-     * Shorthand for a pointer to a boundary condition.
-     */
     using BndryPtr = std::shared_ptr<Boundary>;
-
-    /**
-     * Shorthand for a linear solver.
-     */
     using LinearSolver = LinearSolvers::LinearSolverBase<SparseMatrix>;
 
-    /*-------------------- General Information --------------------*/
   public:
-    /**
-     * The algorithm used to solve the multi-group problem.
-     */
-    Algorithm algorithm = Algorithm::DIRECT;
+    /*-------------------- General Options --------------------*/
 
-    /**
-     * The spatial discretization method used.
-     */
+    Algorithm algorithm = Algorithm::DIRECT;
     SDMethod discretization_method = SDMethod::FINITE_VOLUME;
 
     /**
@@ -132,48 +105,20 @@ namespace NeutronDiffusion
      */
     bool use_precursors = false;
 
-    /**
-     * The inner iteration convergence tolerance. For fixed source computations
-     * this is somewhat of a misnomer because there are no outer iterations.
-     * Outer iterations are introduced in eigenvalue computations.
-     */
-    double inner_tolerance = 1.0e-6;
 
-    /**
-     * The maximum number of inner iterations allowed.
-     */
+    double inner_tolerance = 1.0e-6;
     unsigned int max_inner_iterations = 100;
 
-    /**
-     * The level of screen output from the solver.
-     */
     unsigned int verbosity = 0;
 
-
     /*-------------------- Spatial Domain --------------------*/
-    /**
-     * A pointer to the mesh the problem is defined on.
-     */
-    std::shared_ptr<Mesh> mesh;
 
-    /**
-     * A pointer to the discretization of the mesh.
-     */
+    std::shared_ptr<Mesh> mesh;
     std::shared_ptr<Discretization> discretization;
 
     /*-------------------- Physics Information --------------------*/
-    /**
-     * A list of pointers to materials, each of which must contain
-     * cross-sections and, optionally, an isotropic multi-group sources.
-     */
-     std::vector<std::shared_ptr<Material>> materials;
 
-     /**
-      * A list of the group IDs to be used in the simulation. While this may
-      * seem useless, it allows for a subset of available groups within
-      * a cross-section library to be considered.
-      */
-     std::vector<unsigned int> groups;
+     std::vector<std::shared_ptr<Material>> materials;
 
      /*-------------------- Boundary Information --------------------*/
 
@@ -197,52 +142,16 @@ namespace NeutronDiffusion
 
     /*-------------------- Solver Information --------------------*/
 
-    /**
-     * The multi-group flux solution vector.
-     */
-    Vector phi;
-
-    /**
-     * The delayed neutron precursor solution vector.
-     */
-    Vector precursors;
-
-    /**
-     * A pointer to a linear solver to be used to solve the multi-group system.
-     */
     std::shared_ptr<LinearSolver> linear_solver;
 
-    /**
-     * Initialize the multi-group diffusion solver.
-     */
-    virtual void
-    initialize();
-
-    /**
-     * Execute the multi-group diffusion solver.
-     */
-    virtual void
-    execute();
-
-    /**
-     * Write the result of the simulation to an output file.
-     *
-     * \param output_directory The directory where the output should be placed.
-     * \param file_prefix The name of the file without a suffix. By default,
-     *      the suffix \p .data will be added to this input.
-     */
-    virtual void
-    write(const std::string& output_directory,
-          const std::string& file_prefix) const;
-
   protected:
-    /**
-     * The number of energy groups in the simulation.
-     */
+    /*-------------------- Problem Information --------------------*/
+
     unsigned int n_groups;
 
     /**
      * The total number of delayed neutron precursors across all materials.
+     * This is defined by the total number of unique decay constants.
      */
     unsigned int n_precursors = 0;
 
@@ -253,24 +162,8 @@ namespace NeutronDiffusion
      */
     unsigned int max_precursors = 0;
 
-    /**
-     * A list of the cross-sections used in the problem. These are obtained from
-     * the materials list during initialization so that the properties need not
-     * be searched during execution.
-     */
     std::vector<std::shared_ptr<CrossSections>> material_xs;
-
-    /**
-     * A list of the isotropic multi-group sources used in the problem. These
-     * are obtained from the materials list during initialization so that the
-     * properties need not be searched during execution.
-     */
     std::vector<std::shared_ptr<IsotropicMGSource>> material_src;
-
-    /**
-     * A list of cell-wise light-weight cross-sections used for functional
-     * cross-sections.
-     */
     std::vector<LightWeightCrossSections> cellwise_xs;
 
     /**
@@ -296,77 +189,116 @@ namespace NeutronDiffusion
     std::vector<std::vector<BndryPtr>> boundaries;
 
     /**
-     * The sparse matrix for the multi-group system.
+     * The multi-group scalar flux vector.
+     *
+     * This vector stores group contiguously. This means that for each node,
+     * all groups for that node are contiguous.
      */
-    SparseMatrix A;
+    Vector phi;
+    Vector phi_ell;  ///< The multi-group scalar flux last iteration.
 
     /**
-     * The right-hand side source vector for the multi-group system.
+     * The cell-wise delayed neutron precursor concentration.
+     *
+     * This vector stores concentrations contiguously. This means that for
+     * each cell, all concentrations for that node are contiguous. Further,
+     * to eliminate wasteful storage in problems with many materials and
+     * precursors, only enough data to hold the maximum number of precursors
+     * on a material is allocated per cell. To obtain particular precursors
+     * from particular materials, knowledge of the cell material IDs must be
+     * incorporated.
      */
-    Vector b;
+    Vector precursors;
 
+    SparseMatrix A;  ///< The multi-group matrix.
+    Vector b; ///< The right-hand side vector.
+
+  public:
+    /*-------------------- Public Routines --------------------*/
+
+    /** Initialize the multi-group diffusion solver. */
+    virtual void initialize();
+
+    /** Execute the multi-group diffusion solver. */
+    virtual void execute();
+
+    /**
+     * Write the result of the simulation to an output file with the
+     * specified prefix. This creates a file named <tt><file_prefix>.data</tt>
+     * in the \p directory
+     */
+    virtual void
+    write(const std::string directory,
+          const std::string file_prefix) const;
+
+  protected:
     /*-------------------- Initialization Routines --------------------*/
 
-    /**
-     * Parse the cross-sections and isotropic multi-group sources objects from
-     * the materials and set the appropriate internal data.
-     */
-    void
-    initialize_materials();
-
-    /**
-     * Parse the boundary specification and define the boundary conditions
-     * used in the simulation. This initializes \p n_groups Boundary objects
-     * for each of the spatial domain boundaries.
-     */
-    void
-    initialize_boundaries();
+    void initialize_materials();
+    void initialize_boundaries();
 
     /*-------------------- Solve Routines --------------------*/
 
     /**
-     * Solve the system iteratively by iterating on the specified SourceFlags.
-     * The primary utility of this for k-eigenvalue solvers where the fission
-     * source is held constant (outer iterations) while the scattering source
-     * is converged (inner iterations).
+     * Lag the specified sources within \p source_flags and iteratively solve
+     * the multi-group system.
      *
-     * \param source_flags Bitwise flags defining the source terms to iterate
-     *      on and converge.
+     * Each iteration, this routine adds the sources specified by \p
+     * source_flags to the right-hand side and solves the multi-group system.
+     * In many cases, both scattering and fission are lagged which results
+     * in an symmetric positive definite linear system.
+     *
+     * The number of iterations and the final convergence check value are
+     * returned as a pair.
      */
-    void
+    std::pair<unsigned int, double>
     iterative_solve(SourceFlags source_flags);
+
+    /**
+     * Compute the steady-state precursor concentration profile.
+     *
+     * In the steady-state formulation, the delayed neutron precursor
+     * concentrations can be written as a function of only the multi-group
+     * scalar flux and substituted. This eliminates the precursor concentrations
+     * from the system, resulting in this routine being a post-processing step.
+     */
+    void compute_precursors();
 
     /*-------------------- Assembly Routines --------------------*/
 
     /**
      * Assemble the multi-group matrix according to the specified
-     * AssemblerFlags. By default, the within-group terms (total interaction,
-     * buckling, diffusion, and boundary) are included in the matrix. When
-     * specified, the cross-group scattering and fission terms may be included.
+     * \p assembler_flags.
      *
-     * \param assembler_flags Bitwise flags used to specify which cross-group
-     *      terms to include in the matrix.
+     * By default, the within-group terms (total  interaction, buckling,
+     * diffusion, and boundary) are included in the matrix. When specified,
+     * the cross-group scattering and fission terms may be included.
      */
-    void
-    assemble_matrix(AssemblerFlags assembler_flags = NO_ASSEMBLER_FLAGS);
+    void assemble_matrix(AssemblerFlags assembler_flags = NO_ASSEMBLER_FLAGS);
 
     /**
-     * Set the right-hand side source vector. This is an additive routine which
-     * will only add the specified sources to the source vector. Source options
-     * include the inhomogeneous source, scattering source, fission source,
-     * and boundary source
+     * Accumulate sources into the right-hand side according to the specified
+     * \p source_flags.
      *
-     * \param source_flags Bitwise flags used to specify which sources are
-     *      added to the source vector.
+     * This routine is additive, implying that if the right-hand side needs to
+     * be cleared, this must be done external to this routine. The purpose of
+     * the additive nature is to accommodate for different iteration levels,
+     * such as in a \f$ k \f$-eigenvalue problem where the fission source is
+     * held constant while the scattering source is iterated on. Available
+     * sources are the inhomogeneous, scattering, fission, and boundary source.
      */
-    void
-    set_source(SourceFlags source_flags = NO_SOURCE_FLAGS);
+    void set_source(SourceFlags source_flags = NO_SOURCE_FLAGS);
 
-    /**
-     * Compute the steady-state precursor concentration profile.
-     */
-    void
-    compute_precursors();
+    /*-------------------- Write Routines --------------------*/
+
+    void write_flux_moments(const std::string directory = ".",
+                            const std::string file_prefix = "sflux") const;
+
+    void write_precursors(const std::string directory = ".",
+                          const std::string file_prefix = "precursors") const;
+
+    void write_fission_rate(const std::string directory = ".",
+                            const std::string file_prefix = "precursors") const;
   };
 
 }

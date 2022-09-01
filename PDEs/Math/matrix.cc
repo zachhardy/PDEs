@@ -9,6 +9,7 @@
 using namespace PDEs;
 using namespace Math;
 
+//################################################## Constructors
 
 Matrix::
 Matrix(const std::initializer_list<std::initializer_list<double>>& list) :
@@ -17,14 +18,13 @@ Matrix(const std::initializer_list<std::initializer_list<double>>& list) :
 
 
 template<typename InputIterator>
-Matrix::Matrix(const InputIterator first, const InputIterator last)
+Matrix::Matrix(const InputIterator first, const InputIterator last) :
+  values(std::distance(first, last), Vector((*first).size()))
 {
-  reinit(std::distance(first, last), (*first).size());
-  std::copy(first, last, this->begin());
+  std::copy(first, last, begin());
   for (const auto& row: values)
-    assert(row.size() == this->n_cols());
+    assert(row.size() == n_cols());
 }
-
 template Matrix::Matrix(const Vector*, const Vector*);
 
 
@@ -39,7 +39,7 @@ Matrix::Matrix(const size_t n_rows,
                const size_t n_cols,
                const double* value_ptr)
 {
-  reinit(n_rows, n_cols);
+  resize(n_rows, n_cols, 0.0);
   for (size_t i = 0; i < n_rows; ++i)
     for (size_t j = 0; j < n_cols; ++j, ++value_ptr)
       values[i][j] = *value_ptr;
@@ -49,7 +49,7 @@ Matrix::Matrix(const size_t n_rows,
 Matrix::Matrix(const Vector& diagonal)
 {
   size_t n = diagonal.size();
-  reinit(n, n);
+  resize(n, n, 0.0);
   for (size_t i = 0; i < n; ++i)
     values[i][i] = diagonal[i];
 }
@@ -58,7 +58,7 @@ Matrix::Matrix(const Vector& diagonal)
 Matrix::Matrix(Vector&& diagonal)
 {
   size_t n = diagonal.size();
-  reinit(n, n);
+  resize(n, n, 0.0);
   for (size_t i = 0; i < n; ++i)
     values[i][i] = std::move(diagonal[i]);
 }
@@ -67,16 +67,6 @@ Matrix::Matrix(Vector&& diagonal)
 Matrix::Matrix(const std::initializer_list<double>& diagonal)
 {
   *this = Matrix(Vector(diagonal));
-}
-
-
-void
-Matrix::reinit(const size_t n_rows,
-               const size_t n_cols,
-               const double value)
-{
-  values.clear();
-  values.resize(n_rows, Vector(n_cols, value));
 }
 
 
@@ -100,13 +90,14 @@ Matrix&
 Matrix::operator=(const double value)
 {
   if (empty())
-    reinit(1, 1, value);
+    resize(1, 1, value);
   else
     for (auto& row: values)
       row = value; // full row assignment to a scalar
   return *this;
 }
 
+//################################################## Capacity
 
 size_t
 Matrix::n_rows() const
@@ -145,72 +136,31 @@ Matrix::empty() const
   return values.empty();
 }
 
-
-Matrix
-Matrix::transpose() const
-{
-  Matrix A_T(n_cols(), n_rows());
-  for (size_t i = 0; i < n_rows(); ++i)
-  {
-    const double* a_ij = values[i].data();
-    for (size_t j = 0; j < n_cols(); ++j, ++a_ij)
-      A_T[j][i] = *a_ij;
-  }
-  return A_T;
-}
-
-
-bool
-Matrix::operator==(const Matrix& other) const
-{
-  return (values == other.values);
-}
-
-
-bool
-Matrix::operator!=(const Matrix& other) const
-{
-  return (values != other.values);
-}
-
+//################################################## Data Access
 
 Vector&
 Matrix::operator[](const size_t i)
-{
-  return values[i];
-}
-
-
-const Vector&
-Matrix::operator[](const size_t i) const
-{
-  return values[i];
-}
-
-
-Vector&
-Matrix::operator()(const size_t i)
-{
-  return values[i];
-}
-
-
-const Vector&
-Matrix::operator()(const size_t i) const
-{
-  return values[i];
-}
-
-
-Vector&
-Matrix::at(const size_t i)
 {
   return values.at(i);
 }
 
 
 const Vector&
-Matrix::at(const size_t i) const
+Matrix::operator[](const size_t i) const
+{
+  return values.at(i);
+}
+
+
+Vector&
+Matrix::operator()(const size_t i)
+{
+  return values.at(i);
+}
+
+
+const Vector&
+Matrix::operator()(const size_t i) const
 {
   return values.at(i);
 }
@@ -219,42 +169,14 @@ Matrix::at(const size_t i) const
 double&
 Matrix::operator()(const size_t i, const size_t j)
 {
-  return values[i][j];
+  return values.at(i)(j);
 }
 
 
 const double&
 Matrix::operator()(const size_t i, const size_t j) const
 {
-  return values[i][j];
-}
-
-
-double&
-Matrix::at(const size_t i, const size_t j)
-{
-  return values.at(i).at(j);
-}
-
-
-const double&
-Matrix::at(const size_t i, const size_t j) const
-{
-  return values.at(i).at(j);
-}
-
-
-double&
-Matrix::diag(const size_t i)
-{
-  return values.at(i).at(i);
-}
-
-
-const double&
-Matrix::diag(const size_t i) const
-{
-  return values.at(i).at(i);
+  return values.at(i)(j);
 }
 
 
@@ -341,6 +263,7 @@ Matrix::end(const size_t i) const
   return values.at(i).end();
 }
 
+//################################################## Modifiers
 
 void
 Matrix::clear()
@@ -350,25 +273,12 @@ Matrix::clear()
 
 
 void
-Matrix::push_back(const Vector& row)
+Matrix::resize(const size_t n_rows,
+               const size_t n_cols)
 {
-  assert(row.size() == n_cols());
-  values.push_back(row);
-}
-
-
-void
-Matrix::push_back(Vector&& row)
-{
-  assert(row.size() == n_cols());
-  values.push_back(row);
-}
-
-
-void
-Matrix::pop_back()
-{
-  values.pop_back();
+  values.resize(n_rows);
+  for (auto& row : values)
+    row.resize(n_cols);
 }
 
 
@@ -377,7 +287,9 @@ Matrix::resize(const size_t n_rows,
                const size_t n_cols,
                const double value)
 {
-  values.resize(n_rows, Vector(n_cols, value));
+  values.resize(n_rows);
+  for (auto& row : values)
+    row.resize(n_cols, value);
 }
 
 
@@ -405,11 +317,11 @@ Matrix::swap(Matrix& other)
 
 
 void
-Matrix::set_diag(const Vector& diagonal)
+Matrix::set_diagonal(const Vector& diagonal)
 {
   if (empty())
   {
-    this->reinit(diagonal.size(), diagonal.size());
+    resize(diagonal.size(), diagonal.size(), 0.0);
     for (size_t i = 0; i < diagonal.size(); ++i)
       values[i][i] = diagonal[i];
   } else
@@ -423,12 +335,12 @@ Matrix::set_diag(const Vector& diagonal)
 
 
 void
-Matrix::set_diag(Vector&& diagonal)
+Matrix::set_diagonal(Vector&& diagonal)
 {
   if (empty())
   {
     size_t n = diagonal.size();
-    reinit(n, n);
+    resize(n, n, 0.0);
     for (size_t i = 0; i < n; ++i)
       values[i][i] = std::move(diagonal[i]);
   } else
@@ -442,17 +354,17 @@ Matrix::set_diag(Vector&& diagonal)
 
 
 void
-Matrix::set_diag(const std::initializer_list<double>& diagonal)
+Matrix::set_diagonal(const std::initializer_list<double>& diagonal)
 {
-  this->set_diag(Vector(diagonal));
+  set_diagonal(Vector(diagonal));
 }
 
 
 void
-Matrix::set_diag(const double value)
+Matrix::set_diagonal(const double value)
 {
   if (empty())
-    reinit(1, 1, value);
+    resize(1, 1, value);
   else
   {
     size_t min_dim = std::min(n_rows(), n_cols());
@@ -461,6 +373,7 @@ Matrix::set_diag(const double value)
   }
 }
 
+//################################################## Scaling Operations
 
 Matrix&
 Matrix::scale(const double factor)
@@ -514,9 +427,13 @@ Matrix::operator/(const double factor) const
   return Matrix(*this).scale(1.0 / factor);
 }
 
+//################################################## Matrix Addition and
+//                                                   Subtraction
 
 Matrix&
-Matrix::sadd(const double a, const double b, const Matrix& B)
+Matrix::sadd(const double a,
+             const double b,
+             const Matrix& B)
 {
   assert(B.n_rows() == n_rows());
   assert(B.n_cols() == n_cols());
@@ -534,14 +451,16 @@ Matrix::sadd(const double a, const double b, const Matrix& B)
 
 
 Matrix&
-Matrix::sadd(const double a, const Matrix& B)
+Matrix::sadd(const double a,
+             const Matrix& B)
 {
   return sadd(a, 1.0, B);
 }
 
 
 Matrix&
-Matrix::add(const double b, const Matrix& B)
+Matrix::add(const double b,
+            const Matrix& B)
 {
   return sadd(1.0, b, B);
 }
@@ -576,7 +495,9 @@ Matrix::operator-(const Matrix& B) const
 
 
 Matrix&
-Matrix::sTadd(const double a, const double b, const Matrix& B)
+Matrix::sTadd(const double a,
+              const double b,
+              const Matrix& B)
 {
   assert(B.n_rows() == n_cols());
   assert(B.n_cols() == n_rows());
@@ -594,21 +515,27 @@ Matrix::sTadd(const double a, const double b, const Matrix& B)
 
 
 Matrix&
-Matrix::sTadd(const double a, const Matrix& B)
+Matrix::sTadd(const double a,
+              const Matrix& B)
 {
   return sTadd(a, 1.0, B);
 }
 
 
 Matrix&
-Matrix::Tadd(const double b, const Matrix& B)
+Matrix::Tadd(const double b,
+             const Matrix& B)
 {
   return sTadd(1.0, b, B);
 }
 
+//################################################## Matrix-Matrix
+//                                                   Multiplication
 
 void
-Matrix::mmult(const Matrix& B, Matrix& C, const bool adding) const
+Matrix::mmult(Matrix& C,
+              const Matrix& B,
+              const bool adding) const
 {
   assert(C.n_rows() == n_rows());
   assert(C.n_cols() == B.n_cols());
@@ -630,17 +557,10 @@ Matrix::mmult(const Matrix& B, Matrix& C, const bool adding) const
 }
 
 
-Matrix
-Matrix::mmult(const Matrix& B) const
-{
-  Matrix C(n_rows(), B.n_cols());
-  mmult(B, C);
-  return C;
-}
-
-
 void
-Matrix::Tmmult(const Matrix& B, Matrix& C, const bool adding) const
+Matrix::Tmmult(Matrix& C,
+               const Matrix& B,
+               const bool adding) const
 {
   assert(C.n_rows() == n_cols());
   assert(C.n_cols() == B.n_cols());
@@ -662,17 +582,10 @@ Matrix::Tmmult(const Matrix& B, Matrix& C, const bool adding) const
 }
 
 
-Matrix
-Matrix::Tmmult(const Matrix& B) const
-{
-  Matrix C(n_cols(), B.n_cols());
-  Tmmult(B, C);
-  return C;
-}
-
-
 void
-Matrix::mTmult(const Matrix& B, Matrix& C, const bool adding) const
+Matrix::mTmult(Matrix& C,
+               const Matrix& B,
+               const bool adding) const
 {
   assert(C.n_rows() == n_rows());
   assert(C.n_cols() == B.n_rows());
@@ -696,17 +609,9 @@ Matrix::mTmult(const Matrix& B, Matrix& C, const bool adding) const
 }
 
 
-Matrix
-Matrix::mTmult(const Matrix& B) const
-{
-  Matrix C(n_rows(), B.n_rows());
-  mTmult(B, C);
-  return C;
-}
-
-
 void
-Matrix::TTmult(const Matrix& B, Matrix& C,
+Matrix::TTmult(Matrix& C,
+               const Matrix& B,
                const bool adding) const
 {
   assert(C.n_rows() == n_cols());
@@ -729,18 +634,12 @@ Matrix::TTmult(const Matrix& B, Matrix& C,
   }
 }
 
-
-Matrix
-Matrix::TTmult(const Matrix& B) const
-{
-  Matrix C(n_cols(), B.n_rows());
-  TTmult(B, C);
-  return C;
-}
-
+//################################################## Matrix-Vector
+//                                                   Multiplication
 
 void
-Matrix::vmult(const Vector& x, Vector& y,
+Matrix::vmult(Vector& y,
+              const Vector& x,
               const bool adding) const
 {
   assert(x.size() == n_cols());
@@ -760,31 +659,27 @@ Matrix::vmult(const Vector& x, Vector& y,
 }
 
 
-Vector
-Matrix::vmult(const Vector& x) const
-{
-  Vector y(n_rows());
-  vmult(x, y);
-  return y;
-}
-
-
 void
-Matrix::vmult_add(const Vector& x, Vector& y) const
+Matrix::vmult_add(Vector& y,
+                  const Vector& x) const
 {
-  vmult(x, y, true);
+  vmult(y, x, true);
 }
 
 
 Vector
 Matrix::operator*(const Vector& x) const
 {
-  return vmult(x);
+  Vector y(n_rows(), 0.0);
+  vmult(y, x);
+  return y;
+
 }
 
 
 void
-Matrix::Tvmult(const Vector& x, Vector& y,
+Matrix::Tvmult(Vector& y,
+               const Vector& x,
                const bool adding) const
 {
   assert(x.size() == n_rows());
@@ -803,21 +698,13 @@ Matrix::Tvmult(const Vector& x, Vector& y,
 }
 
 
-Vector
-Matrix::Tvmult(const Vector& x) const
-{
-  Vector y(n_cols());
-  Tvmult(x, y);
-  return y;
-}
-
-
 void
-Matrix::Tvmult_add(const Vector& x, Vector& y)
+Matrix::Tvmult_add(Vector& y, const Vector& x)
 {
-  Tvmult(x, y, true);
+  Tvmult(y, x, true);
 }
 
+//################################################## Print Utilities
 
 std::string
 Matrix::str(const bool scientific,
@@ -858,88 +745,26 @@ Matrix::print(std::ostream& os,
   os << str(scientific, precision, width);
 }
 
+//################################################## Comparison
 
-void
-Math::mmult(const Matrix& A, const Matrix& B, Matrix& C)
+bool
+Matrix::operator==(const Matrix& other) const
 {
-  A.mmult(B, C);
+  return values == other.values;
+}
+
+
+bool
+Matrix::operator!=(const Matrix& other) const
+{
+  return !(values == other.values);
 }
 
 
 Matrix
-Math::mmult(const Matrix& A, const Matrix& B)
+Math::operator*(const double factor, const Matrix& A)
 {
-  return A.mmult(B);
-}
-
-
-void
-Math::Tmmult(const Matrix& A, const Matrix& B, Matrix& C)
-{
-  A.Tmmult(B, C);
-}
-
-
-Matrix
-Math::Tmmult(const Matrix& A, const Matrix& B)
-{
-  return A.Tmmult(B);
-}
-
-
-void
-Math::mTmult(const Matrix& A, const Matrix& B, Matrix& C)
-{
-  A.mTmult(B, C);
-}
-
-
-Matrix
-Math::mTmult(const Matrix& A, const Matrix& B)
-{
-  return A.mTmult(B);
-}
-
-
-void
-Math::TTmult(const Matrix& A, const Matrix& B, Matrix& C)
-{
-  A.TTmult(B, C);
-}
-
-
-Matrix
-Math::TTmult(const Matrix& A, const Matrix& B)
-{
-  return A.TTmult(B);
-}
-
-
-void
-Math::vmult(const Matrix& A, const Vector& x, Vector& y)
-{
-  A.vmult(x, y);
-}
-
-
-Vector
-Math::vmult(const Matrix& A, const Vector& x)
-{
-  return A.vmult(x);
-}
-
-
-void
-Math::Tvmult(const Matrix& A, const Vector& x, Vector& y)
-{
-  A.Tvmult(x, y);
-}
-
-
-Vector
-Math::Tvmult(const Matrix& A, const Vector& x)
-{
-  return A.Tvmult(x);
+  return A * factor;
 }
 
 

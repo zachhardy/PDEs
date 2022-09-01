@@ -12,41 +12,25 @@ namespace PDEs
    */
   class Timer
   {
+  private:
+    std::chrono::steady_clock::time_point start_time;
+    std::chrono::steady_clock::time_point end_time;
+
   public:
-    /**
-     * Default constructor.
-     */
+    /** Default constructor. */
     Timer() noexcept = default;
 
-    /**
-     * Start the timer. This routine sets the \p start_time.
-     */
-    void
-    start();
+    /** Start the timer. This routine sets the \p start_time. */
+    void start();
 
-    /**
-     * Stop the timer. This routine sets the \p stop_time
-     */
-    void
-    stop();
+    /** Stop the timer. This routine sets the \p stop_time. */
+    void stop();
 
     /**
      * Get the amount of time that elapsed between the \ref start and \ref
      * stop calls.
      */
-    double
-    get_time();
-
-  private:
-    /**
-     * The start time set for the timer.
-     */
-    std::chrono::steady_clock::time_point start_time;
-
-    /**
-     * The end time set by the timer.
-     */
-    std::chrono::steady_clock::time_point end_time;
+    double get_time();
   };
 }
 

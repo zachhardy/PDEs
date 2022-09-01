@@ -26,16 +26,11 @@ namespace PDEs
       class CG : public IterativeSolverBase
       {
       public:
-        /**
-         * Default constructor.
-         */
+        /** Default constructor. */
         CG(const Options& opts = Options());
 
-        /**
-         * Solve the system using the CG method.
-         */
-        void
-        solve(Vector& x, const Vector& b) const override;
+        /** Solve the system using the CG method. */
+        void solve(Vector& x, const Vector& b) const override;
       };
     }
   }

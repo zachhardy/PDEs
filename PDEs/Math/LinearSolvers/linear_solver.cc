@@ -31,11 +31,8 @@ LinearSolverBase<MatrixType>::set_matrix(const MatrixType& matrix)
 }
 
 
-template
-class LinearSolvers::LinearSolverBase<Matrix>;
-
-template
-class LinearSolvers::LinearSolverBase<SparseMatrix>;
+template class LinearSolvers::LinearSolverBase<Matrix>;
+template class LinearSolvers::LinearSolverBase<SparseMatrix>;
 
 
 //################################################## DirectSolverBase
@@ -57,11 +54,8 @@ DirectSolverBase<MatrixType>::set_matrix(const MatrixType& matrix)
   factorize();
 }
 
-template
-class LinearSolvers::DirectSolverBase<Matrix>;
-
-template
-class LinearSolvers::DirectSolverBase<SparseMatrix>;
+template class LinearSolvers::DirectSolverBase<Matrix>;
+template class LinearSolvers::DirectSolverBase<SparseMatrix>;
 
 
 Options::Options(const double tolerance,

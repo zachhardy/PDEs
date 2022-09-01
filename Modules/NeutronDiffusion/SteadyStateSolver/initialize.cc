@@ -40,16 +40,9 @@ initialize()
     throw std::runtime_error("Invalid spatial discretization method.");
 
   //============================================================
-  // Check the groups, initialize the material properties
+  // Initialize the material properties
   //============================================================
 
-  // Check that there are groups, sort them, check for duplicataes
-  assert(!groups.empty());
-  std::sort(groups.begin(), groups.end());
-  std::set<unsigned int> grps(groups.begin(), groups.end());
-  assert(groups.size() == grps.size());
-
-  // Initialize the materials
   initialize_materials();
 
   //============================================================

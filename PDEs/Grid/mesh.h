@@ -24,12 +24,11 @@ namespace PDEs
     };
 
 
-    /**
-     * Return the coordinate system type as a string.
-     */
+    /** Return the coordinate system type as a string. */
     std::string
     coordinate_system_str(const CoordinateSystemType coord_sys);
 
+    //######################################################################
 
     /**
      * A class that represents a general computational mesh.
@@ -37,38 +36,20 @@ namespace PDEs
      * A Mesh is characterized by a spatial dimension and coordinate system type
      * and is defined by a collection geometric objects up to its dimension. At
      * the lowest level, a Mesh comprises 0D vertices. Connections between
-     * vertices define 1D edges. A closed collection of edges make up 2D surfaces.
-     * Lastly, a bound collection of surfaces then make up 3D volumes. Of course,
-     * a <tt>dim</tt>-dimensional mesh only contains objects up to dimension
-     * \p dim.
+     * vertices define 1D edges. A closed collection of edges make up 2D
+     * surfaces. Lastly, a bound collection of surfaces then make up 3D volumes.
+     * Of course, a <tt>dim</tt>-dimensional mesh only contains objects up to
+     * dimension \p dim.
      */
     class Mesh
     {
     public:
-      /**
-       * The spatial dimension of the mesh.
-       */
       const unsigned int dimension;
-
-      /**
-       * The coordinate system the mesh is defined in.
-       */
       const CoordinateSystemType coordinate_system;
 
-      /**
-       * A list of the vertices on the mesh.
-       */
       std::vector<Vertex> vertices;
-
-      /**
-       * A list of the cells that make up the mesh. See \ref Cell.
-       */
       std::vector<Cell> cells;
 
-      /**
-       * A list of the boundary cell IDs. This is used as a convenience for
-       * access to boundary cells without having to iterate over interior cells.
-       */
       std::vector<size_t> boundary_cell_ids;
 
       /**
@@ -77,14 +58,13 @@ namespace PDEs
        */
       std::vector<std::vector<size_t>> ijk_mapping;
 
-      /**
-       * Construct a mesh with the specified dimension and coordinate system.
-       *
-       * \param dimension The spatial dimension of the mesh.
-       * \param coordinate_system The coordinate system of the mesh.
-       */
+    public:
+      /** Default constructor. */
       Mesh(const unsigned int dimension,
            const CoordinateSystemType coordinate_system);
+
+      /** Compute the geometric properties of the cells and faces. */
+      void compute_geometric_info();
 
       /**
        * Establish the relationships between cells and their neighbors.
@@ -99,12 +79,15 @@ namespace PDEs
        *       connectivity cannot be established a-priori. Generally, this
        *       routine should only be utilized for unstructured meshes.
        */
-      void
-      compute_geometric_info();
+      void establish_connectivity();
 
-      /** Compute the geometric properties of the cells and faces. */
-      void
-      establish_connectivity();
+      /*-------------------- Write Utilities --------------------*/
+
+      void write_ascii(const std::string output_directory = ".",
+                       const std::string file_prefix = "mesh") const;
+
+      void write_binary(const std::string output_directory = ".",
+                        const std::string file_prefix = "mesh") const;
     };
 
   }

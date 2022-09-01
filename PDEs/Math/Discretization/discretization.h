@@ -36,38 +36,19 @@ namespace PDEs
     class Discretization
     {
     public:
-      /**
-       * A shared pointer to the mesh that is being discretized.
-       */
       const std::shared_ptr<Grid::Mesh> mesh;
-
-      /**
-       * The spatial discretization method. This is used for identification,
-       * since in many instances, the discretization is stored as a shared
-       * pointer to the this base class.
-       */
       const SpatialDiscretizationMethod method;
 
     public:
-      /**
-       * Default constructor. This attaches a mesh to the discretization and
-       * sets the method used.
-       */
       Discretization(const std::shared_ptr<Grid::Mesh> reference_mesh,
-                     const SpatialDiscretizationMethod discretization_method)
-          :
+                     const SpatialDiscretizationMethod discretization_method) :
           mesh(reference_mesh), method(discretization_method)
       {}
 
-      /**
-       * Return the number of nodes in the discretization.
-       */
-      virtual size_t
-      n_nodes() const = 0;
+      /**Return the number of nodes in the discretization. */
+      virtual size_t n_nodes() const = 0;
 
-      /**
-       * Return the number of nodes per cell in the discretization.
-       */
+      /** Return the number of nodes per cell in the discretization. */
       virtual unsigned int nodes_per_cell() const = 0;
 
       /**
@@ -75,8 +56,7 @@ namespace PDEs
        * The number of DoFs is defined as the number of nodes multiplied by the
        * number of solution components.
        */
-      virtual size_t
-      n_dofs(const unsigned int n_components) const = 0;
+      virtual size_t n_dofs(const unsigned int n_components) const = 0;
 
       /**
        * Return the number of degrees of freedom (DoFs) per cell in the
@@ -86,9 +66,7 @@ namespace PDEs
       virtual unsigned int
       dofs_per_cell(const unsigned int n_components) const = 0;
 
-      /**
-       * Return the coordinates of the nodes on the specified \p cell.
-       */
+      /** Return the coordinates of the nodes on the specified \p cell. */
       virtual std::vector<Grid::Node>
       nodes(const Grid::Cell& cell) const = 0;
 
@@ -96,18 +74,20 @@ namespace PDEs
        * Define the sparsity pattern. This routine defines the column indices of
        * non-zero entries per row for a problem with the specified number of
        * components. If the \p is_coupled flag is set to \p true, it is assumed
-       * that all components are coupled to one another, otherwise, it is assumed
-       * that the system is uncoupled in all components.
-       *
-       * \param[out] pattern The column indices per row to allocate for.
-       * \param n_components The number of components in the solution.
-       * \param is_coupled A flag for allocating storage for coupling between
-       *   solution components.
+       * that all components are coupled to one another, otherwise, it is
+       * assumed that the system is uncoupled in all components. The resulting
+       * sparsity pattern is written into \p pattern.
        */
       virtual void
       make_sparsity_pattern(std::vector<std::vector<size_t>> pattern,
                             const unsigned int n_components = 1,
                             const bool is_coupled = false) const = 0;
+
+//      void write_ascii(const std::string output_directory = ".",
+//                       const std::string file_prefix = "grid") const;
+
+//      void write_binary(const std::string output_directory = ".",
+//                        const std::string file_prefix = "grid") const;
     };
 
   }

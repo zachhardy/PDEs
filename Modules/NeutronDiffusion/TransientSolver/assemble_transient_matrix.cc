@@ -30,10 +30,8 @@ assemble_transient_matrix(AssemblerFlags assembler_flags)
     const auto* inv_vel = xs->inv_velocity.data();
 
     // Loop over groups
-    for (unsigned int gr = 0; gr < n_groups; ++gr)
+    for (unsigned int g = 0; g < n_groups; ++g)
     {
-      const auto g = groups[gr];
-
       //=======================================================
       // Total interaction + buckling + time derivative term
       //=======================================================
@@ -42,7 +40,7 @@ assemble_transient_matrix(AssemblerFlags assembler_flags)
       entry += sig_t[g]; // total interaction
       entry += D[g] * B[g]; // buckling
       entry += inv_vel[g]/eff_dt; // time-derivative
-      A.add(i + gr, i + gr, entry * volume);
+      A.add(i + g, i + g, entry * volume);
 
       //========================================
       // Scattering term
@@ -51,8 +49,8 @@ assemble_transient_matrix(AssemblerFlags assembler_flags)
       if (assemble_scatter)
       {
         const auto* sig_s = xs->transfer_matrices[0][g].data();
-        for (unsigned int gpr = 0; gpr < n_groups; ++gpr)
-          A.add(i + gr, i + gpr, -sig_s[groups[gpr]] * volume);
+        for (unsigned int gp = 0; gp < n_groups; ++gp)
+          A.add(i + g, i + gp, -sig_s[gp] * volume);
       }//if scattering
 
       //========================================
@@ -67,8 +65,8 @@ assemble_transient_matrix(AssemblerFlags assembler_flags)
           const auto chi = xs->chi[g];
           const auto* nu_sigf = xs->nu_sigma_f.data();
 
-          for (unsigned int gpr = 0; gpr < n_groups; ++gpr)
-            A.add(i + gr, i + gpr, -chi * nu_sigf[groups[gpr]] * volume);
+          for (unsigned int gp = 0; gp < n_groups; ++gp)
+            A.add(i + g, i + gp, -chi * nu_sigf[gp] * volume);
         }//if no precursors
 
         //========== Prompt + delayed fission
@@ -77,8 +75,8 @@ assemble_transient_matrix(AssemblerFlags assembler_flags)
           //===== Prompt
           const auto chi_p = xs->chi_prompt[g];
           const auto* nup_sigf = xs->nu_prompt_sigma_f.data();
-          for (unsigned int gpr = 0; gpr < n_groups; ++gpr)
-            A.add(i + gr, i + gpr, -chi_p * nup_sigf[groups[gpr]] * volume);
+          for (unsigned int gp = 0; gp < n_groups; ++gp)
+            A.add(i + g, i + gp, -chi_p * nup_sigf[gp] * volume);
 
           //===== Delayed
           if (not lag_precursors)
@@ -88,25 +86,25 @@ assemble_transient_matrix(AssemblerFlags assembler_flags)
             const auto* lambda = xs->precursor_lambda.data();
             const auto* gamma = xs->precursor_yield.data();
 
-            /* This section of code computes the matrix coefficient
-             * corresponding to the precursor substitution term arising when
-             * precursors are treated implicitly. This term is similar to the
-             * normal fission term with the exception of having an inner sum
-             * over all precursor species. The first loop computes sum over
-             * precursor species. This provides a factor which is multiplied
-             * by nu_delayed_sigma_f when contributing to the matrix. The
-             * coefficient is computed ahead of time for the sake of efficiency.
-             * Using nested loops would require either this factor to be
-             * computed \p n_gsg times or for many more expensive sparse matrix
-             * add operations. */
+            // This section of code computes the matrix coefficient
+            // corresponding to the precursor substitution term arising when
+            // precursors are treated implicitly. This term is similar to the
+            // normal fission term with the exception of having an inner sum
+            // over all precursor species. The first loop computes sum over
+            // precursor species. This provides a factor which is multiplied
+            // by nu_delayed_sigma_f when contributing to the matrix. The
+            // coefficient is computed ahead of time for the sake of efficiency.
+            // Using nested loops would require either this factor to be
+            // computed \p n_gsg times or for many more expensive sparse matrix
+            // add operations. */
             double coeff= 0.0;
             for (unsigned int j = 0; j < xs->n_precursors; ++j)
               coeff += chi_d[j] * lambda[j] * gamma[j] * eff_dt /
                        (1.0 + eff_dt*lambda[j]);
 
             // Contribute the delayed fission term to the matrix.
-            for (unsigned int gpr = 0; gpr < n_groups; ++gpr)
-              A.add(i + gr, i + gpr, -coeff * nud_sigf[groups[gpr]] * volume);
+            for (unsigned int gp = 0; gp < n_groups; ++gp)
+              A.add(i + g, i + gp, -coeff * nud_sigf[gp] * volume);
           }//if not lag precursors
         }//if prompt + delayed fission
       }//if fissile
@@ -133,13 +131,12 @@ assemble_transient_matrix(AssemblerFlags assembler_flags)
         const auto d_pn = cell.centroid.distance(nbr_cell.centroid);
         const auto w = d_pf / d_pn; // harmonic mean weight factor
 
-        for (unsigned int gr = 0; gr < n_groups; ++gr)
+        for (unsigned int g = 0; g < n_groups; ++g)
         {
-          const auto g = groups[gr];
           const auto D_eff = 1.0/(w/D[g] + (1.0 - w)/D_nbr[g]);
 
-          A.add(i + gr, i + gr, D_eff/d_pn * face.area);
-          A.add(i + gr, j + gr, -D_eff/d_pn * face.area);
+          A.add(i + g, i + g, D_eff / d_pn * face.area);
+          A.add(i + g, j + g, -D_eff / d_pn * face.area);
         }
       }//if interior face
 
@@ -159,8 +156,8 @@ assemble_transient_matrix(AssemblerFlags assembler_flags)
             bndry_type == BoundaryType::DIRICHLET)
         {
           const auto d_pf = cell.centroid.distance(face.centroid);
-          for (unsigned int gr = 0; gr < n_groups; ++gr)
-            A.add(i + gr, i + gr, D[groups[gr]]/d_pf * face.area);
+          for (unsigned int g = 0; g < n_groups; ++g)
+            A.add(i + g, i + g, D[g] / d_pf * face.area);
         }//if Dirichlet
 
         //========================================
@@ -172,15 +169,14 @@ assemble_transient_matrix(AssemblerFlags assembler_flags)
                  bndry_type == BoundaryType::ROBIN)
         {
           const auto d_pf = cell.centroid.distance(face.centroid);
-          for (unsigned int gr = 0; gr < n_groups; ++gr)
+          for (unsigned int g = 0; g < n_groups; ++g)
           {
-            const auto g = groups[gr];
-            const auto& bndry = boundaries[bndry_id][gr];
+            const auto& bndry = boundaries[bndry_id][g];
             const auto bc = std::static_pointer_cast<RobinBoundary>(bndry);
 
             double val = bc->a*D[g]/(bc->b*D[g] + bc->a*d_pf);
-            A.add(i + gr, i + gr, val * face.area);
-          }
+            A.add(i + g, i + g, val * face.area);
+          }//for g
         }//if Robin
       }//if boundary face
     }//for face

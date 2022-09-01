@@ -37,18 +37,16 @@ NeutronDiffusion::SteadyStateSolver::execute()
 
 //######################################################################
 
-void
+std::pair<unsigned int, double>
 NeutronDiffusion::SteadyStateSolver::
 iterative_solve(SourceFlags source_flags)
 {
+  phi_ell = phi;
   const auto b_init = b;
 
-  unsigned nit;
-  double change;
-  bool converged = false;
-
   // Start iterations
-  auto x = phi;
+  double change;
+  unsigned int nit;
   for (nit = 0; nit < max_inner_iterations; ++nit)
   {
     // Compute the RHS and solve
@@ -57,21 +55,21 @@ iterative_solve(SourceFlags source_flags)
     linear_solver->solve(phi, b);
 
     // Convergence check, finalize iteration
-    change = l1_norm(phi - x);
-    converged = change < inner_tolerance;
+    change = l1_norm(phi - phi_ell);
+    bool converged = change < inner_tolerance;
+    phi_ell = phi;
 
     // Print iteration information
     if (verbosity > 1)
-    {
+      std::cout
+        << std::left << "inner::"
+        << "Iteration  " << std::setw(5) << nit
+        << "Change  " << std::setw(10) << change
+        << (converged? "CONVERGED" : "")
+        << std::endl;
       std::stringstream iter_info;
-      iter_info
-        << std::left << "SourceIteration::"
-        << "Step  " << std::setw(3) << nit << "   "
-        << "Value  " << change;
-      if (converged) iter_info << "  CONVERGED";
-      std::cout << iter_info.str() << std::endl;
-    }
 
     if (converged) break;
   }
+  return {nit, change};
 }

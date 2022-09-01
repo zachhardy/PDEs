@@ -34,10 +34,10 @@ GaussChebyshevQuadrature(const unsigned int n, const bool verbose) :
   weights.assign(n, M_PI / n);
 
   if (verbose)
-    for (unsigned int i = 0; i < n; ++i)
-      std::cout << std::setw(3) << i
-                << std::setw(12) << qpoints[i]
-                << std::setw(12) << weights[i] << std::endl;
+    for (unsigned int q = 0; q < n; ++q)
+      std::cout << std::setw(3) << q
+                << std::setw(12) << qpoints[q]
+                << std::setw(12) << weights[q] << std::endl;
 }
 
 

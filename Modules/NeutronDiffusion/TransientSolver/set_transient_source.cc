@@ -34,11 +34,9 @@ set_transient_source(SourceFlags source_flags)
       src = material_src[src_id]->values.data();
 
     // Loop over groups
-    for (unsigned int gr = 0; gr < n_groups; ++gr)
+    for (unsigned int g = 0; g < n_groups; ++g)
     {
       double rhs = 0.0;
-      const auto g = groups[gr];
-
       const auto* inv_vel = xs->inv_velocity.data();
 
       //========================================
@@ -51,7 +49,7 @@ set_transient_source(SourceFlags source_flags)
       // Old scalar flux
       //========================================
 
-      rhs += inv_vel[g]/eff_dt * phi_old[uk_map_g + gr];
+      rhs += inv_vel[g]/eff_dt * phi_old[uk_map_g + g];
 
       //========================================
       // Old precursors
@@ -67,7 +65,7 @@ set_transient_source(SourceFlags source_flags)
           if (not lag_precursors)
             coeff /= 1.0 + eff_dt * lambda[j];
 
-          rhs += coeff * precursor_old[uk_map_j + j];
+          rhs += coeff*precursors_old[uk_map_j + j];
         }
       }//if precursors
 
@@ -77,8 +75,8 @@ set_transient_source(SourceFlags source_flags)
       if (apply_scatter_src)
       {
         const auto* sig_s = xs->transfer_matrices[0][g].data();
-        for (unsigned int gpr = 0; gpr < n_groups; ++gpr)
-          rhs += sig_s[groups[gpr]] * phi[uk_map_g + gpr];
+        for (unsigned int gp = 0; gp < n_groups; ++gp)
+          rhs += sig_s[gp] * phi[uk_map_g + gp];
       }//if scattering
 
       //========================================
@@ -92,8 +90,8 @@ set_transient_source(SourceFlags source_flags)
         {
           const auto chi = xs->chi[g];
           const auto* nu_sigf = xs->nu_sigma_f.data();
-          for (unsigned int gpr = 0; gpr < n_groups; ++gpr)
-            rhs += chi * nu_sigf[groups[gpr]] * phi[uk_map_g + gpr];
+          for (unsigned int gp = 0; gp < n_groups; ++gp)
+            rhs += chi * nu_sigf[gp] * phi[uk_map_g + gp];
         }//if total fission
 
         // Prompt + delayed fission
@@ -107,8 +105,8 @@ set_transient_source(SourceFlags source_flags)
           const auto* gamma = xs->precursor_yield.data();
 
           // Prompt
-          for (unsigned int gpr = 0; gpr < n_groups; ++gpr)
-            rhs += chi_p * nup_sigf[groups[gpr]] * phi[uk_map_g + gpr];
+          for (unsigned int gp = 0; gp < n_groups; ++gp)
+            rhs += chi_p * nup_sigf[gp] * phi[uk_map_g + gp];
 
           // Delayed
           if (not lag_precursors)
@@ -118,13 +116,13 @@ set_transient_source(SourceFlags source_flags)
               coeff += chi_d[j] * lambda[j] / (1.0 + eff_dt*lambda[j]) *
                        gamma[j] * eff_dt;
 
-            for (unsigned int gpr = 0; gpr < n_groups; ++gpr)
-              rhs += coeff * nud_sigf[groups[gpr]] * phi[uk_map_g + gpr];
+            for (unsigned int gp = 0; gp < n_groups; ++gp)
+              rhs += coeff * nud_sigf[gp] * phi[uk_map_g + gp];
           }//if not lagging precursors
         }//if prompt+delayed fission
       }//if fission
 
-      b[uk_map_g + gr] += rhs * volume;
+      b[uk_map_g + g] += rhs * volume;
 
     }//for group
 
@@ -152,11 +150,11 @@ set_transient_source(SourceFlags source_flags)
           const auto *D = xs->diffusion_coeff.data();
           const auto d_pf = cell.centroid.distance(face.centroid);
 
-          for (unsigned int gr = 0; gr < n_groups; ++gr)
+          for (unsigned int g = 0; g < n_groups; ++g)
           {
-            const auto &bndry = boundaries[bndry_id][gr];
+            const auto &bndry = boundaries[bndry_id][g];
             const auto bc = std::static_pointer_cast<DirichletBoundary>(bndry);
-            b[uk_map_g + gr] += D[groups[gr]]/d_pf * bc->value * face.area;
+            b[uk_map_g + g] += D[g] / d_pf * bc->value * face.area;
           }
         }//if Dirichlet
 
@@ -166,11 +164,11 @@ set_transient_source(SourceFlags source_flags)
 
         if (bndry_type == BoundaryType::NEUMANN)
         {
-          for (unsigned int gr = 0; gr < n_groups; ++gr)
+          for (unsigned int g = 0; g < n_groups; ++g)
           {
-            const auto &bndry = boundaries[bndry_id][gr];
+            const auto &bndry = boundaries[bndry_id][g];
             const auto bc = std::static_pointer_cast<NeumannBoundary>(bndry);
-            b[uk_map_g + gr] += bc->value * face.area;
+            b[uk_map_g + g] += bc->value * face.area;
           }
         }//if Neumann
 
@@ -183,14 +181,13 @@ set_transient_source(SourceFlags source_flags)
         {
           const auto *D = xs->diffusion_coeff.data();
           const auto d_pf = cell.centroid.distance(face.centroid);
-          for (unsigned int gr = 0; gr < n_groups; ++gr)
+          for (unsigned int g = 0; g < n_groups; ++g)
           {
-            const auto g = groups[gr];
-            const auto& bndry = boundaries[bndry_id][gr];
+            const auto& bndry = boundaries[bndry_id][g];
             const auto bc = std::static_pointer_cast<RobinBoundary>(bndry);
 
             const double coeff = D[g] / (bc->b * D[g] + bc->a * d_pf);
-            b[uk_map_g + gr] += coeff * bc->f * face.area;
+            b[uk_map_g + g] += coeff * bc->f * face.area;
           }
         }//if Robin
       }//for face

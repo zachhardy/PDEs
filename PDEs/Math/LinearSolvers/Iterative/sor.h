@@ -31,24 +31,17 @@ namespace PDEs
        */
       class SOR : public IterativeSolverBase
       {
+      protected:
+        const double omega; ///< The relaxation parameter
+
       public:
-        /**
-         * Default constructor.
-         *
-         * \param omega The relaxation parameter.
-         */
+        /** Default constructor. */
         SOR(const double omega = 1.5,
             const Options& opts = Options(),
             const std::string solver_name = "SOR");
 
-        /**
-         * Solve the system using the SOR iterative method.
-         */
-        virtual void
-        solve(Vector& x, const Vector& b) const override;
-
-      protected:
-        const double omega;
+        /** Solve the system using the SOR iterative method. */
+        virtual void solve(Vector& x, const Vector& b) const override;
       };
 
 
@@ -62,9 +55,7 @@ namespace PDEs
       class GaussSeidel : public SOR
       {
       public:
-        /**
-         * Default constructor.
-         */
+        /** Default constructor. */
         GaussSeidel(const Options& opts = Options());
       };
 
@@ -78,15 +69,10 @@ namespace PDEs
       class SSOR : public SOR
       {
       public:
-        /**
-         * Default constructor.
-         * \param omega  The relaxation parameter.
-         */
+        /** Default constructor. */
         SSOR(const double omega = 1.5, const Options& opts = Options());
 
-        /**
-         * Solve the system using the SSOR method.
-         */
+        /** Solve the system using the SSOR method. */
         void
         solve(Vector& x, const Vector& b) const override;
       };
