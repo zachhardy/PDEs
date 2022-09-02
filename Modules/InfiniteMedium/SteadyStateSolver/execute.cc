@@ -49,8 +49,8 @@ SteadyStateSolver::source_iterations(SourceFlags source_flags)
     q_moments = q_moments_init;
     set_source(source_flags);
     sweep();
-    if (use_dsa)
-      dsa();
+    if (use_dsa) dsa();
+    update_neutron_density();
 
     change = l1_norm(phi - phi_ell);
     double balance = check_balance();
@@ -83,7 +83,7 @@ SteadyStateSolver::sweep()
       double x = 0.0;
       for (unsigned int ell = 0; ell < n_moments; ++ell)
         x += moment_to_discrete[ell][n] * q_moments[ell * n_groups + g];
-      x /= xs->sigma_t[g];
+      x /= density * xs->sigma_t[g];
 
       // Store the angular flux
       psi[n * n_groups + g] = x;
@@ -122,7 +122,7 @@ SteadyStateSolver::set_source(SourceFlags source_flags)
       {
         const auto* sig_ell = xs->transfer_matrices[ell][g].data();
         for (unsigned int gp = 0; gp < n_groups; ++gp)
-          rhs += *sig_ell++ * phi[uk_map + gp];
+          rhs += density * *sig_ell++ * phi[uk_map + gp];
       }
 
       // Fission term
@@ -131,7 +131,7 @@ SteadyStateSolver::set_source(SourceFlags source_flags)
         const auto chi = xs->chi[g];
         const auto* nusig_f = xs->nu_sigma_f.data();
         for (unsigned int gp = 0; gp < n_groups; ++gp)
-          rhs += chi * *nusig_f++ * phi[uk_map + gp];
+          rhs += chi * density * *nusig_f++ * phi[uk_map + gp];
       }
       q_moments[uk_map + g] += rhs;
     }//for group
@@ -147,6 +147,15 @@ SteadyStateSolver::dsa()
     double dphi = phi[g] - phi_ell[g];
     phi[g] += xs->sigma_s[g] / xs->sigma_a[g] * dphi;
   }
+}
+
+
+void
+SteadyStateSolver::update_neutron_density()
+{
+  density = 0.0;
+  for (unsigned int g = 0; g < n_groups; ++g)
+    density += phi[g] * (xs->E_bounds[g] - xs->E_bounds[g + 1]);
 }
 
 

@@ -61,6 +61,8 @@ namespace InfiniteMedium
     unsigned int n_moments;
     unsigned int n_angles;
 
+    double density = 1.0; ///< The total neutron density.
+
     /**
      * The multi-group angular flux vector.
      *
@@ -125,6 +127,11 @@ namespace InfiniteMedium
      * \sigma_{s, g} \$.
      */
     void dsa();
+
+    /**
+     * Recompute the energy integrated neutron density.
+     */
+    void update_neutron_density();
 
     void compute_moment_to_discrete_operator();
     void compute_discrete_to_moment_operator();

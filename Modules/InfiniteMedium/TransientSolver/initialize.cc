@@ -21,8 +21,7 @@ void TransientSolver::initialize()
     }
   psi_old = psi;
   phi_old = phi;
-
-
+  update_neutron_density();
 
   // Initialize output directory
   if (write_outputs)

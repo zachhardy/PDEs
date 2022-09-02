@@ -96,7 +96,7 @@ if __name__ == "__main__":
     plt.grid(True)
 
     # Plot the infinite medium results at various times\
-    for i in range(0, len(phi), len(phi)//5):
+    for i in range(0, 5):
         plt.semilogx(E_avg, phi[i][0], label=f"n = {int(i)}")
     plt.legend()
 

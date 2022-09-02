@@ -19,6 +19,8 @@ namespace InfiniteMedium
     bool write_outputs = false;
     std::string output_directory;
 
+    bool lag_density = false;
+
     /*-------------------- Initial Conditions --------------------*/
 
     /**

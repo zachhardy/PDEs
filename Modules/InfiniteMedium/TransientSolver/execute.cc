@@ -30,6 +30,7 @@ TransientSolver::execute()
     // Solve the time step
     execute_time_step();
     double balance = check_balance();
+    if (lag_density) update_neutron_density();
 
     if (write_outputs)
       write_snapshot(count++);
@@ -40,7 +41,6 @@ TransientSolver::execute()
 
     phi_old = phi_ell = phi;
     psi_old = psi;
-
 
     std::cout
       << "\n***** Time Step " << step << " *****\n"
@@ -68,8 +68,9 @@ TransientSolver::execute_time_step()
                APPLY_SCATTER_SOURCE |
                APPLY_FISSION_SOURCE);
     transient_sweep();
+    if (!lag_density) update_neutron_density();
 
-    change = l1_norm(phi - phi_ell);
+    change = l1_norm(phi - phi_ell)/ l1_norm(phi_ell);
     converged = change < inner_tolerance;
     phi_ell = phi;
 
@@ -98,7 +99,7 @@ TransientSolver::transient_sweep()
       double x = xs->inv_velocity[g] / dt * psi_old[n * n_groups + g];
       for (unsigned int ell = 0; ell < n_moments; ++ell)
         x += moment_to_discrete[ell][n] * q_moments[ell * n_groups + g];
-      x /= (xs->inv_velocity[g] / dt + xs->sigma_t[g]);
+      x /= (xs->inv_velocity[g] / dt + density * xs->sigma_t[g]);
 
       // Store the angular flux
       psi[n*n_groups + g] = x;
@@ -119,7 +120,7 @@ TransientSolver::balance_check()
     balance += src->values[g];
     balance += phi_old[g] / (xs->inv_velocity[g] * dt);
     balance -= phi[g] / (xs->inv_velocity[g] * dt);
-    balance -= xs->sigma_a[g] * phi[g];
+    balance -= density * xs->sigma_a[g] * phi[g];
   }
   return balance;
 }

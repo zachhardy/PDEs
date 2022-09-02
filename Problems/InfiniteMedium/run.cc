@@ -88,7 +88,7 @@ int main(int argc, char** argv)
     solver.quadrature = quadrature;
     solver.src = src;
 
-    solver.inner_tolerance = 1.0e-6;
+    solver.inner_tolerance = 1.0e-5;
     solver.max_inner_iterations = (unsigned int)1000;
 
     solver.verbosity = 2;
@@ -109,8 +109,8 @@ int main(int argc, char** argv)
       }
     file.close();
 
-    solver.dt = 0.001;
-    solver.t_end = 100 * solver.dt;
+    solver.dt = 0.01;
+    solver.t_end = 10 * solver.dt;
 
     solver.write_outputs = true;
     solver.output_directory = outdir;
