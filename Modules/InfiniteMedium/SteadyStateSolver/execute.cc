@@ -155,7 +155,7 @@ SteadyStateSolver::update_neutron_density()
 {
   density = 0.0;
   for (unsigned int g = 0; g < n_groups; ++g)
-    density += phi[g] * (xs->E_bounds[g] - xs->E_bounds[g + 1]);
+    density += phi[g] * xs->inv_velocity[g];
 }
 
 
