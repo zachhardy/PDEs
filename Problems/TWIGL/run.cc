@@ -28,6 +28,8 @@ int main(int argc, char** argv)
   double magnitude = 0.97667 - 1.0;
   double duration = 0.2;
   double sigs_01 = 0.01;
+
+  std::string xsdir = "xs";
   std::string outdir = "outputs";
 
   for (int i = 0; i < argc; ++i)
@@ -43,6 +45,8 @@ int main(int argc, char** argv)
       sigs_01 = std::stod(arg.substr(arg.find('=') + 1));
     else if (arg.find("output_directory") == 0)
       outdir = arg.substr(arg.find('=') + 1);
+    else if (arg.find("xs_directory") == 0)
+      xsdir = arg.substr(arg.find('=') + 1);
   }
 
   //============================================================
@@ -82,7 +86,8 @@ int main(int argc, char** argv)
   auto ramp_function =
       [magnitude, duration](const unsigned int group_num,
                             const std::vector<double>& args,
-                            const double reference) {
+                            const double reference)
+      {
         const double t = args[0];
 
         if (group_num == 1)
@@ -91,7 +96,8 @@ int main(int argc, char** argv)
             return (1.0 + t / duration * magnitude) * reference;
           else
             return (1.0 + magnitude) * reference;
-        } else
+        }
+        else
           return reference;
       };
 
@@ -105,9 +111,9 @@ int main(int argc, char** argv)
     xs.emplace_back(std::make_shared<CrossSections>());
 
   std::vector<std::string> xs_paths;
-  xs_paths.emplace_back("xs/fuel0.xs");
-  xs_paths.emplace_back("xs/fuel0.xs");
-  xs_paths.emplace_back("xs/fuel1.xs");
+  xs_paths.emplace_back(xsdir+"/fuel0.xs");
+  xs_paths.emplace_back(xsdir+"/fuel0.xs");
+  xs_paths.emplace_back(xsdir+"/fuel1.xs");
 
   for (unsigned int i = 0; i < materials.size(); ++i)
   {
@@ -138,7 +144,7 @@ int main(int argc, char** argv)
   TransientSolver solver;
 
   solver.mesh = mesh;
-  for (auto& material: materials)
+  for (auto& material : materials)
     solver.materials.emplace_back(material);
   solver.linear_solver = linear_solver;
 
@@ -151,12 +157,22 @@ int main(int argc, char** argv)
   solver.algorithm = Algorithm::DIRECT;
 
   //============================================================
+  // Define boundary conditions
+  //============================================================
+
+  solver.boundary_info.emplace_back(BoundaryType::REFLECTIVE, -1);
+  solver.boundary_info.emplace_back(BoundaryType::VACUUM, -1);
+  solver.boundary_info.emplace_back(BoundaryType::VACUUM, -1);
+  solver.boundary_info.emplace_back(BoundaryType::REFLECTIVE, -1);
+
+  //============================================================
   // Define transient parameters
   //============================================================
 
   solver.t_end = 0.5;
   solver.dt = 0.01;
   solver.time_stepping_method = TimeSteppingMethod::CRANK_NICHOLSON;
+
   solver.normalization_method = NormalizationMethod::TOTAL_POWER;
   solver.normalize_fission_xs = true;
 
@@ -166,15 +182,6 @@ int main(int argc, char** argv)
   solver.adaptive_time_stepping = true;
   solver.coarsen_threshold = 0.01;
   solver.refine_threshold = 0.05;
-
-  //============================================================
-  // Define boundary conditions
-  //============================================================
-
-  solver.boundary_info.emplace_back(BoundaryType::REFLECTIVE, -1);
-  solver.boundary_info.emplace_back(BoundaryType::VACUUM, -1);
-  solver.boundary_info.emplace_back(BoundaryType::VACUUM, -1);
-  solver.boundary_info.emplace_back(BoundaryType::REFLECTIVE, -1);
 
   //============================================================
   // Run the problem

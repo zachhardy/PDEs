@@ -54,9 +54,9 @@ def parameter_study(problem_name, study):
 
     path = os.path.dirname(os.path.abspath(__file__))
     path = "/".join(path.split("/")[:-1])
+    path = os.path.join(path, "Problems", problem_name)
+    path_to_exe = os.path.join(path, "bin", problem_name)
 
-    path_to_exe = os.path.join("bin", "Problems")
-    path_to_out = os.path.join(path, "Problems")
     study = int(study)
 
     ##################################################
@@ -65,37 +65,73 @@ def parameter_study(problem_name, study):
 
     # Three group sphere problem
     if problem_name == "Sphere3g":
-        path_to_out = os.path.join(path_to_out, problem_name)
-        path_to_exe = os.path.join(path_to_exe, "Sphere3g")
 
-        # Define the parameter
+        # Default value
+        radius = 6.0
+        density = 0.05
+        sig_s01 = 1.46
+
+        # Define the parameter space
         parameters = {}
         if study == 0:
             parameters['radius'] = define_range(6.1612, 0.025, 31)
         elif study == 1:
             parameters['density'] = define_range(0.05134325, 0.025, 31)
         elif study == 2:
-            parameters['size'] = define_range(6.0, 0.01, 6)
-            parameters['density'] = define_range(0.05, 0.01, 6)
+            parameters['size'] = define_range(radius, 0.01, 6)
+            parameters['density'] = define_range(density, 0.01, 6)
         elif study == 3:
-            parameters['radius'] = define_range(6.0, 0.02, 5)
-            parameters['density'] = define_range(0.05, 0.005, 5)
-            parameters['scatter'] = define_range(1.46, 0.1, 5)
+            parameters['radius'] = define_range(radius, 0.02, 5)
+            parameters['density'] = define_range(density, 0.005, 5)
+            parameters['scatter'] = define_range(sig_s01, 0.1, 5)
         else:
             raise NotImplementedError(
                 f"Invalid study number. For the {problem_name} problem,"
                 f"the maximum input value is 3.")
 
+    # Infinite slab problem
+    elif problem_name == "InfiniteSlab":
+
+        # Default values
+        magnitude = -0.01
+        duration = 1.0
+        interface = 40.0
+
+        # Define the parameter space
+        parameters = {}
+        if study == 0:
+            parameters['magnitude'] = define_range(magnitude, 0.2, 21)
+        elif study == 1:
+            parameters['duration'] = define_range(duration, 0.2, 21)
+        elif study == 2:
+            parameters['interface'] = define_range(interface, 0.05, 21)
+        elif study == 3:
+            parameters['magnitude'] = define_range(magnitude, 0.2, 6)
+            parameters['duration'] = define_range(duration, 0.2, 6)
+        elif study == 4:
+            parameters['magnitude'] = define_range(magnitude, 0.1, 6)
+            parameters['interface'] = define_range(interface, 0.025, 6)
+        elif study == 5:
+            parameters['duration'] = define_range(duration, 0.2, 6)
+            parameters['interface'] = define_range(interface, 0.025, 6)
+        elif study == 6:
+            parameters['magnitude'] = define_range(magnitude, 0.05, 5)
+            parameters['duration'] = define_range(duration, 0.05, 5)
+            parameters['interface'] = define_range(40.0, 0.025, 5)
+        else:
+            raise NotImplementedError(
+                f"Invalid study number. For the {problem_name} problem,"
+                f"the maximum input value is 6.")
+
     # TWIGL problem
     elif problem_name == "TWIGL":
-        path_to_out = os.path.join(path_to_out, problem_name)
-        path_to_exe = os.path.join(path_to_exe, "TWIGL")
 
+        # Default values
         magnitude = 0.97667 - 1.0
         duration = 0.2
         scatter = 0.01
 
-        # Define the parameter
+        # Define the parameter space
         parameters = {}
         if study == 0:
             parameters['magnitude'] = define_range(magnitude, 0.2, 21)
@@ -124,9 +160,7 @@ def parameter_study(problem_name, study):
     # LRA benchmark problem
     elif problem_name == "LRA":
 
-        path_to_out = os.path.join(path_to_out, problem_name)
-        path_to_exe = os.path.join(path_to_exe, "LRA")
-
+        # Default values
         magnitude = 0.8787631 - 1.0
         duration = 2.0
         feedback = 3.034e-3
@@ -171,7 +205,7 @@ def parameter_study(problem_name, study):
     ##################################################
 
     # Define the path to the output directory
-    output_path = f"{path_to_out}/studies/{keys[0]}"
+    output_path = f"{path}/studies/{keys[0]}"
     for k, key in enumerate(keys[1:]):
         output_path += f"_{key}"
     setup_directory(output_path)
@@ -183,15 +217,18 @@ def parameter_study(problem_name, study):
     ##################################################
     # Run the reference problem
     ##################################################
+
     sim_path = os.path.join(output_path, "reference")
     setup_directory(sim_path)
 
-    cmd = f"{path_to_exe} output_directory={sim_path} >> {sim_path}/log.txt"
+    cmd = f"{path_to_exe} output_directory={sim_path} "
+    cmd += f"xs_directory={path}/xs >> {sim_path}/log.txt"
     os.system(cmd)
 
     ##################################################
     # Run the parameter study
     ##################################################
+
     total_time = 0.0
     for n, params in enumerate(values):
 
@@ -202,7 +239,8 @@ def parameter_study(problem_name, study):
         cmd = f"{path_to_exe} "
         for k, key in enumerate(keys):
             cmd += f"{key}={params[k]} "
-        cmd += f"output_directory={sim_path} >> {sim_path}/log.txt"
+        cmd += f"output_directory={sim_path} "
+        cmd += f"xs_directory={path}/xs >> {sim_path}/log.txt"
 
         msg = f"="*50 + f"\nRunning Simulation {n}\n" + f"="*50
         for k, key in enumerate(keys):
@@ -238,6 +276,8 @@ if __name__ == "__main__":
         name = sys.argv[1]
         if name == "Sphere3g":
             max_study = 3
+        elif name == "InfiniteSlab":
+            max_study = 6
         elif name == "TWIGL":
             max_study = 6
         elif name == "LRA":

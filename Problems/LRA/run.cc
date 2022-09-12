@@ -28,6 +28,8 @@ int main(int argc, char** argv)
   double magnitude = 0.8787631 - 1.0;
   double duration = 2.0;
   double feedback = 3.034e-3;
+
+  std::string xsdir = "xs";
   std::string outdir = "outputs";
 
   for (int i = 0; i < argc; ++i)
@@ -43,6 +45,8 @@ int main(int argc, char** argv)
       feedback = std::stod(arg.substr(arg.find('=') + 1));
     else if (arg.find("output_directory") == 0)
       outdir = arg.substr(arg.find('=') + 1);
+    else if (arg.find("xs_directory") == 0)
+      xsdir = arg.substr(arg.find('=') + 1);
   }
 
   //============================================================
@@ -152,12 +156,12 @@ int main(int argc, char** argv)
     xs.emplace_back(std::make_shared<CrossSections>());
 
   std::vector<std::string> xs_paths;
-  xs_paths.emplace_back("xs/fuel1_w_rod.xs");
-  xs_paths.emplace_back("xs/fuel1_wo_rod.xs");
-  xs_paths.emplace_back("xs/fuel2_w_rod.xs");
-  xs_paths.emplace_back("xs/fuel2_wo_rod.xs");
-  xs_paths.emplace_back("xs/fuel2_w_rod.xs");
-  xs_paths.emplace_back("xs/reflector.xs");
+  xs_paths.emplace_back(xsdir+"/fuel1_w_rod.xs");
+  xs_paths.emplace_back(xsdir+"/fuel1_wo_rod.xs");
+  xs_paths.emplace_back(xsdir+"/fuel2_w_rod.xs");
+  xs_paths.emplace_back(xsdir+"/fuel2_wo_rod.xs");
+  xs_paths.emplace_back(xsdir+"/fuel2_w_rod.xs");
+  xs_paths.emplace_back(xsdir+"/reflector.xs");
 
   for (unsigned int i = 0; i < materials.size(); ++i)
   {
