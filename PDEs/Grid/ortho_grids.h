@@ -40,7 +40,7 @@ namespace PDEs
     std::shared_ptr<Mesh>
     create_1d_orthomesh(const std::vector<double>& zone_edges,
                         const std::vector<size_t>& zone_subdivisions,
-                        const std::vector<int>& material_ids,
+                        const std::vector<unsigned int>& material_ids,
                         const CoordinateSystemType coordinate_system =
                             CoordinateSystemType::CARTESIAN,
                         const bool verbose = false);
