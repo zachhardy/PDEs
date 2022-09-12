@@ -216,7 +216,10 @@ CrossSections::reconcile_fission_properties()
                            [](double x) { return x >= 0.0; }));
 
         for (unsigned int g = 0; g < n_groups; ++g)
+        {
+          nu[g] = nu_prompt[g] + nu_delayed[g];
           beta[g] = nu_delayed[g] / nu[g];
+        }
       }
 
       //######################################## Delayed fraction given (1)
