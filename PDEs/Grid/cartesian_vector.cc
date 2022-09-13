@@ -293,10 +293,10 @@ std::string
 CartesianVector::str() const
 {
   std::stringstream ss;
-  ss << "CartesianVector("
+  ss << "("
      << this->x() << ", "
      << this->y() << ", "
-     << this->z() << ")" << std::endl;
+     << this->z() << ")";
   return ss.str();
 }
 
