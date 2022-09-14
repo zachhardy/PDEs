@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 from matplotlib.pyplot import Figure
 from matplotlib.pyplot import Axes
 
-from .. import Point
+from .. import CartesianVector
 from .. import SimulationReader
 
 plt.rcParams['text.usetex'] = True
@@ -33,8 +33,8 @@ class TransientNeutronicsReader(SimulationReader):
         self.nodes_per_cell = 0
         self.n_materials = 0
 
-        self.nodes = np.empty(0, dtype=Point)
-        self.centroids = np.empty(0, dtype=Point)
+        self.nodes = np.empty(0, dtype=CartesianVector)
+        self.centroids = np.empty(0, dtype=CartesianVector)
         self.material_ids = []
 
         # Neutronics Information
@@ -96,7 +96,7 @@ class TransientNeutronicsReader(SimulationReader):
             with open(path, mode='rb') as file:
                 file.read(1399)  # skip over header
 
-                step = read_uint64_t(file)
+                step = read_unsigned_int(file)
                 n_data_blocks = read_unsigned_int(file)
 
                 # Set attributes if this is the first snapshot
@@ -146,13 +146,13 @@ class TransientNeutronicsReader(SimulationReader):
                         assert nodes_per_cell == self.nodes_per_cell
 
                     # Parse the centroid
-                    p = Point(*[read_double(file) for _ in range(3)])
+                    p = CartesianVector(*[read_double(file) for _ in range(3)])
                     if n == 0:
                         self.centroids = np.hstack((self.centroids, p))
 
                     # Parse the nodes
                     for i in range(nodes_per_cell):
-                        p = Point(*[read_double(file) for _ in range(3)])
+                        p = CartesianVector(*[read_double(file) for _ in range(3)])
                         if n == 0:
                             self.nodes = np.hstack((self.nodes, p))
 
@@ -163,8 +163,8 @@ class TransientNeutronicsReader(SimulationReader):
                 assert len(self.centroids) == self.n_cells
                 assert len(self.nodes) == self.n_nodes
 
-                self.centroids = np.array(self.centroids, Point)
-                self.nodes = np.array(self.nodes, Point)
+                self.centroids = np.array(self.centroids, CartesianVector)
+                self.nodes = np.array(self.nodes, CartesianVector)
 
                 # Parse flux moments
                 assert read_unsigned_int(file) == 0

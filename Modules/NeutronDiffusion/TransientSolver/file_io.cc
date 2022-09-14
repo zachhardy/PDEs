@@ -101,7 +101,7 @@ TransientSolver::write(const unsigned int output_index) const
   // Write header_info and general information
   file << header_bytes;
 
-  file.write((char*)&output_index, sizeof(uint64_t));
+  file.write((char*)&output_index, sizeof(unsigned int));
   file.write((char*)&n_data_blocks, sizeof(unsigned int));
 
   file.write((char*)&n_cells, sizeof(uint64_t));

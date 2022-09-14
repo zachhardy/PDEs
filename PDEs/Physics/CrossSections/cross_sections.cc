@@ -85,8 +85,8 @@ CrossSections::compute_scattering_from_transfers()
   if (transfer_matrices.empty())
     return;
 
-  // A group's scattering cross section is defined as the sum of the
-  // transfer cross sections from a fixed group to all  other groups. In the
+  // A group's scattering cross-section is defined as the sum of the
+  // transfer cross-sections from a fixed group to all  other groups. In the
   // transfer matrices, the rows contain the destination groups and columns
   // the origin group. Due to this, computing sigma_s necessitates a column-
   // wise sum.
@@ -175,7 +175,7 @@ CrossSections::reconcile_fission_properties()
   is_fissile = has_sigf || has_nusigf || has_nupsigf;
 
   // Clear precursors if not fissile
-  if (not is_fissile and n_precursors > 0)
+  if (not is_fissile && n_precursors > 0)
   {
     n_precursors = 0;
     precursor_lambda.clear();
@@ -206,14 +206,14 @@ CrossSections::reconcile_fission_properties()
     if (n_precursors > 0)
     {
       //######################################## Prompt + delayed given
-      if (has_sigf and has_nup and has_nud)
+      if (has_sigf && has_nup && has_nud)
       {
         assert(std::all_of(sigma_f.begin(), sigma_f.end(),
                            [](double x) { return x >= 0.0; }));
         assert(std::all_of(nu_prompt.begin(), nu_prompt.end(),
                            [](double x) { return x > 0.0; }));
         assert(std::all_of(nu_delayed.begin(), nu_delayed.end(),
-                           [](double x) { return x >= 0.0; }));
+                           [](double x) { return x > 0.0; }));
 
         for (unsigned int g = 0; g < n_groups; ++g)
         {
@@ -223,14 +223,14 @@ CrossSections::reconcile_fission_properties()
       }
 
       //######################################## Delayed fraction given (1)
-      else if (has_sigf and has_nu and has_beta)
+      else if (has_sigf && has_nu && has_beta)
       {
         assert(std::all_of(sigma_f.begin(), sigma_f.end(),
                            [](double x) { return x >= 0.0; }));
         assert(std::all_of(nu.begin(), nu.end(),
-                           [](double x) { return x >= 1.0; }));
+                           [](double x) { return x > 1.0; }));
         assert(std::all_of(beta.begin(), beta.end(),
-                           [](double x) { return x >= 0.0; }));
+                           [](double x) { return x > 0.0; }));
 
         for (unsigned int g = 0; g < n_groups; ++g)
         {
@@ -240,14 +240,14 @@ CrossSections::reconcile_fission_properties()
       }
 
       //######################################## Delayed fraction given (2)
-      else if (has_nusigf and has_nu and has_beta)
+      else if (has_nusigf && has_nu && has_beta)
       {
         assert(std::all_of(nu_sigma_f.begin(), nu_sigma_f.end(),
                            [](double x) { return x >= 0.0; }));
         assert(std::all_of(nu.begin(), nu.end(),
                            [](double x) { return x >= 1.0; }));
         assert(std::all_of(beta.begin(), beta.end(),
-                           [](double x) { return x >= 0.0; }));
+                           [](double x) { return x > 0.0; }));
 
         for (unsigned int g = 0; g < n_groups; ++g)
         {
@@ -258,7 +258,7 @@ CrossSections::reconcile_fission_properties()
       }
 
       //######################################## No nu given
-      if (has_nupsigf and has_nudsigf)
+      if (has_nupsigf && has_nudsigf)
       {
         assert(std::all_of(nu_prompt_sigma_f.begin(), nu_prompt_sigma_f.end(),
                            [](double x) { return x >= 0.0; }));
@@ -376,7 +376,7 @@ CrossSections::reconcile_fission_properties()
       assert(std::all_of(chi.begin(), chi.end(),
                          [](double x) { return x >= 0.0; }));
 
-      if (has_nusigf and has_nu and not has_sigf)
+      if (has_nusigf && has_nu && not has_sigf)
         for (unsigned int g = 0; g < n_groups; ++g)
           sigma_f[g] = nu_sigma_f[g] / nu[g];
 

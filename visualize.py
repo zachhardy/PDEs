@@ -1,7 +1,7 @@
 import os
 import sys
 
-from readers import TransientNeutronicsReader
+from python_utils.neutronics_readers import TransientNeutronicsReader
 
 import matplotlib.pyplot as plt
 
@@ -10,9 +10,9 @@ if len(sys.argv) > 1:
     path = sys.argv[1]
 else:
     path = os.path.dirname(os.path.abspath(__file__))
-    path = os.path.join(path, "../Problems/LRA/outputs")
+    path = os.path.join(path, "Problems/LRA/outputs")
 path = os.path.abspath(path)
-assert os.path.isdir(path)
+# assert os.path.isdir(path)
 
 # Define defaults
 logscale = False
@@ -28,5 +28,5 @@ for arg in sys.argv[1:]:
 sim = TransientNeutronicsReader(path)
 sim.read()
 
-sim.plot_power('average', logscale)
+sim.plot_power('average', log_scale=True)
 plt.show()

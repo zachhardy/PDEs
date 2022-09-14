@@ -128,7 +128,8 @@ int main(int argc, char** argv)
   solver.write_outputs = true;
   solver.output_directory = outdir;
 
-  auto ic = [radius](const Point p) { return 1.0 - p.z() * p.z() / (radius * radius); };
+  auto ic = [radius](const Point p)
+      { return 1.0 - p.z() * p.z() / (radius * radius); };
   solver.initial_conditions[0] = ic;
   solver.initial_conditions[1] = ic;
 

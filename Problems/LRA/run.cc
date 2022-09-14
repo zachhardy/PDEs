@@ -18,7 +18,7 @@
 using namespace PDEs;
 using namespace Grid;
 using namespace Math;
-using namespace Physics;
+using namespace Physics;:qgit
 using namespace LinearSolvers;
 using namespace NeutronDiffusion;
 
@@ -114,7 +114,8 @@ int main(int argc, char** argv)
       [magnitude, duration, feedback, T0](
           const unsigned int group_num,
           const std::vector<double>& args,
-          const double reference) {
+          const double reference)
+      {
         const double t = args[0], T = args[1];
 
         if (group_num == 0)
@@ -125,7 +126,8 @@ int main(int argc, char** argv)
             return (1.0 + t / duration * magnitude) * reference;
           else
             return (1.0 + magnitude) * reference;
-        } else
+        }
+        else
           return reference;
       };
 
@@ -133,7 +135,8 @@ int main(int argc, char** argv)
       [feedback, T0](
           const unsigned int group_num,
           const std::vector<double>& args,
-          const double reference) {
+          const double reference)
+      {
         const double T = args[1];
 
         if (group_num == 0)
@@ -166,11 +169,16 @@ int main(int argc, char** argv)
   for (unsigned int i = 0; i < materials.size(); ++i)
   {
     xs[i]->read_xs_file(xs_paths[i]);
-
+    materials[i]->properties.emplace_back(xs[i]);
     if (i < 4) xs[i]->sigma_a_function = feedback_function;
     else if (i == 4) xs[i]->sigma_a_function = rod_ejection_with_feedback;
+  }
 
-    materials[i]->properties.emplace_back(xs[i]);
+  for (const auto& xsecs : xs)
+  {
+    for (const auto& v: xsecs->inv_velocity)
+      std::cout << v << "  ";
+    std::cout << std::endl;
   }
 
   //============================================================
@@ -220,7 +228,7 @@ int main(int argc, char** argv)
   solver.write_outputs = true;
   solver.output_directory = outdir;
 
-  solver.adaptive_time_stepping = true;
+  solver.adaptive_time_stepping = false;
   solver.coarsen_threshold = 0.01;
   solver.refine_threshold = 0.1;
 

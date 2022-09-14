@@ -84,7 +84,7 @@ int main(int argc, char** argv)
   std::vector<std::shared_ptr<Material>> materials;
   materials.emplace_back(std::make_shared<Material>("Material 0"));
   materials.emplace_back(std::make_shared<Material>("Material 1"));
-  materials.emplace_back(std::make_shared<Material>("Material 1"));
+  materials.emplace_back(std::make_shared<Material>("Material 2"));
 
   std::vector<std::shared_ptr<CrossSections>> xs;
   for (unsigned int i = 0; i < materials.size(); ++i)

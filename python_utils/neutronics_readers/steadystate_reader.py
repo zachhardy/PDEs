@@ -4,7 +4,7 @@ import struct
 import numpy as np
 import matplotlib.pyplot as plt
 
-from .. import Point
+from .. import CartesianVector
 from .. import SimulationReader
 
 plt.rcParams['text.usetex'] = True
@@ -25,8 +25,8 @@ class SteadyStateNeutronicsReader(SimulationReader):
         self.nodes_per_cell = 0
         self.n_materials = 0
 
-        self.nodes = np.empty(0, dtype=Point)
-        self.centroids = np.empty(0, dtype=Point)
+        self.nodes = np.empty(0, dtype=CartesianVector)
+        self.centroids = np.empty(0, dtype=CartesianVector)
         self.material_ids = []
 
         # Neutronics Information
@@ -85,12 +85,12 @@ class SteadyStateNeutronicsReader(SimulationReader):
                     self.nodes_per_cell = nodes_per_cell
 
                 # Parse the centroid
-                p = Point(*[read_double(file) for _ in range(3)])
+                p = CartesianVector(*[read_double(file) for _ in range(3)])
                 self.centroids = np.hstack((self.centroids, p))
 
                 # Parse the nodes
                 for i in range(nodes_per_cell):
-                    p = Point(*[read_double(file) for _ in range(3)])
+                    p = CartesianVector(*[read_double(file) for _ in range(3)])
                     self.nodes = np.hstack((self.nodes, p))
 
             # Set the number of materials
@@ -100,8 +100,8 @@ class SteadyStateNeutronicsReader(SimulationReader):
             assert len(self.centroids) == self.n_cells
             assert len(self.nodes) == self.n_nodes
 
-            self.centroids = np.array(self.centroids, Point)
-            self.nodes = np.array(self.nodes, Point)
+            self.centroids = np.array(self.centroids, CartesianVector)
+            self.nodes = np.array(self.nodes, CartesianVector)
 
             # Parse flux moments
             assert read_unsigned_int(file) == 0
