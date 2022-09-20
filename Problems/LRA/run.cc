@@ -18,7 +18,7 @@
 using namespace PDEs;
 using namespace Grid;
 using namespace Math;
-using namespace Physics;:qgit
+using namespace Physics;
 using namespace LinearSolvers;
 using namespace NeutronDiffusion;
 
@@ -172,13 +172,6 @@ int main(int argc, char** argv)
     materials[i]->properties.emplace_back(xs[i]);
     if (i < 4) xs[i]->sigma_a_function = feedback_function;
     else if (i == 4) xs[i]->sigma_a_function = rod_ejection_with_feedback;
-  }
-
-  for (const auto& xsecs : xs)
-  {
-    for (const auto& v: xsecs->inv_velocity)
-      std::cout << v << "  ";
-    std::cout << std::endl;
   }
 
   //============================================================
