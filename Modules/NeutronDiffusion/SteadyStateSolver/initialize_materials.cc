@@ -17,7 +17,7 @@ initialize_materials()
   // Determine the unique material IDs on the mesh
   std::set<unsigned int> unique_material_ids;
   std::vector<size_t> invalid_cells;
-  for (const auto &cell: mesh->cells)
+  for (const auto &cell : mesh->cells)
   {
     unique_material_ids.insert(cell.material_id);
     if (cell.material_id == -1)
@@ -88,7 +88,7 @@ initialize_materials()
   //============================================================
 
   cellwise_xs.reserve(mesh->cells.size());
-  for (const auto &cell: mesh->cells)
+  for (const auto& cell : mesh->cells)
   {
     const auto xs = material_xs[matid_to_xs_map[cell.material_id]];
     cellwise_xs.emplace_back(xs);

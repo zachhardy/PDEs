@@ -8,9 +8,7 @@
 namespace NeutronDiffusion
 {
 
-  /**
-   * Types of diffusion boundary conditions.
-   */
+  /** Types of diffusion boundary conditions. */
   enum class BoundaryType
   {
     DIRICHLET   = 1,  ///< Dirichlet boundary.
@@ -45,15 +43,10 @@ namespace NeutronDiffusion
   class DirichletBoundary : public Boundary
   {
   public:
-    /**
-     * The Dirichlet boundary value.
-     */
     double value;
 
   public:
-    /**
-     * Construct a Dirichlet boundary condition.
-     */
+    /** Construct a Dirichlet boundary condition. */
     explicit DirichletBoundary(const double value = 0.0);
   };
 
@@ -65,56 +58,33 @@ namespace NeutronDiffusion
   class NeumannBoundary : public Boundary
   {
   public:
-    /**
-     * The Neumann boundary value.
-     */
     double value;
 
   public:
-    /**
-     * Construct a Neumann boundary condition.
-     */
+    /** Construct a Neumann boundary condition. */
     explicit NeumannBoundary(const double value = 0.0);
   };
 
   //######################################################################
 
   /**
-   * Robin boundary given by \f$ a u_b + b \partial_{\hat{n}_b} u = f^r \f$.
+   * Robin boundary given by \f$ a u_b + b \nabla u \cdot \hat{n}_b  = f^r \f$.
    */
   class RobinBoundary : public Boundary
   {
   public:
-    /**
-     * The coefficient for the function in the boundary condition.
-     */
-    double a = 0.25;
-
-    /**
-     * The coefficient for the gradient of the function in the boundary
-     * condition.
-     */
-    double b = 0.5;
-
-    /**
-     * The boundary value.
-     */
-    double f = 0.0;
+    double a = 0.25; ///< The coefficient for the unknown
+    double b = 0.5; ///< The coefficient for the gradient term.
+    double f = 0.0; ///< The boundary value.
 
   public:
-    /**
-     * Contruct a vacuum boundary.
-     */
+    /** Construct a vacuum boundary. */
     RobinBoundary();
 
-    /**
-     * Construct a Marshak boundary from an incident partial current.
-     * */
+    /** Construct a Marshak boundary from an incident partial current. */
     explicit RobinBoundary(const double j_inc);
 
-    /**
-     * Construct a general Robin boundary.
-     */
+    /** Construct a general Robin boundary. */
     RobinBoundary(const double a,  const double b, const double f);
   };
 

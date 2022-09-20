@@ -22,22 +22,10 @@ Grid::create_1d_orthomesh(const std::vector<double>& vertices,
   // Count the number of cells
   size_t n_cells = vertices.size() - 1;
 
-  // Compute the cell widths
-  std::vector<double> widths;
-  for (size_t v = 0; v < n_cells; ++v)
-    widths.push_back(vertices[v + 1] - vertices[v]);
-
-  // Initialize the vertices
+  // Create the vertices
   mesh->vertices.reserve(vertices.size());
-
-  // Compute the vertices, starting from 0.0
-  double current_pos = 0.0;
-  mesh->vertices.emplace_back(0.0, 0.0, current_pos);
-  for (const auto& width: widths)
-  {
-    mesh->vertices.emplace_back(0.0, 0.0, current_pos + width);
-    current_pos += width;
-  }
+  for (const auto& vertex: vertices)
+    mesh->vertices.emplace_back(0.0, 0.0, vertex);
 
   // Get the type of cell from the coordinate system
   CellType cell_type;
@@ -128,7 +116,7 @@ Grid::create_1d_orthomesh(const std::vector<double>& zone_edges,
   mesh->vertices.emplace_back(0.0, 0.0, zone_edges[0]);
 
   // Define the vertices, loop over each zone, then the cells per zone
-  double current_pos = 0.0;
+  double current_pos = zone_edges[0];
   for (size_t z = 0; z < zone_subdivisions.size(); ++z)
   {
     // Define the width of cells in this zone z

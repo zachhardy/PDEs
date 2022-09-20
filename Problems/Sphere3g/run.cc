@@ -77,11 +77,6 @@ int main(int argc, char** argv)
   xs->transfer_matrices[0][1][0] = sigs_01 * density;
   material->properties.emplace_back(xs);
 
-  // Create the multigroup source
-  std::vector<double> mg_source(xs->n_groups, 1.0);
-  auto src = std::make_shared<IsotropicMultiGroupSource>(mg_source);
-  material->properties.emplace_back(src);
-
   //============================================================
   // Linear Solver
   //============================================================
