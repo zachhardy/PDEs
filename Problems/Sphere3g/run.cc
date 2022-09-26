@@ -13,6 +13,7 @@
 #include "NeutronDiffusion/KEigenvalueSolver/keigenvalue_solver.h"
 #include "NeutronDiffusion/TransientSolver/transient_solver.h"
 
+#include <iomanip>
 #include <iostream>
 #include <vector>
 
@@ -140,13 +141,13 @@ int main(int argc, char** argv)
 
   Timer timer;
 
-  solver.initialize();
-
   timer.start();
+  solver.initialize();
   solver.execute();
   timer.stop();
 
   PetscFinalize();
 
-  std::cout << timer.get_time() << " ms\n";
+  std::cout << "\nSimulation Time: " << std::setprecision(10)
+            << timer.get_time() << " ms\n";
 }

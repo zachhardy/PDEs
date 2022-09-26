@@ -175,5 +175,6 @@ int main(int argc, char** argv)
 
   PetscFinalize();
 
-  std::cout << timer.get_time() << " ms\n";
+  std::cout << "\nSimulation Time: "
+            << timer.get_time() << " ms\n";
 }
