@@ -83,11 +83,9 @@ namespace PDEs
                             const unsigned int n_components = 1,
                             const bool is_coupled = false) const = 0;
 
-//      void write_ascii(const std::string output_directory = ".",
-//                       const std::string file_prefix = "grid") const;
-
-//      void write_binary(const std::string output_directory = ".",
-//                        const std::string file_prefix = "grid") const;
+      /** Write the discretization to a file. */
+      void write(const std::string directory,
+                 const std::string file_prefix = "geom") const;
     };
 
   }
