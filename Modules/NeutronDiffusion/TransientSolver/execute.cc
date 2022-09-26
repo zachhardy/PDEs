@@ -1,6 +1,7 @@
 #include "transient_solver.h"
 
 #include <iomanip>
+#include <cstdio>
 #include <cmath>
 
 using namespace NeutronDiffusion;
@@ -96,13 +97,16 @@ TransientSolver::execute()
     // Move the solutions to the next time step
     step_solutions();
 
+
     std::cout
       << "\n***** Time Step " << step << " *****\n"
-      << "Simulation Time:        " << time << " s\n"
-      << "Time Step Size :        " << dt << " s\n"
-      << "Reactor Power  :        " << power << " W\n"
-      << "Average Power Density:  " << average_power_density << " W/cm^3\n"
-      << "Average Temperature:    " << average_fuel_temperature << " K\n";
+      << "Simulation Time         : " << time << " s\n"
+      << "Time Step Size          : " << dt << " s\n"
+      << "Reactor Power           : " << power << " W\n"
+      << "Peak Power Density      : " << peak_power_density << " W/cc\n"
+      << "Average Power Density   : " << average_power_density << " W/cc\n"
+      << "Peak Fuel Temperature   : " << peak_fuel_temperature << "K\n"
+      << "Average Fuel Temperature: " << average_fuel_temperature << " K\n";
   }
 
   // Reset dt to see the initial time step size

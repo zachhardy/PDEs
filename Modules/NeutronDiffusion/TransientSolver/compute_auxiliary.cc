@@ -82,25 +82,32 @@ compute_bulk_properties()
 {
   const auto Ef = energy_per_fission;
 
-  double V = 0.0;
-  power = 0.0; average_fuel_temperature = 0.0;
+  size_t count = 0;
+  double V_fuel = 0.0;
+
+  power = 0.0;
+  peak_power_density = 0.0;
+  average_power_density = 0.0;
+  peak_fuel_temperature = 0.0;
+  average_fuel_temperature = 0.0;
   for (const auto& cell : mesh->cells)
   {
     const auto& xs = material_xs[matid_to_xs_map[cell.material_id]];
-    if (not xs->is_fissile)
-      continue;
+    if (xs->is_fissile)
+    {
+      const auto& T = temperature[cell.id];
+      const auto& Sf = fission_rate[cell.id];
+      const auto& volume = cell.volume;
 
-    const auto& T = temperature[cell.id];
-    const auto& Sf = fission_rate[cell.id];
-    const auto& volume = cell.volume;
+      ++count;
+      V_fuel += volume;
+      power += Ef * Sf * volume;
+      average_fuel_temperature += T;
 
-    V += volume;
-    power += Ef * Sf * volume;
-    average_fuel_temperature += T * volume;
-
-    peak_power_density = std::max(peak_power_density, Ef * Sf);
-    peak_fuel_temperature = std::max(peak_fuel_temperature, T);
+      peak_power_density = std::max(peak_power_density, Ef * Sf);
+      peak_fuel_temperature = std::max(peak_fuel_temperature, T);
+    }
   }
-  average_power_density = power / V;
-  average_fuel_temperature /= V;
+  average_power_density = power / V_fuel;
+  average_fuel_temperature /= (double)count;
 }

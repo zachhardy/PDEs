@@ -1,5 +1,7 @@
 #include "transient_solver.h"
 
+#include <fstream>
+#include <iomanip>
 #include <filesystem>
 #include <cassert>
 
@@ -29,6 +31,25 @@ TransientSolver::initialize()
     using DirectoryIterator = std::filesystem::directory_iterator;
     for (const auto& entry: DirectoryIterator(output_directory))
         std::filesystem::remove_all(entry.path());
+
+    // Write the geometry file
+    discretization->write(output_directory);
+
+    // Initialize the summary file
+    std::string summary_filepath = output_directory + "/summary.txt";
+    std::ofstream file(summary_filepath,
+                       std::ofstream::out | std::ofstream::trunc);
+
+    file.setf(std::ios::left);
+    file << "# "
+         << std::setw(18) << "Time "
+         << std::setw(18) << "Power "
+         << std::setw(18) << "Peak Pwr Density "
+         << std::setw(18) << "Avg Power Density "
+         << std::setw(18) << "Peak Fuel Temp "
+         << std::setw(18) << "Avg Fuel Temp" << std::endl;
+    file.close();
+
   }
 
   // Check for non-static xs
