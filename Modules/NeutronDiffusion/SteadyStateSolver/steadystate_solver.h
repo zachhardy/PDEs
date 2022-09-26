@@ -291,14 +291,15 @@ namespace NeutronDiffusion
 
     /*-------------------- Write Routines --------------------*/
 
-    void write_flux_moments(const std::string directory = ".",
+    void write_flux_moments(const std::string directory,
                             const std::string file_prefix = "sflux") const;
 
-    void write_precursors(const std::string directory = ".",
+    void write_precursors(const std::string directory,
                           const std::string file_prefix = "precursors") const;
 
-    void write_fission_rate(const std::string directory = ".",
-                            const std::string file_prefix = "precursors") const;
+    void
+    write_fission_rate(const std::string directory,
+                       const std::string file_prefix = "fission_rate") const;
   };
 
 }

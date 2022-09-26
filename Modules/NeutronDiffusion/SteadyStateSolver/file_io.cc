@@ -14,8 +14,6 @@ SteadyStateSolver::
 write(const std::string directory,
       const std::string file_prefix) const
 {
-  if (!std::filesystem::is_directory(directory))
-    std::filesystem::create_directory(directory);
   assert(std::filesystem::is_directory(directory));
 
   std::string filepath = directory + "/" + file_prefix;
@@ -195,8 +193,6 @@ SteadyStateSolver::
 write_flux_moments(const std::string directory,
                    const std::string file_prefix) const
 {
-  if (!std::filesystem::is_directory(directory))
-    std::filesystem::create_directory(directory);
   assert(std::filesystem::is_directory(directory));
 
   std::string filepath = directory + "/" + file_prefix;
@@ -212,7 +208,7 @@ write_flux_moments(const std::string directory,
   assert(file.is_open());
 
   // Write the header
-  int size = 200;
+  int size = 250;
   std::stringstream ss;
   ss
       << "Multi-Group Flux Moment Snapshot\n"
@@ -222,8 +218,7 @@ write_flux_moments(const std::string directory,
          "unsigned int  n_moments\n"
          "unsigned int  n_groups\n"
          "Each Record:\n"
-         "  uint64_t      cell\n"
-         "  unsigned int  node\n"
+         "  uint64_t      node\n"
          "  unsigned int  moment\n"
          "  unsigned int  group\n"
          "  double        value\n";
@@ -247,22 +242,16 @@ write_flux_moments(const std::string directory,
 
   file.write((char*)&n_groups, sizeof(unsigned int));
 
-  uint64_t uk_map = 0;
-  for (const auto& cell : mesh->cells)
-  {
-    const auto nodes = discretization->nodes(cell);
-    for (unsigned int i = 0; i < nodes.size(); ++i)
-      for (unsigned int ell = 0; ell < 1; ++ell)
-        for (unsigned int g = 0; g < n_groups; ++g)
-        {
-          file.write((char*) &cell.id, sizeof(uint64_t));
-          file.write((char*)&i, sizeof(unsigned int));
-          file.write((char*)&ell, sizeof(unsigned int));
-          file.write((char*)&g, sizeof(unsigned int));
-          file.write((char*)&ell, sizeof(unsigned int));
-          file.write((char*)&phi[uk_map++], sizeof(double));
-        }//for g
-  }//for cell
+  for (uint64_t i = 0; i < n_nodes; ++i)
+    for (unsigned int m = 0; m < n_moments; ++m)
+      for (unsigned int g = 0; g < n_groups; ++g)
+      {
+        uint64_t dof = n_groups * i + g;
+        file.write((char*)&i, sizeof(uint64_t));
+        file.write((char*)&m, sizeof(unsigned int));
+        file.write((char*)&g, sizeof(unsigned int));
+        file.write((char*)&phi[dof], sizeof(double));
+      }
 }
 
 void
@@ -270,8 +259,6 @@ SteadyStateSolver::
 write_precursors(const std::string directory,
                  const std::string file_prefix) const
 {
-  if (!std::filesystem::is_directory(directory))
-    std::filesystem::create_directory(directory);
   assert(std::filesystem::is_directory(directory));
 
   std::string filepath = directory + "/" + file_prefix;
@@ -287,7 +274,7 @@ write_precursors(const std::string directory,
   assert(file.is_open());
 
   // Write the header
-  int size = 200;
+  int size = 250;
   std::stringstream ss;
   ss
       << "Delayed Neutron Precursor Snapshot\n"
@@ -297,7 +284,6 @@ write_precursors(const std::string directory,
          "unsigned int  max_precursors\n"
          "Each Record:\n"
          "  uint64_t      cell\n"
-         "  unsigned int  material_id\n"
          "  unsigned int  precursor\n"
          "  double        value\n";
 
@@ -317,14 +303,13 @@ write_precursors(const std::string directory,
 
   file.write((char*)&max_precursors, sizeof(unsigned int));
 
-  uint64_t uk_map = 0;
   for (const auto& cell : mesh->cells)
     for (unsigned int j = 0; j < max_precursors; ++j)
     {
-      file.write((char*) &cell.id, sizeof(uint64_t));
-      file.write((char*)&cell.material_id, sizeof(unsigned int));
+      uint64_t dof = max_precursors * cell.id + j;
+      file.write((char*)&cell.id, sizeof(uint64_t));
       file.write((char*)&j, sizeof(unsigned int));
-      file.write((char*)&precursors[uk_map++], sizeof(double));
+      file.write((char*)&precursors[dof], sizeof(double));
     }//for j
 }
 
@@ -334,8 +319,6 @@ SteadyStateSolver::
 write_fission_rate(const std::string directory,
                    const std::string file_prefix) const
 {
-  if (!std::filesystem::is_directory(directory))
-    std::filesystem::create_directory(directory);
   assert(std::filesystem::is_directory(directory));
 
   std::string filepath = directory + "/" + file_prefix;
@@ -351,7 +334,7 @@ write_fission_rate(const std::string directory,
   assert(file.is_open());
 
   // Write the header
-  int size = 200;
+  int size = 250;
   std::stringstream ss;
   ss
       << "Fission Rate Snapshot\n"
@@ -383,13 +366,13 @@ write_fission_rate(const std::string directory,
     const auto xs = material_xs[xs_id];
 
     // Compute fission rate cell-wise
-    double f = 0.0;
+    double Sf = 0.0;
     const double* sig_f = xs->sigma_f.data();
     for (unsigned int g = 0; g < n_groups; ++g)
-      f += *sig_f++ * phi[cell.id * n_groups + g];
+      Sf += *sig_f++ * phi[cell.id * n_groups + g];
 
     // Write the fission rate
-    file.write((char*) &cell.id, sizeof(uint64_t));
-    file.write((char*)&f, sizeof(double));
+    file.write((char*)&cell.id, sizeof(uint64_t));
+    file.write((char*)&Sf, sizeof(double));
   }//for cell
 }

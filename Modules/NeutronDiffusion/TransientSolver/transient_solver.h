@@ -284,9 +284,8 @@ namespace NeutronDiffusion
 
     /*-------------------- Write Routines --------------------*/
 
-    void write_snapshot(const unsigned int index) const;
-    void write_temperature(const std::string directory = ".",
-                           const std::string file_prefix = "temperature");
+    void write_temperature(const std::string directory,
+                           const std::string file_prefix = "temperature") const;
 
   };
 }
