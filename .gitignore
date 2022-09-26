@@ -17,5 +17,5 @@ __pycache__
 *.data
 k_eff.txt
 log.txt
-studies
 outputs
+parametric
