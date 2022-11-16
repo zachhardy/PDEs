@@ -221,7 +221,7 @@ int main(int argc, char** argv)
   solver.write_outputs = true;
   solver.output_directory = outdir;
 
-  solver.adaptive_time_stepping = false;
+  solver.adaptive_time_stepping = true;
   solver.coarsen_threshold = 0.01;
   solver.refine_threshold = 0.1;
 

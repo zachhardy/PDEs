@@ -1,32 +1,22 @@
 import os
 import sys
-
-from python_utils.neutronics_readers import TransientNeutronicsReader
-
 import matplotlib.pyplot as plt
 
-# Get path to stuff to read
-if len(sys.argv) > 1:
-    path = sys.argv[1]
-else:
-    path = os.path.dirname(os.path.abspath(__file__))
-    path = os.path.join(path, "Problems/LRA/outputs")
-path = os.path.abspath(path)
-# assert os.path.isdir(path)
+from readers import NeutronicsSimulationReader
 
-# Define defaults
-logscale = False
 
-# Parse auxiliary arguments
-for arg in sys.argv[1:]:
-    if "=" in arg:
-        if "log" in arg:
-            arg = arg.split("=")[1]
-            assert arg in ["0", "1"]
-            logscale = bool(int(arg))
+if len(sys.argv) < 2:
+    raise AssertionError("No problem specified.")
 
-sim = TransientNeutronicsReader(path)
-sim.read()
+problem = sys.argv[1]
+if problem not in ["Sphere3g", "InfiniteSlab", "TWIGL", "LRA"]:
+    raise ValueError(f"{problem} is not a valid problem.")
 
-sim.plot_power('average', log_scale=True)
-plt.show()
+path = os.path.abspath(os.path.dirname(__file__))
+path = f"{path}/Problems/{problem}/outputs"
+if not os.path.isdir(path):
+    raise NotADirectoryError(f"{path} is not a valid directory.")
+
+
+reader = NeutronicsSimulationReader(path).read()
+reader.plot_power(mode="BOTH")

@@ -29,7 +29,7 @@ write(const std::string directory,
                      std::ofstream::trunc);
   assert(file.is_open());
 
-  int size = 600;
+  int size = 400;
   std::string header_info =
       "PDEs Geometry File\n"
       "Header size: " + std::to_string(size) + " bytes\n";

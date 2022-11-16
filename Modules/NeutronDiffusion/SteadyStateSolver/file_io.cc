@@ -334,7 +334,7 @@ write_fission_rate(const std::string directory,
   assert(file.is_open());
 
   // Write the header
-  int size = 250;
+  int size = 200;
   std::stringstream ss;
   ss
       << "Fission Rate Snapshot\n"
