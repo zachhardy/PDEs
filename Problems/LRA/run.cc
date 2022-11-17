@@ -15,6 +15,7 @@
 #include <vector>
 
 
+using namespace std;
 using namespace PDEs;
 using namespace Grid;
 using namespace Math;
@@ -29,20 +30,20 @@ int main(int argc, char** argv)
   double duration = 2.0;
   double feedback = 3.034e-3;
 
-  std::string xsdir = "xs";
-  std::string outdir = "outputs";
+  string xsdir = "xs";
+  string outdir = "outputs";
 
   for (int i = 0; i < argc; ++i)
   {
-    std::string arg(argv[i]);
-    std::cout << "Parsing argument " << i << " " << arg << std::endl;
+    string arg(argv[i]);
+    cout << "Parsing argument " << i << " " << arg << endl;
 
     if (arg.find("magnitude") == 0)
-      magnitude = std::stod(arg.substr(arg.find('=') + 1));
+      magnitude = stod(arg.substr(arg.find('=') + 1));
     else if (arg.find("duration") == 0)
-      duration = std::stod(arg.substr(arg.find('=') + 1));
+      duration = stod(arg.substr(arg.find('=') + 1));
     else if (arg.find("feedback") == 0)
-      feedback = std::stod(arg.substr(arg.find('=') + 1));
+      feedback = stod(arg.substr(arg.find('=') + 1));
     else if (arg.find("output_directory") == 0)
       outdir = arg.substr(arg.find('=') + 1);
     else if (arg.find("xs_directory") == 0)
@@ -57,11 +58,11 @@ int main(int argc, char** argv)
   double X = 165.0, Y = 165.0;
   double dx = X / (n_x - 1), dy = Y / (n_y - 1);
 
-  std::vector<double> x_verts(1, 0.0);
+  vector<double> x_verts(1, 0.0);
   for (size_t i = 0; i < n_x - 1; ++i)
     x_verts.push_back(x_verts.back() + dx);
 
-  std::vector<double> y_verts(1, 0.0);
+  vector<double> y_verts(1, 0.0);
   for (size_t i = 0; i < n_y - 1; ++i)
     y_verts.push_back(y_verts.back() + dy);
 
@@ -113,13 +114,13 @@ int main(int argc, char** argv)
   auto rod_ejection_with_feedback =
       [magnitude, duration, feedback, T0](
           const unsigned int group_num,
-          const std::vector<double>& args,
+          const vector<double>& args,
           const double reference)
       {
         const double t = args[0], T = args[1];
 
         if (group_num == 0)
-          return (1.0 + feedback * (std::sqrt(T) - std::sqrt(T0))) * reference;
+          return (1.0 + feedback * (sqrt(T) - sqrt(T0))) * reference;
         else if (group_num == 1)
         {
           if (t <= duration)
@@ -134,31 +135,31 @@ int main(int argc, char** argv)
   auto feedback_function =
       [feedback, T0](
           const unsigned int group_num,
-          const std::vector<double>& args,
+          const vector<double>& args,
           const double reference)
       {
         const double T = args[1];
 
         if (group_num == 0)
-          return (1.0 + feedback * (std::sqrt(T) - std::sqrt(T0))) * reference;
+          return (1.0 + feedback * (sqrt(T) - sqrt(T0))) * reference;
         else
           return reference;
       };
 
 
-  std::vector<std::shared_ptr<Material>> materials;
-  materials.emplace_back(std::make_shared<Material>("Fuel 1 w/ Rod"));
-  materials.emplace_back(std::make_shared<Material>("Fuel 1 w/o Rod"));
-  materials.emplace_back(std::make_shared<Material>("Fuel 2 w/ Rod"));
-  materials.emplace_back(std::make_shared<Material>("Fuel 2 w/o Rod"));
-  materials.emplace_back(std::make_shared<Material>("Rod Ejection Region"));
-  materials.emplace_back(std::make_shared<Material>("Reflector"));
+  vector<shared_ptr<Material>> materials;
+  materials.emplace_back(make_shared<Material>("Fuel 1 w/ Rod"));
+  materials.emplace_back(make_shared<Material>("Fuel 1 w/o Rod"));
+  materials.emplace_back(make_shared<Material>("Fuel 2 w/ Rod"));
+  materials.emplace_back(make_shared<Material>("Fuel 2 w/o Rod"));
+  materials.emplace_back(make_shared<Material>("Rod Ejection Region"));
+  materials.emplace_back(make_shared<Material>("Reflector"));
 
-  std::vector<std::shared_ptr<CrossSections>> xs;
+  vector<shared_ptr<CrossSections>> xs;
   for (unsigned int i = 0; i < materials.size(); ++i)
-    xs.emplace_back(std::make_shared<CrossSections>());
+    xs.emplace_back(make_shared<CrossSections>());
 
-  std::vector<std::string> xs_paths;
+  vector<string> xs_paths;
   xs_paths.emplace_back(xsdir+"/fuel1_w_rod.xs");
   xs_paths.emplace_back(xsdir+"/fuel1_wo_rod.xs");
   xs_paths.emplace_back(xsdir+"/fuel2_w_rod.xs");
@@ -168,6 +169,7 @@ int main(int argc, char** argv)
 
   for (unsigned int i = 0; i < materials.size(); ++i)
   {
+    cout << xs_paths[i] << endl;
     xs[i]->read_xs_file(xs_paths[i]);
     materials[i]->properties.emplace_back(xs[i]);
     if (i < 4) xs[i]->sigma_a_function = feedback_function;
@@ -183,8 +185,8 @@ int main(int argc, char** argv)
   opts.tolerance = 1.0e-14;
   opts.max_iterations = 10000;
 
-  std::shared_ptr<LinearSolverBase<SparseMatrix>> linear_solver;
-  linear_solver = std::make_shared<PETScSolver>(KSPGMRES, PCLU, opts);
+  shared_ptr<LinearSolverBase<SparseMatrix>> linear_solver;
+  linear_solver = make_shared<PETScSolver>(KSPGMRES, PCLU, opts);
 
   //============================================================
   // Create the diffusion solver
@@ -250,6 +252,6 @@ int main(int argc, char** argv)
 
   PetscFinalize();
 
-  std::cout << "\nSimulation Time: "
-            << timer.get_time() << " ms\n";
+  cout << "\nSimulation Time: "
+       << timer.get_time() << " ms\n";
 }

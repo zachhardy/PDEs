@@ -18,6 +18,7 @@
 #include <vector>
 
 
+using namespace std;
 using namespace PDEs;
 using namespace Grid;
 using namespace Math;
@@ -32,20 +33,20 @@ int main(int argc, char** argv)
   double density = 0.05;
   double sigs_01 = 1.46;
 
-  std::string xsdir = "xs";
-  std::string outdir = "outputs";
+  string xsdir = "xs";
+  string outdir = "outputs";
 
   for (int i = 0; i < argc; ++i)
   {
-    std::string arg(argv[i]);
-    std::cout << "Parsing argument " << i << " " << arg << std::endl;
+    string arg(argv[i]);
+    cout << "Parsing argument " << i << " " << arg << endl;
 
     if (arg.find("radius") == 0)
-      radius = std::stod(arg.substr(arg.find('=') + 1));
+      radius = stod(arg.substr(arg.find('=') + 1));
     else if (arg.find("density") == 0)
-      density = std::stod(arg.substr(arg.find('=') + 1));
+      density = stod(arg.substr(arg.find('=') + 1));
     else if (arg.find("scatter") == 0)
-      sigs_01 = std::stod(arg.substr(arg.find('=') + 1));
+      sigs_01 = stod(arg.substr(arg.find('=') + 1));
     else if (arg.find("output_directory") == 0)
       outdir = arg.substr(arg.find('=') + 1);
     else if (arg.find("xs_directory") == 0)
@@ -59,7 +60,7 @@ int main(int argc, char** argv)
   size_t n_cells = 100;
   double cell_width = radius / (double) n_cells;
 
-  std::vector<double> vertices(1, 0.0);
+  vector<double> vertices(1, 0.0);
   for (size_t i = 0; i < n_cells; ++i)
     vertices.emplace_back(vertices.back() + cell_width);
 
@@ -70,10 +71,10 @@ int main(int argc, char** argv)
   // Materials
   //============================================================
 
-  auto material = std::make_shared<Material>();
+  auto material = make_shared<Material>();
 
   // Create the cross sections
-  auto xs = std::make_shared<CrossSections>();
+  auto xs = make_shared<CrossSections>();
   xs->read_xs_file(xsdir+"/base3g.xs", density);
   xs->transfer_matrices[0][1][0] = sigs_01 * density;
   material->properties.emplace_back(xs);
@@ -87,8 +88,8 @@ int main(int argc, char** argv)
   opts.tolerance = 1.0e-10;
   opts.max_iterations = 10000;
 
-  std::shared_ptr<LinearSolverBase<SparseMatrix>> linear_solver;
-  linear_solver = std::make_shared<PETScSolver>(KSPCG, PCLU, opts);
+  shared_ptr<LinearSolverBase<SparseMatrix>> linear_solver;
+  linear_solver = make_shared<PETScSolver>(KSPCG, PCLU, opts);
 
   //============================================================
   // Create the diffusion solver
@@ -148,6 +149,6 @@ int main(int argc, char** argv)
 
   PetscFinalize();
 
-  std::cout << "\nSimulation Time: " << std::setprecision(10)
+  cout << "\nSimulation Time: " << setprecision(10)
             << timer.get_time() << " ms\n";
 }

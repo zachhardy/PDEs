@@ -72,7 +72,7 @@ if __name__ == "__main__":
     path = os.path.abspath(sys.argv[1])
 
     phi, E_bounds = [], []
-    for entry in sorted(os.listdir(sys.argv[1])):
+    for entry in sorted(os.listdir(path)):
         entry_path = os.path.join(path, entry)
 
         if "e_bounds.txt" in entry_path:

@@ -17,6 +17,7 @@
 #include <vector>
 
 
+using namespace std;
 using namespace PDEs;
 using namespace Grid;
 using namespace Math;
@@ -31,20 +32,20 @@ int main(int argc, char** argv)
   double duration = 1.0;
   double interface = 40.0;
 
-  std::string xsdir = "xs";
-  std::string outdir = "outputs";
+  string xsdir = "xs";
+  string outdir = "outputs";
 
   for (int i = 0; i < argc; ++i)
   {
-    std::string arg(argv[i]);
-    std::cout << "Parsing argument " << i << " " << arg << std::endl;
+    string arg(argv[i]);
+    cout << "Parsing argument " << i << " " << arg << endl;
 
     if (arg.find("magnitude") == 0)
-      magnitude = std::stod(arg.substr(arg.find('=') + 1));
+      magnitude = stod(arg.substr(arg.find('=') + 1));
     else if (arg.find("duration") == 0)
-      duration = std::stod(arg.substr(arg.find('=') + 1));
+      duration = stod(arg.substr(arg.find('=') + 1));
     else if (arg.find("interface") == 0)
-      interface = std::stod(arg.substr(arg.find('=') + 1));
+      interface = stod(arg.substr(arg.find('=') + 1));
     else if (arg.find("output_directory") == 0)
       outdir = arg.substr(arg.find('=') + 1);
     else if (arg.find("xs_directory") == 0)
@@ -55,9 +56,9 @@ int main(int argc, char** argv)
   // Mesh
   //============================================================
 
-  std::vector<double> zones({0.0, interface, 200.0, 240.0});
-  std::vector<size_t> n_cells({20, 80, 20});
-  std::vector<unsigned int> materia_ids({0, 1, 2});
+  vector<double> zones({0.0, interface, 200.0, 240.0});
+  vector<size_t> n_cells({20, 80, 20});
+  vector<unsigned int> materia_ids({0, 1, 2});
   auto mesh = create_1d_orthomesh(zones, n_cells, materia_ids);
 
   //============================================================
@@ -66,7 +67,7 @@ int main(int argc, char** argv)
 
   auto ramp_function =
       [magnitude, duration](const unsigned int group_num,
-                            const std::vector<double>& args,
+                            const vector<double>& args,
                             const double reference)
       {
         const double t = args[0];
@@ -81,16 +82,16 @@ int main(int argc, char** argv)
           return reference;
       };
 
-  std::vector<std::shared_ptr<Material>> materials;
-  materials.emplace_back(std::make_shared<Material>("Material 0"));
-  materials.emplace_back(std::make_shared<Material>("Material 1"));
-  materials.emplace_back(std::make_shared<Material>("Material 2"));
+  vector<shared_ptr<Material>> materials;
+  materials.emplace_back(make_shared<Material>("Material 0"));
+  materials.emplace_back(make_shared<Material>("Material 1"));
+  materials.emplace_back(make_shared<Material>("Material 2"));
 
-  std::vector<std::shared_ptr<CrossSections>> xs;
+  vector<shared_ptr<CrossSections>> xs;
   for (unsigned int i = 0; i < materials.size(); ++i)
-    xs.emplace_back(std::make_shared<CrossSections>());
+    xs.emplace_back(make_shared<CrossSections>());
 
-  std::vector<std::string> xs_paths;
+  vector<string> xs_paths;
   xs_paths.emplace_back(xsdir+"/fuel0.xs");
   xs_paths.emplace_back(xsdir+"/fuel1.xs");
   xs_paths.emplace_back(xsdir+"/fuel0.xs");
@@ -112,8 +113,8 @@ int main(int argc, char** argv)
   opts.tolerance = 1.0e-10;
   opts.max_iterations = 10000;
 
-  std::shared_ptr<LinearSolverBase<SparseMatrix>> linear_solver;
-  linear_solver = std::make_shared<PETScSolver>(KSPCG, PCLU, opts);
+  shared_ptr<LinearSolverBase<SparseMatrix>> linear_solver;
+  linear_solver = make_shared<PETScSolver>(KSPCG, PCLU, opts);
 
   //============================================================
   // Create the diffusion solver
@@ -175,6 +176,6 @@ int main(int argc, char** argv)
 
   PetscFinalize();
 
-  std::cout << "\nSimulation Time: "
+  cout << "\nSimulation Time: "
             << timer.get_time() << " ms\n";
 }
