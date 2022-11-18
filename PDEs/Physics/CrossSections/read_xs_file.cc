@@ -30,6 +30,36 @@ read_xs_file(const std::string file_name,
   assert(file.is_open());
 
   //############################################################
+  /** Lambda for group structure data. */
+  auto read_group_structure =
+      [](const std::string keyword,
+         std::vector<double>& destination,
+         const unsigned int n,
+         std::ifstream& file,
+         std::istringstream& line_stream,
+         size_t& line_number)
+      {
+        std::string line;
+        std::getline(file, line);
+        line_stream = std::istringstream(line);
+        ++line_number;
+
+        unsigned int count = 0;
+        int group; double high, low;
+        while (line != keyword + "_END")
+        {
+          line_stream >> group >> high >> low;
+          destination.at(group) = high;
+          assert(count++ < n);
+
+          std::getline(file, line);
+          line_stream = std::istringstream(line);
+          ++line_number;
+        }
+        destination.at(n) = low;
+      };
+
+  //############################################################
   /** Lambda for reading vector data. */
   auto read_1d_data =
       [](const std::string keyword,
@@ -50,7 +80,7 @@ read_xs_file(const std::string file_name,
         {
           line_stream >> i >> value;
           destination.at(i) = value;
-          assert(count++ <= n);
+          assert(count++ < n);
 
           std::getline(file, line);
           line_stream = std::istringstream(line);
@@ -159,6 +189,10 @@ read_xs_file(const std::string file_name,
     }
     if (word == "DENSITY")
       line_stream >> density;
+
+    // Parse group structure
+    if (word == "NEUTRON_GS_BEGIN")
+      read_group_structure("NEUTRON_GS", E_bounds, n_groups, f, ls, ln);
 
     // Parse basic cross sections
     if (word == "SIGMA_T_BEGIN")
