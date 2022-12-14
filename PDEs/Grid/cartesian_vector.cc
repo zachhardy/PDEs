@@ -12,14 +12,10 @@ namespace PDEs::Grid
   // Constructors and assignment
   //------------------------------------------------------------
 
-  CartesianVector::
-  CartesianVector() :
-      xyz({0.0, 0.0, 0.0})
-  {}
+  CartesianVector::CartesianVector() : xyz({0.0, 0.0, 0.0}) {}
 
 
-  CartesianVector::
-  CartesianVector(const double a) :
+  CartesianVector::CartesianVector(const double a) :
       xyz({a, 0.0, 0.0})
   {}
 
@@ -49,77 +45,61 @@ namespace PDEs::Grid
   // Comparison
   //------------------------------------------------------------
 
-  bool
-  CartesianVector::operator==(const CartesianVector& other) const
-  { return this->xyz == other.xyz; }
+  bool CartesianVector::
+  operator==(const CartesianVector& other) const
+  {
+    return this->xyz == other.xyz;
+  }
 
 
-  bool
-  CartesianVector::operator!=(const CartesianVector& other) const
-  { return this->xyz != other.xyz; }
+  bool CartesianVector::
+  operator!=(const CartesianVector& other) const
+  {
+    return this->xyz != other.xyz;
+  }
 
   //------------------------------------------------------------
   // Accessors
   //------------------------------------------------------------
 
-  const double&
-  CartesianVector::operator[](const unsigned int i) const
-  { return xyz.at(i); }
+  const double& CartesianVector::
+  operator[](const unsigned int i) const
+  {
+    return xyz.at(i);
+  }
 
 
-  double&
-  CartesianVector::operator[](const unsigned int i)
-  { return xyz.at(i); }
+  double& CartesianVector::operator[](const unsigned int i)
+  {
+    return xyz.at(i);
+  }
 
 
-  const double&
-  CartesianVector::operator()(const unsigned int i) const
-  { return xyz.at(i); }
+  const double& CartesianVector::
+  operator()(const unsigned int i) const
+  {
+    return xyz.at(i);
+  }
 
 
-  double&
-  CartesianVector::operator()(const unsigned int i)
-  { return xyz.at(i); }
+  double& CartesianVector::
+  operator()(const unsigned int i)
+  {
+    return xyz.at(i);
+  }
 
 
-  const double&
-  CartesianVector::x() const
-  { return xyz[0]; }
+  const double& CartesianVector::x() const { return xyz[0]; }
+  double& CartesianVector::x() { return xyz[0]; }
 
+  const double& CartesianVector::y() const { return xyz[1]; }
+  double& CartesianVector::y() { return xyz[1]; }
 
-  double&
-  CartesianVector::x()
-  { return xyz[0]; }
+  const double& CartesianVector::z() const { return xyz[2]; }
+  double& CartesianVector::z() { return xyz[2]; }
 
-
-  const double&
-  CartesianVector::y() const
-  { return xyz[1]; }
-
-
-  double&
-  CartesianVector::y()
-  { return xyz[1]; }
-
-
-  const double&
-  CartesianVector::z() const
-  { return xyz[2]; }
-
-
-  double&
-  CartesianVector::z()
-  { return xyz[2]; }
-
-
-  double*
-  CartesianVector::data()
-  { return xyz.data(); }
-
-
-  const double*
-  CartesianVector::data() const
-  { return xyz.data(); }
+  double* CartesianVector::data() { return xyz.data(); }
+  const double* CartesianVector::data() const { return xyz.data(); }
 
   //------------------------------------------------------------
   // Addition and Subtraction
@@ -135,9 +115,11 @@ namespace PDEs::Grid
   }
 
 
-  CartesianVector
-  CartesianVector::operator+(const CartesianVector& other) const
-  { return CartesianVector(*this) += other; }
+  CartesianVector CartesianVector::
+  operator+(const CartesianVector& other) const
+  {
+    return CartesianVector(*this) += other;
+  }
 
 
   CartesianVector& CartesianVector::
@@ -150,16 +132,18 @@ namespace PDEs::Grid
   }
 
 
-  CartesianVector
-  CartesianVector::operator-(const CartesianVector& other) const
-  { return CartesianVector(*this) -= other; }
+  CartesianVector CartesianVector::
+  operator-(const CartesianVector& other) const
+  {
+    return CartesianVector(*this) -= other;
+  }
 
   //------------------------------------------------------------
   // Multiplication and division
   //------------------------------------------------------------
 
-  CartesianVector&
-  CartesianVector::scale(const double factor)
+  CartesianVector& CartesianVector::
+  scale(const double factor)
   {
     this->x() *= factor;
     this->y() *= factor;
@@ -167,48 +151,57 @@ namespace PDEs::Grid
     return *this;
   }
 
-  CartesianVector
-  CartesianVector::scale(const double factor) const
-  { return CartesianVector(*this).scale(factor); }
+  CartesianVector CartesianVector::
+  scale(const double factor) const
+  {
+    return CartesianVector(*this).scale(factor);
+  }
 
 
-  CartesianVector&
-  CartesianVector::operator-()
-  { return this->scale(-1.0); }
+  CartesianVector& CartesianVector::operator-()
+  {
+    return this->scale(-1.0);
+  }
 
-  CartesianVector
-  CartesianVector::operator-() const
-  { return -CartesianVector(*this); }
-
-
-  CartesianVector&
-  CartesianVector::operator*=(const double factor)
-  { return this->scale(factor); }
+  CartesianVector CartesianVector::operator-() const
+  {
+    return -CartesianVector(*this);
+  }
 
 
-  CartesianVector
-  CartesianVector::operator*(const double factor) const
-  { return CartesianVector(*this) *= factor; }
+  CartesianVector& CartesianVector::
+  operator*=(const double factor)
+  {
+    return this->scale(factor);
+  }
 
 
-  CartesianVector&
-  CartesianVector::operator/=(const double factor)
+  CartesianVector CartesianVector::
+  operator*(const double factor) const
+  {
+    return CartesianVector(*this) *= factor;
+  }
+
+
+  CartesianVector& CartesianVector::
+  operator/=(const double factor)
   {
     assert(factor != 0.0);
     return this->scale(1.0 / factor);
   }
 
 
-  CartesianVector
-  CartesianVector::operator/(const double factor) const
-  { return CartesianVector(*this) /= factor; }
+  CartesianVector CartesianVector::
+  operator/(const double factor) const
+  {
+    return CartesianVector(*this) /= factor;
+  }
 
   //------------------------------------------------------------
   // Other operations
   //------------------------------------------------------------
 
-  CartesianVector&
-  CartesianVector::fabs()
+  CartesianVector& CartesianVector::fabs()
   {
     this->x() = std::fabs(this->x());
     this->y() = std::fabs(this->y());
@@ -217,21 +210,21 @@ namespace PDEs::Grid
   }
 
 
-  CartesianVector
-  CartesianVector::fabs() const
-  { return CartesianVector(*this).fabs(); }
+  CartesianVector CartesianVector::fabs() const
+  {
+    return CartesianVector(*this).fabs();
+  }
 
 
-  double
-  CartesianVector::dot(const CartesianVector& other) const
+  double CartesianVector::dot(const CartesianVector& other) const
   {
     return this->x() * other.x() +
            this->y() * other.y() +
            this->z() * other.z();
   }
 
-  CartesianVector
-  CartesianVector::cross(const CartesianVector& other) const
+  CartesianVector CartesianVector::
+  cross(const CartesianVector& other) const
   {
     double x = this->y() * other.z() - this->z() * other.y();
     double y = this->z() * other.x() - this->x() * other.z();
@@ -240,18 +233,19 @@ namespace PDEs::Grid
   }
 
 
-  double
-  CartesianVector::length() const
-  { return std::sqrt(this->dot(*this)); }
+  double CartesianVector::length() const
+  {
+    return std::sqrt(this->dot(*this));
+  }
 
 
-  double
-  CartesianVector::length_squared() const
-  { return this->dot(*this); }
+  double CartesianVector::length_squared() const
+  {
+    return this->dot(*this);
+  }
 
 
-  CartesianVector&
-  CartesianVector::normalize()
+  CartesianVector& CartesianVector::normalize()
   {
     double len = this->length();
     if (len == 0.0)
@@ -264,18 +258,20 @@ namespace PDEs::Grid
   }
 
 
-  CartesianVector
-  CartesianVector::direction() const
-  { return CartesianVector(*this).normalize(); }
+  CartesianVector CartesianVector::direction() const
+  {
+    return CartesianVector(*this).normalize();
+  }
 
 
-  double
-  CartesianVector::distance(const CartesianVector& other) const
-  { return std::sqrt(this->distance_squared(other)); }
+  double CartesianVector::distance(const CartesianVector& other) const
+  {
+    return std::sqrt(this->distance_squared(other));
+  }
 
 
-  double
-  CartesianVector::distance_squared(const CartesianVector& other) const
+  double CartesianVector::
+  distance_squared(const CartesianVector& other) const
   {
     double dx = this->x() - other.x();
     double dy = this->y() - other.y();
@@ -287,8 +283,7 @@ namespace PDEs::Grid
   // Print utilities
   //------------------------------------------------------------
 
-  std::string
-  CartesianVector::str() const
+  std::string CartesianVector::str() const
   {
     std::stringstream ss;
     ss << "("
@@ -298,54 +293,70 @@ namespace PDEs::Grid
   }
 
 
-  void
-  CartesianVector::print() const
-  { std::cout << this->str(); }
+  void CartesianVector::print() const
+  {
+    std::cout << this->str();
+  }
 
   //------------------------------------------------------------
   // Friends
   //------------------------------------------------------------
 
-  CartesianVector
-  operator*(const double factor, const CartesianVector& p)
-  { return p * factor; }
+  CartesianVector operator*(const double factor,
+                            const CartesianVector& p)
+  {
+    return p * factor;
+  }
 
 
-  std::ostream&
-  operator<<(std::ostream& os, const CartesianVector& p)
-  { return os << p.str(); }
+  std::ostream& operator<<(std::ostream& os,
+                           const CartesianVector& p)
+  {
+    return os << p.str();
+  }
 
-  double
-  dot(const CartesianVector& p, const CartesianVector& q)
-  { return p.dot(q); }
-
-
-  CartesianVector
-  cross(const CartesianVector& p, const CartesianVector& q)
-  { return p.cross(q); }
-
-
-  double
-  length(const CartesianVector& p)
-  { return p.length(); }
+  double dot(const CartesianVector& p,
+             const CartesianVector& q)
+  {
+    return p.dot(q);
+  }
 
 
-  double
-  length_squared(const CartesianVector& p)
-  { return p.length_squared(); }
+  CartesianVector cross(const CartesianVector& p,
+                        const CartesianVector& q)
+  {
+    return p.cross(q);
+  }
 
 
-  double
-  distance(const CartesianVector&p, const CartesianVector& q)
-  { return p.distance(q); }
+  double length(const CartesianVector& p)
+  {
+    return p.length();
+  }
 
 
-  double
-  distance_squared(const CartesianVector& p, const CartesianVector& q)
-  { return p.distance_squared(q); }
+  double length_squared(const CartesianVector& p)
+  {
+    return p.length_squared();
+  }
 
 
-  CartesianVector
-  fabs(const CartesianVector& p)
-  { return p.fabs(); }
+  double distance(const CartesianVector&p,
+                  const CartesianVector& q)
+  {
+    return p.distance(q);
+  }
+
+
+  double distance_squared(const CartesianVector& p,
+                          const CartesianVector& q)
+  {
+    return p.distance_squared(q);
+  }
+
+
+  CartesianVector fabs(const CartesianVector& p)
+  {
+    return p.fabs();
+  }
 }
