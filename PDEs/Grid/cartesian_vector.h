@@ -4,12 +4,11 @@
 #include <iostream>
 #include <array>
 
-
 namespace PDEs
 {
   namespace Grid
   {
-    // Useful Aliases
+    // useful aliases
     class CartesianVector;
 
     using Point = CartesianVector;
@@ -32,19 +31,35 @@ namespace PDEs
       std::array<double, 3> xyz;
 
     public:
-      //######################################## Constructors
+      /// \name Constructors and assignment
+      /// @{
 
-      /** Construct the point <tt>(0, 0, 0)</tt>. */
+      /// Construct a zero vector <tt>(0, 0, 0)</tt>.
       CartesianVector();
 
-      /** Construct the point <tt>(a, 0, 0)</tt>. */
+      /// Construct the vector <tt>(a, 0, 0)</tt>
       explicit CartesianVector(const double a);
 
-      /** Construct the point <tt>(a, b, 0)</tt>. */
+      /// Construct the vector <tt>(a, b, 0)</tt>.
       CartesianVector(const double a, const double b);
 
-      /** Construct the point <tt>(a, b, c)</tt>. */
+      /// Construct the vector <tt>(a, b, c)</tt>.
       CartesianVector(const double a, const double b, const double c);
+
+      /// Copy constructor.
+      CartesianVector(const CartesianVector&) = default;
+
+      /// Move constructor.
+      CartesianVector(CartesianVector&&) = default;
+
+      /// Assignment to a scalar value.
+      CartesianVector& operator=(const double value);
+
+      /// Copy assignment.
+      CartesianVector& operator=(const CartesianVector&) = default;
+
+      /// Move assignment.
+      CartesianVector& operator=(CartesianVector&&) = default;
 
       /**
        * Construct a unit vector in the specified dimension.
@@ -54,183 +69,181 @@ namespace PDEs
        */
       static CartesianVector unit_vector(const unsigned int axis);
 
-      /** Entry-wise assignment to a scalar value. */
-      CartesianVector& operator=(const double value);
+      /// @}
+      /// \name Comparison operator
+      /// @{
 
-      //################################################## Data Access
-
-      /** Read and write access to entry \p i. */
-      double& operator[](const unsigned int i);
-
-      /** Read access to entry \p i. */
-      const double& operator[](const unsigned int i) const;
-
-      /** Read and write access to entry \p i. */
-      double& operator()(const unsigned int i);
-
-      /** Read access to entry \p i. */
-      const double& operator()(const unsigned int i) const;
-
-      /** Read and write access to the x-coordinate. */
-      double& x();
-
-      /** Read access to the x-coordinate. */
-      const double& x() const;
-
-      /** Read and write access to the y-coordinate. */
-      double& y();
-
-      /** Read access to the y-coordinate. */
-      const double& y() const;
-
-      /** Read and write access to the z-coordinate. */
-      double& z();
-
-      /** Read access to the z-coordinate. */
-      const double& z() const;
-
-      //################################################## Scalar Operations
-
-      /** Return the Euclidean distance to the origin. */
-      double length() const;
-
-      /** Return the Euclidean distance to the origin squared. */
-      double length_squared() const;
-
-      /** Return the Euclidean distance between two Cartesian vectors. */
-      double distance(const CartesianVector& other) const;
-
-      /**
-       * Return the squared Euclidean distance between two points Cartesian
-       * vectors.
-       */
-      double distance_squared(const CartesianVector& other) const;
-
-      /**
-       * Take the dot product between two Cartesian vectors.
-       *
-       * This is computed via
-       * \f[ c = p \cdot q = p_x q_x + p_y q_y + p_z q_z. \f]
-       */
-      double dot(const CartesianVector& other) const;
-
-      //################################################## Cartesian Vector
-      //                                                   Operations
-
-      /** Entry-wise multiplication by a scalar. */
-      CartesianVector& operator*=(const double factor);
-
-      /**
-       * Return a Cartesian vector with the elements multiplied by a scalar.
-       */
-      CartesianVector operator*(const double factor) const;
-
-      /** Entry-wise division by a non-zero scalar. */
-      CartesianVector&
-      operator/=(const double factor);
-
-      /**
-       * Return a Cartesian vector with the elements divided by a non-zero
-       * scalar.
-       */
-      CartesianVector operator/(const double factor) const;
-
-      /** Entry-wise negation. */
-      CartesianVector& operator-();
-
-      /** Return a Cartesian vector with the negated elements. */
-      CartesianVector operator-() const;
-
-      /** Entry-wise addition of another Cartesian vector. */
-      CartesianVector& operator+=(const CartesianVector& other);
-
-      /** Return the element-wise sum of two Cartesian vectors. */
-      CartesianVector operator+(const CartesianVector& other) const;
-
-      /** Entry-wise subtraction by another Cartesian vector. */
-      CartesianVector& operator-=(const CartesianVector& other);
-
-      /** Return the element-wise difference of two Cartesian vectors. */
-      CartesianVector operator-(const CartesianVector& other) const;
-
-      /** Entry-wise absolute value. */
-      CartesianVector& fabs();
-
-      /** Return a Cartesian vector with the element-wise absolute value. */
-      CartesianVector fabs() const;
-
-      /**
-       * Normalize the Cartesian vector to its length.
-       *
-       * This performs and element-wise division by the computed length of the
-       * Cartesian vector. This results in a transformation to a unit, or
-       * direction vector.
-       */
-      CartesianVector& normalize();
-
-      /** Return a copy of the normalized Cartesian vector. */
-      CartesianVector direction() const;
-
-      /**
-       * Take the cross product between two Cartesian vectors.
-       *
-       * This is computed via
-       * \f[ r = p \times q
-       *       = (p_y q_z - p_z q_y, p_z q_x - p_x q_z, p_x q_y - p_y q_x).
-       * \f]
-       */
-      CartesianVector cross(const CartesianVector& other) const;
-
-      //################################################## Print Utilities
-
-      /** Return a Cartesian vector as a string. */
-      std::string str() const;
-
-      /** Print a Cartesian vector into an output stream. */
-      void print(std::ostream& os = std::cout) const;
-
-      //################################################## Comparisons
-
-      /**
-       * Return whether all elements of two Cartesian vectors are equivalent.
-       */
+      /// Return whether two vectors are the same.
       bool operator==(const CartesianVector& other) const;
 
-      /**
-       * Return whether any elements of two Cartesian vectors are different.
-       */
+      /// Return whether two vectors are different.
       bool operator!=(const CartesianVector& other) const;
 
-      //################################################## Friends
+      /// @}
+      /// Accessors
+      /// @{
 
+      /// Read access to element \p i.
+      const double& operator[](const unsigned int i) const;
+
+      /// Read/write access to element \p i.
+      double& operator[](const unsigned int i);
+
+      /// Read access to element \p i.
+      const double& operator()(const unsigned int i) const;
+
+      /// Read/write access to element \p i.
+      double& operator()(const unsigned int i);
+
+      /// Read access to the x-coordinate.
+      const double& x() const;
+
+      /// Read/write access to the x-coordinate.
+      double& x();
+
+      /// Read access to the y-coordinate
+      const double& y() const;
+
+      /// Read/write access to the y-coordinate.
+      double& y();
+
+      /// Read access to the z-coordinate
+      const double& z() const;
+
+      /// Read/write access to the z-coordinate.
+      double& z();
+
+      /// Return a pointer to the underlying data.
+      double* data();
+
+      /// Return a constant pointer to the underlying data.
+      const double* data() const;
+
+      /// @}
+      /// \name Addition and subtractions
+      /// @{
+
+      /// In-place addition by another vector.
+      CartesianVector& operator+=(const CartesianVector& other);
+
+      /// Return the sum of two vectors.
+      CartesianVector operator+(const CartesianVector& other) const;
+
+      /// In-place subtraction by another vector.
+      CartesianVector& operator-=(const CartesianVector& other);
+
+      /// Return the difference between two vectors.
+      CartesianVector operator-(const CartesianVector& other) const;
+
+      /// @}
+      /// \name Multiplication and division
+      /// @{
+
+      /// Scale a vector by a scalar value.
+      CartesianVector& scale(const double factor);
+
+      /// Return a vector scaled by a scalar value.
+      CartesianVector scale(const double factor) const;
+
+      /// Negate the elements of the vector.
+      CartesianVector& operator-();
+
+      /// Return the negative of the vector.
+      CartesianVector operator-() const;
+
+      /// In-place scalar multiplication.
+      CartesianVector& operator*=(const double factor);
+
+      /// Return the vector multiplied by a scalar value.
+      CartesianVector operator*(const double factor) const;
+
+      /// In-place scalar division.
+      CartesianVector& operator/=(const double factor);
+
+      /// Return the vector divided by a scalar value.
+      CartesianVector operator/(const double factor) const;
+
+      /// @}
+      /// \name Other operations
+      /// @{
+
+      /// In-place element-wise absolute value.
+      CartesianVector& fabs();
+
+      /// Return the absolute value of a vector.
+      CartesianVector fabs() const;
+
+      /// Return the dot product between two vectors.
+      double dot(const CartesianVector& other) const;
+
+      /// Return the cross product between two vectors.
+      CartesianVector cross(const CartesianVector& other) const;
+
+      /// Return the length of a vector.
+      double length() const;
+
+      /// Return the squared length of a vector.
+      double length_squared() const;
+
+      /// Normalize this vector to its length.
+      CartesianVector& normalize();
+
+      /// Return the direction of a vector.
+      CartesianVector direction() const;
+
+      /// Return the distance between two vectors.
+      double distance(const CartesianVector& other) const;
+
+      /// Return the squared distance between two vectors.
+      double distance_squared(const CartesianVector& other) const;
+
+      /// @}
+      /// \name Print utilities
+      /// @{
+
+      /// Return a vector as a string.
+      std::string str() const;
+
+      /// Print a vector to the standard output.
+      void print() const;
+
+      /// @}
+
+      /// Left-multiply a vector by a scalar.
       friend CartesianVector
       operator*(const double factor, const CartesianVector& p);
 
+      /// Insert a vector into an output stream.
       friend std::ostream&
       operator<<(std::ostream& os, const CartesianVector& p);
     };
 
-    /** Multiply a Cartesian vector by a scalar. */
-    CartesianVector
-    operator*(const double factor, const CartesianVector& p);
 
-    /** Take the dot product between two Cartesian vectors. */
-    double dot(const CartesianVector& p, const CartesianVector& q);
+    /// Return the dot product between two vectors.
+    double dot(const CartesianVector& p,
+               const CartesianVector& q);
 
-    /** Take the cross product between two Cartesian vectors. */
-    CartesianVector cross(const CartesianVector& p, const CartesianVector& q);
+    /// Return the cross product between two vectors.
+    CartesianVector cross(const CartesianVector& p,
+                          const CartesianVector& q);
 
-    /** Return the Euclidean distance between two Cartesian vectors. */
-    double distance(const CartesianVector& p, const CartesianVector& q);
+    /// Return the length of a vector.
+    double length(const CartesianVector& p);
 
-    /** Return the absolute value of a Cartesian vector. */
+    /// Return the squared length of a vector.
+    double length_squared(const CartesianVector& p);
+
+    /// Return the Euclidean distance between two vectors.
+    double distance(const CartesianVector& p,
+                    const CartesianVector& q);
+
+    /// Return the squared Euclidean distance between two vectors.
+    double distance_squared(const CartesianVector& p,
+                            const CartesianVector& q);
+
+    /// Return the absolute value of a vector.
     CartesianVector fabs(const CartesianVector& p);
-
-    /** Return the direction of a Cartesian vector. */
-    CartesianVector direction(const CartesianVector& p);
-
-    /** Insert a Cartesian vector into an output stream. */
-    std::ostream& operator<<(std::ostream& os, const CartesianVector& p);
   }
 }
+
 #endif //CARTESIAN_VECTOR_H
