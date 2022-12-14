@@ -13,9 +13,7 @@ namespace PDEs
 {
   namespace Grid
   {
-    /**
-     * Coordinate systems available for meshes.
-     */
+    /// Coordinate systems available for meshes.
     enum class CoordinateSystemType
     {
       CARTESIAN = 0,  ///< \f$(x, y, z)\f$ coordinates.
@@ -24,7 +22,7 @@ namespace PDEs
     };
 
 
-    /** Return the coordinate system type as a string. */
+    /// Return the coordinate system type as a string.
     std::string
     coordinate_system_str(const CoordinateSystemType coord_sys);
 
@@ -59,11 +57,11 @@ namespace PDEs
       std::vector<std::vector<size_t>> ijk_mapping;
 
     public:
-      /** Default constructor. */
+      /// Default constructor.
       Mesh(const unsigned int dimension,
            const CoordinateSystemType coordinate_system);
 
-      /** Compute the geometric properties of the cells and faces. */
+      /// Compute the geometric properties of the cells and faces.
       void compute_geometric_info();
 
       /**
@@ -83,9 +81,11 @@ namespace PDEs
 
       /*-------------------- Write Utilities --------------------*/
 
+      /// Write the mesh in ASCII format.
       void write_ascii(const std::string output_directory = ".",
                        const std::string file_prefix = "mesh") const;
 
+      /// Write the mesh to a binary file.
       void write_binary(const std::string output_directory = ".",
                         const std::string file_prefix = "mesh") const;
     };

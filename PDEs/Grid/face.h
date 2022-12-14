@@ -29,7 +29,7 @@ namespace PDEs
     public:
       std::vector<size_t> vertex_ids;
 
-      /** The neighbor cell ID on the interior, the boundary ID otherwise. */
+      /// The neighbor cell ID on the interior, the boundary ID otherwise.
       size_t neighbor_id = 0;
       bool has_neighbor = false;
 
@@ -38,16 +38,13 @@ namespace PDEs
       double area = 0.0;
 
     public:
-      /** Return the contents of the face as a string. */
+      /// Return the contents of the face as a string.
       std::string str() const;
 
+      /// Insert the contents of a face into an output stream.
       friend std::ostream&
       operator<<(std::ostream& os, const Face& face);
     };
-
-
-    /** Insert the contents of the face into an output stream. */
-    std::ostream& operator<<(std::ostream&, const Face& face);
   }
 }
 #endif //FACE_H

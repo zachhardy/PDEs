@@ -12,17 +12,17 @@ namespace PDEs
 {
   namespace Grid
   {
-    /** Available cell geometries. */
+    /// Available cell geometries.
     enum class CellType
     {
-      SLAB = 0, ///< 1D Cartesian geometry.
-      ANNULUS = 1, ///< 1D cylindrical geometry.
-      SHELL = 2, ///< 1D spherical geometry.
-      QUADRILATERAL = 3 ///< 2D quadrilateral.
+      SLAB = 0, ///< 1D Cartesian geometry
+      ANNULUS = 1, ///< 1D cylindrical geometry
+      SHELL = 2, ///< 1D spherical geometry
+      QUADRILATERAL = 3, ///< 2D quadrilateral
     };
 
 
-    /** Return the cell type as a string. */
+    /// Return the cell type as a string.
     std::string
     cell_type_str(const CellType cell_type);
 
@@ -65,18 +65,19 @@ namespace PDEs
       std::vector<Face> faces;
 
     public:
-      /** Construct cell with the specified geometry. */
+      /// Construct cell with the specified geometry.
       explicit Cell(const CellType cell_type);
 
-      /** Return the contents of the cell as a string. */
+      /// Return the contents of the cell as a string.
       std::string str() const;
 
+      /// Insert the contents of a cell into an output stream.
       friend std::ostream&
       operator<<(std::ostream& os, const Cell& cell);
     };
 
 
-    /** Insert the contents of a cell into an output stream. */
+    /// Insert the contents of a cell into an output stream.
     std::ostream& operator<<(std::ostream& os, const Cell& cell);
   }
 }

@@ -4,7 +4,7 @@
 #include <cmath>
 #include <cassert>
 
-using namespace PDEs;
+
 namespace PDEs::Grid
 {
 
