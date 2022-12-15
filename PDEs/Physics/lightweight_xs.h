@@ -26,7 +26,7 @@ namespace PDEs
       std::shared_ptr<CrossSections> ref_xs;
 
     public:
-      /** Default constructor. */
+      /// Default constructor.
       LightWeightCrossSections(std::shared_ptr<CrossSections> xs);
 
       /**

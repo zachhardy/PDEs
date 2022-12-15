@@ -14,9 +14,7 @@ namespace PDEs
   namespace Physics
   {
 
-    /**
-     * A class holding nuclear data for neutron interactions.
-     */
+    /// A class holding nuclear data for neutron interactions.
     class CrossSections : public MaterialProperty
     {
     protected:
@@ -36,14 +34,14 @@ namespace PDEs
 
     public:
       unsigned int n_groups = 0;
-      unsigned int n_moments = 0; ///< The number of scattering moments.
+      unsigned int n_moments = 0;
       unsigned int n_precursors = 0;
 
       double density = 1.0; ///< Atom density in <tt>atoms/b-cm</tt>
 
       bool is_fissile = false;
 
-      std::vector<double> E_bounds; ///< Energy bin boundaries.
+      std::vector<double> e_bounds; ///< Energy bin boundaries.
 
       std::vector<double> sigma_t;  ///< Total cross section
       std::vector<double> sigma_a;  ///< Absorption cross section
@@ -51,17 +49,17 @@ namespace PDEs
       std::vector<double> sigma_f;  ///< Fission cross section
       std::vector<double> sigma_r;  ///< Removal cross section
 
-      /// Moment-wise group-to-group transfer matrices
+      /// Moment-wise group-to-group transfer matrices.
       std::vector<TransferMatrix> transfer_matrices;
 
-      std::vector<double> chi;  ///< Total fission spectrum.
+      std::vector<double> chi;        ///< Total fission spectrum.
       std::vector<double> chi_prompt; ///< Prompt fission spectrum.
-      EmissionSpectra chi_delayed;  ///< Delayed fission spectrum.
+      EmissionSpectra chi_delayed;    ///< Delayed fission spectrum.
 
-      std::vector<double> nu;  ///< Total neutrons per fission.
+      std::vector<double> nu;         ///< Total neutrons per fission.
       std::vector<double> nu_prompt;  ///< Prompt neutrons per fission.
-      std::vector<double> nu_delayed;  ///< Delayed neutrons per fission.
-      std::vector<double> beta;  ///< Delayed neutron fraction.
+      std::vector<double> nu_delayed; ///< Delayed neutrons per fission.
+      std::vector<double> beta;       ///< Delayed neutron fraction.
 
       std::vector<double> nu_sigma_f;
       std::vector<double> nu_prompt_sigma_f;
@@ -70,26 +68,25 @@ namespace PDEs
       std::vector<double> precursor_lambda; ///< Decay constants in (s\f$^{-1}\f$).
       std::vector<double> precursor_yield;  ///< Precursor yield fractions.
 
-      std::vector<double> inv_velocity; ///< Inverse speed (s/cm)
+      std::vector<double> inv_velocity;    ///< Inverse speed
       std::vector<double> diffusion_coeff; ///< Diffusion coefficient (cm)
-      std::vector<double> buckling; ///< Material buckling term
+      std::vector<double> buckling;        ///< Material buckling term
 
       /// A modifier function for the absorption cross-sections.
       XSFunction sigma_a_function;
 
     public:
-      //################################################## Constructors
 
-      /** Default constructor. */
+      /// Default constructor.
       CrossSections();
 
-      /** Delete the current cross-section data. */
+      /// Delete the current cross-section data.
       void reset();
 
-      /** Reinitialize the cross-section data. */
+      /// Reinitialize the cross-section data.
       void reinit();
 
-      /** Make pure scatterer. */
+      /// Make pure scatterer.
       void make_pure_scatterer();
 
       /**
@@ -97,28 +94,25 @@ namespace PDEs
        * the cross-sections are parsed, multiply the relevant quantities by the
        * specified atom density \p rho.
        */
-      void
-      read_xs_file(const std::string file_name,
-                   const double rho = 1.0,
-                   const bool verbose = false);
+      void read_xs_file(const std::string file_name,
+                        const double rho = 1.0,
+                        const bool verbose = false);
 
       /**
        * Read a ".ndi" file containing the cross-section information. Once
        * the cross-sections are parsed, multiply the relevant quantities by the
        * specified atom density \p rho.
        */
-      void
-      read_ndi_file(const std::string file_name,
-                    const double rho = 1.0,
-                    const bool verbose = false);
+      void read_ndi_file(const std::string file_name,
+                         const double rho = 1.0,
+                         const bool verbose = false);
 
-      /** Write the energy bin boundaries to a file. */
+      /// Write the energy bin boundaries to a file.
       void write_group_structure(
           const std::string directory = ".",
           const std::string file_prefix = "e_bounds") const;
 
     private:
-      //################################################## Operations
 
       /**
        * Compute \f$ \sigma_s \f$ from the zeroth scattering moment.

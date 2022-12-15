@@ -10,9 +10,7 @@ namespace PDEs
 {
   namespace Physics
   {
-    /**
-     * The available types of material properties.
-     */
+    /// The available types of material properties.
     enum class MaterialPropertyType
     {
       SCALAR = 0,  ///< A scalar-valued property.
@@ -21,19 +19,17 @@ namespace PDEs
     };
 
 
-    /**
-     * Abstract base class for material properties.
-     */
+    /// Abstract base class for material properties.
     class MaterialProperty
     {
     protected:
       const MaterialPropertyType property_type;
 
     public:
-      /** Construct a material property of the specified \p type. */
+      ///Construct a material property of the specified \p type.
       explicit MaterialProperty(const MaterialPropertyType type);
 
-      /** Return the material property type. */
+      /// Return the material property type.
       MaterialPropertyType type() const;
     };
 
@@ -52,13 +48,13 @@ namespace PDEs
       const std::string material_name = "Generic Material";
 
     public:
-      /** Default constructor. Construct an empty material. */
+      /// Default constructor. Construct an empty material.
       Material() = default;
 
-      /** Construct a named empty material. */
+      /// Construct a named empty material.
       explicit Material(const std::string name);
 
-      /** Return the name of the material. */
+      /// Return the name of the material.
       std::string name() const;
     };
 
