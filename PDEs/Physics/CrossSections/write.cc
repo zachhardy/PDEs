@@ -34,7 +34,7 @@ write_group_structure(const std::string directory,
        << "# " << n_groups << " Group Structure (MeV) \n"
        << "########################################\n";
   for (unsigned int g = 0; g < n_groups + 1; ++g)
-    file << g << "  " << E_bounds[g] << "\n";
+    file << g << "  " << e_bounds[g] << "\n";
 
   file.close();
 }
