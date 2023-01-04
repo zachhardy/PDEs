@@ -31,8 +31,6 @@ namespace PDEs
       std::array<double, 3> xyz;
 
     public:
-      /// \name Constructors and assignment
-      /// @{
 
       /// Construct a zero vector <tt>(0, 0, 0)</tt>.
       CartesianVector();
@@ -69,7 +67,6 @@ namespace PDEs
        */
       static CartesianVector unit_vector(const unsigned int axis);
 
-      /// @}
       /// \name Comparison operator
       /// @{
 
@@ -80,7 +77,7 @@ namespace PDEs
       bool operator!=(const CartesianVector& other) const;
 
       /// @}
-      /// Accessors
+      /// \name Accessors
       /// @{
 
       /// Read access to element \p i.

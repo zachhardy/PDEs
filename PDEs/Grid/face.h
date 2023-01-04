@@ -15,14 +15,8 @@ namespace PDEs
     /**
      * A class that represents a face on a cell.
      *
-     * A face is defined as a <tt>dim - 1</tt>-dimensional object which, in
-     * a collection, bounds a <tt>dim</tt>-dimensional cell. Faces in various
-     * dimensions are:
-     *  -   1D: Vertex, or 1 vertex
-     *  -   2D: Edge, or connection of 2 vertices
-     *  -   3D: Surface, or collection of several edges.
-     *      -   Triangle
-     *      -   Quadrilateral
+     * A face is defined as a (<tt>dim</tt> - 1)-dimensional object which, in
+     * a collection, bounds a <tt>dim</tt>-dimensional cell.
      */
     class Face
     {

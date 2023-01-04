@@ -32,23 +32,10 @@ namespace PDEs
      * A class representing a cell on a mesh.
      *
      * A cell is defined as a <tt>dim</tt>-dimensional object bound by
-     * <tt>dim - 1</tt>-dimensional face objects. The cell type largely depends
-     * on the dimension and the coordinate system type. Each cell is uniquely
-     * identified by its \p id and can store a \p material_id to identify
-     * material properties that live on the cell. Examples of cell per dimension
-     * and coordinate system are:
-     *  - 1D:
-     *      - Cartesian:   Slab
-     *      - Cylindrical: Annulus
-     *      - Spherical:   Shell
-     *  - 2D:
-     *      - Cartesian:   Polygon
-     *          - Triangle
-     *          - Quadrilateral
-     *  - 3D:
-     *      - Cartesian:   Polyhedron
-     *          - Tetrahedron
-     *          - Polyhedron
+     * (<tt>dim</tt> - 1)-dimensional face objects. The cell type largely
+     * depends on the dimension and the coordinate system type. Each cell is
+     * uniquely identified by its \p id and can store a \p material_id to
+     * identify material properties that live on the cell.
      */
     class Cell
     {
@@ -57,6 +44,7 @@ namespace PDEs
 
       size_t id;
       unsigned int material_id = -1;
+      std::vector<size_t> ijk;
 
       Centroid centroid;
       double volume = 0.0;
