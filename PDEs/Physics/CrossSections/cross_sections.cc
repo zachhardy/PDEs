@@ -82,11 +82,11 @@ namespace PDEs
       if (transfer_matrices.empty())
         return;
 
-      /* A group's scattering cross-section is defined as the sum of the
-       * transfer cross-sections from a fixed group to all  other groups. In the
-       * transfer matrices, the rows contain the destination groups and columns
-       * the origin group. Due to this, computing sigma_s necessitates a column-
-       * wise sum. */
+      // A group's scattering cross-section is defined as the sum of the
+      // transfer cross-sections from a fixed group to all  other groups. In the
+      // transfer matrices, the rows contain the destination groups and columns
+      // the origin group. Due to this, computing sigma_s necessitates a column-
+      // wise sum.
       for (unsigned int g = 0; g < n_groups; ++g)
         for (unsigned int gp = 0; gp < n_groups; ++gp)
         {
@@ -96,16 +96,15 @@ namespace PDEs
     }
 
 
-    void
-    CrossSections::reconcile_cross_sections()
+    void CrossSections::reconcile_cross_sections()
     {
       // determine whether sigma_a was specified
       double sum = accumulate(sigma_a.begin(), sigma_a.end(), 0.0);
       bool has_sigma_a = (sum > 1.0e-12);
 
-      /* Compute absorption xs from transfer matrix, if not specified. Otherwise,
-       * recompute the total cross-section from the specified scattering and
-       * absorption. */
+      // Compute absorption xs from transfer matrix, if not specified. Otherwise,
+      // recompute the total cross-section from the specified scattering and
+      // absorption.
       if (not has_sigma_a)
         for (unsigned int g = 0; g < n_groups; ++g)
         {
@@ -130,41 +129,26 @@ namespace PDEs
     {
       //------------------------------------------------------------
       /// Lambda for finding non-zero cross-sections.
-      auto check_xs =
+      auto is_nonzero_vector =
           [](std::vector<double> x)
           {
-            for (const auto& v: x)
-              if (v != 0.0)
-                return true;
-            return false;
-          };
-
-      //------------------------------------------------------------
-      /// Lambda for finding non-zero matrix entries.
-      auto check_matrix =
-          [](std::vector<std::vector<double>> A)
-          {
-            for (const auto& a: A)
-              for (const auto& v: a)
-                if (v != 0.0)
-                  return true;
-            return false;
+            auto is_nonzero = [](double y) { return y != 0.0; };
+            return std::any_of(x.begin(), x.end(), is_nonzero);
           };
 
       // check which quantities were specified
-      const bool has_sigf = check_xs(sigma_f);
-      const bool has_nusigf = check_xs(nu_sigma_f);
-      const bool has_nupsigf = check_xs(nu_prompt_sigma_f);
-      const bool has_nudsigf = check_xs(nu_delayed_sigma_f);
+      const bool has_sigf = is_nonzero_vector(sigma_f);
+      const bool has_nusigf = is_nonzero_vector(nu_sigma_f);
+      const bool has_nupsigf = is_nonzero_vector(nu_prompt_sigma_f);
+      const bool has_nudsigf = is_nonzero_vector(nu_delayed_sigma_f);
 
-      const bool has_nu = check_xs(nu);
-      const bool has_nup = check_xs(nu_prompt);
-      const bool has_nud = check_xs(nu_delayed);
-      const bool has_beta = check_xs(beta);
+      const bool has_nu = is_nonzero_vector(nu);
+      const bool has_nup = is_nonzero_vector(nu_prompt);
+      const bool has_nud = is_nonzero_vector(nu_delayed);
+      const bool has_beta = is_nonzero_vector(beta);
 
-      const bool has_chi = check_xs(chi);
-      const bool has_chip = check_xs(chi_prompt);
-      const bool has_chid = check_matrix(chi_delayed);
+      const bool has_chi = is_nonzero_vector(chi);
+      const bool has_chip = is_nonzero_vector(chi_prompt);
 
       is_fissile = has_sigf || has_nusigf || has_nupsigf;
 
@@ -178,23 +162,25 @@ namespace PDEs
 
         std::cout << "!!! WARNING !!! " << "CrossSections::" << __FUNCTION__
                   << ": Precursors found in a non-fissile material.\n"
-                  << "Clearing the precursor properties for consistency.";
+                  << "Clearing the precursor properties for consistency."
+                  << std::endl;
       }
 
       // check fission properties
       if (is_fissile)
       {
-        /* Check the specified properties from most general to least. Preference
-         * is given when the explicit properties are provided. For example, if
-         * prompt and delayed quantities are explicitly specified, the values are
-         * kept and others derived from them. If explicit prompt and delayed
-         * quantities are not specified, alternate specification forms are checked.
-         * At present, the only alternate way to specify prompt and delayed
-         * quantities is to use the ``delayed fraction'' method where nu_sigma_f,
-         * nu, and beta are specified group-wise. From these, all prompt and
-         * delayed quantities can be derived. If neither of these conditions are
-         * met, it is assumed that only total fission is desired and the prompt and
-         * delayed properties are set accordingly. */
+        // Check the specified properties from most general to least.
+        // Preference is given when the explicit properties are provided.
+        // For example, if prompt and delayed quantities are explicitly
+        // specified, the values are kept and others derived from them.
+        // If explicit prompt and delayed  quantities are not specified,
+        // alternate specification forms are checked. At present, the only
+        // alternate way to specify prompt and delayed quantities is to use the
+        // ''delayed fraction'' method where nu_sigma_f, nu, and beta are
+        // specified group-wise. From these, all prompt and delayed quantities
+        // can be derived. If neither of these conditions are met, it is
+        // assumed that only total fission is desired and the prompt and
+        // delayed properties are set accordingly.
 
         // begin with prompt/delayed quantities
         if (n_precursors > 0)
@@ -218,7 +204,7 @@ namespace PDEs
             }
           }
 
-            // delayed fraction given (1)
+          // delayed fraction given (1)
           else if (has_sigf && has_nu && has_beta)
           {
             assert(all_of(sigma_f.begin(), sigma_f.end(),
@@ -237,7 +223,7 @@ namespace PDEs
             }
           }
 
-            // delayed fraction given (2)
+          // delayed fraction given (2)
           else if (has_nusigf && has_nu && has_beta)
           {
             assert(all_of(nu_sigma_f.begin(), nu_sigma_f.end(),
@@ -279,7 +265,7 @@ namespace PDEs
           }
 
           // check the spectra
-          assert(has_chip && has_chid);
+          assert(has_chip);
 
           assert(all_of(chi_prompt.begin(), chi_prompt.end(),
                         [](double x) { return x >= 0.0; }));

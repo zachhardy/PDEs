@@ -52,25 +52,25 @@ namespace PDEs
       /// Moment-wise group-to-group transfer matrices.
       std::vector<TransferMatrix> transfer_matrices;
 
-      std::vector<double> chi;        ///< Total fission spectrum.
-      std::vector<double> chi_prompt; ///< Prompt fission spectrum.
-      EmissionSpectra chi_delayed;    ///< Delayed fission spectrum.
+      std::vector<double> chi;        ///< Total fission spectrum
+      std::vector<double> chi_prompt; ///< Prompt fission spectrum
+      EmissionSpectra chi_delayed;    ///< Delayed fission spectrum
 
-      std::vector<double> nu;         ///< Total neutrons per fission.
-      std::vector<double> nu_prompt;  ///< Prompt neutrons per fission.
-      std::vector<double> nu_delayed; ///< Delayed neutrons per fission.
-      std::vector<double> beta;       ///< Delayed neutron fraction.
+      std::vector<double> nu;         ///< Total neutrons per fission
+      std::vector<double> nu_prompt;  ///< Prompt neutrons per fission
+      std::vector<double> nu_delayed; ///< Delayed neutrons per fission
+      std::vector<double> beta;       ///< Delayed neutron fraction
 
       std::vector<double> nu_sigma_f;
       std::vector<double> nu_prompt_sigma_f;
       std::vector<double> nu_delayed_sigma_f;
 
-      std::vector<double> precursor_lambda; ///< Decay constants in (s\f$^{-1}\f$).
-      std::vector<double> precursor_yield;  ///< Precursor yield fractions.
+      std::vector<double> precursor_lambda; ///< Precursor decay constants
+      std::vector<double> precursor_yield;  ///< Precursor yield fractions
 
-      std::vector<double> inv_velocity;    ///< Inverse speed
-      std::vector<double> diffusion_coeff; ///< Diffusion coefficient (cm)
-      std::vector<double> buckling;        ///< Material buckling term
+      std::vector<double> inv_velocity;
+      std::vector<double> diffusion_coeff;
+      std::vector<double> buckling;
 
       /// A modifier function for the absorption cross-sections.
       XSFunction sigma_a_function;

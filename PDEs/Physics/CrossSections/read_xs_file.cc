@@ -18,7 +18,7 @@ namespace PDEs
       std::cout << "Reading cross-section file \"" << file_name << "\".\n";
 
       // clear old cross sections
-      this->reset();
+      reset();
 
       density = rho;
 
